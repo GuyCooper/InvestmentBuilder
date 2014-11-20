@@ -15,4 +15,6 @@ DECLARE @latestDate DATETIME
 
 SELECT @latestDate = MAX(Valuation_Date) FROM InvestmentRecord
 
+return @latestDate
+
 end

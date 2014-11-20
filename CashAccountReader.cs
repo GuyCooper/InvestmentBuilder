@@ -100,12 +100,13 @@ namespace InvestmentBuilder
                 cmdBankBalance.CommandType = System.Data.CommandType.StoredProcedure;
                 cmdBankBalance.Parameters.Add(new SqlParameter("ValuationDate", System.Data.SqlDbType.DateTime) { Value = valuationDate });
 
-                var balanceParam = new SqlParameter("@balance", System.Data.SqlDbType.Float);
-                balanceParam.Direction = System.Data.ParameterDirection.Output;
-                cmdBankBalance.Parameters.Add(balanceParam);
-                cmdBankBalance.ExecuteNonQuery();
+                //var balanceParam = new SqlParameter("@balance", System.Data.SqlDbType.Float);
+                //balanceParam.Direction = System.Data.ParameterDirection.Output;
+                //cmdBankBalance.Parameters.Add(balanceParam);
+                //cmdBankBalance.ExecuteNonQuery();
 
-                cashData.BankBalance = balanceParam.Value is double ? (double)balanceParam.Value : 0d;
+                //cashData.BankBalance = balanceParam.Value is double ? (double)balanceParam.Value : 0d;
+                cashData.BankBalance = (double)cmdBankBalance.ExecuteScalar();
 
                 using (SqlCommand cmdDividends = new SqlCommand("sp_GetDividends", _conn))
                 {
@@ -115,7 +116,7 @@ namespace InvestmentBuilder
                     {
                         while (reader.Read())
                         {
-                            cashData.Dividends.Add(reader.GetString(0), reader.GetDouble(1));
+                            cashData.Dividends.Add((string)reader["Company"], (double)reader["Dividend"]);
                         }
                     }
                 }

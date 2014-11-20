@@ -1,14 +1,14 @@
 USE [ArgyllInvestments]
 GO
 
-/****** Object:  StoredProcedure [dbo].[sp_AddNewShares]    Script Date: 20/10/2014 21:43:38 ******/
+/****** Object:  StoredProcedure [dbo].[sp_GetLatestInvestmentRecords]    Script Date: 20/10/2014 21:43:38 ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
 
-CREATE PROCEDURE [dbo].[sp_GetInvestmentRecord](@valuationDate as DATETIME) AS
+CREATE PROCEDURE [dbo].sp_GetLatestInvestmentRecords(@valuationDate as DATETIME) AS
 BEGIN
 
 DECLARE @latestDate DATETIME

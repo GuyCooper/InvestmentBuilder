@@ -1,3 +1,5 @@
+USE [ArgyllInvestments]
+
 alter table CashAccount
 drop constraint FK_transactionType_CashAccount
 go
@@ -16,6 +18,9 @@ on dbo.CashAccount
 drop index IDX_MembersAccountDate
 on dbo.MembersCapitalAccount
 
+drop index IDX_Valuations_ValuationDate
+on dbo.Valuations
+
 drop table dbo.TransactionType
 go
 drop table dbo.CashAccount
@@ -26,17 +31,19 @@ drop table dbo.InvestmentRecord
 go
 drop table dbo.MembersCapitalAccount
 go
+drop table dbo.Valuations
+go
 
 create table dbo.TransactionType
 (
 	[type_id] int identity primary key clustered,
-	[type] varchar(20) not null
+	[type]			  varchar(20) not null,
+	[side]			  char(1) not null,
 )
 
 create table dbo.CashAccount
 (
 	[transaction_date] datetime not null,
-	[side]             int not null,
 	[type_id]		   int not null,
 	[parameter]        varchar(50),
 	[amount]		   float,
@@ -86,5 +93,25 @@ create table dbo.MembersCapitalAccount
 	[Units] float not null
 )
 
+
 create clustered index IDX_MembersAccountDate on
 dbo.MembersCapitalAccount([Valuation_Date])
+
+create table dbo.Valuations
+(
+	[Valuation_Date] datetime not null,
+	[Unit_Price] float not null
+)
+
+create clustered index IDX_Valuations_ValuationDate on
+dbo.Valuations([Valuation_Date])
+
+/* side: P = Payments (right hand side), R = Receipts (left hand side) */
+insert into dbo.TransactionType ([type], side) values ('Admin Fee', 'P')
+insert into dbo.TransactionType ([type], side) values ('Balance In Hand', 'P')
+insert into dbo.TransactionType ([type], side) values ('Purchase', 'P')
+insert into dbo.TransactionType ([type], side) values ('Redemption', 'P')
+insert into dbo.TransactionType ([type], side) values ('Subscription', 'R')
+insert into dbo.TransactionType ([type], side) values ('Dividend', 'R')
+insert into dbo.TransactionType ([type], side) values ('Interest', 'R')
+insert into dbo.TransactionType ([type], side) values ('Sale', 'R')
