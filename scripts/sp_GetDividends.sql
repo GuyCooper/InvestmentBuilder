@@ -8,13 +8,14 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-CREATE PROCEDURE [dbo].sp_GetDividends(@valuationDate as DATETIME) AS
+CREATE PROCEDURE [dbo].sp_GetDividends(@PreviousValuationDate as DATETIME) AS
 BEGIN
 
 select ca.amount from dbo.CashAccount ca
 inner join TransactionType tt
 on ca.type_id = tt.type_id
-and tt.type = 'Dividend'
+where tt.type = 'Dividend'
+and ca.transaction_date > @PreviousValuationDate
 order by ca.transaction_date desc 
  
 END

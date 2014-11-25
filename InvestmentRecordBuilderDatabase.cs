@@ -47,10 +47,8 @@ namespace InvestmentBuilder
             return dtReturn;
         }
 
-        public DateTime? UpdateRow(DateTime valuationDate)
+        public void UpdateRow(DateTime valuationDate)
         {
-            DateTime? dtPreviousValaution = _GetCurrentValuationDate();
-
             using (var command = new SqlCommand("sp_RollInvestment", _connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -58,7 +56,6 @@ namespace InvestmentBuilder
                 command.Parameters.Add(new SqlParameter("@Investment", Name));
                 command.ExecuteNonQuery();
             }
-            return dtPreviousValaution;
         }
 
         public void ChangeShareHolding(int holding)

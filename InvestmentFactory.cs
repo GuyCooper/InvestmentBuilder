@@ -126,5 +126,7 @@ namespace InvestmentBuilder
             _conn.Close();
             base.Close();
         }
+
+        
     }
 }

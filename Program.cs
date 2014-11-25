@@ -22,11 +22,12 @@ namespace InvestmentBuilder
                 var assetWriter = factory.CreateAssetStatementWriter();
                 var cashAccountReader = factory.CreateCashAccountReader();
 
+                var dtPreviousValuation = cashAccountReader.GetPreviousValuationDate();
                 //first extract the cash account data
-                var cashAccountData = cashAccountReader.GetCashAccountData(valuationDate);
+                var cashAccountData = cashAccountReader.GetCashAccountData(valuationDate, dtPreviousValuation);
                 //parse the trade file for any trades for this month and update the investment record
                 //var trades = TradeLoader.GetTrades(tradeFile);
-                var dtPreviousValuation = recordBuilder.BuildInvestmentRecords(trades, cashAccountData, valuationDate);
+                recordBuilder.BuildInvestmentRecords(trades, cashAccountData, valuationDate);
 
                 //now extract the latest data from the investment record
                 var lstData = dataReader.GetCompanyData(valuationDate, dtPreviousValuation).ToList();

@@ -21,7 +21,9 @@ namespace InvestmentBuilder
 
     interface ICashAccountReader
     {
-        CashAccountData GetCashAccountData(DateTime valuationDate);
+        CashAccountData GetCashAccountData(DateTime valuationDate, DateTime? previousValuationDate);
+        DateTime? GetPreviousValuationDate();
+
     }
 
     //this class is used for extracting the cash account data. this includes any dividends payed for the current month and the
@@ -34,7 +36,7 @@ namespace InvestmentBuilder
             _bookHolder = bookHolder;
         }
 
-        public CashAccountData GetCashAccountData(DateTime valuationDate)
+        public CashAccountData GetCashAccountData(DateTime valuationDate, DateTime? previousValuationDate)
         {
             _Worksheet cashSheet = _bookHolder.GetCashBook().Worksheets["Cash Account"];
             int month = valuationDate.Month;
@@ -77,6 +79,11 @@ namespace InvestmentBuilder
             //if we get here then there is an error in the spreadsheet
             throw new ApplicationException("error finding bank balance for current month");
         }
+    
+        public DateTime? GetPreviousValuationDate()
+        {
+            return null;
+        }
     }
 
     class CashAccountReaderDatabase : ICashAccountReader
@@ -90,7 +97,7 @@ namespace InvestmentBuilder
             _conn = conn;
         }
 
-        public CashAccountData GetCashAccountData(DateTime valuationDate)
+        public CashAccountData GetCashAccountData(DateTime valuationDate, DateTime? previousValuationDate)
         {
             var cashData = new CashAccountData();
             
@@ -111,7 +118,7 @@ namespace InvestmentBuilder
                 using (SqlCommand cmdDividends = new SqlCommand("sp_GetDividends", _conn))
                 {
                     cmdDividends.CommandType = System.Data.CommandType.StoredProcedure;
-                    cmdDividends.Parameters.Add(new SqlParameter("ValuationDate", System.Data.SqlDbType.DateTime) { Value = valuationDate });
+                    cmdDividends.Parameters.Add(new SqlParameter("@PreviousValuationDate", System.Data.SqlDbType.DateTime) { Value = previousValuationDate ?? valuationDate });
                     using (SqlDataReader reader = cmdDividends.ExecuteReader())
                     {
                         while (reader.Read())
@@ -122,6 +129,22 @@ namespace InvestmentBuilder
                 }
             }
             return cashData;
+        }
+
+        public DateTime? GetPreviousValuationDate()
+        {
+            DateTime? dtReturn = null;
+            using (var command = new SqlCommand("sp_GetPreviousValuationDate", _conn))
+            {
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+                command.Parameters.Add(new SqlParameter("@PreviousDate", dtReturn)
+                {
+                    Direction = System.Data.ParameterDirection.Output,
+                    DbType = System.Data.DbType.DateTime
+                });
+                var reader = command.ExecuteNonQuery();
+            }
+            return dtReturn;
         }
     }
 }

@@ -30,7 +30,7 @@ namespace InvestmentBuilder
             _sheet.get_Range("B7").Value = false;
         }
 
-        public DateTime? UpdateRow(DateTime valuationDate)
+        public void UpdateRow(DateTime valuationDate)
         {
             _lastRow = _sheet.GetLastPopulatedRow("A", 9);
             //check if the last row was written this month, if it was then just update the current last
@@ -53,7 +53,6 @@ namespace InvestmentBuilder
             _sheet.get_Range("A" + _lastRow).Value = valuationDate;
             _sheet.get_Range("I" + _lastRow).Value = valuationDate;
 
-            return null; //excel implementation does not require previous valuation date
         }
 
         public void ChangeShareHolding(int holding)

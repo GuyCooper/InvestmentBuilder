@@ -16,7 +16,7 @@ namespace InvestmentBuilder
 
     internal abstract class AssetStatementWriter : IAssetStatementWriter
     {
-        private List<string> Months = new List<string>
+        protected List<string> Months = new List<string>
         {
             "January",
             "February",
@@ -43,6 +43,9 @@ namespace InvestmentBuilder
 
         protected abstract double UpdateMembersCapitalAccount(double dPreviousUnitValue, DateTime valuationDate);
 
+        //override save unit value for databasse inplementation. otherwise do nothing
+        protected virtual void SaveNewUnitValue(DateTime valuationDate) { }
+
         private _Worksheet _FindWorksheet(_Workbook book, string name)
         {
             foreach(_Worksheet sheet in book.Worksheets)
@@ -63,16 +66,16 @@ namespace InvestmentBuilder
             return Months[previousMonth - 1];
         }
 
-        private bool _TryGetPreviousUnitValue(DateTime valuationDate, ref double previousUnitValue)
+        protected bool _TryGetUnitValue(string month, ref double unitValue)
         {
             //_assetBook.Worksheets.
-            _Worksheet previousSheet = _FindWorksheet(_bookHolder.GetAssetSheetBook(), _GetPreviousMonth(valuationDate));
-            if(previousSheet != null)
+            _Worksheet assetSheet = _FindWorksheet(_bookHolder.GetAssetSheetBook(), month);
+            if (assetSheet != null)
             {
                 int row = 0; ;
-                if(previousSheet.TryGetRowReference("I","VALUE PER UNIT", ref row))
+                if (assetSheet.TryGetRowReference("I", "VALUE PER UNIT", ref row))
                 {
-                    previousUnitValue = (double)previousSheet.get_Range("K" + row).Value;
+                    unitValue = (double)assetSheet.get_Range("K" + row).Value;
                     return true;
                 }
             }
@@ -89,8 +92,8 @@ namespace InvestmentBuilder
             //var exWbk = exApp.Workbooks.Open(spreadsheetLocation);
 
             //get the previous months unit value amount to calculate the total units allocated
-            double unitValue = 0d;
-            if(_TryGetPreviousUnitValue(valuationDate, ref unitValue) == false)
+            double previousUnitValue = 0d;
+            if (_TryGetUnitValue(_GetPreviousMonth(valuationDate), ref previousUnitValue) == false)
             {
                 throw new ApplicationException("unable to retrieve previous unit value");
             }
@@ -140,7 +143,7 @@ namespace InvestmentBuilder
             newSheet.get_Range("J" + count).Formula = string.Format("=SUM(J7:J{0})", count - 1);
 
             //calculate the allocated units for the current month and the bank balance and update the monthly assets sheet
-            var dAllocatedUnits = UpdateMembersCapitalAccount(unitValue * 100d, valuationDate);
+            var dAllocatedUnits = UpdateMembersCapitalAccount(previousUnitValue * 100d, valuationDate);
             //var dBankBalance = _GetBankBalance();
 
             int unitsRow = 0;
@@ -155,9 +158,8 @@ namespace InvestmentBuilder
                 newSheet.get_Range("H" + balanceRow).Value = cashData.BankBalance;
             }
 
-            //newSheet.Calculate();.
-
-            //_assetBook.Save();
+            //now save the new unit value
+            SaveNewUnitValue(valuationDate);
         }
     }
 
@@ -222,6 +224,26 @@ namespace InvestmentBuilder
                 dResult = (double)command.ExecuteScalar();
             }
             return dResult;
+        }
+
+        protected override void SaveNewUnitValue(DateTime valuationDate)
+        {
+            //calculate , then extract the new unit value
+            double newUnitValue = 0d;
+            if (_TryGetUnitValue(Months[valuationDate.Month - 1], ref newUnitValue) == false)
+            {
+                throw new ApplicationException("unable to retrieve new unit value");
+            }
+
+            //TODO - save new unit value
+            using (var command = new SqlCommand("sp_AddNewUnitValuation", _connection))
+            {
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+                command.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
+                command.Parameters.Add(new SqlParameter("@UnitValue", newUnitValue));
+
+                command.ExecuteNonQuery();
+            }
         }
     }
 }
