@@ -21,6 +21,7 @@ namespace InvestmentBuilder
         {
             _sheet = sheet;
             Name = _sheet.Name;
+            _lastRow = _sheet.GetLastPopulatedRow("A", 9);
         }
 
         public string Name { get; private set; }
@@ -31,8 +32,7 @@ namespace InvestmentBuilder
         }
 
         public void UpdateRow(DateTime valuationDate)
-        {
-            _lastRow = _sheet.GetLastPopulatedRow("A", 9);
+        {            
             //check if the last row was written this month, if it was then just update the current last
             //row, otherwise add a new row
             var lastDate = _sheet.GetValueDateTime("A", _lastRow);
