@@ -8,12 +8,8 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-CREATE PROCEDURE [dbo].sp_GetLatestInvestmentRecords(@valuationDate as DATETIME) AS
+CREATE PROCEDURE [dbo].[sp_GetLatestInvestmentRecords](@valuationDate as DATETIME) AS
 BEGIN
-
-DECLARE @latestDate DATETIME
-
-SELECT @latestDate = MAX(Valuation_Date) FROM InvestmentRecord
 
 SELECT 
 	C.Name as Name,

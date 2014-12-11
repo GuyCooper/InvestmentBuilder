@@ -26,7 +26,7 @@ namespace InvestmentBuilder
     //and adds any new stocks to a new sheet
     abstract class InvestmentRecordBuilder
     {
-        abstract protected IEnumerable<IInvestment> GetInvestments();
+        abstract protected IEnumerable<IInvestment> GetInvestments(DateTime dtValuationDate);
         abstract protected void CreateNewInvestment(Stock newTrade, DateTime valuationDate);
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace InvestmentBuilder
         public void BuildInvestmentRecords(Trades trades, CashAccountData cashData, DateTime valuationDate)
         {
             Console.WriteLine("building investment records...");
-            var enInvestments = GetInvestments();
+            var enInvestments = GetInvestments(valuationDate);
             foreach(var investment in enInvestments)
             {
                 var company = investment.Name;

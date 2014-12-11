@@ -11,7 +11,7 @@ namespace InvestmentBuilder
 {
     interface IAssetStatementWriter
     {
-        void WriteAssetStatement(IEnumerable<CompanyData> companyData, CashAccountData cashData, DateTime valuationDate);
+        void WriteAssetStatement(IEnumerable<CompanyData> companyData, CashAccountData cashData, DateTime? dtPreviousValution, DateTime valuationDate);
     }
 
     internal abstract class AssetStatementWriter : IAssetStatementWriter
@@ -41,7 +41,7 @@ namespace InvestmentBuilder
             _bookHolder = bookHolder;
         }
 
-        protected abstract double UpdateMembersCapitalAccount(double dPreviousUnitValue, DateTime valuationDate);
+        protected abstract double UpdateMembersCapitalAccount(double dPreviousUnitValue, DateTime? dtPreviousValution, DateTime valuationDate);
 
         //override save unit value for databasse inplementation. otherwise do nothing
         protected virtual void SaveNewUnitValue(DateTime valuationDate) { }
@@ -82,7 +82,7 @@ namespace InvestmentBuilder
             return false;
         }
 
-        public void WriteAssetStatement(IEnumerable<CompanyData> companyData, CashAccountData cashData, DateTime valuationDate)
+        public void WriteAssetStatement(IEnumerable<CompanyData> companyData, CashAccountData cashData, DateTime? dtPreviousValution, DateTime valuationDate)
         {
             Console.WriteLine("writing asset statement sheet...");
             //var spreadsheetLocation = @"C:\Users\Guy\Documents\Guy\Investments\Investment Club\accounts\Monthly Assets Statement-Test.xls";
@@ -143,7 +143,7 @@ namespace InvestmentBuilder
             newSheet.get_Range("J" + count).Formula = string.Format("=SUM(J7:J{0})", count - 1);
 
             //calculate the allocated units for the current month and the bank balance and update the monthly assets sheet
-            var dAllocatedUnits = UpdateMembersCapitalAccount(previousUnitValue * 100d, valuationDate);
+            var dAllocatedUnits = UpdateMembersCapitalAccount(previousUnitValue * 100d, dtPreviousValution, valuationDate);
             //var dBankBalance = _GetBankBalance();
 
             int unitsRow = 0;
@@ -170,7 +170,7 @@ namespace InvestmentBuilder
 
         }
 
-        protected override double UpdateMembersCapitalAccount(double dPreviousUnitValue, DateTime valuationDate)
+        protected override double UpdateMembersCapitalAccount(double dPreviousUnitValue, DateTime? dtPreviousValution, DateTime valuationDate)
         {
             Console.WriteLine("updating members capital account...");
             //using previous unit value update member capital account, this will return the total number of units allocated
@@ -208,7 +208,7 @@ namespace InvestmentBuilder
             _connection = connection;
         }
 
-        protected override double UpdateMembersCapitalAccount(double dPreviousUnitValue, DateTime valuationDate)
+        protected override double UpdateMembersCapitalAccount(double dPreviousUnitValue, DateTime? dtPreviousValution, DateTime valuationDate)
         {
             //get total number of shares allocated for previous month
             //get list of all members who have made a deposit for current month
@@ -218,7 +218,8 @@ namespace InvestmentBuilder
             using (var command = new SqlCommand("sp_UpdateMembersCapitalAccount", _connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
+                command.Parameters.Add(new SqlParameter("@valuationDate", valuationDate));
+                command.Parameters.Add(new SqlParameter("@previousValuation", dtPreviousValution ?? valuationDate));
                 command.Parameters.Add(new SqlParameter("@previousUnitValue", dPreviousUnitValue));
 
                 dResult = (double)command.ExecuteScalar();
@@ -239,8 +240,8 @@ namespace InvestmentBuilder
             using (var command = new SqlCommand("sp_AddNewUnitValuation", _connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
-                command.Parameters.Add(new SqlParameter("@UnitValue", newUnitValue));
+                command.Parameters.Add(new SqlParameter("@valuationDate", valuationDate));
+                command.Parameters.Add(new SqlParameter("@unitValue", newUnitValue));
 
                 command.ExecuteNonQuery();
             }

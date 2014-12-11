@@ -109,6 +109,7 @@ namespace InvestmentBuilder
             using (var command = new SqlCommand("sp_GetLatestInvestmentRecords", _connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
+                command.Parameters.Add(new SqlParameter("@valuationDate", dtValuationDate));
                 var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
@@ -120,7 +121,7 @@ namespace InvestmentBuilder
                     yield return new CompanyData
                     {
                         sName = (string)reader["Name"],
-                        dtLastBrought = (DateTime)reader["ValuationDate"],
+                        dtLastBrought = dtValuationDate,
                         iNumberOfShares = dSharesHeld,
                         dAveragePricePaid = dAveragePrice,
                         dTotalCost = dTotalCost,

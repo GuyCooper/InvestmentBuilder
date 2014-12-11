@@ -13,10 +13,10 @@ namespace InvestmentBuilder
         SqlConnection _connection;
         DateTime _currentDate;
 
-        public DatabaseInvestment(SqlConnection connection)
+        public DatabaseInvestment(SqlConnection connection, DateTime dtValuationDate)
         {
             _connection = connection;
-            _currentDate = _GetCurrentValuationDate();
+            _currentDate = dtValuationDate;
         }
 
         public string Name { get; set; }
@@ -30,30 +30,13 @@ namespace InvestmentBuilder
             }
         }
 
-        private DateTime _GetCurrentValuationDate()
-        {
-            DateTime dtReturn = DateTime.Now;
-            //string strSql = string.Format("SELECT MAX(Valuation_Date) as latestDate FROM InvestmentRecord");
-            using (var command = new SqlCommand("sp_GetLatestValuationDate", _connection))
-            {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@valuationDate", dtReturn)
-                {
-                    Direction = System.Data.ParameterDirection.Output,
-                    DbType = System.Data.DbType.DateTime
-                });
-                var reader = command.ExecuteNonQuery();
-            }
-            return dtReturn;
-        }
-
         public void UpdateRow(DateTime valuationDate)
         {
             using (var command = new SqlCommand("sp_RollInvestment", _connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
-                command.Parameters.Add(new SqlParameter("@Investment", Name));
+                command.Parameters.Add(new SqlParameter("@valuationDate", valuationDate));
+                command.Parameters.Add(new SqlParameter("@investment", Name));
                 command.ExecuteNonQuery();
             }
         }
@@ -63,9 +46,9 @@ namespace InvestmentBuilder
             using (var command = new SqlCommand("sp_UpdateHolding", _connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@Holding", holding));
-                command.Parameters.Add(new SqlParameter("@ValuationDate", _currentDate));
-                command.Parameters.Add(new SqlParameter("@Investment", Name));
+                command.Parameters.Add(new SqlParameter("@holding", holding));
+                command.Parameters.Add(new SqlParameter("@valuationDate", _currentDate));
+                command.Parameters.Add(new SqlParameter("@investment", Name));
                 command.ExecuteNonQuery();
             }
         }
@@ -75,10 +58,10 @@ namespace InvestmentBuilder
             using (var command = new SqlCommand("sp_AddNewShares", _connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@ValuationDate", _currentDate));
-                command.Parameters.Add(new SqlParameter("@Investment", Name));
-                command.Parameters.Add(new SqlParameter("@Shares", stock.Number));
-                command.Parameters.Add(new SqlParameter("@TotalCost", stock.TotalCost));
+                command.Parameters.Add(new SqlParameter("@valuationDate", _currentDate));
+                command.Parameters.Add(new SqlParameter("@investment", Name));
+                command.Parameters.Add(new SqlParameter("@shares", stock.Number));
+                command.Parameters.Add(new SqlParameter("@totalCost", stock.TotalCost));
                 command.ExecuteNonQuery();
             }
         }
@@ -86,7 +69,7 @@ namespace InvestmentBuilder
         public void UpdateClosingPrice()
         {
             DateTime dtReturn = DateTime.Now;
-            string strSql = string.Format("SELECT Symbol, Currency, ScalingFactor");
+            string strSql = string.Format("SELECT Symbol, Currency, ScalingFactor FROM Companies where  Name = {0}", Name);
             using (var command = new SqlCommand(strSql, _connection))
             {
                 var reader = command.ExecuteReader();
@@ -101,9 +84,9 @@ namespace InvestmentBuilder
                         using (var updateCommand = new SqlCommand("sp_UpdateClosingPrice", _connection))
                         {
                             updateCommand.CommandType = System.Data.CommandType.StoredProcedure;
-                            updateCommand.Parameters.Add(new SqlParameter("@ValuationDate", _currentDate));
-                            updateCommand.Parameters.Add(new SqlParameter("@Investment", Name));
-                            updateCommand.Parameters.Add(new SqlParameter("@ClosingPrice", dClosing));
+                            updateCommand.Parameters.Add(new SqlParameter("@valuationDate", _currentDate));
+                            updateCommand.Parameters.Add(new SqlParameter("@investment", Name));
+                            updateCommand.Parameters.Add(new SqlParameter("@closingPrice", dClosing));
                             updateCommand.ExecuteNonQuery();
                         }
                     }
@@ -117,9 +100,9 @@ namespace InvestmentBuilder
             using (var updateCommand = new SqlCommand("sp_UpdateDividend", _connection))
             {
                 updateCommand.CommandType = System.Data.CommandType.StoredProcedure;
-                updateCommand.Parameters.Add(new SqlParameter("@ValuationDate", _currentDate));
-                updateCommand.Parameters.Add(new SqlParameter("@Investment", Name));
-                updateCommand.Parameters.Add(new SqlParameter("@Dividend", dDividend));
+                updateCommand.Parameters.Add(new SqlParameter("@valuationDate", _currentDate));
+                updateCommand.Parameters.Add(new SqlParameter("@investment", Name));
+                updateCommand.Parameters.Add(new SqlParameter("@dividend", dDividend));
                 updateCommand.ExecuteNonQuery();
             }
         }
@@ -133,16 +116,16 @@ namespace InvestmentBuilder
             _connection = connection;
         }
 
-        override protected IEnumerable<IInvestment> GetInvestments()
+        override protected IEnumerable<IInvestment> GetInvestments(DateTime valuationDate)
         {
             using (var command = new SqlCommand("SELECT Name FROM Companies", _connection))
             {
                 var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
-                    yield return new DatabaseInvestment(_connection)
+                    yield return new DatabaseInvestment(_connection, valuationDate)
                     {
-                        Name = (string)reader["name"]
+                        Name = (string)reader["Name"]
                     };
 
                 }
@@ -158,14 +141,14 @@ namespace InvestmentBuilder
             using (var command = new SqlCommand("sp_CreateNewInvestment", _connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
-                command.Parameters.Add(new SqlParameter("@Investment", newTrade.Name));
-                command.Parameters.Add(new SqlParameter("@Symbol", newTrade.Symbol));
-                command.Parameters.Add(new SqlParameter("@Currency", newTrade.Currency));
-                command.Parameters.Add(new SqlParameter("@ScalingFactor", newTrade.ScalingFactor));
-                command.Parameters.Add(new SqlParameter("@Shares", newTrade.Number));
-                command.Parameters.Add(new SqlParameter("@TotalCost", newTrade.TotalCost));
-                command.Parameters.Add(new SqlParameter("@ClosingPrice", dClosing));
+                command.Parameters.Add(new SqlParameter("@valuationDate", valuationDate));
+                command.Parameters.Add(new SqlParameter("@investment", newTrade.Name));
+                command.Parameters.Add(new SqlParameter("@symbol", newTrade.Symbol));
+                command.Parameters.Add(new SqlParameter("@currency", newTrade.Currency));
+                command.Parameters.Add(new SqlParameter("@scalingFactor", newTrade.ScalingFactor));
+                command.Parameters.Add(new SqlParameter("@shares", newTrade.Number));
+                command.Parameters.Add(new SqlParameter("@totalCost", newTrade.TotalCost));
+                command.Parameters.Add(new SqlParameter("@closingPrice", dClosing));
 
                 command.ExecuteNonQuery();
             }

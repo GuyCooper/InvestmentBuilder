@@ -37,7 +37,7 @@ namespace InvestmentBuilder
                 }
 
                 //finally, build the asset statement
-                assetWriter.WriteAssetStatement(lstData, cashAccountData, valuationDate);
+                assetWriter.WriteAssetStatement(lstData, cashAccountData, dtPreviousValuation, valuationDate);
 
                 factory.CommitData();
             }

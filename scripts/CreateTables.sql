@@ -1,5 +1,22 @@
 USE [ArgyllInvestments]
 
+drop procedure [sp_AddNewShares]
+drop procedure [sp_AddNewUnitValuation]
+drop procedure [sp_CreateInvestment]
+drop procedure [sp_CreateNewInvestment]
+drop procedure [sp_GetBankBalance]
+drop procedure [sp_GetDividends]
+drop procedure [sp_GetInvestmentRecord]
+drop procedure [sp_GetLatestInvestmentRecords]
+drop procedure [sp_GetLatestValuationDate]
+drop procedure [sp_GetPreviousValuationDate]
+drop procedure [sp_RollInvestment]
+drop procedure [sp_UpdateClosingPrice]
+drop procedure [sp_UpdateDividend]
+drop procedure [sp_UpdateHolding]
+drop procedure [sp_UpdateMembersCapitalAccount]
+go
+ 
 alter table CashAccount
 drop constraint FK_transactionType_CashAccount
 go

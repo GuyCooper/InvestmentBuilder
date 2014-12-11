@@ -105,7 +105,7 @@ namespace InvestmentBuilder
             using (SqlCommand cmdBankBalance = new SqlCommand("sp_GetBankBalance", _conn))
             {
                 cmdBankBalance.CommandType = System.Data.CommandType.StoredProcedure;
-                cmdBankBalance.Parameters.Add(new SqlParameter("ValuationDate", System.Data.SqlDbType.DateTime) { Value = valuationDate });
+                cmdBankBalance.Parameters.Add(new SqlParameter("valuationDate", System.Data.SqlDbType.DateTime) { Value = valuationDate });
 
                 //var balanceParam = new SqlParameter("@balance", System.Data.SqlDbType.Float);
                 //balanceParam.Direction = System.Data.ParameterDirection.Output;
@@ -118,7 +118,7 @@ namespace InvestmentBuilder
                 using (SqlCommand cmdDividends = new SqlCommand("sp_GetDividends", _conn))
                 {
                     cmdDividends.CommandType = System.Data.CommandType.StoredProcedure;
-                    cmdDividends.Parameters.Add(new SqlParameter("@PreviousValuationDate", System.Data.SqlDbType.DateTime) { Value = previousValuationDate ?? valuationDate });
+                    cmdDividends.Parameters.Add(new SqlParameter("@previousValuationDate", System.Data.SqlDbType.DateTime) { Value = previousValuationDate ?? valuationDate });
                     using (SqlDataReader reader = cmdDividends.ExecuteReader())
                     {
                         while (reader.Read())
@@ -137,7 +137,7 @@ namespace InvestmentBuilder
             using (var command = new SqlCommand("sp_GetPreviousValuationDate", _conn))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@PreviousDate", dtReturn)
+                command.Parameters.Add(new SqlParameter("@previousDate", dtReturn)
                 {
                     Direction = System.Data.ParameterDirection.Output,
                     DbType = System.Data.DbType.DateTime

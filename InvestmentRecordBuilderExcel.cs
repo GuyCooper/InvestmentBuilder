@@ -111,7 +111,7 @@ namespace InvestmentBuilder
             _bookHolder = bookHolder;
         }
 
-        override protected IEnumerable<IInvestment> GetInvestments()
+        override protected IEnumerable<IInvestment> GetInvestments(DateTime valuationDate)
         {
             for (int index = 1; index <= _bookHolder.GetInvestmentRecordBook().Worksheets.Count; ++index)
             {

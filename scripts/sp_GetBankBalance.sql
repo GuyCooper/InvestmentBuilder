@@ -8,7 +8,7 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-CREATE PROCEDURE [dbo].sp_GetBankBalance(@valuationDate as DATETIME) AS
+CREATE PROCEDURE [dbo].[sp_GetBankBalance](@valuationDate as DATETIME) AS
 BEGIN
 
 declare @BankBalance float

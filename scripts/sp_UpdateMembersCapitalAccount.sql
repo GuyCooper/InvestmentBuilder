@@ -1,16 +1,16 @@
-CREATE PROCEDURE sp_UpdateMembersCapitalAccount(@valuationDate as DATETIME, @previousUnitValue as float) AS
+CREATE PROCEDURE [dbo].[sp_UpdateMembersCapitalAccount](@valuationDate as DATETIME, @previousDate as DATETIME, @previousUnitValue as float) AS
 BEGIN
 
-DECLARE @previousDate DATETIME
-
-SELECT @previousDate = MAX(Valuation_Date) FROM MembersCapitalAccount
-
 --select user and the amount invested this month
-SELECT parameter as member, amount 
+SELECT ca.parameter as member, ca.amount 
 INTO #ThisMonthsUsers
 FROM 
-CashAccount
+CashAccount ca
+INNER JOIN TransactionType tt
+ON
+ca.type_id = tt.type_id
 WHERE transaction_date > @previousDate
+and tt.[type] = 'Subscription'
 
 --select previous months units for each user
 SELECT member, units
