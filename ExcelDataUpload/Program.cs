@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace ExcelDataUpload
 {
     class Program
@@ -15,7 +16,10 @@ namespace ExcelDataUpload
         static void Main(string[] args)
         {
             //read in cash account data from excel - add to cash account table
+            var accountsPath = args[0];
 
+  
+            
         }
     }
 }

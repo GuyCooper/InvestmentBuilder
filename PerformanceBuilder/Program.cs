@@ -15,8 +15,8 @@ namespace PerformanceBuilder
             Microsoft.Office.Interop.Excel.Application app = new Microsoft.Office.Interop.Excel.Application();
             try
             {
-                string assetSheet = string.Format("{0}Monthly Assets Statement-2014.xls", path);
-                var bookHolder = new ExcelBookHolder(app, null, assetSheet, null, null, path);
+                //string assetSheet = string.Format("{0}Monthly Assets Statement-2014.xls", path);
+                var bookHolder = new ExcelBookHolder(app, null, null, null, path);
                 var performanceBuilder = new PerformanceBuilder(bookHolder);
                 performanceBuilder.Run(app);
                 bookHolder.SaveBooks();
