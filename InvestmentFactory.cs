@@ -31,12 +31,12 @@ namespace InvestmentBuilder
             _app.DisplayAlerts = false;
 
             string ext = bTest ? "Test" : DateTime.Today.Year.ToString();
-            //string assetSheetLocation = _CreateFormattedFileCopy(path, "Monthly Assets Statement-", ext);
-            string cashAccountLocation = _CreateFormattedFileCopy(path, "Cash Account-", ext);
-            string investmentRecordLocation = _CreateFormattedFileCopy(path, "Investment Record-", ext);
+            string assetSheetLocation = _CreateFormattedFileCopy(path, ExcelBookHolder.MonthlyAssetName, ext);
+            string cashAccountLocation = _CreateFormattedFileCopy(path, ExcelBookHolder.CashAccountName, ext);
+            string investmentRecordLocation = _CreateFormattedFileCopy(path, ExcelBookHolder.InvestmentRecordName, ext);
             string templateLocation = string.Format("{0}Template.xls", path);
 
-            _bookHolder = new ExcelBookHolder(_app, investmentRecordLocation, templateLocation, cashAccountLocation, path);
+            _bookHolder = new ExcelBookHolder(_app, investmentRecordLocation, assetSheetLocation, templateLocation, cashAccountLocation, path);
         }
 
         public virtual InvestmentRecordBuilder CreateInvestmentRecordBuilder()
@@ -78,8 +78,8 @@ namespace InvestmentBuilder
         //required
         private string _CreateFormattedFileCopy(string path, string filename, string ext)
         {
-            string originalFile = string.Format("{0}{1}{2}.xls", path, filename, ext);
-            string newFile = string.Format("{0}{1}{2}.Impl.xls", path, filename, ext);
+            string originalFile = string.Format("{0}{1}-{2}.xls", path, filename, ext);
+            string newFile = string.Format("{0}{1}-{2}.Impl.xls", path, filename, ext);
 
             File.Copy(originalFile, newFile, true);
             return newFile;

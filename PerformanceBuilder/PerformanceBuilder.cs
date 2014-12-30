@@ -90,8 +90,11 @@ namespace PerformanceBuilder
             {
                 Console.WriteLine("building chart for {0}", perfRange.Item1);
                 _bookHolder.GetPerformanceBook().Worksheets.Add();
-                app.ActiveSheet.Name = perfRange.Item1;
-                BuildPivotTableAndChart(listIndexes.Select(x => x.Item2), perfRange.Item2, app,sourceSheet, app.ActiveSheet);
+                var targetSheet = _bookHolder.GetPerformanceBook().Worksheets[1];
+                targetSheet.Name = perfRange.Item1;
+                //app.ActiveSheet.Name = perfRange.Item1;
+                //BuildPivotTableAndChart(listIndexes.Select(x => x.Item2), perfRange.Item2, app,sourceSheet, app.ActiveSheet);
+                BuildPivotTableAndChart(listIndexes.Select(x => x.Item2), perfRange.Item2, app, sourceSheet, targetSheet);
             }
         }
 
@@ -177,36 +180,38 @@ namespace PerformanceBuilder
             var lastCell = dimensions.LastCol.ToString() + dimensions.LastRow;
             var sourceRange = sourceSheet.Range[firstCell, lastCell];
 
+            var destinationFirstCell = pivotSheet.Range["B1"];
             var destinationLastCell = dimensions.LastCol.ToString() + (1 + (dimensions.LastRow - dimensions.FirstRow));
             var destinationRange = pivotSheet.Range["B1", destinationLastCell];
 
             //var destinationRange = pivotSheet.Range["B1", "D" + (count - 1)];
-
             //Macro for building pivor table and chart
-            PivotTable pivotCache = perfBook.PivotCaches().Create(XlPivotTableSourceType.xlDatabase, sourceRange, XlPivotTableVersionList.xlPivotTableVersion14).
-                CreatePivotTable(pivotSheet.Range["B1"], "Club Performance", XlPivotTableVersionList.xlPivotTableVersion14);
-             
+            PivotCache pivotCache = perfBook.PivotCaches().Create(XlPivotTableSourceType.xlDatabase, sourceRange, XlPivotTableVersionList.xlPivotTableVersion14);
+            PivotTable pivotTable = pivotCache.CreatePivotTable(destinationFirstCell, "Club Performance");// true, XlPivotTableVersionList.xlPivotTableVersion14);
+
             //pivotSheet.Select();
             //app.ActiveSheet.Shapes.AddChart(240, XlChartType.xlColumnClustered).Select();
             //app.ActiveChart.SetSourceData(destinationRange);
 
-            pivotSheet.Shapes.AddChart(240, XlChartType.xlColumnClustered).Select();
-            app.ActiveChart.SetSourceData(destinationRange);
+            //pivotSheet.Shapes.AddChart(240, XlChartType.xlColumnClustered).Select();
+            var newShape = pivotSheet.Shapes.AddChart(240, XlChartType.xlColumnClustered);
+            var newChart = newShape.Chart;
+            newChart.SetSourceData(destinationRange);
 
-            pivotCache.PivotFields("Date").Orientation = XlPivotFieldOrientation.xlRowField;
-            pivotCache.PivotFields("Date").Position = 1;
+            pivotTable.PivotFields("Date").Orientation = XlPivotFieldOrientation.xlRowField;
+            pivotTable.PivotFields("Date").Position = 1;
 
-            pivotCache.AddDataField(pivotCache.PivotFields("Club Price"), "Sum Of Club Price");
+            pivotTable.AddDataField(pivotTable.PivotFields("Club Price"), "Sum Of Club Price");
             foreach (var index in enIndexes)
             {
-                pivotCache.AddDataField(pivotCache.PivotFields(index), string.Format("Sum Of {0}", index));
+                pivotTable.AddDataField(pivotTable.PivotFields(index), string.Format("Sum Of {0}", index));
             }
 
-            app.ActiveChart.ChartType = XlChartType.xlLineMarkers;
-            app.ActiveSheet.Shapes("Chart 1").ScaleWidth(1.8979166667f, Microsoft.Office.Core.MsoTriState.msoFalse);
-            app.ActiveSheet.Shapes("Chart 1").ScaleHeight(1.5902777778f, Microsoft.Office.Core.MsoTriState.msoFalse);
+            newChart.ChartType = XlChartType.xlLineMarkers;
+            newShape.ScaleWidth(1.8979166667f, Microsoft.Office.Core.MsoTriState.msoFalse);
+            newShape.ScaleHeight(1.5902777778f, Microsoft.Office.Core.MsoTriState.msoFalse);
 
-            app.ActiveChart.Axes(XlAxisType.xlValue).MinimumScale = 0.8;
+            newChart.Axes(XlAxisType.xlValue).MinimumScale = 0.8;
         }
     }
 }
@@ -242,3 +247,32 @@ namespace PerformanceBuilder
     //ActiveChart.Axes(xlValue).Select
     //ActiveChart.Axes(xlValue).MinimumScale = 0
     //ActiveChart.Axes(xlValue).MinimumScale = 0.8
+
+/*
+ *     Range("B1").Select
+    Sheets.Add
+    ActiveWorkbook.PivotCaches.Create(SourceType:=xlDatabase, SourceData:= _
+        "Sheet1!R1C2:R73C5", Version:=xlPivotTableVersion14).CreatePivotTable _
+        TableDestination:="Sheet4!R3C1", TableName:="PivotTable1", DefaultVersion _
+        :=xlPivotTableVersion14
+    Sheets("Sheet4").Select
+    Cells(3, 1).Select
+    ActiveSheet.PivotTables("PivotTable1").AddDataField ActiveSheet.PivotTables( _
+        "PivotTable1").PivotFields("S&P 500"), "Sum of S&P 500", xlSum
+    ActiveSheet.PivotTables("PivotTable1").AddDataField ActiveSheet.PivotTables( _
+        "PivotTable1").PivotFields("FTSE 100"), "Sum of FTSE 100", xlSum
+    ActiveSheet.PivotTables("PivotTable1").AddDataField ActiveSheet.PivotTables( _
+        "PivotTable1").PivotFields("Club Price"), "Sum of Club Price", xlSum
+    With ActiveSheet.PivotTables("PivotTable1").PivotFields("Date")
+        .Orientation = xlRowField
+        .Position = 1
+    End With
+    ActiveSheet.Shapes.AddChart.Select
+    ActiveChart.ChartType = xlLineMarkers
+    ActiveChart.SetSourceData Source:=Range("Sheet4!$A$3:$D$76")
+    ActiveSheet.Shapes("Chart 1").ScaleWidth 1.5708333333, msoFalse, _
+        msoScaleFromTopLeft
+    ActiveSheet.Shapes("Chart 1").ScaleHeight 0.88715296, msoFalse, _
+        msoScaleFromTopLeft
+
+*/

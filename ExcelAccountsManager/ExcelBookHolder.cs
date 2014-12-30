@@ -16,22 +16,34 @@ namespace ExcelAccountsManager
         private _Workbook _performanceBook;
         private IEnumerable<_Workbook> _historicalAssetBooks;
 
+        public const string CashAccountName = "Cash Account";
+        public const string InvestmentRecordName = "Investment Record";
+        public const string MonthlyAssetName = "Monthly Assets Statement";
+        public const string PerformanceChartName = "Performance Chart";
+
         public ExcelBookHolder(_Application app,
                                 string investmentRecordSheetLocation,
+                                string assetSheetLocation,
                                 string templateSheetLocation,
                                 string cashAccountSheetLocation,
                                 string path)
         {
             _investmentRecordBook = !string.IsNullOrEmpty(investmentRecordSheetLocation) ? app.Workbooks.Open(investmentRecordSheetLocation) : null;
-            //_assetBook = !string.IsNullOrEmpty(assetSheetLocation) ? app.Workbooks.Open(assetSheetLocation) : null;
+            _assetBook = !string.IsNullOrEmpty(assetSheetLocation) ? app.Workbooks.Open(assetSheetLocation) : null;
             _templateBook = !string.IsNullOrEmpty(templateSheetLocation) ? app.Workbooks.Open(templateSheetLocation) : null;
             _cashBook = !string.IsNullOrEmpty(cashAccountSheetLocation) ?  app.Workbooks.Open(cashAccountSheetLocation) : null;
-            _historicalAssetBooks = LoadAllBooks(path, "Monthly Assets Statement", app);
-            _assetBook = _historicalAssetBooks.Last();
-            var performanceBookName = string.Format(@"{0}PerformanceChart.xlsx",path);
+            //_historicalAssetBooks = LoadAllBooks(path, MonthlyAssetName, app);
+        }
+
+        public ExcelBookHolder(_Application app,
+                                string path,
+                                DateTime ValuationDate)
+        {
+            var performanceBookName = string.Format(@"{0}{1}-{2}.xlsx", path, PerformanceChartName, ValuationDate.ToString("MMM-yyyy"));
             File.Delete(performanceBookName);
             _performanceBook = app.Workbooks.Add();
             _performanceBook.SaveAs(performanceBookName);
+            _historicalAssetBooks = LoadAllBooks(path, MonthlyAssetName, app);
         }
 
         private void _SaveBook(_Workbook book)
@@ -86,7 +98,7 @@ namespace ExcelAccountsManager
             int currentYear = DateTime.Today.Year;
             for (int year = 2009; year < currentYear; ++year)
             {
-                string fileName = string.Format(@"{0}\{1}\{2}-{3}.xls", path, bookName, year, year);
+                string fileName = string.Format(@"{0}\{1}\{2}-{3}.xls", path, year, bookName, year);
                 bookList.Add(app.Workbooks.Open(fileName));
             }
 

@@ -70,7 +70,7 @@ namespace ExcelAccountsManager
         {
             int count = start;
             int row = start;
-            while (sheet.IsCellPopulated("J", count))
+            while (sheet.IsCellPopulated(column, count))
             {
                 row = count;
                 count++;
