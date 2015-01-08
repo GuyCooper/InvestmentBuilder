@@ -77,5 +77,28 @@ namespace ExcelAccountsManager
             }
             return row;
         }
+
+        public static _Worksheet FindWorksheet(this _Workbook book, string name)
+        {
+            foreach (_Worksheet sheet in book.Worksheets)
+            {
+                if (sheet.Name.Equals(name, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    return sheet;
+                }
+            }
+            return null;
+        }
+
+        public static bool GetUnitValueFromAssetSheet(this _Worksheet sheet, ref double unitValue)
+        {
+            int row = 0; ;
+            if (sheet.TryGetRowReference("I", "VALUE PER UNIT", ref row))
+            {
+                unitValue = (double)sheet.get_Range("K" + row).Value;
+                return true;
+            }
+            return false;
+        }
     }
 }

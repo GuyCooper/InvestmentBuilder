@@ -46,18 +46,6 @@ namespace InvestmentBuilder
         //override save unit value for databasse inplementation. otherwise do nothing
         protected virtual void SaveNewUnitValue(DateTime valuationDate) { }
 
-        private _Worksheet _FindWorksheet(_Workbook book, string name)
-        {
-            foreach(_Worksheet sheet in book.Worksheets)
-            {
-                if(sheet.Name.Equals(name,StringComparison.CurrentCultureIgnoreCase))
-                {
-                    return sheet;
-                }
-            }
-            return null;
-        }
-
         private string _GetPreviousMonth(DateTime valuationDate)
         {
             var previousMonth = valuationDate.Month - 1;
@@ -69,15 +57,10 @@ namespace InvestmentBuilder
         protected bool _TryGetUnitValue(string month, ref double unitValue)
         {
             //_assetBook.Worksheets.
-            _Worksheet assetSheet = _FindWorksheet(_bookHolder.GetAssetSheetBook(), month);
+            _Worksheet assetSheet = _bookHolder.GetAssetSheetBook().FindWorksheet(month);
             if (assetSheet != null)
             {
-                int row = 0; ;
-                if (assetSheet.TryGetRowReference("I", "VALUE PER UNIT", ref row))
-                {
-                    unitValue = (double)assetSheet.get_Range("K" + row).Value;
-                    return true;
-                }
+                return assetSheet.GetUnitValueFromAssetSheet(ref unitValue);
             }
             return false;
         }

@@ -31,10 +31,9 @@ namespace PerformanceBuilder
             {
                 foreach (_Worksheet sheet in assetBook.Worksheets)
                 {
-                    int row = 0;
-                    if (sheet.TryGetRowReference("I", "VALUE PER UNIT", ref row))
+                    double dUnitValue = 0d;
+                    if(sheet.GetUnitValueFromAssetSheet(ref dUnitValue))
                     {
-                        var dUnitValue = (double)sheet.get_Range("K" + row).Value;
                         var dtDate = sheet.GetValueDateTime("C", 4);
                         yield return new HistoricalData
                         {
