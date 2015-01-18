@@ -19,14 +19,14 @@ namespace ExcelDataUpload
         public DataLoader(string path, string dbconn, DateTime dtValuationDate)
         {
             //first load the cash account and investment record books for the current year
-            string InvestmentRecordFile = string.Format(@"{0}\{1}-{2}", path, ExcelBookHolder.InvestmentRecordName, DateTime.Today.Year);
-            string CashAccountFile = string.Format(@"{0}\{1}-{2}", path, ExcelBookHolder.CashAccountName, DateTime.Today.Year);
+            string InvestmentRecordFile = string.Format(@"{0}\{1}-{2}", path, ExcelBookHolder.InvestmentRecordName, dtValuationDate.Year);
+            string CashAccountFile = string.Format(@"{0}\{1}-{2}", path, ExcelBookHolder.CashAccountName, dtValuationDate.Year);
             _bookHolder = new ExcelBookHolder(_app, InvestmentRecordFile, null, null, CashAccountFile, path);
             _connection = new SqlConnection(dbconn);
             _dtValuationDate = dtValuationDate;
         }
 
-        public void LoadData(string path)
+        public void LoadData()
         {
            //now upload the investment record data
             _UploadInvestmentRecordData();
@@ -36,6 +36,7 @@ namespace ExcelDataUpload
 
         private void _UpdateMembersCapitalAccountTable(string User, double Units)
         {
+            Console.WriteLine("uodating members capital account table...");
             var strSQL = "INSERT INTO dbo.[MembersCapitalAccount] (Valuation_Date, Member, Units) ";
             strSQL += string.Format("VALUES ({0}, {1}, {2})", _dtValuationDate, User, Units);
 
@@ -48,6 +49,7 @@ namespace ExcelDataUpload
 
         private void _UpdateValuationTable(DateTime dtValuationDate, double dUnitPrice)
         {
+            Console.WriteLine("updating valuation table...");
             var strSQL = string.Format("INSERT INTO dbo.[Valuations] (Valuation_Date, Unit_Price) VALUES ({0}, {1})",
                 dtValuationDate, dUnitPrice);
 
@@ -60,6 +62,7 @@ namespace ExcelDataUpload
 
         private void _UploadUnitPriceData()
         {
+            Console.WriteLine("uploading unit price data");
             foreach(var book in _bookHolder.GetHistoricalAssetBooks())
             {
                 foreach(_Worksheet sheet in book.Worksheets)
@@ -79,6 +82,7 @@ namespace ExcelDataUpload
 
         private void _UploadMemberCapitalAccountData()
         {
+            Console.WriteLine("uploading members capital account data");
             _Worksheet mcaSheet = _bookHolder.GetCashBook().Worksheets["Members Capital Account"];
             var iMonth = _dtValuationDate.Month;
             var iRefRow = 9 * (iMonth - 1) + 5;
@@ -96,6 +100,7 @@ namespace ExcelDataUpload
         //upload investment record data into database
         private void _UploadInvestmentRecordData()
         {
+            Console.WriteLine("upload investment record data...");
             for (int index = 1; index <= _bookHolder.GetInvestmentRecordBook().Worksheets.Count; ++index)
             {
                 _Worksheet recordSheet = _bookHolder.GetInvestmentRecordBook().Worksheets[index];
@@ -105,7 +110,7 @@ namespace ExcelDataUpload
                 string sCurrency = recordSheet.get_Range("B" + 5).Value;
                 int scalingFactor = 0;
                 recordSheet.GetValueInt("C", 4, ref scalingFactor);
-                bool bIsActive = recordSheet.get_Range("B" + 7).Value == "TRUE";
+                bool bIsActive = recordSheet.get_Range("B" + 7).Value;
 
                 int lastRow = recordSheet.GetLastPopulatedRow("A", 10);
                 var dtValuation = recordSheet.GetValueDateTime("A", lastRow);
@@ -113,24 +118,25 @@ namespace ExcelDataUpload
                 {
                     continue;
                 }
-                int iSharesBought, iBonusShares, iSharesSold;
+                double dSharesBought, dBonusShares, dSharesSold;
                 double dSharePrice, dTotalCost, dSellingPrice;
-                iSharesBought = iBonusShares = iSharesSold = 0;
+                dSharesBought = dBonusShares = dSharesSold = 0;
                 dTotalCost = dSharePrice = dSellingPrice = 0;
-                recordSheet.GetValueInt("B", lastRow, ref iSharesBought);
-                recordSheet.GetValueInt("C", lastRow, ref iBonusShares);
-                recordSheet.GetValueInt("D", lastRow, ref iSharesSold);
+                recordSheet.GetValueDouble("B", lastRow, ref dSharesBought);
+                recordSheet.GetValueDouble("C", lastRow, ref dBonusShares);
+                recordSheet.GetValueDouble("D", lastRow, ref dSharesSold);
                 recordSheet.GetValueDouble("E", lastRow, ref dTotalCost);
                 recordSheet.GetValueDouble("F", lastRow, ref dSharePrice);
                 recordSheet.GetValueDouble("G", lastRow, ref dSellingPrice);
-                int totalShares = iSharesBought + iBonusShares - iSharesSold;
+                int totalShares = (int)(dSharesBought + dBonusShares - dSharesSold);
                _CreateNewInvestment(dtValuation.Value, sCompanyName, sSymbol, sCurrency, scalingFactor, totalShares, dTotalCost, dSharePrice );
             }
         }
 
         private void _CreateNewInvestment(DateTime dtValuation, string sName, string sSymbol, string sCurrency, int iScalingFactor,
-                                          int iShares, double dTotalCost, double dClosing)
+                                          int dShares, double dTotalCost, double dClosing)
         {
+            Console.WriteLine("creating new investmnet: {0}", sName);
             using (var command = new SqlCommand("sp_CreateNewInvestment", _connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -139,7 +145,7 @@ namespace ExcelDataUpload
                 command.Parameters.Add(new SqlParameter("@symbol", sSymbol));
                 command.Parameters.Add(new SqlParameter("@currency", sCurrency));
                 command.Parameters.Add(new SqlParameter("@scalingFactor", iScalingFactor));
-                command.Parameters.Add(new SqlParameter("@shares", iShares));
+                command.Parameters.Add(new SqlParameter("@shares", dShares));
                 command.Parameters.Add(new SqlParameter("@totalCost", dTotalCost));
                 command.Parameters.Add(new SqlParameter("@closingPrice", dClosing));
 

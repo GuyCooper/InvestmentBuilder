@@ -54,8 +54,11 @@ namespace InvestmentBuilderConsole
             //load in any trades from the trades file
             string tradeFile = string.Format("{0}Trades.xml", path);
 
+            var format = string.IsNullOrEmpty(connectionsstr) ? InvestmentBuilder.DataFormat.EXCEL :
+                InvestmentBuilder.DataFormat.DATABASE;
+
             InvestmentBuilder.AssetSheetBuilder.BuildAssetSheet(tradeFile, path, connectionsstr, bTest, dtValuationDate.Value,
-                                                                    InvestmentBuilder.DataFormat.EXCEL);
+                                                                   format);
 
         }
     }

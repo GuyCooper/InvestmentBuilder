@@ -1,4 +1,3 @@
-USE [ArgyllInvestments]
 
 --drop procedure [sp_AddNewShares]
 --drop procedure [sp_AddNewUnitValuation]
@@ -124,11 +123,11 @@ create clustered index IDX_Valuations_ValuationDate on
 dbo.Valuations([Valuation_Date])
 
 /* side: P = Payments (right hand side), R = Receipts (left hand side) */
-insert into dbo.TransactionType ([type], side) values ('Admin Fee', 'P')
-insert into dbo.TransactionType ([type], side) values ('Balance In Hand', 'P')
-insert into dbo.TransactionType ([type], side) values ('Purchase', 'P')
-insert into dbo.TransactionType ([type], side) values ('Redemption', 'P')
-insert into dbo.TransactionType ([type], side) values ('Subscription', 'R')
-insert into dbo.TransactionType ([type], side) values ('Dividend', 'R')
-insert into dbo.TransactionType ([type], side) values ('Interest', 'R')
-insert into dbo.TransactionType ([type], side) values ('Sale', 'R')
+--insert into dbo.TransactionType ([type], side) values ('Admin Fee', 'P')
+--insert into dbo.TransactionType ([type], side) values ('Balance In Hand', 'P')
+--insert into dbo.TransactionType ([type], side) values ('Purchase', 'P')
+--insert into dbo.TransactionType ([type], side) values ('Redemption', 'P')
+--insert into dbo.TransactionType ([type], side) values ('Subscription', 'R')
+--insert into dbo.TransactionType ([type], side) values ('Dividend', 'R')
+--insert into dbo.TransactionType ([type], side) values ('Interest', 'R')
+--insert into dbo.TransactionType ([type], side) values ('Sale', 'R')
