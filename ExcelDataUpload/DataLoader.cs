@@ -21,7 +21,7 @@ namespace ExcelDataUpload
             //first load the cash account and investment record books for the curent year
             string InvestmentRecordFile = string.Format(@"{0}\{1}-{2}", path, ExcelBookHolder.InvestmentRecordName, dtValuationDate.Year);
             string CashAccountFile = string.Format(@"{0}\{1}-{2}", path, ExcelBookHolder.CashAccountName, dtValuationDate.Year);
-            _bookHolder = new ExcelBookHolder(_app, InvestmentRecordFile, null, null, CashAccountFile, path);
+            _bookHolder = new ExcelBookHolder(_app, InvestmentRecordFile, CashAccountFile, path, dtValuationDate);
             _connection = new SqlConnection(dbconn);
             _connection.Open();
             _dtValuationDate = dtValuationDate;
@@ -97,9 +97,10 @@ namespace ExcelDataUpload
 
             for (int i = 0; i < 5; i++)
             {
-                var user = mcaSheet.get_Range("B" + iRefRow++).Value;
+                var user = mcaSheet.get_Range("B" + iRefRow).Value;
                 var units = 0d;
                 mcaSheet.GetValueDouble("K", iRefRow, ref units);
+                iRefRow++;
                 _UpdateMembersCapitalAccountTable(_dtValuationDate, user, units);
             }
         }  
@@ -116,6 +117,7 @@ namespace ExcelDataUpload
                 string sSymbol = recordSheet.get_Range("B" + 4).Value;
                 string sCurrency = recordSheet.get_Range("B" + 5).Value;
                 double dScalingFactor = 0;
+                double dDividend = 0d;
                 recordSheet.GetValueDouble("C", 4, ref dScalingFactor);
                 bool bIsActive = recordSheet.get_Range("B" + 7).Value;
 
@@ -134,13 +136,15 @@ namespace ExcelDataUpload
                 recordSheet.GetValueDouble("E", lastRow, ref dSharesSold);
                 recordSheet.GetValueDouble("G", lastRow, ref dTotalCost);
                 recordSheet.GetValueDouble("J", lastRow, ref dSharePrice);
+                recordSheet.GetValueDouble("P", lastRow, ref dDividend);
+
                 int totalShares = (int)(dSharesBought + dBonusShares - dSharesSold);
-               _CreateNewInvestment(dtValuation.Value, sCompanyName, sSymbol, sCurrency, (int)dScalingFactor, totalShares, dTotalCost, dSharePrice );
+               _CreateNewInvestment(dtValuation.Value, sCompanyName, sSymbol, sCurrency, (int)dScalingFactor, totalShares, dTotalCost, dSharePrice, dDividend );
             }
         }
 
         private void _CreateNewInvestment(DateTime dtValuation, string sName, string sSymbol, string sCurrency, int iScalingFactor,
-                                          int dShares, double dTotalCost, double dClosing)
+                                          int dShares, double dTotalCost, double dClosing, double dDividend)
         {
             Console.WriteLine("creating new investmnet: {0}", sName);
             using (var command = new SqlCommand("sp_CreateNewInvestment", _connection))
@@ -154,6 +158,7 @@ namespace ExcelDataUpload
                 command.Parameters.Add(new SqlParameter("@shares", dShares));
                 command.Parameters.Add(new SqlParameter("@totalCost", dTotalCost));
                 command.Parameters.Add(new SqlParameter("@closingPrice", dClosing));
+                command.Parameters.Add(new SqlParameter("@dividend", dDividend));
 
                 command.ExecuteNonQuery();
             }

@@ -15,14 +15,14 @@ GO
 
 CREATE PROCEDURE [dbo].[sp_CreateNewInvestment](@valuationDate as DATETIME, @investment as VARCHAR(50), @symbol as CHAR(10),
 				 @currency as CHAR(3), @scalingFactor as FLOAT, @shares as INT,
-				 @totalCost as FLOAT, @closingPrice as FLOAT) AS
+				 @totalCost as FLOAT, @closingPrice as FLOAT, @dividend as FLOAT) AS
 BEGIN
 
 	INSERT INTO Companies (Name, Symbol, Currency, IsActive, ScalingFactor)
 	VALUES (@investment, @symbol, @currency, 1, @scalingFactor)
 
-	INSERT INTO InvestmentRecord ([Company_Id],[Valuation_Date],[Shares_Bought],[Total_Cost],[Selling_Price])
-	SELECT C.Company_Id, @valuationDate, @shares, @totalCost, @closingPrice
+	INSERT INTO InvestmentRecord ([Company_Id],[Valuation_Date],[Shares_Bought],[Total_Cost],[Selling_Price],[Dividends_Received])
+	SELECT C.Company_Id, @valuationDate, @shares, @totalCost, @closingPrice, @dividend
 	FROM Companies C WHERE C.Name = @investment 
 END
 GO

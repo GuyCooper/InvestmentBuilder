@@ -36,6 +36,17 @@ namespace ExcelAccountsManager
         }
 
         public ExcelBookHolder(_Application app,
+                                string investmentRecordSheetLocation,
+                                string cashAccountSheetLocation,
+                                string path,
+                                DateTime ValuationDate)
+        {
+            _investmentRecordBook = !string.IsNullOrEmpty(investmentRecordSheetLocation) ? app.Workbooks.Open(investmentRecordSheetLocation) : null;
+            _cashBook = !string.IsNullOrEmpty(cashAccountSheetLocation) ? app.Workbooks.Open(cashAccountSheetLocation) : null;
+            _historicalAssetBooks = LoadAllBooks(path, MonthlyAssetName, app, ValuationDate);
+        }
+
+        public ExcelBookHolder(_Application app,
                                 string path,
                                 DateTime ValuationDate)
         {
@@ -43,7 +54,7 @@ namespace ExcelAccountsManager
             File.Delete(performanceBookName);
             _performanceBook = app.Workbooks.Add();
             _performanceBook.SaveAs(performanceBookName);
-            _historicalAssetBooks = LoadAllBooks(path, MonthlyAssetName, app);
+            _historicalAssetBooks = LoadAllBooks(path, MonthlyAssetName, app, ValuationDate);
         }
 
         private void _SaveBook(_Workbook book)
@@ -91,11 +102,11 @@ namespace ExcelAccountsManager
             return _performanceBook;
         }
 
-        public static IList<_Workbook> LoadAllBooks(string path, string bookName, _Application app)
+        public static IList<_Workbook> LoadAllBooks(string path, string bookName, _Application app, DateTime dtValuation)
         {
             //from 2009 to today
             var bookList = new List<_Workbook>();
-            int currentYear = DateTime.Today.Year;
+            int currentYear = dtValuation.Year;
             for (int year = 2009; year < currentYear; ++year)
             {
                 string fileName = string.Format(@"{0}\{1}\{2}-{3}.xls", path, year, bookName, year);

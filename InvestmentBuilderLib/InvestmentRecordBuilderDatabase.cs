@@ -149,6 +149,7 @@ namespace InvestmentBuilder
                 command.Parameters.Add(new SqlParameter("@shares", newTrade.Number));
                 command.Parameters.Add(new SqlParameter("@totalCost", newTrade.TotalCost));
                 command.Parameters.Add(new SqlParameter("@closingPrice", dClosing));
+                command.Parameters.Add(new SqlParameter("@dividend", 0d));
 
                 command.ExecuteNonQuery();
             }
