@@ -1,3 +1,15 @@
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+IF EXISTS (SELECT 1 FROM sys.procedures WHERE Name = 'sp_CreateInvestment')
+BEGIN
+	DROP PROCEDURE sp_CreateInvestment
+END
+
+GO
+
 CREATE PROCEDURE dbo.[sp_CreateInvestment](@valuationDate as DATETIME, @previousDate as DATETIME, @investment as VARCHAR(50)) AS
 BEGIN
 
@@ -11,3 +23,4 @@ WHERE
 	IR.Valuation_Date = @previousDate AND
 	C.Name = @investment
 END
+

@@ -7,7 +7,7 @@ using System.IO;
 
 namespace ExcelAccountsManager
 {
-    public class ExcelBookHolder
+    public class ExcelBookHolder : IDisposable
     {
         private _Workbook _investmentRecordBook;
         private _Workbook _assetBook;
@@ -105,6 +105,27 @@ namespace ExcelAccountsManager
             var currentBook = app.Workbooks.Open(string.Format(@"{0}\{1}-{2}.xls", path, bookName, currentYear));
             bookList.Add(currentBook);
             return bookList;
+        }
+
+        public void Dispose()
+        {
+            if (_investmentRecordBook != null)
+                _investmentRecordBook.Close();
+            if (_assetBook != null)
+                _assetBook.Close();
+            if (_templateBook != null)
+                _templateBook.Close();
+            if (_cashBook != null)
+                _cashBook.Close();
+            if (_performanceBook != null)
+                _performanceBook.Close();
+            if (_historicalAssetBooks != null)
+            {
+                foreach (var book in _historicalAssetBooks)
+                {
+                    book.Close();
+                }
+            }
         }
     }
 }

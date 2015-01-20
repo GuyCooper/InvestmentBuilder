@@ -1,11 +1,16 @@
-USE [ArgyllInvestments]
-GO
 
 /****** Object:  StoredProcedure [dbo].[sp_AddNewShares]    Script Date: 20/10/2014 21:43:38 ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
+GO
+
+IF EXISTS (SELECT 1 FROM sys.procedures WHERE Name = 'sp_GetInvestmentRecord')
+BEGIN
+	DROP PROCEDURE sp_GetInvestmentRecord
+END
+
 GO
 
 CREATE PROCEDURE [dbo].[sp_GetInvestmentRecord](@valuationDate as DATETIME) AS

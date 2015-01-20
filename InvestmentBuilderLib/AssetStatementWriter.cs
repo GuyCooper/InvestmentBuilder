@@ -191,21 +191,55 @@ namespace InvestmentBuilder
             _connection = connection;
         }
 
+        private double _GetMemberSubscription(DateTime dtValuation, string member)
+        {
+            double dSubscription = 0d;
+            using (var command = new SqlCommand("sp_GetMemberSubscriptionAmount", _connection))
+            {
+                command.Parameters.Add(new SqlParameter("@Member", member));
+                command.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
+                dSubscription = (double)command.ExecuteScalar();
+            }
+            return dSubscription;
+        }
+
+        private IEnumerable<KeyValuePair<string, double>> _GetMemberAccountData(DateTime dtValuation)
+        {
+            using (var command = new SqlCommand("sp_GetMembersCapitalAccount", _connection))
+            {
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+                command.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
+
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var member = (string)reader["Member"];
+                        var units = (double)reader["Units"];
+                        yield return new KeyValuePair<string, double>(member, units);
+                    }
+                }
+            }
+        }
+
         protected override double UpdateMembersCapitalAccount(double dPreviousUnitValue, DateTime? dtPreviousValution, DateTime valuationDate)
         {
             //get total number of shares allocated for previous month
             //get list of all members who have made a deposit for current month
-            //calculate new unit count for each member = previous month units + deposit * 1/previousunitvalue
-            //return new total amount
             double dResult = 0d;
-            using (var command = new SqlCommand("sp_UpdateMembersCapitalAccount", _connection))
+            var memberAccountData = _GetMemberAccountData(dtPreviousValution ?? valuationDate).ToList();
+            foreach(var member in memberAccountData)
             {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@valuationDate", valuationDate));
-                command.Parameters.Add(new SqlParameter("@previousValuation", dtPreviousValution ?? valuationDate));
-                command.Parameters.Add(new SqlParameter("@previousUnitValue", dPreviousUnitValue));
-
-                dResult = (double)command.ExecuteScalar();
+                double dSubscription = _GetMemberSubscription(valuationDate, member.Key);
+                double dNewAmount = member.Value + (dSubscription  * (1 / dPreviousUnitValue));
+                dResult += dNewAmount;
+                using (var updateCommand = new SqlCommand("sp_UpdateMembersCapitalAccount", _connection))
+                {
+                    updateCommand.Parameters.Add(new SqlParameter("@valuationDate", valuationDate));
+                    updateCommand.Parameters.Add(new SqlParameter("@Member", member));
+                    updateCommand.Parameters.Add(new SqlParameter("@Units", dNewAmount));
+                    updateCommand.ExecuteNonQuery();
+                }
             }
             return dResult;
         }

@@ -1,3 +1,16 @@
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+IF EXISTS (SELECT 1 FROM sys.procedures WHERE Name = 'sp_RollInvestment')
+BEGIN
+	DROP PROCEDURE sp_RollInvestment
+END
+
+GO
+
 CREATE PROCEDURE [dbo].[sp_RollInvestment](@valuationDate as DATETIME, @investment as VARCHAR(50)) AS
 BEGIN
 

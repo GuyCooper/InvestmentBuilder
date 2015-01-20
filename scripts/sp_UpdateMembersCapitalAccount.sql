@@ -1,42 +1,18 @@
-CREATE PROCEDURE [dbo].[sp_UpdateMembersCapitalAccount](@valuationDate as DATETIME, @previousDate as DATETIME, @previousUnitValue as float) AS
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+IF EXISTS (SELECT 1 FROM sys.procedures WHERE Name = 'sp_UpdateMembersCapitalAccount')
 BEGIN
+	DROP PROCEDURE sp_UpdateMembersCapitalAccount
+END
 
---select user and the amount invested this month
-SELECT ca.parameter as member, ca.amount 
-INTO #ThisMonthsUsers
-FROM 
-CashAccount ca
-INNER JOIN TransactionType tt
-ON
-ca.type_id = tt.type_id
-WHERE transaction_date > @previousDate
-and tt.[type] = 'Subscription'
+GO
 
---select previous months units for each user
-SELECT member, units
-INTO #PreviousUnits 
-FROM
-MembersCapitalAccount
-WHERE
-Valuation_Date = @previousDate
-
---add the value of the previous months units to the new calculated amount for each member
-INSERT INTO MembersCapitalAccount
-SELECT 
-@valuationDate,
-tm.member,
-pu.Units + tm.amount * (1 /  @previousUnitValue)
-FROM 
-#PreviousUnits pu,
-#ThisMonthsUsers tm
-WHERE
-pu.Member = tm.member
-
-SELECT 
-	SUM(Units)
-FROM
-	MembersCapitalAccount
-WHERE
-	Valuation_Date = @valuationDate
-
+CREATE PROCEDURE [dbo].[sp_UpdateMembersCapitalAccount](@ValuationDate as DATETIME, @Member as varchar(50), @Units as float) AS
+BEGIN
+	INSERT INTO MembersCapitalAccount (Valuation_Date, Member, Units)
+	VALUES (@ValuationDate, @Member, @Units)
 END

@@ -39,8 +39,10 @@ namespace ExcelDataUpload
             {
                 Console.WriteLine("path: {0}", accountsPath);
                 Console.WriteLine("valuation date: {0}", valuedate);
-                var dataLoader = new DataLoader(accountsPath, db, DateTime.Parse(valuedate));
-                dataLoader.LoadData();
+                using(var dataLoader = new DataLoader(accountsPath, db, DateTime.Parse(valuedate)))
+                {
+                    dataLoader.LoadData();
+                }
             }
             
         }

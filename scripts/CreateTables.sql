@@ -1,21 +1,4 @@
 
---drop procedure [sp_AddNewShares]
---drop procedure [sp_AddNewUnitValuation]
---drop procedure [sp_CreateInvestment]
---drop procedure [sp_CreateNewInvestment]
---drop procedure [sp_GetBankBalance]
---drop procedure [sp_GetDividends]
---drop procedure [sp_GetInvestmentRecord]
---drop procedure [sp_GetLatestInvestmentRecords]
---drop procedure [sp_GetLatestValuationDate]
---drop procedure [sp_GetPreviousValuationDate]
---drop procedure [sp_RollInvestment]
---drop procedure [sp_UpdateClosingPrice]
---drop procedure [sp_UpdateDividend]
---drop procedure [sp_UpdateHolding]
---drop procedure [sp_UpdateMembersCapitalAccount]
-go
- 
 alter table CashAccount
 drop constraint FK_transactionType_CashAccount
 go
@@ -123,11 +106,11 @@ create clustered index IDX_Valuations_ValuationDate on
 dbo.Valuations([Valuation_Date])
 
 /* side: P = Payments (right hand side), R = Receipts (left hand side) */
---insert into dbo.TransactionType ([type], side) values ('Admin Fee', 'P')
---insert into dbo.TransactionType ([type], side) values ('Balance In Hand', 'P')
---insert into dbo.TransactionType ([type], side) values ('Purchase', 'P')
---insert into dbo.TransactionType ([type], side) values ('Redemption', 'P')
---insert into dbo.TransactionType ([type], side) values ('Subscription', 'R')
---insert into dbo.TransactionType ([type], side) values ('Dividend', 'R')
---insert into dbo.TransactionType ([type], side) values ('Interest', 'R')
---insert into dbo.TransactionType ([type], side) values ('Sale', 'R')
+insert into dbo.TransactionType ([type], side) values ('Admin Fee', 'P')
+insert into dbo.TransactionType ([type], side) values ('Balance In Hand', 'P')
+insert into dbo.TransactionType ([type], side) values ('Purchase', 'P')
+insert into dbo.TransactionType ([type], side) values ('Redemption', 'P')
+insert into dbo.TransactionType ([type], side) values ('Subscription', 'R')
+insert into dbo.TransactionType ([type], side) values ('Dividend', 'R')
+insert into dbo.TransactionType ([type], side) values ('Interest', 'R')
+insert into dbo.TransactionType ([type], side) values ('Sale', 'R')
