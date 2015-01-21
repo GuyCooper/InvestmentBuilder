@@ -19,8 +19,8 @@ namespace InvestmentBuilderClient
             InitializeComponent();
 
             _paymentsModel = new InvestmentDataModel();
-            receiptsBindingSource.DataSource = _paymentsModel.DataSource;
-            receiptsGrid.DataSource = receiptsBindingSource;
+            //receiptsBindingSource.DataSource = _paymentsModel.DataSource;
+            receiptsGrid.DataSource = _paymentsModel.DataSource; // receiptsBindingSource;
             cmboDate.Items.AddRange(_paymentsModel.GetValuationDates().Cast<object>().ToArray());           
         }
 
@@ -32,6 +32,18 @@ namespace InvestmentBuilderClient
                 DateTime? nextDate = (DateTime?)cmboDate.SelectedItem;
                 _paymentsModel.GetData(previousDate, nextDate);
             }
+        }
+
+        private void btnGetData_Click(object sender, EventArgs e)
+        {
+            _paymentsModel.GetData(null, null);
+            receiptsGrid.Update();
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            _paymentsModel.Dispose();
+            base.OnClosed(e);
         }
     }
 }

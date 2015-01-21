@@ -33,12 +33,14 @@
             this.receiptsBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.cmboDate = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.btnGetData = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.receiptsGrid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.receiptsBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
             // receiptsGrid
             // 
+            this.receiptsGrid.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.ColumnHeader;
             this.receiptsGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.receiptsGrid.Location = new System.Drawing.Point(21, 17);
             this.receiptsGrid.Name = "receiptsGrid";
@@ -63,11 +65,22 @@
             this.label1.TabIndex = 3;
             this.label1.Text = "ValuationDate";
             // 
+            // btnGetData
+            // 
+            this.btnGetData.Location = new System.Drawing.Point(402, 116);
+            this.btnGetData.Name = "btnGetData";
+            this.btnGetData.Size = new System.Drawing.Size(75, 23);
+            this.btnGetData.TabIndex = 4;
+            this.btnGetData.Text = "GetData";
+            this.btnGetData.UseVisualStyleBackColor = true;
+            this.btnGetData.Click += new System.EventHandler(this.btnGetData_Click);
+            // 
             // CashAccountView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(660, 261);
+            this.Controls.Add(this.btnGetData);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.cmboDate);
             this.Controls.Add(this.receiptsGrid);
@@ -86,5 +99,6 @@
         private System.Windows.Forms.BindingSource receiptsBindingSource;
         private System.Windows.Forms.ComboBox cmboDate;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button btnGetData;
     }
 }

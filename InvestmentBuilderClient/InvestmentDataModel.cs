@@ -7,14 +7,16 @@ using System.Data.SqlClient;
 using System.Data;
 namespace InvestmentBuilderClient
 {
-    class InvestmentDataModel
+    class InvestmentDataModel : IDisposable
     {
         private SqlConnection _connection;
 
         public InvestmentDataModel() 
         {
-            _connection = new SqlConnection(System.Configuration.ConfigurationSettings.AppSettings["InvestmentBuilderTestConnectionString"]);
+            var connectstr = @"Data Source=TRAVELPC\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest;Integrated Security=True";
+            _connection = new SqlConnection(connectstr);
             DataSource = new DataSet();
+            _connection.Open();
         }
 
         public DataSet DataSource { get; private set; }
@@ -35,11 +37,17 @@ namespace InvestmentBuilderClient
 
         public void GetData(DateTime? dtPreviousDate, DateTime? dtNextDate)
         {
-            var sqlCommand = new SqlCommand("SELECT * FROM CASH_ACCOUNT", _connection);
+            var sqlCommand = new SqlCommand("SELECT * FROM CashAccount", _connection);
+            sqlCommand.CommandType = CommandType.Text;
             SqlDataAdapter adaptor = new SqlDataAdapter(sqlCommand);
             var commandBuilder = new SqlCommandBuilder(adaptor);
 
             adaptor.Fill(DataSource);
+        }
+
+        public void Dispose()
+        {
+            _connection.Close();
         }
     }
 }

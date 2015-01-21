@@ -16,7 +16,8 @@ namespace InvestmentBuilderClient
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainView());
+            var view = new CashAccountView();
+            Application.Run(view);
         }
     }
 }
