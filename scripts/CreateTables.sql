@@ -42,6 +42,7 @@ create table dbo.TransactionType
 
 create table dbo.CashAccount
 (
+	[valuation_date] datetime not null,
 	[transaction_date] datetime not null,
 	[type_id]		   int not null,
 	[parameter]        varchar(50),
@@ -114,3 +115,5 @@ insert into dbo.TransactionType ([type], side) values ('Subscription', 'R')
 insert into dbo.TransactionType ([type], side) values ('Dividend', 'R')
 insert into dbo.TransactionType ([type], side) values ('Interest', 'R')
 insert into dbo.TransactionType ([type], side) values ('Sale', 'R')
+insert into dbo.TransactionType ([type], side) values ('BalanceInHand', 'R')
+insert into dbo.TransactionType ([type], side) values ('BalanceInHandCF', 'P')

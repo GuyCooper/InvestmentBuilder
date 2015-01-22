@@ -13,7 +13,7 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_GetDividends](@previousValuationDate as DATETIME) AS
+CREATE PROCEDURE [dbo].[sp_GetDividends](@valuationDate as DATETIME) AS
 BEGIN
 
 select ca.parameter as Company, ca.amount as Dividend 
@@ -21,8 +21,8 @@ from dbo.CashAccount ca
 inner join TransactionType tt
 on ca.type_id = tt.type_id
 where tt.type = 'Dividend'
-and ca.transaction_date > @previousValuationDate
-order by ca.transaction_date desc 
+and ca.valuation_date = @valuationDate
+order by ca.valuation_date desc 
  
 END
 GO

@@ -21,7 +21,7 @@ namespace InvestmentBuilder
 
     interface ICashAccountReader
     {
-        CashAccountData GetCashAccountData(DateTime valuationDate, DateTime? previousValuationDate);
+        CashAccountData GetCashAccountData(DateTime valuationDate);
         DateTime? GetPreviousValuationDate();
 
     }
@@ -36,7 +36,7 @@ namespace InvestmentBuilder
             _bookHolder = bookHolder;
         }
 
-        public CashAccountData GetCashAccountData(DateTime valuationDate, DateTime? previousValuationDate)
+        public CashAccountData GetCashAccountData(DateTime valuationDate)
         {
             _Worksheet cashSheet = _bookHolder.GetCashBook().Worksheets["Cash Account"];
             int month = valuationDate.Month;
@@ -97,7 +97,7 @@ namespace InvestmentBuilder
             _conn = conn;
         }
 
-        public CashAccountData GetCashAccountData(DateTime valuationDate, DateTime? previousValuationDate)
+        public CashAccountData GetCashAccountData(DateTime valuationDate)
         {
             var cashData = new CashAccountData();
             
@@ -118,7 +118,7 @@ namespace InvestmentBuilder
                 using (SqlCommand cmdDividends = new SqlCommand("sp_GetDividends", _conn))
                 {
                     cmdDividends.CommandType = System.Data.CommandType.StoredProcedure;
-                    cmdDividends.Parameters.Add(new SqlParameter("@previousValuationDate", System.Data.SqlDbType.DateTime) { Value = previousValuationDate ?? valuationDate });
+                    cmdDividends.Parameters.Add(new SqlParameter("@valuationDate", System.Data.SqlDbType.DateTime) { Value = valuationDate });
                     using (SqlDataReader reader = cmdDividends.ExecuteReader())
                     {
                         while (reader.Read())
@@ -137,12 +137,7 @@ namespace InvestmentBuilder
             using (var command = new SqlCommand("sp_GetPreviousValuationDate", _conn))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@previousDate", dtReturn)
-                {
-                    Direction = System.Data.ParameterDirection.Output,
-                    DbType = System.Data.DbType.DateTime
-                });
-                var reader = command.ExecuteNonQuery();
+                dtReturn = (DateTime)command.ExecuteScalar();
             }
             return dtReturn;
         }

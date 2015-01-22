@@ -13,11 +13,11 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_GetPreviousValuationDate](@previousDate as DATETIME output ) AS
+CREATE PROCEDURE [dbo].[sp_GetPreviousValuationDate] AS
 BEGIN
 
 --return the latest date from valuation table
-SELECT top 1 @previousDate = Valuation_Date FROM dbo.Valuations
+SELECT top 1 Valuation_Date FROM dbo.Valuations
 order by Valuation_Date desc
 
 end

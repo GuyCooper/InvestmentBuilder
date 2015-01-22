@@ -15,11 +15,11 @@ namespace InvestmentBuilderClient
         {
             var connectstr = @"Data Source=TRAVELPC\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest;Integrated Security=True";
             _connection = new SqlConnection(connectstr);
-            DataSource = new DataSet();
+            DataSource = new DataTable();
             _connection.Open();
         }
 
-        public DataSet DataSource { get; private set; }
+        public DataTable DataSource { get; private set; }
 
         public IEnumerable<DateTime?> GetValuationDates()
         {

@@ -15,16 +15,12 @@ GO
 CREATE PROCEDURE [dbo].[sp_GetBankBalance](@valuationDate as DATETIME) AS
 BEGIN
 
-declare @BankBalance float
-
 --return the latest balance in hand amount
-select top 1 @BankBalance = ca.amount from dbo.CashAccount ca
+select top 1 ca.amount from dbo.CashAccount ca
 inner join TransactionType tt
 on ca.type_id = tt.type_id
-and tt.type = 'Balance In Hand'
-order by ca.transaction_date desc 
-
-return @BankBalance
+and tt.type = 'BalanceInHand'
+and ca.valuation_date = @valuationDate
 
 END
 GO

@@ -19,9 +19,9 @@ namespace InvestmentBuilderClient
             InitializeComponent();
 
             _paymentsModel = new InvestmentDataModel();
-            //receiptsBindingSource.DataSource = _paymentsModel.DataSource;
-            receiptsGrid.DataSource = _paymentsModel.DataSource; // receiptsBindingSource;
-            cmboDate.Items.AddRange(_paymentsModel.GetValuationDates().Cast<object>().ToArray());           
+            receiptsBindingSource.DataSource = _paymentsModel.DataSource;
+            receiptsGrid.DataSource = receiptsBindingSource;
+            cmboDate.Items.AddRange(_paymentsModel.GetValuationDates().Cast<object>().ToArray());    
         }
 
         private void OnSelectedDateChange(object sender, EventArgs e)
@@ -37,7 +37,7 @@ namespace InvestmentBuilderClient
         private void btnGetData_Click(object sender, EventArgs e)
         {
             _paymentsModel.GetData(null, null);
-            receiptsGrid.Update();
+            receiptsGrid.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCellsExceptHeader);
         }
 
         protected override void OnClosed(EventArgs e)
