@@ -54,7 +54,7 @@ namespace ExcelAccountsManager
             File.Delete(performanceBookName);
             _performanceBook = app.Workbooks.Add();
             _performanceBook.SaveAs(performanceBookName);
-            _historicalAssetBooks = LoadAllBooks(path, MonthlyAssetName, app, ValuationDate);
+            //_historicalAssetBooks = LoadAllBooks(path, MonthlyAssetName, app, ValuationDate);
         }
 
         private void _SaveBook(_Workbook book)

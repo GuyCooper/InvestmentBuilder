@@ -20,30 +20,36 @@ namespace PerformanceBuilder
     class PerformanceBuilder
     {
         private ExcelBookHolder _bookHolder;
-        public PerformanceBuilder(ExcelBookHolder bookHolder)
+        private IEnumerable<HistoricalData> _historicalData;
+
+        public PerformanceBuilder(ExcelBookHolder bookHolder, string connectStr)
         {
             _bookHolder = bookHolder;
-        }
-
-        IEnumerable<HistoricalData> _GetClubData()
-        {
-            foreach (var assetBook in _bookHolder.GetHistoricalAssetBooks())
+            using (var reader = new HistoricalDataReader(connectStr))
             {
-                foreach (_Worksheet sheet in assetBook.Worksheets)
-                {
-                    double dUnitValue = 0d;
-                    if(sheet.GetUnitValueFromAssetSheet(ref dUnitValue))
-                    {
-                        var dtDate = sheet.GetValueDateTime("C", 4);
-                        yield return new HistoricalData
-                        {
-                            Price = dUnitValue,
-                            Date = dtDate.Value
-                        };
-                    }
-                }
+                _historicalData = reader.GetClubData().ToList();
             }
         }
+
+        //IEnumerable<HistoricalData> _GetClubData()
+        //{
+        //    foreach (var assetBook in _bookHolder.GetHistoricalAssetBooks())
+        //    {
+        //        foreach (_Worksheet sheet in assetBook.Worksheets)
+        //        {
+        //            double dUnitValue = 0d;
+        //            if(sheet.GetUnitValueFromAssetSheet(ref dUnitValue))
+        //            {
+        //                var dtDate = sheet.GetValueDateTime("C", 4);
+        //                yield return new HistoricalData
+        //                {
+        //                    Price = dUnitValue,
+        //                    Date = dtDate.Value
+        //                };
+        //            }
+        //        }
+        //    }
+        //}
 
         private DateTime MonthlyDate(DateTime dt)
         {
@@ -122,7 +128,8 @@ namespace PerformanceBuilder
         internal RangeDimensions BuildDataLadder(DateTime? startDate, IEnumerable<Tuple<string, string>> indexes, int startRow, char startCol)
         {
             //first get club history
-            var clubData = _GetClubData().OrderBy(x => x.Date).ToList();
+            //var clubData = _GetClubData().OrderBy(x => x.Date).ToList();
+            var clubData = _historicalData.OrderBy(x => x.Date).ToList();
             DumpData("club data", clubData);
 
             var rebasedClubData = RebaseDataList(clubData, startDate).ToList();

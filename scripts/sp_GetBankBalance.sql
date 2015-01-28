@@ -19,7 +19,7 @@ BEGIN
 select top 1 ca.amount from dbo.CashAccount ca
 inner join TransactionType tt
 on ca.type_id = tt.type_id
-and tt.type = 'BalanceInHand'
+and tt.type = 'BalanceInHandCF'
 and ca.valuation_date = @valuationDate
 
 END

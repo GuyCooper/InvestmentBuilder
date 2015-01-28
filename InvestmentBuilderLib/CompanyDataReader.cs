@@ -117,6 +117,7 @@ namespace InvestmentBuilder
                     double dSharesHeld = (int)reader["Bought"] + (int)reader["Bonus"] - (int)reader["Sold"];
                     double dAveragePrice = dTotalCost / dSharesHeld;
                     double dSharePrice = (double)reader["Price"];
+                    double dDividend = (double)reader["Dividends"];
 
                     yield return new CompanyData
                     {
@@ -126,7 +127,8 @@ namespace InvestmentBuilder
                         dAveragePricePaid = dAveragePrice,
                         dTotalCost = dTotalCost,
                         dSharePrice = dSharePrice,
-                        dNetSellingValue = _GetNetSellingValue(dSharesHeld, dSharePrice)
+                        dNetSellingValue = _GetNetSellingValue(dSharesHeld, dSharePrice),
+                        dDividend = dDividend  
                     };
                 }
                 reader.Close();
