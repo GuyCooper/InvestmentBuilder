@@ -22,16 +22,14 @@ namespace InvestmentBuilder
         /// <param name="connectionstr"></param>
         /// <param name="bTest"></param>
         /// <returns></returns>
-        private static IInvestmentFactory BuildFactory(DataFormat format, string path, string connectionstr, bool bTest)
+        private static IInvestmentFactory BuildFactory(DataFormat format, string path, string connectionstr, DateTime dtValuation, bool bTest)
         {
             switch(format)
             {
                 case DataFormat.EXCEL:
-                    return new ExcelInvestmentFactory(path, bTest);
-                    break;
+                    return new ExcelInvestmentFactory(path, dtValuation, bTest);
                 case DataFormat.DATABASE:
-                    return new DatabaseInvestmentFactory(path, connectionstr, bTest);
-                    break;
+                    return new DatabaseInvestmentFactory(path, connectionstr, dtValuation, bTest);
             }
 
             throw new ArgumentException("invalid dataformat");
@@ -44,7 +42,7 @@ namespace InvestmentBuilder
         /// <param name="path"></param>
         public static void BuildAssetSheet(string tradeFile, string path, string connectionstr, bool bTest, DateTime valuationDate, DataFormat format)
         {
-            var factory = BuildFactory(format, path, connectionstr, bTest);
+            var factory = BuildFactory(format, path, connectionstr, valuationDate, bTest);
             try
             {
                 var trades = TradeLoader.GetTrades(tradeFile);
@@ -59,7 +57,7 @@ namespace InvestmentBuilder
                 var cashAccountData = cashAccountReader.GetCashAccountData(valuationDate);
                 //parse the trade file for any trades for this month and update the investment record
                 //var trades = TradeLoader.GetTrades(tradeFile);
-                recordBuilder.BuildInvestmentRecords(trades, cashAccountData, valuationDate);
+                //recordBuilder.BuildInvestmentRecords(trades, cashAccountData, valuationDate, dtPreviousValuation);
 
                 //now extract the latest data from the investment record
                 var lstData = dataReader.GetCompanyData(valuationDate, dtPreviousValuation).ToList();

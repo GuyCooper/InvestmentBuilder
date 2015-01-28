@@ -11,6 +11,10 @@ alter table dbo.InvestmentRecord
 drop constraint FK_Company_Id_InvestmentRecord
 go
 
+alter table dbo.MembersCapitalAccount
+drop constraint FK_Member_Id_MembersAccount
+go
+
 drop index IDX_CashAccountDate
 on dbo.CashAccount
 
@@ -20,11 +24,14 @@ on dbo.MembersCapitalAccount
 drop index IDX_Valuations_ValuationDate
 on dbo.Valuations
 
+drop table dbo.Members
+go
+drop table dbo.Companies
+go
 drop table dbo.TransactionType
 go
 drop table dbo.CashAccount
 go
-drop table dbo.Companies
 go
 drop table dbo.InvestmentRecord
 go
@@ -86,11 +93,20 @@ create table dbo.InvestmentRecord
 create clustered index IDX_InvestmentRecordDate on
 dbo.InvestmentRecord([Valuation_Date])
 
+create table dbo.Members
+(
+	[Member_Id] int identity primary key clustered,
+	[Name] varchar(50)
+)
+
 create table dbo.MembersCapitalAccount
 (
 	[Valuation_Date] datetime not null,
-	[Member] varchar(50) not null,
-	[Units] float not null
+	[Member_Id] int not null,
+	[Units] float not null,
+
+	constraint FK_Member_Id_MembersAccount foreign key
+	([Member_Id]) references Members([Member_Id])
 )
 
 
@@ -106,9 +122,9 @@ create table dbo.Valuations
 create clustered index IDX_Valuations_ValuationDate on
 dbo.Valuations([Valuation_Date])
 
+
 /* side: P = Payments (right hand side), R = Receipts (left hand side) */
 insert into dbo.TransactionType ([type], side) values ('Admin Fee', 'P')
-insert into dbo.TransactionType ([type], side) values ('Balance In Hand', 'P')
 insert into dbo.TransactionType ([type], side) values ('Purchase', 'P')
 insert into dbo.TransactionType ([type], side) values ('Redemption', 'P')
 insert into dbo.TransactionType ([type], side) values ('Subscription', 'R')
@@ -117,3 +133,9 @@ insert into dbo.TransactionType ([type], side) values ('Interest', 'R')
 insert into dbo.TransactionType ([type], side) values ('Sale', 'R')
 insert into dbo.TransactionType ([type], side) values ('BalanceInHand', 'R')
 insert into dbo.TransactionType ([type], side) values ('BalanceInHandCF', 'P')
+
+insert into dbo.Members([Name]) values('Guy Cooper')
+insert into dbo.Members([Name]) values('Nigel Cooper')
+insert into dbo.Members([Name]) values('James Rodgers')
+insert into dbo.Members([Name]) values('Vaughan Simpson')
+insert into dbo.Members([Name]) values('Tim Gallagher')

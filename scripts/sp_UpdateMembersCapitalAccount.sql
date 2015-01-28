@@ -13,6 +13,8 @@ GO
 
 CREATE PROCEDURE [dbo].[sp_UpdateMembersCapitalAccount](@ValuationDate as DATETIME, @Member as varchar(50), @Units as float) AS
 BEGIN
-	INSERT INTO MembersCapitalAccount (Valuation_Date, Member, Units)
-	VALUES (@ValuationDate, @Member, @Units)
+	INSERT INTO MembersCapitalAccount 
+	SELECT @ValuationDate, M.Member_Id, @Units
+	FROM Members M
+	WHERE M.Name = @Member
 END

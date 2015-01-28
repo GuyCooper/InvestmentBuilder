@@ -13,7 +13,7 @@ namespace InvestmentBuilder
     {
         string Name {get;}
         void DeactivateInvestment();
-        void UpdateRow(DateTime valuationDate);
+        void UpdateRow(DateTime valuationDate, DateTime? previousDate);
         void ChangeShareHolding(int holding);
         void AddNewShares(Stock stock);
         void UpdateClosingPrice();
@@ -36,10 +36,10 @@ namespace InvestmentBuilder
         /// <param name="trades"></param>
         /// <param name="cashData"></param>
         /// <param name="valuationDate"></param>
-        public void BuildInvestmentRecords(Trades trades, CashAccountData cashData, DateTime valuationDate)
+        public void BuildInvestmentRecords(Trades trades, CashAccountData cashData, DateTime valuationDate, DateTime? previousValuation)
         {
             Console.WriteLine("building investment records...");
-            var enInvestments = GetInvestments(valuationDate);
+            var enInvestments = GetInvestments(valuationDate).ToList();
             foreach(var investment in enInvestments)
             {
                 var company = investment.Name;
@@ -53,7 +53,7 @@ namespace InvestmentBuilder
                 {
                     Console.WriteLine("updating company {0}", company);
                     //now copy the last row into a new row and update
-                    investment.UpdateRow(valuationDate);
+                    investment.UpdateRow(valuationDate, previousValuation);
                     //update share number if it has changed
                     var trade = trades.Changed.FirstOrDefault(x => company.Equals(x.Name, StringComparison.CurrentCultureIgnoreCase));
                     if(trade != null)

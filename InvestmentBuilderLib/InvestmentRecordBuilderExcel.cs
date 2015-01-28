@@ -31,7 +31,7 @@ namespace InvestmentBuilder
             _sheet.get_Range("B7").Value = false;
         }
 
-        public void UpdateRow(DateTime valuationDate)
+        public void UpdateRow(DateTime valuationDate, DateTime? previousDate)
         {            
             //check if the last row was written this month, if it was then just update the current last
             //row, otherwise add a new row

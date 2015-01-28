@@ -44,15 +44,9 @@ namespace InvestmentBuilder
         protected abstract double UpdateMembersCapitalAccount(double dPreviousUnitValue, DateTime? dtPreviousValution, DateTime valuationDate);
 
         //override save unit value for databasse inplementation. otherwise do nothing
-        protected virtual void SaveNewUnitValue(DateTime valuationDate) { }
+        protected abstract void SaveNewUnitValue(DateTime valuationDate);
 
-        private string _GetPreviousMonth(DateTime valuationDate)
-        {
-            var previousMonth = valuationDate.Month - 1;
-            if (previousMonth < 1)
-                previousMonth = 12;
-            return Months[previousMonth - 1];
-        }
+        protected abstract double GetPreviousUnitValuation(DateTime valuationDate, DateTime? previousDate);
 
         protected bool _TryGetUnitValue(string month, ref double unitValue)
         {
@@ -75,12 +69,8 @@ namespace InvestmentBuilder
             //var exWbk = exApp.Workbooks.Open(spreadsheetLocation);
 
             //get the previous months unit value amount to calculate the total units allocated
-            double previousUnitValue = 0d;
-            if (_TryGetUnitValue(_GetPreviousMonth(valuationDate), ref previousUnitValue) == false)
-            {
-                throw new ApplicationException("unable to retrieve previous unit value");
-            }
-
+            double previousUnitValue = GetPreviousUnitValuation(valuationDate, dtPreviousValution);
+            
             //add in a new monthly asset sheet from the template workbook
             _Worksheet templateSheet = _bookHolder.GetTemplateBook().Worksheets["Assets"];
             templateSheet.Copy(_bookHolder.GetAssetSheetBook().Worksheets[1]);
@@ -126,7 +116,7 @@ namespace InvestmentBuilder
             newSheet.get_Range("J" + count).Formula = string.Format("=SUM(J7:J{0})", count - 1);
 
             //calculate the allocated units for the current month and the bank balance and update the monthly assets sheet
-            var dAllocatedUnits = UpdateMembersCapitalAccount(previousUnitValue * 100d, dtPreviousValution, valuationDate);
+            var dAllocatedUnits = UpdateMembersCapitalAccount(previousUnitValue, dtPreviousValution, valuationDate);
             //var dBankBalance = _GetBankBalance();
 
             int unitsRow = 0;
@@ -180,6 +170,28 @@ namespace InvestmentBuilder
             //return 0d;
             //return (double)mcaSheet.get_Range("K" + iRefRow + 5).Value;
         }
+
+        private string _GetPreviousMonth(DateTime valuationDate)
+        {
+            var previousMonth = valuationDate.Month - 1;
+            if (previousMonth < 1)
+                previousMonth = 12;
+            return Months[previousMonth - 1];
+        }
+
+        protected override void SaveNewUnitValue(DateTime valuationDate)
+        {
+        }
+
+        protected override double GetPreviousUnitValuation(DateTime valuationDate, DateTime? previousDate)
+        {
+            double previousUnitValue = 0d;
+            if (_TryGetUnitValue(_GetPreviousMonth(valuationDate), ref previousUnitValue) == false)
+            {
+                throw new ApplicationException("unable to retrieve previous unit value");
+            }
+            return previousUnitValue;
+        }
     }
 
     class AssetStatementWriterDatabase : AssetStatementWriter
@@ -196,6 +208,7 @@ namespace InvestmentBuilder
             double dSubscription = 0d;
             using (var command = new SqlCommand("sp_GetMemberSubscriptionAmount", _connection))
             {
+                command.CommandType = System.Data.CommandType.StoredProcedure;
                 command.Parameters.Add(new SqlParameter("@Member", member));
                 command.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
                 dSubscription = (double)command.ExecuteScalar();
@@ -218,6 +231,7 @@ namespace InvestmentBuilder
                         var units = (double)reader["Units"];
                         yield return new KeyValuePair<string, double>(member, units);
                     }
+                    reader.Close();
                 }
             }
         }
@@ -235,13 +249,24 @@ namespace InvestmentBuilder
                 dResult += dNewAmount;
                 using (var updateCommand = new SqlCommand("sp_UpdateMembersCapitalAccount", _connection))
                 {
-                    updateCommand.Parameters.Add(new SqlParameter("@valuationDate", valuationDate));
-                    updateCommand.Parameters.Add(new SqlParameter("@Member", member));
+                    updateCommand.CommandType = System.Data.CommandType.StoredProcedure;
+                    updateCommand.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
+                    updateCommand.Parameters.Add(new SqlParameter("@Member", member.Key));
                     updateCommand.Parameters.Add(new SqlParameter("@Units", dNewAmount));
                     updateCommand.ExecuteNonQuery();
                 }
             }
             return dResult;
+        }
+
+        protected override double GetPreviousUnitValuation(DateTime valuationDate, DateTime? previousDate)
+        {
+            using (var command = new SqlCommand("sp_GetUnitValuation", _connection))
+            {
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+                command.Parameters.Add(new SqlParameter("@valuationDate", previousDate.Value));
+                return (double)command.ExecuteScalar();
+            }
         }
 
         protected override void SaveNewUnitValue(DateTime valuationDate)

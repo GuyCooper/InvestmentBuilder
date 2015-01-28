@@ -11,12 +11,8 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_RollInvestment](@valuationDate as DATETIME, @investment as VARCHAR(50)) AS
+CREATE PROCEDURE [dbo].[sp_RollInvestment](@valuationDate as DATETIME, @previousDate as DATETIME, @investment as VARCHAR(50)) AS
 BEGIN
-
-DECLARE @previousDate DATETIME
-
-SELECT @previousDate = MAX(Valuation_Date) FROM InvestmentRecord
 
 INSERT INTO InvestmentRecord
 SELECT

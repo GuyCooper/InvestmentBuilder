@@ -119,7 +119,11 @@ namespace ExcelDataUpload
                 double dScalingFactor = 0;
                 double dDividend = 0d;
                 recordSheet.GetValueDouble("C", 4, ref dScalingFactor);
-                bool bIsActive = recordSheet.get_Range("B" + 7).Value;
+                bool bActive = recordSheet.get_Range("B" + 7).Value;
+                if(bActive == false)
+                {
+                    continue;
+                }
 
                 int lastRow = recordSheet.GetLastPopulatedRow("A", 10);
                 var dtValuation = recordSheet.GetValueDateTime("A", lastRow);

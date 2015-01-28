@@ -18,8 +18,8 @@ namespace ExcelDataUpload
             //read in cash account data from excel - add to cash account table
             string accountsPath = null;
             string valuedate = null;
-            var db = @"Data Source=GUYANDSUE\GUYC;Initial Catalog=ArgyllInvestments;Integrated Security=True";
-            //var db = @"Data Source=TRAVELPC\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest;Integrated Security=True";
+            //var db = @"Data Source=GUYANDSUE\GUYC;Initial Catalog=ArgyllInvestments;Integrated Security=True";
+            var db = @"Data Source=TRAVELPC\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest;Integrated Security=True";
             for(int i = 0; i < args.Length; i++)
             {
                 var arg = args[i];

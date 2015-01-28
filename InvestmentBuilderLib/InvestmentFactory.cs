@@ -26,11 +26,11 @@ namespace InvestmentBuilder
         private ExcelBookHolder _bookHolder;
         private Microsoft.Office.Interop.Excel.Application _app = new Microsoft.Office.Interop.Excel.Application();
 
-        public ExcelInvestmentFactory(string path, bool bTest)
+        public ExcelInvestmentFactory(string path, DateTime dtValuation, bool bTest)
         {
             _app.DisplayAlerts = false;
 
-            string ext = bTest ? "Test" : DateTime.Today.Year.ToString();
+            string ext = bTest ? "Test" : dtValuation.Year.ToString();
             string assetSheetLocation = _CreateFormattedFileCopy(path, ExcelBookHolder.MonthlyAssetName, ext);
             string cashAccountLocation = _CreateFormattedFileCopy(path, ExcelBookHolder.CashAccountName, ext);
             string investmentRecordLocation = _CreateFormattedFileCopy(path, ExcelBookHolder.InvestmentRecordName, ext);
@@ -81,6 +81,9 @@ namespace InvestmentBuilder
             string originalFile = string.Format("{0}{1}-{2}.xls", path, filename, ext);
             string newFile = string.Format("{0}{1}-{2}.Impl.xls", path, filename, ext);
 
+            if (File.Exists(originalFile) == false)
+                return null;
+
             File.Copy(originalFile, newFile, true);
             return newFile;
         }
@@ -94,8 +97,8 @@ namespace InvestmentBuilder
     {
         private SqlConnection _conn;
 
-        public DatabaseInvestmentFactory(string path, string connectionstr, bool bTest) :
-            base(path, bTest)
+        public DatabaseInvestmentFactory(string path, string connectionstr, DateTime dtValuation, bool bTest) :
+            base(path, dtValuation, bTest)
         {
             _conn = new SqlConnection(connectionstr);
             _conn.Open();

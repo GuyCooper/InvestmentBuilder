@@ -17,9 +17,11 @@ CREATE PROCEDURE [dbo].[sp_GetMembersCapitalAccount](@ValuationDate as DATETIME)
 BEGIN
 
 SELECT
-	Member, Units
+	M.Name as Member, MCA.Units as Units
 FROM 
-	MembersCapitalAccount
+	MembersCapitalAccount MCA
+INNER JOIN	 Members M
+ON MCA.Member_Id =M.Member_Id
 WHERE
 	Valuation_Date = @valuationDate
 END

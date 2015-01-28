@@ -8,6 +8,13 @@ using MarketDataServices;
 
 namespace InvestmentBuilder
 {
+    internal class CompanyInformation
+    {
+        public string Symbol { get; set; }
+        public string Currency { get; set; }
+        public double ScalingFactor { get; set; }
+    }
+
     class DatabaseInvestment : IInvestment
     {
         SqlConnection _connection;
@@ -30,12 +37,13 @@ namespace InvestmentBuilder
             }
         }
 
-        public void UpdateRow(DateTime valuationDate)
+        public void UpdateRow(DateTime valuationDate, DateTime? previousDate)
         {
             using (var command = new SqlCommand("sp_RollInvestment", _connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 command.Parameters.Add(new SqlParameter("@valuationDate", valuationDate));
+                command.Parameters.Add(new SqlParameter("@previousDate", previousDate.Value));
                 command.Parameters.Add(new SqlParameter("@investment", Name));
                 command.ExecuteNonQuery();
             }
@@ -66,32 +74,49 @@ namespace InvestmentBuilder
             }
         }
 
+        private CompanyInformation GetCompanyData()
+        {
+            CompanyInformation data = null;
+            using (var command = new SqlCommand("sp_GetCompanyData", _connection))
+            {
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+                command.Parameters.Add(new SqlParameter("@Name", Name));
+                 using (var reader = command.ExecuteReader())
+                 {
+                     if (reader.Read())
+                     {
+                         var symbol = (string)reader["Symbol"];
+                         var ccy = (string)reader["Currency"];
+                         data = new CompanyInformation
+                         {
+                             Symbol = symbol.Trim(),
+                             Currency = ccy.Trim(),
+                             ScalingFactor = (double)reader["ScalingFactor"]
+                         };
+                     }
+                     reader.Close();
+                 }
+            }
+            return data;
+        }
+
         public void UpdateClosingPrice()
         {
-            DateTime dtReturn = DateTime.Now;
-            string strSql = string.Format("SELECT Symbol, Currency, ScalingFactor FROM Companies where  Name = {0}", Name);
-            using (var command = new SqlCommand(strSql, _connection))
+            var companyData = GetCompanyData();
+            if(companyData != null)
             {
-                var reader = command.ExecuteReader();
-                if (reader.Read())
+                double dClosing;
+                if (MarketDataService.TryGetClosingPrice(companyData.Symbol, Name, companyData.Currency, companyData.ScalingFactor, out dClosing))
                 {
-                    string symbol = (string)reader["Symbol"];
-                    string currency = (string)reader["Currency"];
-                    double scalingFactor = (double)reader["ScalingFactor"];
-                    double dClosing;
-                    if (MarketDataService.TryGetClosingPrice(Name, symbol, currency, scalingFactor, out dClosing))
+                    using (var updateCommand = new SqlCommand("sp_UpdateClosingPrice", _connection))
                     {
-                        using (var updateCommand = new SqlCommand("sp_UpdateClosingPrice", _connection))
-                        {
-                            updateCommand.CommandType = System.Data.CommandType.StoredProcedure;
-                            updateCommand.Parameters.Add(new SqlParameter("@valuationDate", _currentDate));
-                            updateCommand.Parameters.Add(new SqlParameter("@investment", Name));
-                            updateCommand.Parameters.Add(new SqlParameter("@closingPrice", dClosing));
-                            updateCommand.ExecuteNonQuery();
-                        }
+                        updateCommand.CommandType = System.Data.CommandType.StoredProcedure;
+                        updateCommand.Parameters.Add(new SqlParameter("@valuationDate", _currentDate));
+                        updateCommand.Parameters.Add(new SqlParameter("@investment", Name));
+                        updateCommand.Parameters.Add(new SqlParameter("@closingPrice", dClosing));
+                        updateCommand.ExecuteNonQuery();
                     }
                 }
-                reader.Close();
             }
         }
 
