@@ -74,6 +74,7 @@ namespace PerformanceBuilder
 
             //benchmark for 1 year, 3 year and all time
             var performanceRangeList = new List<Tuple<DateTime?, string>>{ new Tuple<DateTime?, string>(null, "All Time"),
+                                                                           new Tuple<DateTime?,string>(DateTime.Today.AddYears(-5), "5 Year"),
                                                                            new Tuple<DateTime?,string>(DateTime.Today.AddYears(-3), "3 Year"),
                                                                            new Tuple<DateTime?, string>( DateTime.Today.AddYears(-1), "1 Year")};
 

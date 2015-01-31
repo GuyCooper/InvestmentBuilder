@@ -18,6 +18,7 @@ BEGIN
 
 SELECT 
 	C.Name as Name,
+	C.LastBoughtDate as LastBoughtDate,
 	IR.Shares_Bought as Bought,
 	IR.[Bonus_Shares issued] as Bonus,
 	IR.Shares_Sold as Sold,
@@ -28,6 +29,7 @@ FROM InvestmentRecord IR JOIN Companies C
 ON IR.Company_id = C.Company_Id 
 WHERE IR.Valuation_Date = @valuationDate
 AND C.IsActive = 1
+ORDER BY LastBoughtDate ASC
  
 END
 GO

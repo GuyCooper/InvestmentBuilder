@@ -11,12 +11,15 @@ END
 
 GO
 
-CREATE PROCEDURE sp_AddNewShares(@valuationDate as DATETIME, @investment as VARCHAR(50), @shares as INT, @totalCost as float) AS
+CREATE PROCEDURE sp_AddNewShares(@ValuationDate as DATETIME, @investment as VARCHAR(50), @shares as INT, @totalCost as float) AS
 BEGIN
 
 UPDATE IR SET IR.Shares_Bought += @shares, IR.Total_Cost += @totalCost
 FROM investmentRecord AS IR JOIN Companies C ON IR.Company_Id = C.Company_Id
 AND C.Name = @Investment
 AND IR.Valuation_Date = @ValuationDate
+
+UPDATE Companies SET LastBoughtDate = @ValuationDate
+WHERE Name = @investment
  
 END

@@ -18,8 +18,8 @@ CREATE PROCEDURE [dbo].[sp_CreateNewInvestment](@valuationDate as DATETIME, @inv
 				 @totalCost as FLOAT, @closingPrice as FLOAT, @dividend as FLOAT) AS
 BEGIN
 
-	INSERT INTO Companies (Name, Symbol, Currency, IsActive, ScalingFactor)
-	VALUES (@investment, @symbol, @currency, 1, @scalingFactor)
+	INSERT INTO Companies (Name, Symbol, Currency, IsActive, ScalingFactor, LastBoughtDate)
+	VALUES (@investment, @symbol, @currency, 1, @scalingFactor, @valuationDate )
 
 	INSERT INTO InvestmentRecord ([Company_Id],[Valuation_Date],[Shares_Bought],[Total_Cost],[Selling_Price],[Dividends_Received])
 	SELECT C.Company_Id, @valuationDate, @shares, @totalCost, @closingPrice, @dividend

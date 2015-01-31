@@ -122,7 +122,7 @@ namespace InvestmentBuilder
                     yield return new CompanyData
                     {
                         sName = (string)reader["Name"],
-                        dtLastBrought = dtValuationDate,
+                        dtLastBrought = (DateTime)reader["LastBoughtDate"],
                         iNumberOfShares = dSharesHeld,
                         dAveragePricePaid = dAveragePrice,
                         dTotalCost = dTotalCost,

@@ -19,7 +19,7 @@ namespace InvestmentBuilderConsole
             string path = @"C:\Users\Guy\Documents\Guy\Investment Club\Accounts";
             string connectionsstr = @"Data Source=TRAVELPC\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest;Integrated Security=True";
             bool bTest = false;
-            DateTime? dtValuationDate = null;
+            DateTime dtValuationDate = DateTime.Now;
 
             foreach (var arg in args)
             {
@@ -57,7 +57,10 @@ namespace InvestmentBuilderConsole
             var format = string.IsNullOrEmpty(connectionsstr) ? InvestmentBuilder.DataFormat.EXCEL :
                 InvestmentBuilder.DataFormat.DATABASE;
 
-            InvestmentBuilder.AssetSheetBuilder.BuildAssetSheet(tradeFile, path, connectionsstr, bTest, dtValuationDate.Value,
+            Console.WriteLine("path:{0}", path);
+            Console.WriteLine("db str: {0}", connectionsstr);
+            Console.WriteLine("valuation date:{0}", dtValuationDate);
+            InvestmentBuilder.AssetSheetBuilder.BuildAssetSheet(tradeFile, path, connectionsstr, bTest, dtValuationDate,
                                                                    format);
 
         }
