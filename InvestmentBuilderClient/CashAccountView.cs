@@ -13,37 +13,57 @@ namespace InvestmentBuilderClient
     public partial class CashAccountView : Form
     {
         InvestmentDataModel _paymentsModel;
+        bool _bInitialised = false;
 
         public CashAccountView()
         {
             InitializeComponent();
-
+            SetupGrid();
             _paymentsModel = new InvestmentDataModel();
-            receiptsBindingSource.DataSource = _paymentsModel.DataSource;
+            receiptsBindingSource.DataSource = _paymentsModel.Receipts;
             receiptsGrid.DataSource = receiptsBindingSource;
-            cmboDate.Items.AddRange(_paymentsModel.GetValuationDates().Cast<object>().ToArray());    
+            cmboDate.Items.AddRange(_paymentsModel.GetValuationDates().Cast<object>().ToArray());
+            _bInitialised = true;
         }
 
-        private void OnSelectedDateChange(object sender, EventArgs e)
+        private void AddColumn(DataGridView gridView, string name, string propertyName)
         {
-           if(cmboDate.SelectedItem != null)
-            {
-                DateTime? previousDate = cmboDate.SelectedIndex > 0 ? (DateTime?)cmboDate.Items[cmboDate.SelectedIndex - 1] : null;
-                DateTime? nextDate = (DateTime?)cmboDate.SelectedItem;
-                _paymentsModel.GetData(previousDate, nextDate);
-            }
+            gridView.Columns.Add(new DataGridViewColumn
+                {
+                    Name = name,
+                    DataPropertyName = propertyName,
+                    CellTemplate = new DataGridViewTextBoxCell()
+                });
         }
 
-        private void btnGetData_Click(object sender, EventArgs e)
+        private void SetupGrid()
         {
-            _paymentsModel.GetData(null, null);
-            receiptsGrid.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCellsExceptHeader);
+            receiptsGrid.AutoGenerateColumns = false;
+            AddColumn(receiptsGrid, "Transaction Date", "TransactionDate");
+            AddColumn(receiptsGrid, "Parameter", "Parameter");
+            AddColumn(receiptsGrid, "Subscription", "Subscription");
+            AddColumn(receiptsGrid, "Sale", "Sale");
+            AddColumn(receiptsGrid, "Dividend", "Dividend");
+            AddColumn(receiptsGrid, "Other", "Other");
         }
 
         protected override void OnClosed(EventArgs e)
         {
             _paymentsModel.Dispose();
             base.OnClosed(e);
+        }
+
+        private void OnValuationDateChanged(object sender, EventArgs e)
+        {
+            if (_bInitialised)
+            {
+                DateTime dtValuationDate = (DateTime)cmboDate.SelectedItem;
+                _paymentsModel.GetReceipts(dtValuationDate);
+                DataGridViewCellStyle style = new DataGridViewCellStyle();
+                style.Font = new Font(receiptsGrid.Font, FontStyle.Bold);
+                receiptsGrid.Rows[receiptsGrid.Rows.Count - 1].DefaultCellStyle = style;
+                receiptsGrid.AutoResizeColumns();
+            }
         }
     }
 }
