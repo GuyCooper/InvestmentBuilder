@@ -16,8 +16,11 @@ namespace InvestmentBuilderClient
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            var view = new CashAccountView();
-            Application.Run(view);
+            using (var dataModel = new InvestmentDataModel())
+            {
+                var view = new CashAccountView(dataModel);
+                Application.Run(view);
+            }
         }
     }
 }

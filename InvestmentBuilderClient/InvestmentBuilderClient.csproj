@@ -44,12 +44,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddTransactionView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddTransactionView.Designer.cs">
+      <DependentUpon>AddTransactionView.cs</DependentUpon>
+    </Compile>
     <Compile Include="CashAccountView.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="CashAccountView.Designer.cs">
       <DependentUpon>CashAccountView.cs</DependentUpon>
     </Compile>
+    <Compile Include="CashAccountViewModel.cs" />
     <Compile Include="InvestmentDataModel.cs" />
     <Compile Include="MainView.cs">
       <SubType>Form</SubType>
@@ -59,6 +66,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="AddTransactionView.resx">
+      <DependentUpon>AddTransactionView.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="CashAccountView.resx">
       <DependentUpon>CashAccountView.cs</DependentUpon>
     </EmbeddedResource>

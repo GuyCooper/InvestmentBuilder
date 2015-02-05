@@ -35,12 +35,11 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.btnAddReceipt = new System.Windows.Forms.Button();
-            this.paymentsGrid = new System.Windows.Forms.DataGridView();
+            this.txtTotal = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
+            this.btnDeleteReceipt = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.receiptsGrid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.receiptsBindingSource)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.paymentsGrid)).BeginInit();
             this.SuspendLayout();
             // 
             // receiptsGrid
@@ -53,13 +52,14 @@
             this.receiptsGrid.Name = "receiptsGrid";
             this.receiptsGrid.ReadOnly = true;
             this.receiptsGrid.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.receiptsGrid.Size = new System.Drawing.Size(478, 232);
+            this.receiptsGrid.Size = new System.Drawing.Size(478, 289);
             this.receiptsGrid.TabIndex = 0;
+            this.receiptsGrid.SelectionChanged += new System.EventHandler(this.OnSelectedTransactionChanged);
             // 
             // cmboDate
             // 
             this.cmboDate.FormattingEnabled = true;
-            this.cmboDate.Location = new System.Drawing.Point(118, 291);
+            this.cmboDate.Location = new System.Drawing.Point(383, 15);
             this.cmboDate.Name = "cmboDate";
             this.cmboDate.Size = new System.Drawing.Size(121, 21);
             this.cmboDate.TabIndex = 1;
@@ -68,7 +68,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(29, 294);
+            this.label1.Location = new System.Drawing.Point(306, 18);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(74, 13);
             this.label1.TabIndex = 3;
@@ -85,47 +85,54 @@
             // 
             // btnAddReceipt
             // 
-            this.btnAddReceipt.Location = new System.Drawing.Point(84, 13);
+            this.btnAddReceipt.Location = new System.Drawing.Point(98, 14);
             this.btnAddReceipt.Name = "btnAddReceipt";
             this.btnAddReceipt.Size = new System.Drawing.Size(75, 23);
             this.btnAddReceipt.TabIndex = 5;
             this.btnAddReceipt.Text = "Add Receipt";
             this.btnAddReceipt.UseVisualStyleBackColor = true;
+            this.btnAddReceipt.Click += new System.EventHandler(this.btnAddReceipt_Click);
             // 
-            // paymentsGrid
+            // txtTotal
             // 
-            this.paymentsGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.paymentsGrid.Location = new System.Drawing.Point(526, 46);
-            this.paymentsGrid.Name = "paymentsGrid";
-            this.paymentsGrid.Size = new System.Drawing.Size(456, 232);
-            this.paymentsGrid.TabIndex = 6;
+            this.txtTotal.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.txtTotal.Font = new System.Drawing.Font("Arial Rounded MT Bold", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtTotal.Location = new System.Drawing.Point(187, 350);
+            this.txtTotal.Name = "txtTotal";
+            this.txtTotal.ReadOnly = true;
+            this.txtTotal.Size = new System.Drawing.Size(178, 26);
+            this.txtTotal.TabIndex = 6;
+            this.txtTotal.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(523, 18);
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.Location = new System.Drawing.Point(104, 357);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(53, 13);
+            this.label3.Size = new System.Drawing.Size(57, 16);
             this.label3.TabIndex = 7;
-            this.label3.Text = "Payments";
+            this.label3.Text = "TOTAL";
             // 
-            // button1
+            // btnDeleteReceipt
             // 
-            this.button1.Location = new System.Drawing.Point(582, 13);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(82, 23);
-            this.button1.TabIndex = 8;
-            this.button1.Text = "Add Payment";
-            this.button1.UseVisualStyleBackColor = true;
+            this.btnDeleteReceipt.Enabled = false;
+            this.btnDeleteReceipt.Location = new System.Drawing.Point(181, 14);
+            this.btnDeleteReceipt.Name = "btnDeleteReceipt";
+            this.btnDeleteReceipt.Size = new System.Drawing.Size(89, 23);
+            this.btnDeleteReceipt.TabIndex = 8;
+            this.btnDeleteReceipt.Text = "Delete Receipt";
+            this.btnDeleteReceipt.UseVisualStyleBackColor = true;
+            this.btnDeleteReceipt.Click += new System.EventHandler(this.btnDeleteReceipt_Click);
             // 
             // CashAccountView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1007, 336);
-            this.Controls.Add(this.button1);
+            this.ClientSize = new System.Drawing.Size(554, 391);
+            this.Controls.Add(this.btnDeleteReceipt);
             this.Controls.Add(this.label3);
-            this.Controls.Add(this.paymentsGrid);
+            this.Controls.Add(this.txtTotal);
             this.Controls.Add(this.btnAddReceipt);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -135,7 +142,6 @@
             this.Text = "CashAccountView";
             ((System.ComponentModel.ISupportInitialize)(this.receiptsGrid)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.receiptsBindingSource)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.paymentsGrid)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -149,8 +155,8 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button btnAddReceipt;
-        private System.Windows.Forms.DataGridView paymentsGrid;
+        private System.Windows.Forms.TextBox txtTotal;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btnDeleteReceipt;
     }
 }

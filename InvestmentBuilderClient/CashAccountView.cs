@@ -10,19 +10,22 @@ using System.Windows.Forms;
 
 namespace InvestmentBuilderClient
 {
-    public partial class CashAccountView : Form
+    internal partial class CashAccountView : Form
     {
-        InvestmentDataModel _paymentsModel;
+        InvestmentDataModel _dataModel;
+        CashAccountViewModel _vm;
+
         bool _bInitialised = false;
 
-        public CashAccountView()
+        public CashAccountView(InvestmentDataModel dataModel)
         {
             InitializeComponent();
             SetupGrid();
-            _paymentsModel = new InvestmentDataModel();
-            receiptsBindingSource.DataSource = _paymentsModel.Receipts;
+            _dataModel = dataModel;
+            _vm = new CashAccountViewModel(_dataModel);
+            receiptsBindingSource.DataSource = _vm.Receipts;
             receiptsGrid.DataSource = receiptsBindingSource;
-            cmboDate.Items.AddRange(_paymentsModel.GetValuationDates().Cast<object>().ToArray());
+            cmboDate.Items.AddRange(_dataModel.GetValuationDates().Cast<object>().ToArray());
             _bInitialised = true;
         }
 
@@ -47,10 +50,13 @@ namespace InvestmentBuilderClient
             AddColumn(receiptsGrid, "Other", "Other");
         }
 
-        protected override void OnClosed(EventArgs e)
+        private void AddGridStyling()
         {
-            _paymentsModel.Dispose();
-            base.OnClosed(e);
+            //currently just make the last row bold as this is the total row
+            DataGridViewCellStyle style = new DataGridViewCellStyle();
+            style.Font = new Font(receiptsGrid.Font, FontStyle.Bold);
+            receiptsGrid.Rows[receiptsGrid.Rows.Count - 1].DefaultCellStyle = style;
+            receiptsGrid.AutoResizeColumns();
         }
 
         private void OnValuationDateChanged(object sender, EventArgs e)
@@ -58,12 +64,45 @@ namespace InvestmentBuilderClient
             if (_bInitialised)
             {
                 DateTime dtValuationDate = (DateTime)cmboDate.SelectedItem;
-                _paymentsModel.GetReceipts(dtValuationDate);
-                DataGridViewCellStyle style = new DataGridViewCellStyle();
-                style.Font = new Font(receiptsGrid.Font, FontStyle.Bold);
-                receiptsGrid.Rows[receiptsGrid.Rows.Count - 1].DefaultCellStyle = style;
-                receiptsGrid.AutoResizeColumns();
+                var total = _vm.GetReceipts(dtValuationDate);
+                txtTotal.Text = total.ToString();
+                AddGridStyling();
             }
+        }
+
+        private void btnAddReceipt_Click(object sender, EventArgs e)
+        {
+            var view = new AddTransactionView(_dataModel, "R");
+            if(view.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                var total  = _vm.AddReceipt(view.GetTransactionDate(), view.GetTransactionType(),
+                               view.GetParameter(), view.GetAmount());
+                txtTotal.Text = total.ToString();
+                AddGridStyling();
+            }
+        }
+
+        private void btnDeleteReceipt_Click(object sender, EventArgs e)
+        {
+            foreach(DataGridViewRow row in receiptsGrid.SelectedRows)
+            {
+                var transaction = row.DataBoundItem as Transaction;
+                if(!transaction.Added)
+                {
+                    MessageBox.Show("Can only delete transactions that have not been comitted");
+                }
+                else
+                {
+                    var total = _vm.DeleteTransaction(transaction);
+                    txtTotal.Text = total.ToString();
+                    AddGridStyling();
+                }
+            }
+        }
+
+        private void OnSelectedTransactionChanged(object sender, EventArgs e)
+        {
+            btnDeleteReceipt.Enabled = true;
         }
     }
 }
