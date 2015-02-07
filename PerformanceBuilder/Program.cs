@@ -23,6 +23,9 @@ namespace PerformanceBuilder
                 {
                     dtValuation = DateTime.Parse(args[0]);
                 }
+
+                Console.WriteLine("performance builder: valuation date: {0}.type any key to continue...", dtValuation);
+                Console.ReadKey();
                 //string assetSheet = string.Format("{0}Monthly Assets Statement-2014.xls", path);
                 var bookHolder = new ExcelBookHolder(app, path, dtValuation);
                 var performanceBuilder = new PerformanceBuilder(bookHolder, dbConn);

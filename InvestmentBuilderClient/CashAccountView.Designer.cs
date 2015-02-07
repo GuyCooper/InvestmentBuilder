@@ -38,6 +38,7 @@
             this.txtTotal = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.btnDeleteReceipt = new System.Windows.Forms.Button();
+            this.btnPreviousBalance = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.receiptsGrid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.receiptsBindingSource)).BeginInit();
             this.SuspendLayout();
@@ -97,7 +98,7 @@
             // 
             this.txtTotal.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
             this.txtTotal.Font = new System.Drawing.Font("Arial Rounded MT Bold", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtTotal.Location = new System.Drawing.Point(187, 350);
+            this.txtTotal.Location = new System.Drawing.Point(330, 350);
             this.txtTotal.Name = "txtTotal";
             this.txtTotal.ReadOnly = true;
             this.txtTotal.Size = new System.Drawing.Size(178, 26);
@@ -108,7 +109,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(104, 357);
+            this.label3.Location = new System.Drawing.Point(263, 355);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(57, 16);
             this.label3.TabIndex = 7;
@@ -125,11 +126,22 @@
             this.btnDeleteReceipt.UseVisualStyleBackColor = true;
             this.btnDeleteReceipt.Click += new System.EventHandler(this.btnDeleteReceipt_Click);
             // 
+            // btnPreviousBalance
+            // 
+            this.btnPreviousBalance.Location = new System.Drawing.Point(45, 352);
+            this.btnPreviousBalance.Name = "btnPreviousBalance";
+            this.btnPreviousBalance.Size = new System.Drawing.Size(128, 23);
+            this.btnPreviousBalance.TabIndex = 9;
+            this.btnPreviousBalance.Text = "Add Previous Balance";
+            this.btnPreviousBalance.UseVisualStyleBackColor = true;
+            this.btnPreviousBalance.Click += new System.EventHandler(this.btnPreviousBalance_Click);
+            // 
             // CashAccountView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(554, 391);
+            this.Controls.Add(this.btnPreviousBalance);
             this.Controls.Add(this.btnDeleteReceipt);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.txtTotal);
@@ -158,5 +170,6 @@
         private System.Windows.Forms.TextBox txtTotal;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button btnDeleteReceipt;
+        private System.Windows.Forms.Button btnPreviousBalance;
     }
 }

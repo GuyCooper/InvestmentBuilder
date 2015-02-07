@@ -52,14 +52,10 @@ namespace InvestmentBuilderClient
 
         public BindingList<ReceiptTransaction> Receipts { get; private set; }
 
-        public IEnumerable<DateTime?> GetValuationDates()
-        {
-            return _dataModel.GetValuationDates();
-        }
-
         public double GetReceipts(DateTime dtValuationDate)
         {
             Receipts.Clear();
+
             _dataModel.GetCashAccountData(dtValuationDate, "R", (reader)=>
                 {
                     var transaction = new ReceiptTransaction
@@ -76,6 +72,7 @@ namespace InvestmentBuilderClient
                     }
                     Receipts.Add(transaction);
                 });
+
             return AddTotalRow(dtValuationDate);
         }
 

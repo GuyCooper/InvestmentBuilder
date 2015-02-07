@@ -27,18 +27,30 @@ namespace InvestmentBuilderClient
             _connection.Open();
         }
 
-        public IEnumerable<DateTime?> GetValuationDates()
+        public IEnumerable<DateTime> GetValuationDates()
         {
+            var dates = new List<DateTime>();
             using(var command = new SqlCommand("SELECT TOP 5 Valuation_Date FROM Valuations ORDER BY Valuation_Date DESC", _connection))
             {
                 using (SqlDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        yield return reader.GetDateTime(0);
+                        dates.Add(reader.GetDateTime(0));
                     }
                 }
             }
+
+            if(dates.Count > 0)
+            {
+                if(dates.First().Month != DateTime.Today.Month ||
+                    dates.First().Year != DateTime.Today.Year)
+                {
+                    //nowon a different month so add the current date to the list
+                    dates.Insert(0, DateTime.Today);
+                }
+            }
+            return dates;
         }
 
         public IEnumerable<string> GetsTransactionTypes(string side)
@@ -94,6 +106,21 @@ namespace InvestmentBuilderClient
                     }
                 }
             }
+        }
+
+        public DateTime? GetLatestValuationDate()
+        {
+            using (var sqlCommand = new SqlCommand("sp_GetPreviousValuationDate", _connection))
+            {
+                using (var reader = sqlCommand.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        return reader.GetDateTime(0);
+                    }
+                }
+            }
+            return null;
         }
 
         public void Dispose()

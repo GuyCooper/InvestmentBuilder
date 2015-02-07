@@ -43,10 +43,15 @@ Temporary Items
 .apdisk
 
 #binary files
-.obj
-.bin
-.debug
-.release
+*.exe
+*.dll
+*.lib
+*.pdb
+
+obj
+bin
+debug
+release
 
 
  

@@ -60,6 +60,8 @@ namespace InvestmentBuilderConsole
             Console.WriteLine("path:{0}", path);
             Console.WriteLine("db str: {0}", connectionsstr);
             Console.WriteLine("valuation date:{0}", dtValuationDate);
+            Console.WriteLine("type any key to continue...");
+            Console.ReadKey();
             InvestmentBuilder.AssetSheetBuilder.BuildAssetSheet(tradeFile, path, connectionsstr, bTest, dtValuationDate,
                                                                    format);
 

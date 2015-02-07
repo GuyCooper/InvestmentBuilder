@@ -26,6 +26,8 @@ namespace InvestmentBuilderClient
             receiptsBindingSource.DataSource = _vm.Receipts;
             receiptsGrid.DataSource = receiptsBindingSource;
             cmboDate.Items.AddRange(_dataModel.GetValuationDates().Cast<object>().ToArray());
+            cmboDate.SelectedIndex = 0;
+            _GetReceipts();            
             _bInitialised = true;
         }
 
@@ -59,14 +61,19 @@ namespace InvestmentBuilderClient
             receiptsGrid.AutoResizeColumns();
         }
 
+        private void _GetReceipts()
+        {
+            DateTime dtValuationDate = (DateTime)cmboDate.SelectedItem;
+            var total = _vm.GetReceipts(dtValuationDate);
+            txtTotal.Text = total.ToString();
+            AddGridStyling();
+        }
+
         private void OnValuationDateChanged(object sender, EventArgs e)
         {
             if (_bInitialised)
             {
-                DateTime dtValuationDate = (DateTime)cmboDate.SelectedItem;
-                var total = _vm.GetReceipts(dtValuationDate);
-                txtTotal.Text = total.ToString();
-                AddGridStyling();
+                _GetReceipts();
             }
         }
 
@@ -103,6 +110,11 @@ namespace InvestmentBuilderClient
         private void OnSelectedTransactionChanged(object sender, EventArgs e)
         {
             btnDeleteReceipt.Enabled = true;
+        }
+
+        private void btnPreviousBalance_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
