@@ -33,6 +33,7 @@ namespace InvestmentBuilderClient
     {
         private IList<ReceiptTransaction> _receiptsList;
         private InvestmentDataModel _dataModel;
+        private DateTime? _latestValuationDate;
 
         private static Dictionary<string, Action<ReceiptTransaction, double>> _receiptTransactionLookup =
             new Dictionary<string, Action<ReceiptTransaction, double>>(StringComparer.CurrentCultureIgnoreCase) {
@@ -48,6 +49,7 @@ namespace InvestmentBuilderClient
             _receiptsList = new List<ReceiptTransaction>();
             Receipts = new BindingList<ReceiptTransaction>(_receiptsList);
             _dataModel = dataModel;
+            _latestValuationDate = _dataModel.GetLatestValuationDate();
         }
 
         public BindingList<ReceiptTransaction> Receipts { get; private set; }
@@ -56,6 +58,17 @@ namespace InvestmentBuilderClient
         {
             Receipts.Clear();
 
+            if(dtValuationDate > _latestValuationDate)
+            {
+                //add the balance in hand from prvious month
+                Receipts.Add( new ReceiptTransaction
+                {
+                     Parameter = "BalanceInHandCF",
+                     Added = true,
+                     TransactionDate = dtValuationDate,
+                     Subscription = _dataModel.GetBalanceInHand(_latestValuationDate.Value)
+                });
+            }
             _dataModel.GetCashAccountData(dtValuationDate, "R", (reader)=>
                 {
                     var transaction = new ReceiptTransaction

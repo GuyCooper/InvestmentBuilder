@@ -123,6 +123,21 @@ namespace InvestmentBuilderClient
             return null;
         }
 
+        public double GetBalanceInHand(DateTime dtValuation)
+        {
+            using (var sqlCommand = new SqlCommand("sp_GetBalanceInHand", _connection))
+            {
+                using (var reader = sqlCommand.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        return reader.GetDouble(0);
+                    }
+                }
+            }
+            return 0d;
+        }
+
         public void Dispose()
         {
             _connection.Close();

@@ -1,1 +1,1 @@
-call RebuildSchema.bat GUYANDSUE\GUYC ArgyllInvestments
+call RebuildSchema.bat GUYANDSUE\GUYC InvestmentBuilderTest

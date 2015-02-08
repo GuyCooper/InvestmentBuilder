@@ -16,8 +16,10 @@ namespace InvestmentBuilderConsole
                 return;
             }
 
-            string path = @"C:\Users\Guy\Documents\Guy\Investment Club\Accounts";
-            string connectionsstr = @"Data Source=TRAVELPC\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest;Integrated Security=True";
+            //string path = @"C:\Users\Guy\Documents\Guy\Investment Club\Accounts";
+            string path = @"C:\Users\Guy\Documents\Guy\Investments\Investment Club\accounts";
+            //string connectionsstr = @"Data Source=TRAVELPC\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest;Integrated Security=True";
+            string connectionsstr = @"Data Source=GUYANDSUE\GUYC;Initial Catalog=InvestmentBuilderTest;Integrated Security=True";
             bool bTest = false;
             DateTime dtValuationDate = DateTime.Now;
 
