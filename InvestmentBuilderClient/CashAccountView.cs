@@ -10,10 +10,10 @@ using System.Windows.Forms;
 
 namespace InvestmentBuilderClient
 {
-    internal partial class CashAccountView : Form
+    internal abstract partial class CashAccountView : Form
     {
-        InvestmentDataModel _dataModel;
-        CashAccountViewModel _vm;
+        protected InvestmentDataModel _dataModel;
+        protected CashAccountViewModel _vm;
 
         bool _bInitialised = false;
 
@@ -21,17 +21,20 @@ namespace InvestmentBuilderClient
         {
             InitializeComponent();
             SetupGrid();
+            SetupDataSource(dataModel);
+            cashAccountGrid.DataSource = cashAccountBindingSource;
             _dataModel = dataModel;
-            _vm = new CashAccountViewModel(_dataModel);
-            receiptsBindingSource.DataSource = _vm.Receipts;
-            receiptsGrid.DataSource = receiptsBindingSource;
             cmboDate.Items.AddRange(_dataModel.GetValuationDates().Cast<object>().ToArray());
             cmboDate.SelectedIndex = 0;
-            _GetReceipts();            
+            _GetCashAccountData();            
             _bInitialised = true;
         }
 
-        private void AddColumn(DataGridView gridView, string name, string propertyName)
+        protected abstract void SetupDataSource(InvestmentDataModel dataModel);
+
+        protected abstract string TransactionMnenomic { get; }
+
+        protected void AddColumn(DataGridView gridView, string name, string propertyName)
         {
             gridView.Columns.Add(new DataGridViewColumn
                 {
@@ -41,57 +44,55 @@ namespace InvestmentBuilderClient
                 });
         }
 
-        private void SetupGrid()
-        {
-            receiptsGrid.AutoGenerateColumns = false;
-            AddColumn(receiptsGrid, "Transaction Date", "TransactionDate");
-            AddColumn(receiptsGrid, "Parameter", "Parameter");
-            AddColumn(receiptsGrid, "Subscription", "Subscription");
-            AddColumn(receiptsGrid, "Sale", "Sale");
-            AddColumn(receiptsGrid, "Dividend", "Dividend");
-            AddColumn(receiptsGrid, "Other", "Other");
-        }
-
+        protected abstract void SetupGrid();
+       
         private void AddGridStyling()
         {
             //currently just make the last row bold as this is the total row
-            DataGridViewCellStyle style = new DataGridViewCellStyle();
-            style.Font = new Font(receiptsGrid.Font, FontStyle.Bold);
-            receiptsGrid.Rows[receiptsGrid.Rows.Count - 1].DefaultCellStyle = style;
-            receiptsGrid.AutoResizeColumns();
+            if (cashAccountGrid.Rows.Count > 0)
+            {
+                DataGridViewCellStyle style = new DataGridViewCellStyle();
+                style.Font = new Font(cashAccountGrid.Font, FontStyle.Bold);
+                cashAccountGrid.Rows[cashAccountGrid.Rows.Count - 1].DefaultCellStyle = style;
+                cashAccountGrid.AutoResizeColumns();
+            }
         }
 
-        private void _GetReceipts()
+        private void _GetCashAccountData()
         {
             DateTime dtValuationDate = (DateTime)cmboDate.SelectedItem;
-            var total = _vm.GetReceipts(dtValuationDate);
+            var total = GetCashAccountDataImpl(dtValuationDate);
             txtTotal.Text = total.ToString();
             AddGridStyling();
         }
 
+        protected abstract double GetCashAccountDataImpl(DateTime dtValuationDate);
+        
         private void OnValuationDateChanged(object sender, EventArgs e)
         {
             if (_bInitialised)
             {
-                _GetReceipts();
+                _GetCashAccountData();
             }
         }
 
-        private void btnAddReceipt_Click(object sender, EventArgs e)
+        private void btnAddTransaction_Click(object sender, EventArgs e)
         {
-            var view = new AddTransactionView(_dataModel, "R");
+            var view = new AddTransactionView(_dataModel, TransactionMnenomic);
             if(view.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                var total  = _vm.AddReceipt(view.GetTransactionDate(), view.GetTransactionType(),
+                var total = AddTransactionImpl(view.GetTransactionDate(), view.GetTransactionType(),
                                view.GetParameter(), view.GetAmount());
                 txtTotal.Text = total.ToString();
                 AddGridStyling();
             }
         }
 
-        private void btnDeleteReceipt_Click(object sender, EventArgs e)
+        protected abstract double AddTransactionImpl(DateTime dtTransactionDate, string type, string parameter, double dAmount);
+
+        private void btnDeleteTransaction_Click(object sender, EventArgs e)
         {
-            foreach(DataGridViewRow row in receiptsGrid.SelectedRows)
+            foreach(DataGridViewRow row in cashAccountGrid.SelectedRows)
             {
                 var transaction = row.DataBoundItem as Transaction;
                 if(!transaction.Added)
@@ -109,12 +110,7 @@ namespace InvestmentBuilderClient
 
         private void OnSelectedTransactionChanged(object sender, EventArgs e)
         {
-            btnDeleteReceipt.Enabled = true;
-        }
-
-        private void btnPreviousBalance_Click(object sender, EventArgs e)
-        {
-
+            btnDeleteTransaction.Enabled = true;
         }
     }
 }

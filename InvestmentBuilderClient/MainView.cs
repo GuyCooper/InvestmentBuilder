@@ -10,12 +10,22 @@ using System.Windows.Forms;
 
 namespace InvestmentBuilderClient
 {
-    public partial class MainView : Form
+    internal partial class MainView : Form
     {
-        public MainView()
+        private InvestmentDataModel _dataModel;
+
+        public MainView(InvestmentDataModel dataModel)
         {
             InitializeComponent();
+            _dataModel = dataModel;
+        }
 
+        private void MainView_Load(object sender, EventArgs e)
+        {
+            var receiptView = new ReceiptDataView(_dataModel);
+            receiptView.MdiParent = this;
+            receiptView.Show();
+            this.LayoutMdi(MdiLayout.TileHorizontal);
         }
     }
 }

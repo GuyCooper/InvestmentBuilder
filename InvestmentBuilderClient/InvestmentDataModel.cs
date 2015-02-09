@@ -127,6 +127,8 @@ namespace InvestmentBuilderClient
         {
             using (var sqlCommand = new SqlCommand("sp_GetBalanceInHand", _connection))
             {
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
                 using (var reader = sqlCommand.ExecuteReader())
                 {
                     if (reader.Read())

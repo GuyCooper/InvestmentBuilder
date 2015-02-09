@@ -29,33 +29,36 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.receiptsGrid = new System.Windows.Forms.DataGridView();
-            this.receiptsBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            this.cashAccountGrid = new System.Windows.Forms.DataGridView();
+            this.cashAccountBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.cmboDate = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.btnAddReceipt = new System.Windows.Forms.Button();
+            this.btnAddTransaction = new System.Windows.Forms.Button();
             this.txtTotal = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.btnDeleteReceipt = new System.Windows.Forms.Button();
-            this.btnPreviousBalance = new System.Windows.Forms.Button();
-            ((System.ComponentModel.ISupportInitialize)(this.receiptsGrid)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.receiptsBindingSource)).BeginInit();
+            this.btnDeleteTransaction = new System.Windows.Forms.Button();
+            ((System.ComponentModel.ISupportInitialize)(this.cashAccountGrid)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.cashAccountBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
-            // receiptsGrid
+            // cashAccountGrid
             // 
-            this.receiptsGrid.AllowUserToAddRows = false;
-            this.receiptsGrid.AllowUserToDeleteRows = false;
-            this.receiptsGrid.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.ColumnHeader;
-            this.receiptsGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.receiptsGrid.Location = new System.Drawing.Point(32, 46);
-            this.receiptsGrid.Name = "receiptsGrid";
-            this.receiptsGrid.ReadOnly = true;
-            this.receiptsGrid.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.receiptsGrid.Size = new System.Drawing.Size(478, 289);
-            this.receiptsGrid.TabIndex = 0;
-            this.receiptsGrid.SelectionChanged += new System.EventHandler(this.OnSelectedTransactionChanged);
+            this.cashAccountGrid.AllowUserToAddRows = false;
+            this.cashAccountGrid.AllowUserToDeleteRows = false;
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.cashAccountGrid.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+            this.cashAccountGrid.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.ColumnHeader;
+            this.cashAccountGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.cashAccountGrid.Location = new System.Drawing.Point(32, 46);
+            this.cashAccountGrid.Name = "cashAccountGrid";
+            this.cashAccountGrid.ReadOnly = true;
+            this.cashAccountGrid.RowTemplate.DefaultCellStyle.BackColor = System.Drawing.SystemColors.Control;
+            this.cashAccountGrid.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.cashAccountGrid.Size = new System.Drawing.Size(478, 289);
+            this.cashAccountGrid.TabIndex = 0;
+            this.cashAccountGrid.SelectionChanged += new System.EventHandler(this.OnSelectedTransactionChanged);
             // 
             // cmboDate
             // 
@@ -80,19 +83,19 @@
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(29, 18);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(49, 13);
+            this.label2.Size = new System.Drawing.Size(68, 13);
             this.label2.TabIndex = 4;
-            this.label2.Text = "Receipts";
+            this.label2.Text = "Transactions";
             // 
-            // btnAddReceipt
+            // btnAddTransaction
             // 
-            this.btnAddReceipt.Location = new System.Drawing.Point(98, 14);
-            this.btnAddReceipt.Name = "btnAddReceipt";
-            this.btnAddReceipt.Size = new System.Drawing.Size(75, 23);
-            this.btnAddReceipt.TabIndex = 5;
-            this.btnAddReceipt.Text = "Add Receipt";
-            this.btnAddReceipt.UseVisualStyleBackColor = true;
-            this.btnAddReceipt.Click += new System.EventHandler(this.btnAddReceipt_Click);
+            this.btnAddTransaction.Location = new System.Drawing.Point(98, 14);
+            this.btnAddTransaction.Name = "btnAddTransaction";
+            this.btnAddTransaction.Size = new System.Drawing.Size(75, 23);
+            this.btnAddTransaction.TabIndex = 5;
+            this.btnAddTransaction.Text = "Add Transaction";
+            this.btnAddTransaction.UseVisualStyleBackColor = true;
+            this.btnAddTransaction.Click += new System.EventHandler(this.btnAddTransaction_Click);
             // 
             // txtTotal
             // 
@@ -115,45 +118,38 @@
             this.label3.TabIndex = 7;
             this.label3.Text = "TOTAL";
             // 
-            // btnDeleteReceipt
+            // btnDeleteTransaction
             // 
-            this.btnDeleteReceipt.Enabled = false;
-            this.btnDeleteReceipt.Location = new System.Drawing.Point(181, 14);
-            this.btnDeleteReceipt.Name = "btnDeleteReceipt";
-            this.btnDeleteReceipt.Size = new System.Drawing.Size(89, 23);
-            this.btnDeleteReceipt.TabIndex = 8;
-            this.btnDeleteReceipt.Text = "Delete Receipt";
-            this.btnDeleteReceipt.UseVisualStyleBackColor = true;
-            this.btnDeleteReceipt.Click += new System.EventHandler(this.btnDeleteReceipt_Click);
-            // 
-            // btnPreviousBalance
-            // 
-            this.btnPreviousBalance.Location = new System.Drawing.Point(45, 352);
-            this.btnPreviousBalance.Name = "btnPreviousBalance";
-            this.btnPreviousBalance.Size = new System.Drawing.Size(128, 23);
-            this.btnPreviousBalance.TabIndex = 9;
-            this.btnPreviousBalance.Text = "Add Previous Balance";
-            this.btnPreviousBalance.UseVisualStyleBackColor = true;
-            this.btnPreviousBalance.Click += new System.EventHandler(this.btnPreviousBalance_Click);
+            this.btnDeleteTransaction.Enabled = false;
+            this.btnDeleteTransaction.Location = new System.Drawing.Point(181, 14);
+            this.btnDeleteTransaction.Name = "btnDeleteTransaction";
+            this.btnDeleteTransaction.Size = new System.Drawing.Size(89, 23);
+            this.btnDeleteTransaction.TabIndex = 8;
+            this.btnDeleteTransaction.Text = "Delete Transaction";
+            this.btnDeleteTransaction.UseVisualStyleBackColor = true;
+            this.btnDeleteTransaction.Click += new System.EventHandler(this.btnDeleteTransaction_Click);
             // 
             // CashAccountView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(554, 391);
-            this.Controls.Add(this.btnPreviousBalance);
-            this.Controls.Add(this.btnDeleteReceipt);
+            this.Controls.Add(this.btnDeleteTransaction);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.txtTotal);
-            this.Controls.Add(this.btnAddReceipt);
+            this.Controls.Add(this.btnAddTransaction);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.cmboDate);
-            this.Controls.Add(this.receiptsGrid);
+            this.Controls.Add(this.cashAccountGrid);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "CashAccountView";
+            this.ShowIcon = false;
             this.Text = "CashAccountView";
-            ((System.ComponentModel.ISupportInitialize)(this.receiptsGrid)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.receiptsBindingSource)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.cashAccountGrid)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.cashAccountBindingSource)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -161,15 +157,14 @@
 
         #endregion
 
-        private System.Windows.Forms.DataGridView receiptsGrid;
-        private System.Windows.Forms.BindingSource receiptsBindingSource;
+        protected System.Windows.Forms.DataGridView cashAccountGrid;
+        protected System.Windows.Forms.BindingSource cashAccountBindingSource;
         private System.Windows.Forms.ComboBox cmboDate;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Button btnAddReceipt;
+        private System.Windows.Forms.Button btnAddTransaction;
         private System.Windows.Forms.TextBox txtTotal;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Button btnDeleteReceipt;
-        private System.Windows.Forms.Button btnPreviousBalance;
+        private System.Windows.Forms.Button btnDeleteTransaction;
     }
 }

@@ -18,8 +18,8 @@ namespace InvestmentBuilderClient
             Application.SetCompatibleTextRenderingDefault(false);
             using (var dataModel = new InvestmentDataModel())
             {
-                var view = new CashAccountView(dataModel);
-                Application.Run(view);
+                var mainView = new MainView(dataModel);
+                Application.Run(mainView);
             }
         }
     }
