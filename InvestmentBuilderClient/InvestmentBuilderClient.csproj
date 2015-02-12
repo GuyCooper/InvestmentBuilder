@@ -57,12 +57,16 @@
       <DependentUpon>CashAccountView.cs</DependentUpon>
     </Compile>
     <Compile Include="CashAccountViewModel.cs" />
+    <Compile Include="IInvestmentBuilderView.cs" />
     <Compile Include="InvestmentDataModel.cs" />
     <Compile Include="MainView.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MainView.Designer.cs">
       <DependentUpon>MainView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PaymentsDataView.cs">
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="PaymentsDataViewModel.cs" />
     <Compile Include="Program.cs" />
@@ -71,6 +75,13 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="ReceiptDataViewModel.cs" />
+    <Compile Include="TradeView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TradeView.Designer.cs">
+      <DependentUpon>TradeView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TradeViewModel.cs" />
     <EmbeddedResource Include="AddTransactionView.resx">
       <DependentUpon>AddTransactionView.cs</DependentUpon>
     </EmbeddedResource>
@@ -89,6 +100,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="TradeView.resx">
+      <DependentUpon>TradeView.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

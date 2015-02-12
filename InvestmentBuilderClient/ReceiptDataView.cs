@@ -31,17 +31,7 @@ namespace InvestmentBuilderClient
             AddColumn(cashAccountGrid, "Subscription", "Subscription");
             AddColumn(cashAccountGrid, "Sale", "Sale");
             AddColumn(cashAccountGrid, "Dividend", "Dividend");
-            AddColumn(cashAccountGrid, "Other", "Other");
-        }
-
-        protected override double GetCashAccountDataImpl(DateTime dtValuationDate)
-        {
-            return _vm.GetTransactionData(dtValuationDate);
-        }
-
-        protected override double AddTransactionImpl(DateTime dtTransactionDate, string type, string parameter, double dAmount)
-        {
-            return _vm.AddTransaction(dtTransactionDate, type, parameter, dAmount);
+            AddColumn(cashAccountGrid, "Other Receipts", "Other");
         }
     }
 }

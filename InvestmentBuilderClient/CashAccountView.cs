@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace InvestmentBuilderClient
 {
-    internal abstract partial class CashAccountView : Form
+    internal abstract partial class CashAccountView : Form, IInvestmentBuilderView
     {
         protected InvestmentDataModel _dataModel;
         protected CashAccountViewModel _vm;
@@ -24,9 +24,7 @@ namespace InvestmentBuilderClient
             SetupDataSource(dataModel);
             cashAccountGrid.DataSource = cashAccountBindingSource;
             _dataModel = dataModel;
-            cmboDate.Items.AddRange(_dataModel.GetValuationDates().Cast<object>().ToArray());
-            cmboDate.SelectedIndex = 0;
-            _GetCashAccountData();            
+            //_GetCashAccountData();            
             _bInitialised = true;
         }
 
@@ -58,24 +56,18 @@ namespace InvestmentBuilderClient
             }
         }
 
-        private void _GetCashAccountData()
+        private void _GetCashAccountData(DateTime dtValuation)
         {
-            DateTime dtValuationDate = (DateTime)cmboDate.SelectedItem;
-            var total = GetCashAccountDataImpl(dtValuationDate);
+            var total = GetCashAccountDataImpl(dtValuation);
             txtTotal.Text = total.ToString();
             AddGridStyling();
         }
 
-        protected abstract double GetCashAccountDataImpl(DateTime dtValuationDate);
-        
-        private void OnValuationDateChanged(object sender, EventArgs e)
+        private double GetCashAccountDataImpl(DateTime dtValuationDate)
         {
-            if (_bInitialised)
-            {
-                _GetCashAccountData();
-            }
+            return _vm.GetTransactionData(dtValuationDate, TransactionMnenomic);
         }
-
+        
         private void btnAddTransaction_Click(object sender, EventArgs e)
         {
             var view = new AddTransactionView(_dataModel, TransactionMnenomic);
@@ -88,7 +80,10 @@ namespace InvestmentBuilderClient
             }
         }
 
-        protected abstract double AddTransactionImpl(DateTime dtTransactionDate, string type, string parameter, double dAmount);
+        private double AddTransactionImpl(DateTime dtTransactionDate, string type, string parameter, double dAmount)
+        {
+            return _vm.AddTransaction(dtTransactionDate, type, parameter, dAmount);
+        }
 
         private void btnDeleteTransaction_Click(object sender, EventArgs e)
         {
@@ -111,6 +106,19 @@ namespace InvestmentBuilderClient
         private void OnSelectedTransactionChanged(object sender, EventArgs e)
         {
             btnDeleteTransaction.Enabled = true;
+        }
+
+        public void UpdateValuationDate(DateTime dtValuation)
+        {
+            if (_bInitialised)
+            {
+                _GetCashAccountData(dtValuation);
+            }
+        }
+
+        public void CommitData()
+        {
+            throw new NotImplementedException();
         }
     }
 }

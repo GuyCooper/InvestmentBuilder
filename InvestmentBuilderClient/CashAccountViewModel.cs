@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.ComponentModel;
 
 namespace InvestmentBuilderClient
 {
@@ -26,7 +26,9 @@ namespace InvestmentBuilderClient
 
     class PaymentTransaction : Transaction
     {
-
+        public double Withdrawls { get; set; }
+        public double Purchases { get; set; }
+        public double Other { get; set; }
     }
 
     internal abstract class CashAccountViewModel
@@ -36,16 +38,31 @@ namespace InvestmentBuilderClient
 
         public CashAccountViewModel(InvestmentDataModel dataModel) 
         {
-            
             _dataModel = dataModel;
             _latestValuationDate = _dataModel.GetLatestValuationDate();
         }
 
-        public abstract double GetTransactionData(DateTime dtValuationDate);
+        public abstract double GetTransactionData(DateTime dtValuationDate, string transactionMneomic);
 
         public abstract double AddTransaction(DateTime dtTransactionDate, string type, string parameter, double dAmount);
 
         public abstract double DeleteTransaction(Transaction transaction);
+
+        public abstract void CommitData();
+
+        protected double _DeleteTransactionImpl(Transaction transaction, BindingList<Transaction> bindingList)
+        {
+            DateTime dtValuation = bindingList.Last().TransactionDate;
+            bindingList.RemoveAt(bindingList.Count - 1);
+            //can only remove receipts that have been added
+            if (transaction != null && transaction.Added == true)
+            {
+                bindingList.Remove(transaction);
+            }
+            return _AddTotalRow(dtValuation);
+        }
+
+        protected abstract double _AddTotalRow(DateTime dtValuationDate);
 
     }
 }

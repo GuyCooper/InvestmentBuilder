@@ -32,9 +32,6 @@
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.cashAccountGrid = new System.Windows.Forms.DataGridView();
             this.cashAccountBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.cmboDate = new System.Windows.Forms.ComboBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
             this.btnAddTransaction = new System.Windows.Forms.Button();
             this.txtTotal = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
@@ -49,47 +46,22 @@
             this.cashAccountGrid.AllowUserToDeleteRows = false;
             dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
             this.cashAccountGrid.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+            this.cashAccountGrid.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.cashAccountGrid.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.ColumnHeader;
             this.cashAccountGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.cashAccountGrid.Location = new System.Drawing.Point(32, 46);
+            this.cashAccountGrid.Location = new System.Drawing.Point(-6, 0);
             this.cashAccountGrid.Name = "cashAccountGrid";
             this.cashAccountGrid.ReadOnly = true;
             this.cashAccountGrid.RowTemplate.DefaultCellStyle.BackColor = System.Drawing.SystemColors.Control;
             this.cashAccountGrid.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.cashAccountGrid.Size = new System.Drawing.Size(478, 289);
+            this.cashAccountGrid.Size = new System.Drawing.Size(561, 323);
             this.cashAccountGrid.TabIndex = 0;
             this.cashAccountGrid.SelectionChanged += new System.EventHandler(this.OnSelectedTransactionChanged);
             // 
-            // cmboDate
-            // 
-            this.cmboDate.FormattingEnabled = true;
-            this.cmboDate.Location = new System.Drawing.Point(383, 15);
-            this.cmboDate.Name = "cmboDate";
-            this.cmboDate.Size = new System.Drawing.Size(121, 21);
-            this.cmboDate.TabIndex = 1;
-            this.cmboDate.SelectedIndexChanged += new System.EventHandler(this.OnValuationDateChanged);
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(306, 18);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(74, 13);
-            this.label1.TabIndex = 3;
-            this.label1.Text = "ValuationDate";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(29, 18);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(68, 13);
-            this.label2.TabIndex = 4;
-            this.label2.Text = "Transactions";
-            // 
             // btnAddTransaction
             // 
-            this.btnAddTransaction.Location = new System.Drawing.Point(98, 14);
+            this.btnAddTransaction.Location = new System.Drawing.Point(32, 348);
             this.btnAddTransaction.Name = "btnAddTransaction";
             this.btnAddTransaction.Size = new System.Drawing.Size(75, 23);
             this.btnAddTransaction.TabIndex = 5;
@@ -121,7 +93,7 @@
             // btnDeleteTransaction
             // 
             this.btnDeleteTransaction.Enabled = false;
-            this.btnDeleteTransaction.Location = new System.Drawing.Point(181, 14);
+            this.btnDeleteTransaction.Location = new System.Drawing.Point(141, 348);
             this.btnDeleteTransaction.Name = "btnDeleteTransaction";
             this.btnDeleteTransaction.Size = new System.Drawing.Size(89, 23);
             this.btnDeleteTransaction.TabIndex = 8;
@@ -138,9 +110,6 @@
             this.Controls.Add(this.label3);
             this.Controls.Add(this.txtTotal);
             this.Controls.Add(this.btnAddTransaction);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.cmboDate);
             this.Controls.Add(this.cashAccountGrid);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
@@ -159,9 +128,6 @@
 
         protected System.Windows.Forms.DataGridView cashAccountGrid;
         protected System.Windows.Forms.BindingSource cashAccountBindingSource;
-        private System.Windows.Forms.ComboBox cmboDate;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button btnAddTransaction;
         private System.Windows.Forms.TextBox txtTotal;
         private System.Windows.Forms.Label label3;

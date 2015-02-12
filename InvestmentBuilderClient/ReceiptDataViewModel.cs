@@ -29,7 +29,7 @@ namespace InvestmentBuilderClient
 
         public BindingList<ReceiptTransaction> Receipts { get; private set; }
 
-        public override double GetTransactionData(DateTime dtValuationDate)
+        public override double GetTransactionData(DateTime dtValuationDate, string transactionMneomic)
         {
             Receipts.Clear();
 
@@ -44,7 +44,7 @@ namespace InvestmentBuilderClient
                     Subscription = _dataModel.GetBalanceInHand(_latestValuationDate.Value)
                 });
             }
-            _dataModel.GetCashAccountData(dtValuationDate, "R", (reader) =>
+            _dataModel.GetCashAccountData(dtValuationDate, transactionMneomic, (reader) =>
             {
                 var transaction = new ReceiptTransaction
                 {
@@ -61,7 +61,7 @@ namespace InvestmentBuilderClient
                 Receipts.Add(transaction);
             });
 
-            return AddTotalRow(dtValuationDate);
+            return _AddTotalRow(dtValuationDate);
         }
 
         public override double AddTransaction(DateTime dtTransactionDate, string type, string parameter, double dAmount)
@@ -83,7 +83,7 @@ namespace InvestmentBuilderClient
             Receipts.RemoveAt(Receipts.Count - 1);
             Receipts.Add(transaction);
             //now readd the totals row
-            return AddTotalRow(dtValuation);
+            return _AddTotalRow(dtValuation);
         }
 
         public override double DeleteTransaction(Transaction transaction)
@@ -96,10 +96,15 @@ namespace InvestmentBuilderClient
             {
                 Receipts.Remove(receipt);
             }
-            return AddTotalRow(dtValuation);
+            return _AddTotalRow(dtValuation);
         }
 
-        private double AddTotalRow(DateTime dtValuationDate)
+        public override void CommitData()
+        {
+
+        }
+
+        protected override double _AddTotalRow(DateTime dtValuationDate)
         {
             //add a totals row at the bottom
             //ReceiptTransaction total = new ReceiptTransaction();
