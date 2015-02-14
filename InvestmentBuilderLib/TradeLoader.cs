@@ -12,17 +12,19 @@ namespace InvestmentBuilder
     public class Stock
     {
         [XmlElement("name")]
-        public string Name;
+        public string Name {get;set;}
+        [XmlElement("date")]
+        public string TransactionDate { get; set; }
         [XmlElement("symbol")]
-        public string Symbol;
+        public string Symbol { get; set; }
         [XmlElement("currency")]
-        public string Currency;
+        public string Currency { get; set; }
         [XmlElement("number")]
-        public int Number;
+        public int Number { get; set; }
         [XmlElement("totalcost")]
-        public double TotalCost;
+        public double TotalCost { get; set; }
         [XmlElement("scaling")]
-        public double ScalingFactor;
+        public double ScalingFactor { get; set; }
     }
 
     [XmlRoot(ElementName="trades")]
@@ -37,7 +39,7 @@ namespace InvestmentBuilder
     }
 
     //loads the trades xml file data 
-    static class TradeLoader
+    public static class TradeLoader
     {
         static public Trades GetTrades(string tradefile)
         {

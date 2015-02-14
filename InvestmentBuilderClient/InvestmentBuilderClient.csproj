@@ -44,6 +44,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddTradeView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddTradeView.Designer.cs">
+      <DependentUpon>AddTradeView.cs</DependentUpon>
+    </Compile>
     <Compile Include="AddTransactionView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -82,6 +88,9 @@
       <DependentUpon>TradeView.cs</DependentUpon>
     </Compile>
     <Compile Include="TradeViewModel.cs" />
+    <EmbeddedResource Include="AddTradeView.resx">
+      <DependentUpon>AddTradeView.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="AddTransactionView.resx">
       <DependentUpon>AddTransactionView.cs</DependentUpon>
     </EmbeddedResource>
@@ -115,6 +124,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\InvestmentBuilderLib\InvestmentBuilderLib.csproj">
+      <Project>{9fa7e2cc-b5c6-463b-856a-e0e21eff93e4}</Project>
+      <Name>InvestmentBuilderLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
