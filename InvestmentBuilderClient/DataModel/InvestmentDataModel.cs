@@ -5,7 +5,7 @@ using System.Text;
 using System.Data.SqlClient;
 using System.Data;
 
-namespace InvestmentBuilderClient
+namespace InvestmentBuilderClient.DataModel
 {
     //ObservableCollection
     //BindingList
@@ -20,10 +20,10 @@ namespace InvestmentBuilderClient
             {"Subscription", "SELECT NAME FROM Members"}
         };
 
-         public InvestmentDataModel() 
+        public InvestmentDataModel(string dataSource) 
         {
-            var connectstr = @"Data Source=TRAVELPC\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest;Integrated Security=True";
-            _connection = new SqlConnection(connectstr);
+            //var connectstr = @"Data Source=TRAVELPC\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest;Integrated Security=True";
+            _connection = new SqlConnection(dataSource);
             _connection.Open();
         }
 
@@ -140,9 +140,32 @@ namespace InvestmentBuilderClient
             return 0d;
         }
 
+        public void SaveCashAccountData(DateTime dtValuationDate, DateTime dtTransactionDate,
+                                    string type, string parameter, double amount)
+        {
+            using (var sqlCommand = new SqlCommand("sp_AddCashAccountData", _connection))
+            {
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", dtValuationDate));
+                sqlCommand.Parameters.Add(new SqlParameter("@TransactionDate", dtTransactionDate));
+                sqlCommand.Parameters.Add(new SqlParameter("@TransactionType", type));
+                sqlCommand.Parameters.Add(new SqlParameter("@Parameter", parameter));
+                sqlCommand.Parameters.Add(new SqlParameter("@Amount", amount));
+                sqlCommand.ExecuteNonQuery();
+            }
+        }
+
+        public void ReloadData(string dataSource)
+        {
+            _connection.Close();
+            _connection = new SqlConnection(dataSource);
+            _connection.Open();
+        }
+
         public void Dispose()
         {
             _connection.Close();
+            _connection.Dispose();
         }
     }
 }

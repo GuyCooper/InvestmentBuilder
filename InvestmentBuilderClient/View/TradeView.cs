@@ -7,22 +7,29 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using InvestmentBuilderClient.ViewModel;
+using InvestmentBuilderClient.DataModel;
 
-namespace InvestmentBuilderClient
+namespace InvestmentBuilderClient.View
 {
-    public partial class TradeView : Form
+    internal partial class TradeView : Form, IInvestmentBuilderView
     {
         TradeViewModel _vm;
 
-        public TradeView(string tradeFile)
+        public TradeView(ConfigurationSettings settings)
         {
             InitializeComponent();
+            ReLoadTrades(settings.TradeFile);
+        }
+
+        public void ReLoadTrades(string tradeFile)
+        {
             _vm = new TradeViewModel(tradeFile);
             tradeViewBindingSource.DataSource = _vm.Trades;
             gridTrades.DataSource = tradeViewBindingSource;
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void btnAddTradeClick(object sender, EventArgs e)
         {
             var addView = new AddTradeView();
             if(addView.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -52,5 +59,14 @@ namespace InvestmentBuilderClient
                 }
             }
         }
-    }
+
+        public void UpdateValuationDate(DateTime dtValuation)
+        {
+        }
+
+        public void CommitData(DateTime dtValuation)
+        {
+            _vm.CommitTrades();
+        }
+     }
 }

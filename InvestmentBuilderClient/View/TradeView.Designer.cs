@@ -1,4 +1,4 @@
-﻿namespace InvestmentBuilderClient
+﻿namespace InvestmentBuilderClient.View
 {
     partial class TradeView
     {
@@ -39,29 +39,32 @@
             // 
             // gridTrades
             // 
-            this.gridTrades.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.gridTrades.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.gridTrades.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.gridTrades.Location = new System.Drawing.Point(-1, -1);
+            this.gridTrades.Location = new System.Drawing.Point(0, 3);
             this.gridTrades.Name = "gridTrades";
-            this.gridTrades.Size = new System.Drawing.Size(760, 271);
+            this.gridTrades.Size = new System.Drawing.Size(760, 135);
             this.gridTrades.TabIndex = 0;
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(357, 280);
+            this.button1.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.button1.Location = new System.Drawing.Point(360, 148);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.Size = new System.Drawing.Size(75, 28);
             this.button1.TabIndex = 1;
             this.button1.Text = "Add Trade";
             this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.button1.Click += new System.EventHandler(this.btnAddTradeClick);
             // 
             // btnRemoveTrade
             // 
-            this.btnRemoveTrade.Location = new System.Drawing.Point(263, 280);
+            this.btnRemoveTrade.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.btnRemoveTrade.Location = new System.Drawing.Point(256, 148);
             this.btnRemoveTrade.Name = "btnRemoveTrade";
-            this.btnRemoveTrade.Size = new System.Drawing.Size(88, 23);
+            this.btnRemoveTrade.Size = new System.Drawing.Size(88, 28);
             this.btnRemoveTrade.TabIndex = 2;
             this.btnRemoveTrade.Text = "Remove Trade";
             this.btnRemoveTrade.UseVisualStyleBackColor = true;
@@ -71,11 +74,15 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(757, 315);
+            this.ClientSize = new System.Drawing.Size(757, 199);
             this.Controls.Add(this.btnRemoveTrade);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.gridTrades);
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "TradeView";
+            this.ShowIcon = false;
+            this.ShowInTaskbar = false;
             this.Text = "TradeView";
             ((System.ComponentModel.ISupportInitialize)(this.gridTrades)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.tradeViewBindingSource)).EndInit();

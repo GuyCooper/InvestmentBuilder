@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.ComponentModel;
 using InvestmentBuilder;
+using InvestmentBuilderClient.DataModel;
 
-namespace InvestmentBuilderClient
+namespace InvestmentBuilderClient.ViewModel
 {
     enum TradeType
     {
@@ -18,7 +19,7 @@ namespace InvestmentBuilderClient
         public TradeType Type { get; set; }
     }    
 
-    class TradeViewModel
+    internal class TradeViewModel
     {
         private string _tradeFile;
         private List<TradeDetails> _tradesList;
@@ -63,6 +64,15 @@ namespace InvestmentBuilderClient
         public void RemoveTrade(TradeDetails trade)
         {
             Trades.Remove(trade);
+        }
+
+        public void CommitTrades()
+        {
+            var trades = new Trades();
+            trades.Buys = Trades.Where(t => t.Type == TradeType.BUY).ToArray();
+            trades.Sells = Trades.Where(t => t.Type == TradeType.SELL).ToArray();
+            trades.Changed = Trades.Where(t => t.Type == TradeType.MODIFY).ToArray();
+            TradeLoader.SaveTrades(trades, _tradeFile);
         }
     }
 }

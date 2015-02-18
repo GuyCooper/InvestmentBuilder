@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using InvestmentBuilderClient.DataModel;
+using InvestmentBuilderClient.ViewModel;
 
-namespace InvestmentBuilderClient
+namespace InvestmentBuilderClient.View
 {
-    class ReceiptDataView: CashAccountView
+    internal class ReceiptDataView: CashAccountView
     {
         public ReceiptDataView(InvestmentDataModel dataModel) :
             base(dataModel)
@@ -16,11 +18,11 @@ namespace InvestmentBuilderClient
 
         protected override string TransactionMnenomic { get { return "R"; } }
 
-        protected override void SetupDataSource(InvestmentDataModel dataModel)
+        protected override CashAccountViewModel SetupDataSource(InvestmentDataModel dataModel)
         {
             var vm = new ReceiptDataViewModel(dataModel);
-            _vm = vm;
             cashAccountBindingSource.DataSource = vm.Receipts;
+            return vm;
         }
 
         protected override void SetupGrid()

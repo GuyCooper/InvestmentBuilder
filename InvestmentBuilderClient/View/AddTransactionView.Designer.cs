@@ -1,4 +1,4 @@
-﻿namespace InvestmentBuilderClient
+﻿namespace InvestmentBuilderClient.View
 {
     partial class AddTransactionView
     {
@@ -144,7 +144,11 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.dteTransaction);
             this.Controls.Add(this.label1);
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "AddTransactionView";
+            this.ShowIcon = false;
+            this.ShowInTaskbar = false;
             this.Text = "AddTransactionView";
             this.Load += new System.EventHandler(this.AddTransactionView_Load);
             this.ResumeLayout(false);

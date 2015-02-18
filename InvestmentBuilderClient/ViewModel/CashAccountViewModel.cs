@@ -4,14 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
+using InvestmentBuilderClient.DataModel;
 
-namespace InvestmentBuilderClient
+namespace InvestmentBuilderClient.ViewModel
 {
     abstract class Transaction
     {
         public DateTime TransactionDate { get; set; }
-        //public string TransactionType { get; set; }
+        public string TransactionType { get; set; }
         public string Parameter { get; set; }
+        public double Amount { get; set; }
         //public double Amount { get; set; }
         public bool Added { get; set; }
     }
@@ -48,7 +50,7 @@ namespace InvestmentBuilderClient
 
         public abstract double DeleteTransaction(Transaction transaction);
 
-        public abstract void CommitData();
+        public abstract void CommitData(DateTime dtValuation);
 
         protected double _DeleteTransactionImpl(Transaction transaction, BindingList<Transaction> bindingList)
         {

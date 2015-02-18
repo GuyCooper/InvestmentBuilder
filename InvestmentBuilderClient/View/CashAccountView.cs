@@ -7,13 +7,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using InvestmentBuilderClient.ViewModel;
+using InvestmentBuilderClient.DataModel;
 
-namespace InvestmentBuilderClient
+namespace InvestmentBuilderClient.View
 {
     internal abstract partial class CashAccountView : Form, IInvestmentBuilderView
     {
-        protected InvestmentDataModel _dataModel;
-        protected CashAccountViewModel _vm;
+        private InvestmentDataModel _dataModel;
+        private CashAccountViewModel _vm;
 
         bool _bInitialised = false;
 
@@ -21,14 +23,14 @@ namespace InvestmentBuilderClient
         {
             InitializeComponent();
             SetupGrid();
-            SetupDataSource(dataModel);
+            _vm = SetupDataSource(dataModel);
             cashAccountGrid.DataSource = cashAccountBindingSource;
             _dataModel = dataModel;
             //_GetCashAccountData();            
             _bInitialised = true;
         }
 
-        protected abstract void SetupDataSource(InvestmentDataModel dataModel);
+        protected abstract CashAccountViewModel SetupDataSource(InvestmentDataModel dataModel);
 
         protected abstract string TransactionMnenomic { get; }
 
@@ -116,9 +118,14 @@ namespace InvestmentBuilderClient
             }
         }
 
-        public void CommitData()
+        public void CommitData(DateTime dtValuation)
         {
-            throw new NotImplementedException();
+            _vm.CommitData(dtValuation);
+        }
+
+        public double GetTotal()
+        {
+            return double.Parse(txtTotal.Text);
         }
     }
 }

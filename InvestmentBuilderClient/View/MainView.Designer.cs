@@ -1,4 +1,4 @@
-﻿namespace InvestmentBuilderClient
+﻿namespace InvestmentBuilderClient.View
 {
     partial class MainView
     {
@@ -33,8 +33,9 @@
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
             this.cmboValuationDate = new System.Windows.Forms.ToolStripComboBox();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.btnCommitData = new System.Windows.Forms.ToolStripButton();
+            this.btnConfig = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.btnCommitData = new System.Windows.Forms.ToolStripButton();
             this.btnRunBuilder = new System.Windows.Forms.ToolStripButton();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -45,8 +46,9 @@
             this.toolStripLabel1,
             this.cmboValuationDate,
             this.toolStripSeparator1,
-            this.btnCommitData,
+            this.btnConfig,
             this.toolStripSeparator2,
+            this.btnCommitData,
             this.btnRunBuilder});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
@@ -72,6 +74,22 @@
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(6, 39);
             // 
+            // btnConfig
+            // 
+            this.btnConfig.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnConfig.Image = ((System.Drawing.Image)(resources.GetObject("btnConfig.Image")));
+            this.btnConfig.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnConfig.Name = "btnConfig";
+            this.btnConfig.Size = new System.Drawing.Size(23, 36);
+            this.btnConfig.Text = "toolStripButton1";
+            this.btnConfig.ToolTipText = "Configure";
+            this.btnConfig.Click += new System.EventHandler(this.btnConfig_Click);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(6, 39);
+            // 
             // btnCommitData
             // 
             this.btnCommitData.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -84,11 +102,6 @@
             this.btnCommitData.Text = "toolStripButton1";
             this.btnCommitData.ToolTipText = "Commit Data";
             this.btnCommitData.Click += new System.EventHandler(this.btnCommitData_Click);
-            // 
-            // toolStripSeparator2
-            // 
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(6, 39);
             // 
             // btnRunBuilder
             // 
@@ -129,6 +142,7 @@
         private System.Windows.Forms.ToolStripButton btnCommitData;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripButton btnRunBuilder;
+        private System.Windows.Forms.ToolStripButton btnConfig;
 
 
 

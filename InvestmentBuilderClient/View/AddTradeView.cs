@@ -7,14 +7,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using InvestmentBuilderClient.ViewModel;
 
-namespace InvestmentBuilderClient
+namespace InvestmentBuilderClient.View
 {
     internal partial class AddTradeView : Form
     {
         public AddTradeView()
         {
             InitializeComponent();
+            cmboType.Items.AddRange(Enum.GetNames(typeof(TradeType)));
         }
 
         public string GetTransactionDate()

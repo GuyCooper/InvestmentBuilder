@@ -1,4 +1,4 @@
-﻿namespace InvestmentBuilderClient
+﻿namespace InvestmentBuilderClient.View
 {
     partial class CashAccountView
     {
@@ -116,6 +116,7 @@
             this.MinimizeBox = false;
             this.Name = "CashAccountView";
             this.ShowIcon = false;
+            this.ShowInTaskbar = false;
             this.Text = "CashAccountView";
             ((System.ComponentModel.ISupportInitialize)(this.cashAccountGrid)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.cashAccountBindingSource)).EndInit();

@@ -12,7 +12,7 @@ namespace InvestmentBuilder
     public class Stock
     {
         [XmlElement("name")]
-        public string Name {get;set;}
+        public string Name { get; set; }
         [XmlElement("date")]
         public string TransactionDate { get; set; }
         [XmlElement("symbol")]
@@ -47,6 +47,15 @@ namespace InvestmentBuilder
             {
                 XmlSerializer serialiser = new XmlSerializer(typeof(Trades));
                 return (Trades)serialiser.Deserialize(fs);
+            }
+        }
+
+        static public void SaveTrades(Trades trades, string tradefile)
+        {
+            using (var fs = new FileStream(tradefile, FileMode.Create))
+            {
+                XmlSerializer serialiser = new XmlSerializer(typeof(Trades));
+                serialiser.Serialize(fs, trades);
             }
         }
     }

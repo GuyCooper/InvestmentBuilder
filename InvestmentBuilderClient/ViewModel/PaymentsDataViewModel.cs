@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
+using InvestmentBuilderClient.DataModel;
 
-namespace InvestmentBuilderClient
+namespace InvestmentBuilderClient.ViewModel
 {
-    class PaymentsDataViewModel : CashAccountViewModel
+    internal class PaymentsDataViewModel : CashAccountViewModel
     {
         private IList<PaymentTransaction> _paymentsList;
         private static Dictionary<string, Action<PaymentTransaction, double>> _paymentTransactionLookup =
@@ -55,7 +56,9 @@ namespace InvestmentBuilderClient
             var transaction = new PaymentTransaction
             {
                 TransactionDate = dtTransactionDate.Date,
+                TransactionType = type,
                 Parameter = parameter,
+                Amount = dAmount,
                 Added = true
             };
 
@@ -87,9 +90,13 @@ namespace InvestmentBuilderClient
             return _AddTotalRow(dtValuation);
         }
 
-        public override void CommitData()
+        public override void CommitData(DateTime dtValuation)
         {
-
+            foreach (var payment in Payments.Where(p => p.Added))
+            {
+                _dataModel.SaveCashAccountData(dtValuation, payment.TransactionDate,
+                    payment.TransactionType, payment.Parameter, payment.Amount);
+            }
         }
 
         protected override double _AddTotalRow(DateTime dtValuationDate)

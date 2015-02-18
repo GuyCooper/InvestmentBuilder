@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace InvestmentBuilderClient
+namespace InvestmentBuilderClient.View
 {
     interface IInvestmentBuilderView
     {
         void UpdateValuationDate(DateTime dtValuation);
-        void CommitData();
+        void CommitData(DateTime dtValuation);
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace InvestmentBuilderClient
+﻿namespace InvestmentBuilderClient.View
 {
     partial class AddTradeView
     {
@@ -95,10 +95,6 @@
             // 
             this.cmboType.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.cmboType.FormattingEnabled = true;
-            this.cmboType.Items.AddRange(new object[] {
-            "Buy",
-            "Sell",
-            "Modify"});
             this.cmboType.Location = new System.Drawing.Point(176, 101);
             this.cmboType.Name = "cmboType";
             this.cmboType.Size = new System.Drawing.Size(121, 21);
@@ -227,7 +223,11 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.dteTransactionDate);
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "AddTradeView";
+            this.ShowIcon = false;
+            this.ShowInTaskbar = false;
             this.Text = "Add Trade";
             ((System.ComponentModel.ISupportInitialize)(this.nmrcNumber)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nmrcScaling)).EndInit();

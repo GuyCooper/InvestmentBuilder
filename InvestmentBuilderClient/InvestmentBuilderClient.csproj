@@ -44,60 +44,71 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AddTradeView.cs">
+    <Compile Include="ConfigurationSettings.cs" />
+    <Compile Include="Validator.cs" />
+    <Compile Include="View\AddTradeView.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="AddTradeView.Designer.cs">
+    <Compile Include="View\AddTradeView.Designer.cs">
       <DependentUpon>AddTradeView.cs</DependentUpon>
     </Compile>
-    <Compile Include="AddTransactionView.cs">
+    <Compile Include="View\AddTransactionView.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="AddTransactionView.Designer.cs">
+    <Compile Include="View\AddTransactionView.Designer.cs">
       <DependentUpon>AddTransactionView.cs</DependentUpon>
     </Compile>
-    <Compile Include="CashAccountView.cs">
+    <Compile Include="View\CashAccountView.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="CashAccountView.Designer.cs">
+    <Compile Include="View\CashAccountView.Designer.cs">
       <DependentUpon>CashAccountView.cs</DependentUpon>
     </Compile>
-    <Compile Include="CashAccountViewModel.cs" />
-    <Compile Include="IInvestmentBuilderView.cs" />
-    <Compile Include="InvestmentDataModel.cs" />
-    <Compile Include="MainView.cs">
+    <Compile Include="ViewModel\CashAccountViewModel.cs" />
+    <Compile Include="View\ConfigurationView.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MainView.Designer.cs">
+    <Compile Include="View\ConfigurationView.Designer.cs">
+      <DependentUpon>ConfigurationView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="View\IInvestmentBuilderView.cs" />
+    <Compile Include="DataModel\InvestmentDataModel.cs" />
+    <Compile Include="View\MainView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="View\MainView.Designer.cs">
       <DependentUpon>MainView.cs</DependentUpon>
     </Compile>
-    <Compile Include="PaymentsDataView.cs">
+    <Compile Include="View\PaymentsDataView.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="PaymentsDataViewModel.cs" />
+    <Compile Include="ViewModel\PaymentsDataViewModel.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReceiptDataView.cs">
+    <Compile Include="View\ReceiptDataView.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ReceiptDataViewModel.cs" />
-    <Compile Include="TradeView.cs">
+    <Compile Include="ViewModel\ReceiptDataViewModel.cs" />
+    <Compile Include="View\TradeView.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="TradeView.Designer.cs">
+    <Compile Include="View\TradeView.Designer.cs">
       <DependentUpon>TradeView.cs</DependentUpon>
     </Compile>
-    <Compile Include="TradeViewModel.cs" />
-    <EmbeddedResource Include="AddTradeView.resx">
+    <Compile Include="ViewModel\TradeViewModel.cs" />
+    <EmbeddedResource Include="View\AddTradeView.resx">
       <DependentUpon>AddTradeView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="AddTransactionView.resx">
+    <EmbeddedResource Include="View\AddTransactionView.resx">
       <DependentUpon>AddTransactionView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="CashAccountView.resx">
+    <EmbeddedResource Include="View\CashAccountView.resx">
       <DependentUpon>CashAccountView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MainView.resx">
+    <EmbeddedResource Include="View\ConfigurationView.resx">
+      <DependentUpon>ConfigurationView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\MainView.resx">
       <DependentUpon>MainView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -109,7 +120,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="TradeView.resx">
+    <EmbeddedResource Include="View\TradeView.resx">
       <DependentUpon>TradeView.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
@@ -133,6 +144,11 @@
       <Project>{9fa7e2cc-b5c6-463b-856a-e0e21eff93e4}</Project>
       <Name>InvestmentBuilderLib</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="InvestmentBuilderConfig.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
