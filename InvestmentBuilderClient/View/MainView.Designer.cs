@@ -37,11 +37,13 @@
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.btnCommitData = new System.Windows.Forms.ToolStripButton();
             this.btnRunBuilder = new System.Windows.Forms.ToolStripButton();
+            this.btnPerformance = new System.Windows.Forms.ToolStripButton();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // toolStrip1
             // 
+            this.toolStrip1.Font = new System.Drawing.Font("Arial Rounded MT Bold", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripLabel1,
             this.cmboValuationDate,
@@ -49,7 +51,8 @@
             this.btnConfig,
             this.toolStripSeparator2,
             this.btnCommitData,
-            this.btnRunBuilder});
+            this.btnRunBuilder,
+            this.btnPerformance});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(694, 39);
@@ -116,6 +119,19 @@
             this.btnRunBuilder.ToolTipText = "Run Builder";
             this.btnRunBuilder.Click += new System.EventHandler(this.btnRunBuilder_Click);
             // 
+            // btnPerformance
+            // 
+            this.btnPerformance.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnPerformance.Image = ((System.Drawing.Image)(resources.GetObject("btnPerformance.Image")));
+            this.btnPerformance.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.btnPerformance.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnPerformance.Margin = new System.Windows.Forms.Padding(5, 1, 5, 2);
+            this.btnPerformance.Name = "btnPerformance";
+            this.btnPerformance.Size = new System.Drawing.Size(36, 36);
+            this.btnPerformance.Text = "toolStripButton1";
+            this.btnPerformance.ToolTipText = "Build Performance Charts";
+            this.btnPerformance.Click += new System.EventHandler(this.btnPerformance_Click);
+            // 
             // MainView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -143,6 +159,7 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripButton btnRunBuilder;
         private System.Windows.Forms.ToolStripButton btnConfig;
+        private System.Windows.Forms.ToolStripButton btnPerformance;
 
 
 

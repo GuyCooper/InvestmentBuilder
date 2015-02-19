@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using MarketDataServices;
 using System.Data.SqlClient;
 
-namespace PerformanceBuilder
+namespace PerformanceBuilderLib
 {
     class HistoricalDataReader : IDisposable
     {

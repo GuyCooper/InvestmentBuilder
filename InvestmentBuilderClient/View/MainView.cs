@@ -113,5 +113,18 @@ namespace InvestmentBuilderClient.View
                 }
             }
         }
+
+        private void btnPerformance_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("Are You Sure?", "Build Charts", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes)
+            {
+                DateTime dtValuation = (DateTime)cmboValuationDate.SelectedItem;
+                PerformanceBuilderLib.PerformanceBuilderExternal.RunBuilder(
+                    _settings.OutputFolder,
+                    _settings.DatasourceString,
+                    dtValuation
+                    );
+            }
+        }
     }
 }

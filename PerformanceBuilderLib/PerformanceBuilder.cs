@@ -7,7 +7,7 @@ using Microsoft.Office.Interop.Excel;
 using ExcelAccountsManager;
 using MarketDataServices;
 
-namespace PerformanceBuilder
+namespace PerformanceBuilderLib
 {
     struct RangeDimensions
     {
@@ -17,39 +17,37 @@ namespace PerformanceBuilder
         public char LastCol;
     }
 
-    class PerformanceBuilder
+    public static class PerformanceBuilderExternal
+    {
+        public static void RunBuilder(string path, string dataSource, DateTime dtValuation )
+        {
+            Console.WriteLine("running performance chartbuilder...");
+            Console.WriteLine("output folder {0}", path);
+            Console.WriteLine("datasource: {0}", dataSource);
+            Console.WriteLine("valuation date: {0}", dtValuation);
+
+            using(var builder = new PerformanceBuilder(path, dataSource, dtValuation))
+            {
+                builder.Run();
+            }
+        }
+    }
+
+    internal class PerformanceBuilder : IDisposable
     {
         private ExcelBookHolder _bookHolder;
         private IEnumerable<HistoricalData> _historicalData;
+        private Application _app;
 
-        public PerformanceBuilder(ExcelBookHolder bookHolder, string connectStr)
+        public PerformanceBuilder(string path, string datasource, DateTime dtValuation)
         {
-            _bookHolder = bookHolder;
-            using (var reader = new HistoricalDataReader(connectStr))
+             _app = new Microsoft.Office.Interop.Excel.Application();
+            _bookHolder = new ExcelBookHolder(_app, path,dtValuation) ;
+            using (var reader = new HistoricalDataReader(datasource))
             {
                 _historicalData = reader.GetClubData().ToList();
             }
         }
-
-        //IEnumerable<HistoricalData> _GetClubData()
-        //{
-        //    foreach (var assetBook in _bookHolder.GetHistoricalAssetBooks())
-        //    {
-        //        foreach (_Worksheet sheet in assetBook.Worksheets)
-        //        {
-        //            double dUnitValue = 0d;
-        //            if(sheet.GetUnitValueFromAssetSheet(ref dUnitValue))
-        //            {
-        //                var dtDate = sheet.GetValueDateTime("C", 4);
-        //                yield return new HistoricalData
-        //                {
-        //                    Price = dUnitValue,
-        //                    Date = dtDate.Value
-        //                };
-        //            }
-        //        }
-        //    }
-        //}
 
         private DateTime MonthlyDate(DateTime dt)
         {
@@ -65,7 +63,7 @@ namespace PerformanceBuilder
             }
         }
 
-        internal void Run(Application app)
+        public void Run()
         {
             Console.WriteLine("starting performance builder...");
             //compre performance to FTSE100 and S&p 500
@@ -100,8 +98,10 @@ namespace PerformanceBuilder
                 targetSheet.Name = perfRange.Item1;
                 //app.ActiveSheet.Name = perfRange.Item1;
                 //BuildPivotTableAndChart(listIndexes.Select(x => x.Item2), perfRange.Item2, app,sourceSheet, app.ActiveSheet);
-                BuildPivotTableAndChart(listIndexes.Select(x => x.Item2), perfRange.Item2, app, sourceSheet, targetSheet);
+                BuildPivotTableAndChart(listIndexes.Select(x => x.Item2), perfRange.Item2, sourceSheet, targetSheet);
             }
+
+            _bookHolder.SaveBooks();
         }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace PerformanceBuilder
         /// <param name="dataList"></param>
         /// <param name="dtStartDate"></param>
         /// <returns></returns>
-        IEnumerable<HistoricalData> RebaseDataList(IEnumerable<HistoricalData> dataList, DateTime? dtStartDate)
+        private IEnumerable<HistoricalData> RebaseDataList(IEnumerable<HistoricalData> dataList, DateTime? dtStartDate)
         {
             var tmpList = dtStartDate.HasValue ? dataList.Where(x => x.Date >= dtStartDate).OrderBy(x => x.Date) :
                 dataList.OrderBy(x => x.Date);
@@ -126,7 +126,7 @@ namespace PerformanceBuilder
 
         }
 
-        internal RangeDimensions BuildDataLadder(DateTime? startDate, IEnumerable<Tuple<string, string>> indexes, int startRow, char startCol)
+        private RangeDimensions BuildDataLadder(DateTime? startDate, IEnumerable<Tuple<string, string>> indexes, int startRow, char startCol)
         {
             //first get club history
             //var clubData = _GetClubData().OrderBy(x => x.Date).ToList();
@@ -179,7 +179,7 @@ namespace PerformanceBuilder
             return new RangeDimensions { FirstRow = startRow, LastRow = currentRow - 1, FirstCol = chFirstCol, LastCol = (char)(chCol - 1) };
         }
 
-        internal void BuildPivotTableAndChart(IEnumerable<string> enIndexes, RangeDimensions dimensions, Application app, _Worksheet sourceSheet, _Worksheet pivotSheet)
+        private void BuildPivotTableAndChart(IEnumerable<string> enIndexes, RangeDimensions dimensions, _Worksheet sourceSheet, _Worksheet pivotSheet)
         {
             var perfBook = _bookHolder.GetPerformanceBook();
             
@@ -219,6 +219,11 @@ namespace PerformanceBuilder
             newShape.ScaleHeight(1.5902777778f, Microsoft.Office.Core.MsoTriState.msoFalse);
 
             newChart.Axes(XlAxisType.xlValue).MinimumScale = 0.8;
+        }
+
+        public void Dispose()
+        {
+            _bookHolder.Dispose();
         }
     }
 }
