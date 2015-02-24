@@ -9,12 +9,15 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using InvestmentBuilderClient.ViewModel;
 using InvestmentBuilderClient.DataModel;
+using NLog;
 
 namespace InvestmentBuilderClient.View
 {
     internal partial class TradeView : Form, IInvestmentBuilderView
     {
         TradeViewModel _vm;
+
+        private static Logger logger = LogManager.GetCurrentClassLogger();
 
         public TradeView(ConfigurationSettings settings)
         {
@@ -24,6 +27,7 @@ namespace InvestmentBuilderClient.View
 
         public void ReLoadTrades(string tradeFile)
         {
+            logger.Log(LogLevel.Info, "loading trades from file {0}", tradeFile);
             _vm = new TradeViewModel(tradeFile);
             tradeViewBindingSource.DataSource = _vm.Trades;
             gridTrades.DataSource = tradeViewBindingSource;

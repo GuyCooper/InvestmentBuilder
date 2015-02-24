@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NLog;
 
 namespace InvestmentBuilder
 {
@@ -14,6 +15,8 @@ namespace InvestmentBuilder
 
     public static class AssetSheetBuilder
     {
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
         /// <summary>
         /// factory method to create the correct factory class
         /// </summary>
@@ -42,6 +45,14 @@ namespace InvestmentBuilder
         /// <param name="path"></param>
         public static void BuildAssetSheet(string tradeFile, string path, string connectionstr, bool bTest, DateTime valuationDate, DataFormat format)
         {
+            logger.Log(LogLevel.Info, string.Format("Begin BuildAssetSheet"));
+            logger.Log(LogLevel.Info,string.Format("trade file: {0}", tradeFile));
+            logger.Log(LogLevel.Info,string.Format("path: {0}", path));
+            logger.Log(LogLevel.Info,string.Format("datasource: {0}",connectionstr));
+            logger.Log(LogLevel.Info,string.Format("test: {0}", bTest));
+            logger.Log(LogLevel.Info,string.Format("valuation date: {0}", valuationDate.ToShortDateString()));
+            logger.Log(LogLevel.Info, string.Format("data format: {0}", format));
+
             var factory = BuildFactory(format, path, connectionstr, valuationDate, bTest);
             try
             {
@@ -63,7 +74,8 @@ namespace InvestmentBuilder
                 var lstData = dataReader.GetCompanyData(valuationDate, dtPreviousValuation).ToList();
                 foreach (var val in lstData)
                 {
-                    Console.WriteLine("{0} : {1} : {2} : {3} : {4}", val.sName, val.dSharePrice, val.dNetSellingValue, val.dMonthChange, val.dMonthChangeRatio);
+                    logger.Log(LogLevel.Info, string.Format("{0} : {1} : {2} : {3} : {4}", val.sName, val.dSharePrice, val.dNetSellingValue, val.dMonthChange, val.dMonthChangeRatio));
+                    //Console.WriteLine("{0} : {1} : {2} : {3} : {4}", val.sName, val.dSharePrice, val.dNetSellingValue, val.dMonthChange, val.dMonthChangeRatio);
                 }
 
                 //finally, build the asset statement

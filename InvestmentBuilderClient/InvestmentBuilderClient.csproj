@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NLog">
+      <HintPath>..\ThirdParty\nLog\4.5\NLog.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -45,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigurationSettings.cs" />
+    <Compile Include="DataModel\IInvestmentDataModel.cs" />
     <Compile Include="Validator.cs" />
     <Compile Include="View\AddTradeView.cs">
       <SubType>Form</SubType>
@@ -73,6 +77,12 @@
     </Compile>
     <Compile Include="View\IInvestmentBuilderView.cs" />
     <Compile Include="DataModel\InvestmentDataModel.cs" />
+    <Compile Include="View\LoggingView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="View\LoggingView.Designer.cs">
+      <DependentUpon>LoggingView.cs</DependentUpon>
+    </Compile>
     <Compile Include="View\MainView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -108,6 +118,9 @@
     <EmbeddedResource Include="View\ConfigurationView.resx">
       <DependentUpon>ConfigurationView.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="View\LoggingView.resx">
+      <DependentUpon>LoggingView.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="View\MainView.resx">
       <DependentUpon>MainView.cs</DependentUpon>
     </EmbeddedResource>
@@ -123,6 +136,7 @@
     <EmbeddedResource Include="View\TradeView.resx">
       <DependentUpon>TradeView.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="App.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -132,9 +146,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

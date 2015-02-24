@@ -46,23 +46,25 @@
             this.cashAccountGrid.AllowUserToDeleteRows = false;
             dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
             this.cashAccountGrid.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
-            this.cashAccountGrid.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.cashAccountGrid.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cashAccountGrid.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.ColumnHeader;
             this.cashAccountGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.cashAccountGrid.Location = new System.Drawing.Point(-7, 0);
+            this.cashAccountGrid.Location = new System.Drawing.Point(-4, 1);
             this.cashAccountGrid.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.cashAccountGrid.Name = "cashAccountGrid";
             this.cashAccountGrid.ReadOnly = true;
             this.cashAccountGrid.RowTemplate.DefaultCellStyle.BackColor = System.Drawing.SystemColors.Control;
             this.cashAccountGrid.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.cashAccountGrid.Size = new System.Drawing.Size(654, 373);
+            this.cashAccountGrid.Size = new System.Drawing.Size(654, 270);
             this.cashAccountGrid.TabIndex = 0;
             this.cashAccountGrid.SelectionChanged += new System.EventHandler(this.OnSelectedTransactionChanged);
             // 
             // btnAddTransaction
             // 
-            this.btnAddTransaction.Location = new System.Drawing.Point(38, 402);
+            this.btnAddTransaction.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.btnAddTransaction.Location = new System.Drawing.Point(96, 301);
             this.btnAddTransaction.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.btnAddTransaction.Name = "btnAddTransaction";
             this.btnAddTransaction.Size = new System.Drawing.Size(88, 27);
@@ -73,9 +75,10 @@
             // 
             // txtTotal
             // 
+            this.txtTotal.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.txtTotal.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
             this.txtTotal.Font = new System.Drawing.Font("Arial Rounded MT Bold", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtTotal.Location = new System.Drawing.Point(385, 404);
+            this.txtTotal.Location = new System.Drawing.Point(427, 302);
             this.txtTotal.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.txtTotal.Name = "txtTotal";
             this.txtTotal.ReadOnly = true;
@@ -85,9 +88,10 @@
             // 
             // label3
             // 
+            this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(307, 410);
+            this.label3.Location = new System.Drawing.Point(362, 307);
             this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(57, 16);
@@ -96,8 +100,9 @@
             // 
             // btnDeleteTransaction
             // 
+            this.btnDeleteTransaction.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.btnDeleteTransaction.Enabled = false;
-            this.btnDeleteTransaction.Location = new System.Drawing.Point(164, 402);
+            this.btnDeleteTransaction.Location = new System.Drawing.Point(215, 301);
             this.btnDeleteTransaction.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.btnDeleteTransaction.Name = "btnDeleteTransaction";
             this.btnDeleteTransaction.Size = new System.Drawing.Size(104, 27);
@@ -110,14 +115,13 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(647, 451);
+            this.ClientSize = new System.Drawing.Size(647, 338);
             this.Controls.Add(this.btnDeleteTransaction);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.txtTotal);
             this.Controls.Add(this.btnAddTransaction);
             this.Controls.Add(this.cashAccountGrid);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.MaximizeBox = false;
             this.MinimizeBox = false;

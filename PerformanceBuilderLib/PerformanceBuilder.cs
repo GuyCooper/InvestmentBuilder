@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Office.Interop.Excel;
 using ExcelAccountsManager;
 using MarketDataServices;
+using NLog;
 
 namespace PerformanceBuilderLib
 {
@@ -19,12 +20,18 @@ namespace PerformanceBuilderLib
 
     public static class PerformanceBuilderExternal
     {
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
         public static void RunBuilder(string path, string dataSource, DateTime dtValuation )
         {
-            Console.WriteLine("running performance chartbuilder...");
-            Console.WriteLine("output folder {0}", path);
-            Console.WriteLine("datasource: {0}", dataSource);
-            Console.WriteLine("valuation date: {0}", dtValuation);
+            logger.Log(LogLevel.Info, "running performance chartbuilder...");
+            logger.Log(LogLevel.Info, string.Format("output folder {0}", path));
+            logger.Log(LogLevel.Info, string.Format("datasource: {0}", dataSource));
+            logger.Log(LogLevel.Info, string.Format("valuation date: {0}", dtValuation));
+            //Console.WriteLine("running performance chartbuilder...");
+            //Console.WriteLine("output folder {0}", path);
+            //Console.WriteLine("datasource: {0}", dataSource);
+            //Console.WriteLine("valuation date: {0}", dtValuation);
 
             using(var builder = new PerformanceBuilder(path, dataSource, dtValuation))
             {
@@ -38,6 +45,8 @@ namespace PerformanceBuilderLib
         private ExcelBookHolder _bookHolder;
         private IEnumerable<HistoricalData> _historicalData;
         private Application _app;
+
+        private static Logger logger = LogManager.GetCurrentClassLogger();
 
         public PerformanceBuilder(string path, string datasource, DateTime dtValuation)
         {
@@ -56,16 +65,19 @@ namespace PerformanceBuilderLib
 
         private void DumpData(string title, IEnumerable<HistoricalData> enData)
         {
-            Console.WriteLine(title);
+            //Console.WriteLine(title);
+            logger.Log(LogLevel.Info, title);
             foreach (var elem in enData)
             {
-                Console.WriteLine("{0} : {1}", elem.Date, elem.Price);
+                logger.Log(LogLevel.Info, "{0} : {1}", elem.Date, elem.Price);
+                //Console.WriteLine("{0} : {1}", elem.Date, elem.Price);
             }
         }
 
         public void Run()
         {
-            Console.WriteLine("starting performance builder...");
+            logger.Log(LogLevel.Info, "starting performance builder...");
+            //Console.WriteLine("starting performance builder...");
             //compre performance to FTSE100 and S&p 500
             var listIndexes = new List<Tuple<string, string>> { new Tuple<string, string>("^FTSE", "FTSE 100"),
                                                                 new Tuple<string, string>("^GSPC","S&P 500") };
@@ -80,7 +92,8 @@ namespace PerformanceBuilderLib
             var lstRanges = new List<Tuple<string, RangeDimensions>>();
             foreach(var perfPoint in performanceRangeList)
             {
-                Console.WriteLine("building data ladder for {0}", perfPoint.Item2);
+                logger.Log(LogLevel.Info, "building data ladder for {0}", perfPoint.Item2);
+                //Console.WriteLine("building data ladder for {0}", perfPoint.Item2);
                 var dimensions = BuildDataLadder(perfPoint.Item1, listIndexes, 1, startCol);
                 lstRanges.Add(new Tuple<string, RangeDimensions>(perfPoint.Item2, dimensions));
                 startCol = dimensions.LastCol;
@@ -92,7 +105,8 @@ namespace PerformanceBuilderLib
             //each performance rabge will be added to a new sheet
             foreach(var perfRange in lstRanges )
             {
-                Console.WriteLine("building chart for {0}", perfRange.Item1);
+                logger.Log(LogLevel.Info, "building chart for {0}", perfRange.Item1);
+                //Console.WriteLine("building chart for {0}", perfRange.Item1);
                 _bookHolder.GetPerformanceBook().Worksheets.Add();
                 var targetSheet = _bookHolder.GetPerformanceBook().Worksheets[1];
                 targetSheet.Name = perfRange.Item1;

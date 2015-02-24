@@ -4,15 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Data.SqlClient;
 using System.Data;
+using NLog;
 
 namespace InvestmentBuilderClient.DataModel
 {
     //ObservableCollection
     //BindingList
 
-    internal class InvestmentDataModel : IDisposable
+    internal class InvestmentDataModel : IDisposable, IInvestmentDataModel
     {
         private SqlConnection _connection;
+        private static Logger logger = LogManager.GetCurrentClassLogger();
 
         private Dictionary<string, string> _typeProcedureLookup = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase)
         {
@@ -25,6 +27,7 @@ namespace InvestmentBuilderClient.DataModel
             //var connectstr = @"Data Source=TRAVELPC\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest;Integrated Security=True";
             _connection = new SqlConnection(dataSource);
             _connection.Open();
+            logger.Log(LogLevel.Info, "connected to datasource {0}", dataSource);
         }
 
         public IEnumerable<DateTime> GetValuationDates()
@@ -91,7 +94,8 @@ namespace InvestmentBuilderClient.DataModel
             }
         }
 
-        public void GetCashAccountData(DateTime dtValuationDate, string side, Action<SqlDataReader> fnAddTransaction)
+       // public void GetCashAccountData(DateTime dtValuationDate, string side, Action<SqlDataReader> fnAddTransaction)
+        public void GetCashAccountData(DateTime dtValuationDate, string side, Action<IDataReader> fnAddTransaction)
         {
             using (var sqlCommand = new SqlCommand("sp_GetCashAccountData", _connection))
             {
@@ -160,6 +164,7 @@ namespace InvestmentBuilderClient.DataModel
             _connection.Close();
             _connection = new SqlConnection(dataSource);
             _connection.Open();
+            logger.Log(LogLevel.Info, "reload from datasource {0}", dataSource);
         }
 
         public void Dispose()

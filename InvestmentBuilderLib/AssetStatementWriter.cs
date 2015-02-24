@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Office.Interop.Excel;
 using ExcelAccountsManager;
 using System.Data.SqlClient;
+using NLog;
 
 namespace InvestmentBuilder
 {
@@ -16,6 +17,8 @@ namespace InvestmentBuilder
 
     internal abstract class AssetStatementWriter : IAssetStatementWriter
     {
+        protected Logger Log { get; private set; }
+
         protected List<string> Months = new List<string>
         {
             "January",
@@ -39,6 +42,7 @@ namespace InvestmentBuilder
         {
             //_App = app;
             _bookHolder = bookHolder;
+            Log = LogManager.GetLogger(GetType().FullName);
         }
 
         protected abstract double UpdateMembersCapitalAccount(double dPreviousUnitValue, DateTime? dtPreviousValution, DateTime valuationDate);
@@ -61,7 +65,8 @@ namespace InvestmentBuilder
 
         public void WriteAssetStatement(IEnumerable<CompanyData> companyData, CashAccountData cashData, DateTime? dtPreviousValution, DateTime valuationDate)
         {
-            Console.WriteLine("writing asset statement sheet...");
+            Log.Log(LogLevel.Info, "writing asset statement sheet...");
+            //Console.WriteLine("writing asset statement sheet...");
             //var spreadsheetLocation = @"C:\Users\Guy\Documents\Guy\Investments\Investment Club\accounts\Monthly Assets Statement-Test.xls";
             //var templateLocation = @"C:\Users\Guy\Documents\Guy\Investments\Investment Club\accounts\Template.xls";
            
@@ -96,7 +101,8 @@ namespace InvestmentBuilder
             //now add the company data
             foreach (var company in companyData)
             {
-                Console.WriteLine("Adding {0} to asset sheet", company.sName);
+                Log.Log(LogLevel.Info, string.Format("Adding {0} to asset sheet", company.sName));
+                //Console.WriteLine("Adding {0} to asset sheet", company.sName);
 
                 newSheet.get_Range("B" + count).Value = company.sName;
                 newSheet.get_Range("C" + count).Value = company.dtLastBrought.Value;
@@ -145,7 +151,8 @@ namespace InvestmentBuilder
 
         protected override double UpdateMembersCapitalAccount(double dPreviousUnitValue, DateTime? dtPreviousValution, DateTime valuationDate)
         {
-            Console.WriteLine("updating members capital account...");
+            Log.Log(LogLevel.Info, "updating members capital account...");
+            //Console.WriteLine("updating members capital account...");
             //using previous unit value update member capital account, this will return the total number of units allocated
             //var cashBook = _App.Workbooks.Open(cashAccountLocation);
             _Worksheet mcaSheet = _bookHolder.GetCashBook().Worksheets["Members Capital Account"];

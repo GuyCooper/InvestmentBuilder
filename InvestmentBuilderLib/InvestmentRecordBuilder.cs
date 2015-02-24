@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NLog;
 
 namespace InvestmentBuilder
 {
@@ -26,8 +27,15 @@ namespace InvestmentBuilder
     //and adds any new stocks to a new sheet
     abstract class InvestmentRecordBuilder
     {
+        protected Logger Log { get; private set; }
+
         abstract protected IEnumerable<IInvestment> GetInvestments(DateTime dtValuationDate);
         abstract protected void CreateNewInvestment(Stock newTrade, DateTime valuationDate);
+
+        public InvestmentRecordBuilder()
+        {
+            Log = LogManager.GetLogger(GetType().FullName);
+        }
 
         /// <summary>
         /// update all current investments with the latest prices, update / add any new trades. Returns the previous
@@ -38,7 +46,8 @@ namespace InvestmentBuilder
         /// <param name="valuationDate"></param>
         public void BuildInvestmentRecords(Trades trades, CashAccountData cashData, DateTime valuationDate, DateTime? previousValuation)
         {
-            Console.WriteLine("building investment records...");
+            Log.Log(LogLevel.Info, "building investment records...");
+            //Console.WriteLine("building investment records...");
             var enInvestments = GetInvestments(valuationDate).ToList();
             foreach(var investment in enInvestments)
             {
@@ -46,19 +55,22 @@ namespace InvestmentBuilder
                 if(trades.Sells.Any(x => company.Equals(x.Name, StringComparison.CurrentCultureIgnoreCase)))
                 {
                     //trade sold, set to inactive
-                    Console.WriteLine("company {0} sold", company);
+                    Log.Log(LogLevel.Info, string.Format("company {0} sold", company));
+                    //Console.WriteLine("company {0} sold", company);
                     investment.DeactivateInvestment();
                 }                 
                 else
                 {
-                    Console.WriteLine("updating company {0}", company);
+                    Log.Log(LogLevel.Info, string.Format("updating company {0}", company));
+                    //Console.WriteLine("updating company {0}", company);
                     //now copy the last row into a new row and update
                     investment.UpdateRow(valuationDate, previousValuation);
                     //update share number if it has changed
                     var trade = trades.Changed.FirstOrDefault(x => company.Equals(x.Name, StringComparison.CurrentCultureIgnoreCase));
                     if(trade != null)
                     {
-                        Console.WriteLine("company share number changed {0}", company);
+                        Log.Log(LogLevel.Info, string.Format("company share number changed {0}", company));
+                        //Console.WriteLine("company share number changed {0}", company);
                         investment.ChangeShareHolding(trade.Number);
                     }
                     //update any dividend 
@@ -80,7 +92,8 @@ namespace InvestmentBuilder
             }
             foreach(var newTrade in trades.Buys)
             {
-                Console.WriteLine("adding new trade {0}", newTrade.Name);
+                Log.Log(LogLevel.Info, string.Format("adding new trade {0}", newTrade.Name));
+                //Console.WriteLine("adding new trade {0}", newTrade.Name);
                 //new trade to add to investment record
                 CreateNewInvestment(newTrade, valuationDate);               
             }

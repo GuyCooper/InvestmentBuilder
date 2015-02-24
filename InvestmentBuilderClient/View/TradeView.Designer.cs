@@ -43,15 +43,15 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.gridTrades.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.gridTrades.Location = new System.Drawing.Point(0, 3);
+            this.gridTrades.Location = new System.Drawing.Point(-2, 0);
             this.gridTrades.Name = "gridTrades";
-            this.gridTrades.Size = new System.Drawing.Size(760, 135);
+            this.gridTrades.Size = new System.Drawing.Size(760, 144);
             this.gridTrades.TabIndex = 0;
             // 
             // button1
             // 
-            this.button1.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.button1.Location = new System.Drawing.Point(360, 148);
+            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.button1.Location = new System.Drawing.Point(660, 161);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 28);
             this.button1.TabIndex = 1;
@@ -61,8 +61,8 @@
             // 
             // btnRemoveTrade
             // 
-            this.btnRemoveTrade.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.btnRemoveTrade.Location = new System.Drawing.Point(256, 148);
+            this.btnRemoveTrade.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnRemoveTrade.Location = new System.Drawing.Point(548, 161);
             this.btnRemoveTrade.Name = "btnRemoveTrade";
             this.btnRemoveTrade.Size = new System.Drawing.Size(88, 28);
             this.btnRemoveTrade.TabIndex = 2;
@@ -74,7 +74,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(757, 199);
+            this.ClientSize = new System.Drawing.Size(757, 201);
             this.Controls.Add(this.btnRemoveTrade);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.gridTrades);

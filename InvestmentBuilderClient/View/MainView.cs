@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using InvestmentBuilderClient.DataModel;
 using InvestmentBuilder;
+using System.Threading;
+using NLog;
 
 namespace InvestmentBuilderClient.View
 {
@@ -18,14 +20,37 @@ namespace InvestmentBuilderClient.View
         private List<IInvestmentBuilderView> _views;
         private ConfigurationSettings _settings;
 
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
+        //the one and only log viewer
+        private static LoggingView logView;
+
+        private static SynchronizationContext _displayContext;
+
         public MainView(InvestmentDataModel dataModel, ConfigurationSettings settings)
         {
             InitializeComponent();
             _dataModel = dataModel;
             _views = new List<IInvestmentBuilderView>();
             _settings = settings;
+
+            _displayContext = SynchronizationContext.Current;
         }
 
+        public static void LogMethod(string level, string message)
+        {
+            if(_displayContext != null)
+            {
+                _displayContext.Post(o =>
+                {
+                    if(logView != null)
+                    {
+                        var kv = (KeyValuePair<string, string>)o;
+                        logView.LogMessage(kv.Key, kv.Value);
+                    }
+                }, new KeyValuePair<string, string>(level,message));
+            }
+        }
         private void UpdateValuationDate()
         {
             DateTime  dtValuation = (DateTime)cmboValuationDate.SelectedItem;
@@ -48,12 +73,20 @@ namespace InvestmentBuilderClient.View
 
         private void MainView_Load(object sender, EventArgs e)
         {
-            _AddView(new ReceiptDataView(_dataModel));
+            //addthe only logview
+            logView = new LoggingView();
+            logView.MdiParent = this;
+            logView.Show();
+
             _AddView(new PaymentsDataView(_dataModel));
             _AddView(new TradeView(_settings));
+            _AddView(new ReceiptDataView(_dataModel));
 
             this.WindowState = FormWindowState.Maximized;
             this.LayoutMdi(MdiLayout.TileHorizontal);
+
+            var  logConfig = LogManager.Configuration;
+            logger.Log(LogLevel.Info, "welcome to the Investment Builder");
 
             cmboValuationDate.Items.AddRange(_dataModel.GetValuationDates().Cast<object>().ToArray());
             cmboValuationDate.SelectedIndex = 0;
@@ -106,6 +139,7 @@ namespace InvestmentBuilderClient.View
                 if(_settings.UpdateDatasource(configView.GetDataSource()))
                 {
                     _dataModel.ReloadData(_settings.DatasourceString);
+                    UpdateValuationDate();
                 }
                 if (_settings.UpdateTradeFile(configView.GetTradeFile()))
                 {

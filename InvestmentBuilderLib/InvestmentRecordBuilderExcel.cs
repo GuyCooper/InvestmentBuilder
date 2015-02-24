@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Office.Interop.Excel;
 using ExcelAccountsManager;
 using MarketDataServices;
+using NLog;
 
 namespace InvestmentBuilder
 {
@@ -16,6 +17,8 @@ namespace InvestmentBuilder
     {
         private _Worksheet _sheet;
         private int _lastRow;
+
+        private static Logger logger = LogManager.GetCurrentClassLogger();
 
         public ExcelInvestment(_Worksheet sheet)
         {
@@ -62,7 +65,8 @@ namespace InvestmentBuilder
 
         public void AddNewShares(Stock stock)
         {
-            Console.WriteLine("adding new shares to existing for company {0}", Name);
+            logger.Log(LogLevel.Info, string.Format("adding new shares to existing for company {0}", Name));
+            //Console.WriteLine("adding new shares to existing for company {0}", Name);
             //this stock has been brought, update the bought
             var newBought = (int)_sheet.get_Range("B" + _lastRow).Value + stock.Number;
             var newTotalCost = (double)_sheet.get_Range("G" + _lastRow).Value + stock.TotalCost;

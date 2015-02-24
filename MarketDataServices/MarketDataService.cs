@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.IO;
+using NLog;
 
 namespace MarketDataServices
 {
@@ -19,6 +20,8 @@ namespace MarketDataServices
     /// </summary>
     public class MarketDataService
     {
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
         private static Dictionary<string,double> _fxLookup = new Dictionary<string,double>();
         //method downloads the specified url and reutrns the contents as a string
         private static IEnumerable<string> _GetData(string url)
@@ -42,7 +45,8 @@ namespace MarketDataServices
             }
             catch(Exception e)
             {
-                Console.WriteLine("unable to get data from url: {0}, error: {1}",url,e.Message);
+                logger.Log(LogLevel.Error, string.Format("unable to get data from url: {0}, error: {1}", url, e.Message));
+                //Console.WriteLine("unable to get data from url: {0}, error: {1}",url,e.Message);
                 throw;
             }
             return result;
@@ -78,7 +82,8 @@ namespace MarketDataServices
             string closingurl = String.Format(
                 "http://finance.yahoo.com/d/quotes.csv?s={0}&f=pnx", symbol);
 
-            Console.WriteLine("getting closing price for : {0}", name);
+            logger.Log(LogLevel.Info, string.Format("getting closing price for : {0}", name));
+            //Console.WriteLine("getting closing price for : {0}", name);
             try
             {
                 string result = _GetData(closingurl).ToList().First();
@@ -116,7 +121,8 @@ namespace MarketDataServices
             }
             catch(Exception e)
             {
-                Console.WriteLine("unable to get closing price for {0}: {1}", symbol, e.Message);
+                logger.Log(LogLevel.Error, string.Format("unable to get closing price for {0}: {1}", symbol, e.Message));
+                //Console.WriteLine("unable to get closing price for {0}: {1}", symbol, e.Message);
             }
             return false;
         }

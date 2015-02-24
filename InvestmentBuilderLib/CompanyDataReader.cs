@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Office.Interop.Excel;
 using ExcelAccountsManager;
 using System.Data.SqlClient;
+using NLog;
 
 namespace InvestmentBuilder
 {
@@ -34,6 +35,8 @@ namespace InvestmentBuilder
     /// </summary>
     class CompanyDataReaderExcel : ICompanyDataReader
     {
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
         private ExcelBookHolder _bookHolder;
         public CompanyDataReaderExcel(ExcelBookHolder bookHolder)
         {
@@ -44,8 +47,8 @@ namespace InvestmentBuilder
         {
             //var spreadsheetLocation = Path.Combine(Directory.GetCurrentDirectory(), @"C:\Users\Guy\Documents\Guy\Investments\Investment Club\accounts\Investment Record-2014.xls");
             //var spreadsheetLocation = @"C:\Users\Guy\Documents\Guy\Investments\Investment Club\accounts\Investment Record-2014.xls";
-
-            Console.WriteLine("getting company data...");
+            logger.Log(LogLevel.Info, "getting company data...");
+            //Console.WriteLine("getting company data...");
             for (int index = 1; index <= _bookHolder.GetInvestmentRecordBook().Worksheets.Count; ++index)
             {
                 _Worksheet sheet = _bookHolder.GetInvestmentRecordBook().Worksheets[index];

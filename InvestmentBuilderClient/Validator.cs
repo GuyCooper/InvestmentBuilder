@@ -4,11 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using InvestmentBuilderClient.View;
+using NLog;
 
 namespace InvestmentBuilderClient
 {
     internal static class Validator
     {
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
         private static bool Compare(double d1, double d2)
         {
             return Math.Abs(d1 - d2) <= double.Epsilon;
@@ -25,6 +28,11 @@ namespace InvestmentBuilderClient
                     }
                     return c;
                 });
+
+            if(invalid == true)
+            {
+                logger.Log(LogLevel.Error, "validation failed, non matching totals for cash account");
+            }
             return invalid == false;
         }
     }
