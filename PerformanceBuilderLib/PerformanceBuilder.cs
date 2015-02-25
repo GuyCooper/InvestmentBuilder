@@ -48,10 +48,14 @@ namespace PerformanceBuilderLib
 
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
+        private string performanceBookName;
+
         public PerformanceBuilder(string path, string datasource, DateTime dtValuation)
         {
              _app = new Microsoft.Office.Interop.Excel.Application();
-            _bookHolder = new ExcelBookHolder(_app, path,dtValuation) ;
+
+             performanceBookName = string.Format(@"{0}{1}-{2}.xlsx", path, ExcelBookHolder.PerformanceChartName, dtValuation.ToString("MMM-yyyy"));
+             _bookHolder = new ExcelBookHolder(_app, performanceBookName);
             using (var reader = new HistoricalDataReader(datasource))
             {
                 _historicalData = reader.GetClubData().ToList();
@@ -116,6 +120,8 @@ namespace PerformanceBuilderLib
             }
 
             _bookHolder.SaveBooks();
+
+            logger.Log(LogLevel.Info, "performance chartbuilder complete, performance chart location: {0}", performanceBookName);
         }
 
         /// <summary>

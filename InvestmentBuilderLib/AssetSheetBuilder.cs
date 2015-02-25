@@ -68,7 +68,7 @@ namespace InvestmentBuilder
                 var cashAccountData = cashAccountReader.GetCashAccountData(valuationDate);
                 //parse the trade file for any trades for this month and update the investment record
                 //var trades = TradeLoader.GetTrades(tradeFile);
-                //recordBuilder.BuildInvestmentRecords(trades, cashAccountData, valuationDate, dtPreviousValuation);
+                recordBuilder.BuildInvestmentRecords(trades, cashAccountData, valuationDate, dtPreviousValuation);
 
                 //now extract the latest data from the investment record
                 var lstData = dataReader.GetCompanyData(valuationDate, dtPreviousValuation).ToList();
@@ -81,7 +81,9 @@ namespace InvestmentBuilder
                 //finally, build the asset statement
                 assetWriter.WriteAssetStatement(lstData, cashAccountData, dtPreviousValuation, valuationDate);
 
+                logger.Log(LogLevel.Info, "commiting changes...");
                 factory.CommitData();
+                logger.Log(LogLevel.Info, "Account Builder Complete, Asset statement sheet generated: {0}", factory.AssetSheetLocation);
             }
             finally
             {

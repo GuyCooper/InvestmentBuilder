@@ -9,51 +9,48 @@ namespace ExcelAccountsManager
 {
     public class ExcelBookHolder : IDisposable
     {
-        private _Workbook _investmentRecordBook;
+        //private _Workbook _investmentRecordBook;
         private _Workbook _assetBook;
         private _Workbook _templateBook;
-        private _Workbook _cashBook;
+        //private _Workbook _cashBook;
         private _Workbook _performanceBook;
-        private IEnumerable<_Workbook> _historicalAssetBooks;
+        //private IEnumerable<_Workbook> _historicalAssetBooks;
 
-        public const string CashAccountName = "Cash Account";
-        public const string InvestmentRecordName = "Investment Record";
+        //public const string CashAccountName = "Cash Account";
+        //public const string InvestmentRecordName = "Investment Record";
         public const string MonthlyAssetName = "Monthly Assets Statement";
         public const string PerformanceChartName = "Performance Chart";
 
         public ExcelBookHolder(_Application app,
-                                string investmentRecordSheetLocation,
                                 string assetSheetLocation,
                                 string templateSheetLocation,
-                                string cashAccountSheetLocation,
                                 string path)
         {
-            _investmentRecordBook = !string.IsNullOrEmpty(investmentRecordSheetLocation) ? app.Workbooks.Open(investmentRecordSheetLocation) : null;
+            //_investmentRecordBook = !string.IsNullOrEmpty(investmentRecordSheetLocation) ? app.Workbooks.Open(investmentRecordSheetLocation) : null;
             _assetBook = !string.IsNullOrEmpty(assetSheetLocation) ? app.Workbooks.Open(assetSheetLocation) : null;
             _templateBook = !string.IsNullOrEmpty(templateSheetLocation) ? app.Workbooks.Open(templateSheetLocation) : null;
-            _cashBook = !string.IsNullOrEmpty(cashAccountSheetLocation) ?  app.Workbooks.Open(cashAccountSheetLocation) : null;
+            //_cashBook = !string.IsNullOrEmpty(cashAccountSheetLocation) ?  app.Workbooks.Open(cashAccountSheetLocation) : null;
             //_historicalAssetBooks = LoadAllBooks(path, MonthlyAssetName, app);
         }
 
-        public ExcelBookHolder(_Application app,
-                                string investmentRecordSheetLocation,
-                                string cashAccountSheetLocation,
-                                string path,
-                                DateTime ValuationDate)
-        {
-            _investmentRecordBook = !string.IsNullOrEmpty(investmentRecordSheetLocation) ? app.Workbooks.Open(investmentRecordSheetLocation) : null;
-            _cashBook = !string.IsNullOrEmpty(cashAccountSheetLocation) ? app.Workbooks.Open(cashAccountSheetLocation) : null;
-            _historicalAssetBooks = LoadAllBooks(path, MonthlyAssetName, app, ValuationDate);
-        }
+        //public ExcelBookHolder(_Application app,
+        //                        string investmentRecordSheetLocation,
+        //                        string cashAccountSheetLocation,
+        //                        string path,
+        //                        DateTime ValuationDate)
+        //{
+        //    _investmentRecordBook = !string.IsNullOrEmpty(investmentRecordSheetLocation) ? app.Workbooks.Open(investmentRecordSheetLocation) : null;
+        //    _cashBook = !string.IsNullOrEmpty(cashAccountSheetLocation) ? app.Workbooks.Open(cashAccountSheetLocation) : null;
+        //    _historicalAssetBooks = LoadAllBooks(path, MonthlyAssetName, app, ValuationDate);
+        //}
 
         public ExcelBookHolder(_Application app,
-                                string path,
-                                DateTime ValuationDate)
+                                string performanceBookLocation)
         {
-            var performanceBookName = string.Format(@"{0}{1}-{2}.xlsx", path, PerformanceChartName, ValuationDate.ToString("MMM-yyyy"));
-            File.Delete(performanceBookName);
+            //var performanceBookName = string.Format(@"{0}{1}-{2}.xlsx", path, PerformanceChartName, ValuationDate.ToString("MMM-yyyy"));
+            File.Delete(performanceBookLocation);
             _performanceBook = app.Workbooks.Add();
-            _performanceBook.SaveAs(performanceBookName);
+            _performanceBook.SaveAs(performanceBookLocation);
             //_historicalAssetBooks = LoadAllBooks(path, MonthlyAssetName, app, ValuationDate);
         }
 
@@ -66,15 +63,16 @@ namespace ExcelAccountsManager
         }
         public void SaveBooks()
         {
-            _SaveBook(_investmentRecordBook);
+            //_SaveBook(_investmentRecordBook);
             _SaveBook(_assetBook);
-            _SaveBook(_cashBook);
+            //_SaveBook(_cashBook);
             _SaveBook(_performanceBook);
         }
 
         public _Workbook GetInvestmentRecordBook()
         {
-            return _investmentRecordBook;
+            return null;
+            //return _investmentRecordBook;
         }
 
         public _Workbook GetAssetSheetBook()
@@ -84,7 +82,8 @@ namespace ExcelAccountsManager
 
         public _Workbook GetCashBook()
         {
-            return _cashBook;
+            return null;
+            //return _cashBook;
         }
 
         public _Workbook GetTemplateBook()
@@ -94,7 +93,8 @@ namespace ExcelAccountsManager
 
         public IEnumerable<_Workbook> GetHistoricalAssetBooks()
         {
-            return _historicalAssetBooks;
+            return null;
+            //return _historicalAssetBooks;
         }
 
         public _Workbook GetPerformanceBook()
@@ -120,23 +120,23 @@ namespace ExcelAccountsManager
 
         public void Dispose()
         {
-            if (_investmentRecordBook != null)
-                _investmentRecordBook.Close();
+            //if (_investmentRecordBook != null)
+            //    _investmentRecordBook.Close();
             if (_assetBook != null)
                 _assetBook.Close();
             if (_templateBook != null)
                 _templateBook.Close();
-            if (_cashBook != null)
-                _cashBook.Close();
+            //if (_cashBook != null)
+            //    _cashBook.Close();
             if (_performanceBook != null)
                 _performanceBook.Close();
-            if (_historicalAssetBooks != null)
-            {
-                foreach (var book in _historicalAssetBooks)
-                {
-                    book.Close();
-                }
-            }
+            //if (_historicalAssetBooks != null)
+            //{
+            //    foreach (var book in _historicalAssetBooks)
+            //    {
+            //        book.Close();
+            //    }
+            //}
         }
     }
 }

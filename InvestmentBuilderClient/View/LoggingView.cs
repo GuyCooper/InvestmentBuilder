@@ -22,7 +22,7 @@ namespace InvestmentBuilderClient.View
         {
             var lvi = new ListViewItem(loglevel);
             lvi.SubItems.Add(message);
-            listLogging.Items.Add(lvi);
+            listLogging.Items.Insert(0,lvi);
         }
     }
 }

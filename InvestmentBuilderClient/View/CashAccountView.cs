@@ -143,5 +143,14 @@ namespace InvestmentBuilderClient.View
         {
             return double.Parse(txtTotal.Text);
         }
+
+        private void cashAccountGrid_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
+        {
+            var transaction = cashAccountGrid.Rows[e.RowIndex].DataBoundItem as Transaction;
+            if (transaction != null)
+            {
+                cashAccountGrid.Rows[e.RowIndex].ReadOnly = transaction.Added == false;
+            }
+        }
     }
 }

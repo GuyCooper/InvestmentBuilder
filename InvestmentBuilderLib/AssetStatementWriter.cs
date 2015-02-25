@@ -245,6 +245,7 @@ namespace InvestmentBuilder
 
         protected override double UpdateMembersCapitalAccount(double dPreviousUnitValue, DateTime? dtPreviousValution, DateTime valuationDate)
         {
+            Log.Log(LogLevel.Info, "updating members capital account...");
             //get total number of shares allocated for previous month
             //get list of all members who have made a deposit for current month
             double dResult = 0d;

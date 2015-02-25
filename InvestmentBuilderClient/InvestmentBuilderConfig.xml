@@ -3,6 +3,6 @@
   <investmentBuilder
     tradeFile="C:\Users\Guy\Documents\Guy\Investment Club\Accounts\Trades.xml"
     dataSource="Data Source=TRAVELPC\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest;Integrated Security=True"
-    outputFolder="C:\Users\Guy\Documents\Guy/Investment Club\Accounts">
+    outputFolder="C:\Users\Guy\Documents\Guy\Investment Club\Accounts">
   </investmentBuilder>
 </configuration>

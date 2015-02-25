@@ -59,6 +59,7 @@
             this.cashAccountGrid.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.cashAccountGrid.Size = new System.Drawing.Size(654, 270);
             this.cashAccountGrid.TabIndex = 0;
+            this.cashAccountGrid.RowsAdded += new System.Windows.Forms.DataGridViewRowsAddedEventHandler(this.cashAccountGrid_RowsAdded);
             this.cashAccountGrid.SelectionChanged += new System.EventHandler(this.OnSelectedTransactionChanged);
             // 
             // btnAddTransaction

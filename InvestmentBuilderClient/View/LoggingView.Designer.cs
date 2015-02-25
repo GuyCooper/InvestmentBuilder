@@ -41,6 +41,7 @@
             this.listLogging.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.LogLevel,
             this.Message});
+            this.listLogging.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.listLogging.Location = new System.Drawing.Point(0, 0);
             this.listLogging.Name = "listLogging";
             this.listLogging.Size = new System.Drawing.Size(468, 260);
@@ -51,10 +52,12 @@
             // LogLevel
             // 
             this.LogLevel.Text = "Log Level";
+            this.LogLevel.Width = 100;
             // 
             // Message
             // 
             this.Message.Text = "Message";
+            this.Message.Width = 400;
             // 
             // LoggingView
             // 

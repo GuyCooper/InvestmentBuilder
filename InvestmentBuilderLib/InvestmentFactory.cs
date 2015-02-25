@@ -16,6 +16,8 @@ namespace InvestmentBuilder
         ICashAccountReader CreateCashAccountReader();
         void CommitData();
         void Close();
+
+        string AssetSheetLocation { get; }
     }
 
     /// <summary>
@@ -26,17 +28,21 @@ namespace InvestmentBuilder
         private ExcelBookHolder _bookHolder;
         private Microsoft.Office.Interop.Excel.Application _app = new Microsoft.Office.Interop.Excel.Application();
 
+        public string AssetSheetLocation { get; private set; }
+
         public ExcelInvestmentFactory(string path, DateTime dtValuation, bool bTest)
         {
             _app.DisplayAlerts = false;
 
+            if(path[path.Length - 1] != '\\')
+            {
+                path = path + "\\";
+            }
             string ext = bTest ? "Test" : dtValuation.Year.ToString();
-            string assetSheetLocation = _CreateFormattedFileCopy(path, ExcelBookHolder.MonthlyAssetName, ext);
-            string cashAccountLocation = _CreateFormattedFileCopy(path, ExcelBookHolder.CashAccountName, ext);
-            string investmentRecordLocation = _CreateFormattedFileCopy(path, ExcelBookHolder.InvestmentRecordName, ext);
+            AssetSheetLocation = _CreateFormattedFileCopy(path, ExcelBookHolder.MonthlyAssetName, ext);
             string templateLocation = string.Format("{0}Template.xls", path);
 
-            _bookHolder = new ExcelBookHolder(_app, investmentRecordLocation, assetSheetLocation, templateLocation, cashAccountLocation, path);
+            _bookHolder = new ExcelBookHolder(_app, AssetSheetLocation, templateLocation, path);
         }
 
         public virtual InvestmentRecordBuilder CreateInvestmentRecordBuilder()

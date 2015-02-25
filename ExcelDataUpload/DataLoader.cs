@@ -21,9 +21,9 @@ namespace ExcelDataUpload
             //first load the cash account and investment record books for the curent year
             string InvestmentRecordFile = string.Format(@"{0}\{1}-{2}", path, ExcelBookHolder.InvestmentRecordName, dtValuationDate.Year);
             string CashAccountFile = string.Format(@"{0}\{1}-{2}", path, ExcelBookHolder.CashAccountName, dtValuationDate.Year);
-            _bookHolder = new ExcelBookHolder(_app, InvestmentRecordFile, CashAccountFile, path, dtValuationDate);
-            _connection = new SqlConnection(dbconn);
-            _connection.Open();
+            //_bookHolder = new ExcelBookHolder(_app, InvestmentRecordFile, CashAccountFile, path, dtValuationDate);
+            //_connection = new SqlConnection(dbconn);
+            //_connection.Open();
             _dtValuationDate = dtValuationDate;
         }
 

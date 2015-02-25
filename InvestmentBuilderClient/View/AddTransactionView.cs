@@ -16,7 +16,7 @@ namespace InvestmentBuilderClient.View
         InvestmentDataModel _dataModel;
         string _side;
 
-        private const string ALL = "all";
+        private const string ALL = "All";
 
         public AddTransactionView(InvestmentDataModel dataModel, string side)
         {

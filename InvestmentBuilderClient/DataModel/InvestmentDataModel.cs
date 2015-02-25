@@ -25,9 +25,9 @@ namespace InvestmentBuilderClient.DataModel
         public InvestmentDataModel(string dataSource) 
         {
             //var connectstr = @"Data Source=TRAVELPC\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest;Integrated Security=True";
-            _connection = new SqlConnection(dataSource);
-            _connection.Open();
-            logger.Log(LogLevel.Info, "connected to datasource {0}", dataSource);
+             _connection = new SqlConnection(dataSource);
+             _connection.Open();
+             logger.Log(LogLevel.Info, "connected to datasource {0}", dataSource);
         }
 
         public IEnumerable<DateTime> GetValuationDates()

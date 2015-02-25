@@ -22,7 +22,7 @@ CashAccount ca
 INNER JOIN TransactionType tt
 ON
 ca.type_id = tt.type_id
-WHERE ca.transaction_date = @ValuationDate
+WHERE ca.valuation_date = @ValuationDate
 and ca.parameter = @Member
 and tt.[type] = 'Subscription'
 END

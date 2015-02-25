@@ -114,7 +114,7 @@ namespace InvestmentBuilderClient.View
 
         private void btnRunBuilder_Click(object sender, EventArgs e)
         {
-            if (MessageBox.Show("Are You Sure?", "Run Builder", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes)
+            if (MessageBox.Show("Are You Sure?", "Run Accounts Builder", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes)
             {
                 DateTime  dtValuation = (DateTime)cmboValuationDate.SelectedItem;
                 AssetSheetBuilder.BuildAssetSheet(_settings.TradeFile,
@@ -134,9 +134,9 @@ namespace InvestmentBuilderClient.View
         private void btnConfig_Click(object sender, EventArgs e)
         {
             var configView = new ConfigurationView(_settings);
-            if(configView.ShowDialog()== System.Windows.Forms.DialogResult.OK)
+            if (configView.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                if(_settings.UpdateDatasource(configView.GetDataSource()))
+                if (_settings.UpdateDatasource(configView.GetDataSource()))
                 {
                     _dataModel.ReloadData(_settings.DatasourceString);
                     UpdateValuationDate();
