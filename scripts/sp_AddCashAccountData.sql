@@ -19,15 +19,11 @@ INSERT INTO CashAccount (valuation_date, transaction_date, [type_id], parameter,
 SELECT 
 	@ValuationDate,
 	@TransactionDate,
-	tt.[type_id],
+	[type_id],
 	@Parameter,
 	@Amount
-FROM 
-	CashAccount ca
-INNER JOIN
-	TransactionType tt
-ON
-	ca.type_id = tt.type_id
+FROM
+	TransactionType
 WHERE
-	tt.[type] = @TransactionType	
+	[type] = @TransactionType	
 END

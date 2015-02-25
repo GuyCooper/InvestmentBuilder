@@ -16,6 +16,8 @@ namespace InvestmentBuilderClient.View
         InvestmentDataModel _dataModel;
         string _side;
 
+        private const string ALL = "all";
+
         public AddTransactionView(InvestmentDataModel dataModel, string side)
         {
             _dataModel = dataModel;
@@ -33,6 +35,7 @@ namespace InvestmentBuilderClient.View
             cmboParameters.Items.Clear();
             var type = (string)cmboType.SelectedItem;
             cmboParameters.Items.AddRange(_dataModel.GetParametersForType(type).ToArray());
+            cmboParameters.Items.Add(ALL);
             cmboParameters.SelectedIndex = 0;
         }
 
@@ -46,14 +49,36 @@ namespace InvestmentBuilderClient.View
             return (string)cmboType.SelectedItem;
         }
 
-        public string GetParameter()
+        public IEnumerable<string> GetParameter()
         {
-            return (string)cmboParameters.SelectedItem;
+            var selectedItem = (string)cmboParameters.SelectedItem;
+            if(selectedItem == ALL)
+            {
+                foreach (var item in cmboParameters.Items)
+                {
+                    var subItem = (string)item;
+                    if(selectedItem != subItem)
+                    {
+                        yield return subItem;
+
+                    }
+                }
+            }
+            else
+            {
+                yield return selectedItem;
+            }
         }
 
         public double GetAmount()
         {
             return double.Parse(txtAmount.Text);
+        }
+
+        public bool ValidateTransaction()
+        {
+            double dResult;
+            return double.TryParse(txtAmount.Text, out dResult);
         }
     }
 }

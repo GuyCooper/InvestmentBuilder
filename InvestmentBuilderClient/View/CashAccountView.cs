@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using InvestmentBuilderClient.ViewModel;
 using InvestmentBuilderClient.DataModel;
+using NLog;
 
 namespace InvestmentBuilderClient.View
 {
@@ -16,6 +17,8 @@ namespace InvestmentBuilderClient.View
     {
         private InvestmentDataModel _dataModel;
         private CashAccountViewModel _vm;
+
+        private static Logger logger = LogManager.GetCurrentClassLogger();
 
         bool _bInitialised = false;
 
@@ -75,10 +78,23 @@ namespace InvestmentBuilderClient.View
             var view = new AddTransactionView(_dataModel, TransactionMnenomic);
             if(view.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                var total = AddTransactionImpl(view.GetTransactionDate(), view.GetTransactionType(),
-                               view.GetParameter(), view.GetAmount());
-                txtTotal.Text = total.ToString();
-                AddGridStyling();
+                if (view.ValidateTransaction())
+                {
+                    double total = 0d;
+                    var transactionParams = view.GetParameter().ToList();
+                    foreach (var param in transactionParams)
+                    {
+                        total = AddTransactionImpl(view.GetTransactionDate(), view.GetTransactionType(),
+                                  param, view.GetAmount());
+                    }
+                    
+                    txtTotal.Text = total.ToString();
+                    AddGridStyling();
+                }
+                else
+                {
+                    logger.Log(LogLevel.Error, "transaction validation failed!");
+                }
             }
         }
 

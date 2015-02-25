@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using InvestmentBuilderClient.DataModel;
+using NLog;
 
 namespace InvestmentBuilderClient.ViewModel
 {
@@ -34,33 +35,24 @@ namespace InvestmentBuilderClient.ViewModel
         {
             Receipts.Clear();
 
-            if (dtValuationDate > _latestValuationDate)
-            {
-                //add the balance in hand from prvious month
-                Receipts.Add(new ReceiptTransaction
-                {
-                    Parameter = "BalanceInHand",
-                    Added = true,
-                    TransactionDate = dtValuationDate,
-                    Subscription = _dataModel.GetBalanceInHand(_latestValuationDate.Value)
-                });
-            }
             _dataModel.GetCashAccountData(dtValuationDate, transactionMneomic, (reader) =>
             {
                 var transaction = new ReceiptTransaction
                 {
                     TransactionDate = (DateTime)reader["TransactionDate"],
-                    Parameter = (string)reader["Parameter"]
+                    Parameter = (string)reader["Parameter"],
+                    TransactionType = (string)reader["TransactionType"]
                 };
 
                 var amount = (double)reader["Amount"];
-                string transactionType = (string)reader["TransactionType"];
-                if (_receiptTransactionLookup.ContainsKey(transactionType))
+                if (_receiptTransactionLookup.ContainsKey(transaction.TransactionType))
                 {
-                    _receiptTransactionLookup[transactionType](transaction, amount);
+                    _receiptTransactionLookup[transaction.TransactionType](transaction, amount);
                 }
                 Receipts.Add(transaction);
             });
+
+            IncludePreviousBalanceInHand(dtValuationDate);     
 
             return _AddTotalRow(dtValuationDate);
         }
@@ -91,6 +83,7 @@ namespace InvestmentBuilderClient.ViewModel
 
         public override double DeleteTransaction(Transaction transaction)
         {
+            Log.Log(LogLevel.Info, "deleting transaction {0}.{1}", transaction.TransactionType, transaction.Parameter);
             DateTime dtValuation = Receipts.Last().TransactionDate;
             Receipts.RemoveAt(Receipts.Count - 1);
             var receipt = transaction as ReceiptTransaction;
@@ -104,6 +97,7 @@ namespace InvestmentBuilderClient.ViewModel
 
         public override void CommitData(DateTime dtValuation)
         {
+            Log.Log(LogLevel.Info, "commiting receipts data...");
             foreach (var receipt in Receipts.Where(p => p.Added))
             {
                 _dataModel.SaveCashAccountData(dtValuation, receipt.TransactionDate,
@@ -127,6 +121,27 @@ namespace InvestmentBuilderClient.ViewModel
             total.TransactionDate = dtValuationDate;
             Receipts.Add(total);
             return total.Dividend + total.Other + total.Sale + total.Subscription;
+        }
+
+        //method add the previous balanceinhand if required
+        private void IncludePreviousBalanceInHand(DateTime dtValuationDate)
+        {
+            if (dtValuationDate > _latestValuationDate)
+            {
+                if (Receipts.FirstOrDefault(r => r.TransactionType == "BalanceInHand") == null)
+                {
+                    var dAmount = _dataModel.GetBalanceInHand(_latestValuationDate.Value);
+                    Receipts.Add(new ReceiptTransaction
+                    {
+                        Parameter = "BalanceInHand",
+                        Added = true,
+                        TransactionDate = dtValuationDate,
+                        TransactionType = "BalanceInHand",
+                        Subscription = dAmount,
+                        Amount = dAmount
+                    });
+                }
+            }
         }
     }
 }

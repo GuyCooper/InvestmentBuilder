@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using InvestmentBuilderClient.DataModel;
+using NLog;
 
 namespace InvestmentBuilderClient.ViewModel
 {
@@ -42,7 +43,10 @@ namespace InvestmentBuilderClient.ViewModel
         {
             _dataModel = dataModel;
             _latestValuationDate = _dataModel.GetLatestValuationDate();
+            Log = LogManager.GetLogger(GetType().FullName);
         }
+
+        protected Logger Log { get; private set; }
 
         public abstract double GetTransactionData(DateTime dtValuationDate, string transactionMneomic);
 
@@ -54,6 +58,7 @@ namespace InvestmentBuilderClient.ViewModel
 
         protected double _DeleteTransactionImpl(Transaction transaction, BindingList<Transaction> bindingList)
         {
+            Log.Log(LogLevel.Info, "deleting transaction {0}", transaction.TransactionType);
             DateTime dtValuation = bindingList.Last().TransactionDate;
             bindingList.RemoveAt(bindingList.Count - 1);
             //can only remove receipts that have been added

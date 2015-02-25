@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using InvestmentBuilderClient.DataModel;
+using NLog;
 
 namespace InvestmentBuilderClient.ViewModel
 {
@@ -78,6 +79,7 @@ namespace InvestmentBuilderClient.ViewModel
 
         public override double DeleteTransaction(Transaction transaction)
         {
+            Log.Log(LogLevel.Info, "deleting transaction {0}.{1}", transaction.TransactionType, transaction.Parameter);
             DateTime dtValuation = Payments.Last().TransactionDate;
             Payments.RemoveAt(Payments.Count - 1);
             //can only remove receipts that have been added
@@ -92,6 +94,7 @@ namespace InvestmentBuilderClient.ViewModel
 
         public override void CommitData(DateTime dtValuation)
         {
+            Log.Log(LogLevel.Info, "commiting payments data...");
             foreach (var payment in Payments.Where(p => p.Added))
             {
                 _dataModel.SaveCashAccountData(dtValuation, payment.TransactionDate,

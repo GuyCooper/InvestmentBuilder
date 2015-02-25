@@ -4,6 +4,7 @@ using System.Linq;
 using System.ComponentModel;
 using InvestmentBuilder;
 using InvestmentBuilderClient.DataModel;
+using NLog;
 
 namespace InvestmentBuilderClient.ViewModel
 {
@@ -23,6 +24,8 @@ namespace InvestmentBuilderClient.ViewModel
     {
         private string _tradeFile;
         private List<TradeDetails> _tradesList;
+
+        private static Logger logger = LogManager.GetCurrentClassLogger();
 
         public TradeViewModel(string tradefile)
         {
@@ -68,6 +71,7 @@ namespace InvestmentBuilderClient.ViewModel
 
         public void CommitTrades()
         {
+            logger.Log(LogLevel.Info, "commiting trade data...");
             var trades = new Trades();
             trades.Buys = Trades.Where(t => t.Type == TradeType.BUY).ToArray();
             trades.Sells = Trades.Where(t => t.Type == TradeType.SELL).ToArray();
