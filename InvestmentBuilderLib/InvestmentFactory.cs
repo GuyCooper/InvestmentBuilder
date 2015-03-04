@@ -14,6 +14,8 @@ namespace InvestmentBuilder
         ICompanyDataReader CreateCompanyDataReader();
         AssetStatementWriter CreateAssetStatementWriter();
         ICashAccountReader CreateCashAccountReader();
+        IUserDataReader CreateUserDataReader();
+
         void CommitData();
         void Close();
 
@@ -63,6 +65,11 @@ namespace InvestmentBuilder
         public virtual ICashAccountReader CreateCashAccountReader()
         {
             return new CashAccountReaderExcel(_bookHolder);
+        }
+
+        public virtual IUserDataReader CreateUserDataReader()
+        {
+            return null;
         }
 
         public void CommitData()
@@ -129,6 +136,12 @@ namespace InvestmentBuilder
         {
             return new CashAccountReaderDatabase(_conn);
         }     
+
+        
+        public override IUserDataReader CreateUserDataReader()
+        {
+            return new UserDataReaderDB(_conn);
+        }
 
         public override void Close()
         {

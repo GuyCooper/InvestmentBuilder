@@ -91,6 +91,9 @@ namespace InvestmentBuilderClient.View
             cmboValuationDate.Items.AddRange(_dataModel.GetValuationDates().Cast<object>().ToArray());
             cmboValuationDate.SelectedIndex = 0;
             UpdateValuationDate();
+
+            cmboAccountName.Items.AddRange(_dataModel.GetAccountNames().Cast<object>().ToArray());
+            cmboAccountName.SelectedIndex = 0;
         }
 
         private void btnCommitData_Click(object sender, EventArgs e)
@@ -117,7 +120,9 @@ namespace InvestmentBuilderClient.View
             if (MessageBox.Show("Are You Sure?", "Run Accounts Builder", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes)
             {
                 DateTime  dtValuation = (DateTime)cmboValuationDate.SelectedItem;
-                AssetSheetBuilder.BuildAssetSheet(_settings.TradeFile,
+                string selectedAccount = (string)cmboAccountName.SelectedItem;
+                AssetSheetBuilder.BuildAssetSheet(selectedAccount,
+                                                   _settings.TradeFile,
                                                   _settings.OutputFolder,
                                                   _settings.DatasourceString,
                                                   false,
@@ -159,6 +164,11 @@ namespace InvestmentBuilderClient.View
                     dtValuation
                     );
             }
+        }
+
+        private void cmboAccountName_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

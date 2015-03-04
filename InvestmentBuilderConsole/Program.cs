@@ -64,7 +64,7 @@ namespace InvestmentBuilderConsole
             Console.WriteLine("valuation date:{0}", dtValuationDate);
             Console.WriteLine("type any key to continue...");
             Console.ReadKey();
-            InvestmentBuilder.AssetSheetBuilder.BuildAssetSheet(tradeFile, path, connectionsstr, bTest, dtValuationDate,
+            InvestmentBuilder.AssetSheetBuilder.BuildAssetSheet("Argyll Investments", tradeFile, path, connectionsstr, bTest, dtValuationDate,
                                                                    format);
 
         }

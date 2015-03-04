@@ -38,6 +38,8 @@
             this.btnCommitData = new System.Windows.Forms.ToolStripButton();
             this.btnRunBuilder = new System.Windows.Forms.ToolStripButton();
             this.btnPerformance = new System.Windows.Forms.ToolStripButton();
+            this.toolStripLabel2 = new System.Windows.Forms.ToolStripLabel();
+            this.cmboAccountName = new System.Windows.Forms.ToolStripComboBox();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -45,6 +47,8 @@
             // 
             this.toolStrip1.Font = new System.Drawing.Font("Arial Rounded MT Bold", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripLabel2,
+            this.cmboAccountName,
             this.toolStripLabel1,
             this.cmboValuationDate,
             this.toolStripSeparator1,
@@ -62,7 +66,7 @@
             // toolStripLabel1
             // 
             this.toolStripLabel1.Name = "toolStripLabel1";
-            this.toolStripLabel1.Size = new System.Drawing.Size(84, 36);
+            this.toolStripLabel1.Size = new System.Drawing.Size(103, 36);
             this.toolStripLabel1.Text = "Valuation Date";
             // 
             // cmboValuationDate
@@ -132,6 +136,18 @@
             this.btnPerformance.ToolTipText = "Build Performance Charts";
             this.btnPerformance.Click += new System.EventHandler(this.btnPerformance_Click);
             // 
+            // toolStripLabel2
+            // 
+            this.toolStripLabel2.Name = "toolStripLabel2";
+            this.toolStripLabel2.Size = new System.Drawing.Size(102, 36);
+            this.toolStripLabel2.Text = "Account Name";
+            // 
+            // cmboAccountName
+            // 
+            this.cmboAccountName.Name = "cmboAccountName";
+            this.cmboAccountName.Size = new System.Drawing.Size(121, 39);
+            this.cmboAccountName.SelectedIndexChanged += new System.EventHandler(this.cmboAccountName_SelectedIndexChanged);
+            // 
             // MainView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -160,6 +176,8 @@
         private System.Windows.Forms.ToolStripButton btnRunBuilder;
         private System.Windows.Forms.ToolStripButton btnConfig;
         private System.Windows.Forms.ToolStripButton btnPerformance;
+        private System.Windows.Forms.ToolStripLabel toolStripLabel2;
+        private System.Windows.Forms.ToolStripComboBox cmboAccountName;
 
 
 

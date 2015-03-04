@@ -118,5 +118,18 @@ namespace InvestmentBuilderClient.ViewModel
             Payments.Add(total);
             return total.Withdrawls + total.Other + total.Purchases;
         }
+
+        //protected override void AppendTransactions(Transaction t1, Transaction t2)
+        //{
+        //    var payment1 = t1 as PaymentTransaction;
+        //    var payment2 = t2 as PaymentTransaction;
+        //    if(payment1 != null && payment2 != null)
+        //    {
+        //        if (_paymentTransactionLookup.ContainsKey(payment1.TransactionType))
+        //        {
+        //            _paymentTransactionLookup[payment1.TransactionType](payment1, payment2.Amount);
+        //        }
+        //    }
+        //}
     }
 }

@@ -43,7 +43,7 @@ namespace InvestmentBuilder
         /// </summary>
         /// <param name="bTest"></param>
         /// <param name="path"></param>
-        public static void BuildAssetSheet(string tradeFile, string path, string connectionstr, bool bTest, DateTime valuationDate, DataFormat format)
+        public static AssetReport BuildAssetSheet(string userName, string tradeFile, string path, string connectionstr, bool bTest, DateTime valuationDate, DataFormat format)
         {
             logger.Log(LogLevel.Info, string.Format("Begin BuildAssetSheet"));
             logger.Log(LogLevel.Info,string.Format("trade file: {0}", tradeFile));
@@ -54,6 +54,8 @@ namespace InvestmentBuilder
             logger.Log(LogLevel.Info, string.Format("data format: {0}", format));
 
             var factory = BuildFactory(format, path, connectionstr, valuationDate, bTest);
+
+            AssetReport assetReport = null;
             try
             {
                 var trades = TradeLoader.GetTrades(tradeFile);
@@ -62,6 +64,12 @@ namespace InvestmentBuilder
                 var dataReader = factory.CreateCompanyDataReader();
                 var assetWriter = factory.CreateAssetStatementWriter();
                 var cashAccountReader = factory.CreateCashAccountReader();
+                var userDataReader = factory.CreateUserDataReader();
+
+                var userData = userDataReader.GetUserData(userName);
+
+                //rollback any previous updates made for this valuation date
+                userData.RollbackValuationDate(valuationDate);
 
                 var dtPreviousValuation = cashAccountReader.GetPreviousValuationDate();
                 //first extract the cash account data
@@ -78,8 +86,13 @@ namespace InvestmentBuilder
                     //Console.WriteLine("{0} : {1} : {2} : {3} : {4}", val.sName, val.dSharePrice, val.dNetSellingValue, val.dMonthChange, val.dMonthChangeRatio);
                 }
 
+                assetReport = _BuildAssetReport(valuationDate,
+                                                dtPreviousValuation,
+                                                userData,
+                                                lstData,
+                                                cashAccountData.BankBalance);
                 //finally, build the asset statement
-                assetWriter.WriteAssetStatement(lstData, cashAccountData, dtPreviousValuation, valuationDate);
+                //assetWriter.WriteAssetStatement(lstData, cashAccountData, dtPreviousValuation, valuationDate);
 
                 logger.Log(LogLevel.Info, "commiting changes...");
                 factory.CommitData();
@@ -90,6 +103,53 @@ namespace InvestmentBuilder
                 //app.Workbooks.Close();
                 factory.Close();
             }
+
+            return assetReport;
+        }
+
+        private static AssetReport _BuildAssetReport(DateTime dtValuationDate,
+                                                     DateTime? dtPreviousValution,
+                                                     UserData userData,
+                                                     IEnumerable<CompanyData> companyData,
+                                                     double dBankBalance)
+        {
+            logger.Log(LogLevel.Info, "building asset report...");
+            AssetReport report = new AssetReport
+            {
+                ClubName = userData.Name,
+                ReportingCurrency = userData.Currency,
+                Assets = companyData,
+                BankBalance = dBankBalance
+            };
+
+            report.IssuedUnits = _UpdateMembersCapitalAccount(userData, dtPreviousValution, dtValuationDate);
+
+            report.TotalAssetValue = companyData.Sum(c => c.dNetSellingValue);
+            report.TotalAssets = report.BankBalance + report.TotalAssetValue;
+            report.TotalLiabilities = 0d; //todo, record liabilities(if any)
+            report.NetAssets = report.TotalAssets - report.TotalLiabilities;
+            report.ValuePerUnit = report.NetAssets / report.IssuedUnits;
+            //todo total assets
+            //unit price
+            return report;
+        }
+
+        private static double _UpdateMembersCapitalAccount(UserData userData, DateTime? dtPreviousValution, DateTime dtValuationDate)
+        {
+            logger.Log(LogLevel.Info, "updating members capital account...");
+            //get total number of shares allocated for previous month
+            //get list of all members who have made a deposit for current month
+            double dResult = 0d;
+            var dPreviousUnitValue = userData.GetPreviousUnitValuation(dtValuationDate, dtPreviousValution);
+            var memberAccountData = userData.GetMemberAccountData(dtPreviousValution ?? dtValuationDate).ToList();
+            foreach (var member in memberAccountData)
+            {
+                double dSubscription = userData.GetMemberSubscription(dtValuationDate, member.Key);
+                double dNewAmount = member.Value + (dSubscription * (1 / dPreviousUnitValue));
+                dResult += dNewAmount;
+                userData.UpdateMemberAccount(dtValuationDate, member.Key, dNewAmount);
+            }
+            return dResult;
         }
     }
 }

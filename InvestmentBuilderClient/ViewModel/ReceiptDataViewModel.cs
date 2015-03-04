@@ -143,5 +143,18 @@ namespace InvestmentBuilderClient.ViewModel
                 }
             }
         }
+
+        //protected override void AppendTransactions(Transaction t1, Transaction t2)
+        //{
+        //    var receipt1 = t1 as ReceiptTransaction;
+        //    var receipt2 = t2 as ReceiptTransaction;
+        //    if (receipt1 != null && receipt2 != null)
+        //    {
+        //        if (_receiptTransactionLookup.ContainsKey(receipt1.TransactionType))
+        //        {
+        //            _receiptTransactionLookup[receipt1.TransactionType](receipt1, receipt2.Amount);
+        //        }
+        //    }
+        //}
     }
 }

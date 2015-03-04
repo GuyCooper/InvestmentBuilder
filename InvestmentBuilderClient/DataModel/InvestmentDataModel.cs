@@ -167,6 +167,20 @@ namespace InvestmentBuilderClient.DataModel
             logger.Log(LogLevel.Info, "reload from datasource {0}", dataSource);
         }
 
+        public IEnumerable<string> GetAccountNames()
+        {
+            using (var command = new SqlCommand("SELECT Name FROM Users ", _connection))
+            {
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        yield return (string)reader["Name"];
+                    }
+                }
+            }
+        }
+
         public void Dispose()
         {
             _connection.Close();

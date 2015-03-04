@@ -11,7 +11,7 @@ using NLog;
 namespace InvestmentBuilder
 {
 
-    class CompanyData
+    public class CompanyData
     {
         public string sName;
         public DateTime? dtLastBrought;
@@ -20,6 +20,7 @@ namespace InvestmentBuilder
         public double dTotalCost;
         public double dSharePrice;
         public double dNetSellingValue;
+        public double dProfitLoss;
         public double dMonthChange;
         public double dMonthChangeRatio;
         public double dDividend;
@@ -153,6 +154,7 @@ namespace InvestmentBuilder
             {
                 var previousData = lstPreviousData.Find(c => c.sName == company.sName);
                 _updateMonthlyData(company, previousData);
+                company.dProfitLoss = company.dNetSellingValue - company.dTotalCost;
             }
 
             return lstCurrentData;

@@ -18,5 +18,6 @@ namespace InvestmentBuilderClient.DataModel
         void SaveCashAccountData(DateTime dtValuationDate, DateTime dtTransactionDate,
                                     string type, string parameter, double amount);
         void ReloadData(string dataSource);
+        IEnumerable<string> GetAccountNames();
     }
 }
