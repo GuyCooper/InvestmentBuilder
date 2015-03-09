@@ -28,21 +28,27 @@ namespace InvestmentBuilder
     class ExcelInvestmentFactory : IInvestmentFactory
     {
         private ExcelBookHolder _bookHolder;
-        private Microsoft.Office.Interop.Excel.Application _app = new Microsoft.Office.Interop.Excel.Application();
+        private Microsoft.Office.Interop.Excel.Application _app = null;// new Microsoft.Office.Interop.Excel.Application();
 
         public string AssetSheetLocation { get; private set; }
 
-        public ExcelInvestmentFactory(string path, DateTime dtValuation, bool bTest)
+        public ExcelInvestmentFactory(string path, DateTime dtValuation, bool bUpdate)
         {
-            _app.DisplayAlerts = false;
-
-            if(path[path.Length - 1] != '\\')
+            string templateLocation = null;
+            AssetSheetLocation = null;
+            if (bUpdate)
             {
-                path = path + "\\";
+                _app = new Microsoft.Office.Interop.Excel.Application();
+                _app.DisplayAlerts = false;
+
+                if (path[path.Length - 1] != '\\')
+                {
+                    path = path + "\\";
+                }
+                string ext = dtValuation.Year.ToString();
+                AssetSheetLocation = _CreateFormattedFileCopy(path, ExcelBookHolder.MonthlyAssetName, ext);
+                templateLocation = string.Format("{0}Template.xls", path);
             }
-            string ext = bTest ? "Test" : dtValuation.Year.ToString();
-            AssetSheetLocation = _CreateFormattedFileCopy(path, ExcelBookHolder.MonthlyAssetName, ext);
-            string templateLocation = string.Format("{0}Template.xls", path);
 
             _bookHolder = new ExcelBookHolder(_app, AssetSheetLocation, templateLocation, path);
         }
@@ -79,7 +85,10 @@ namespace InvestmentBuilder
 
         public virtual void Close()
         {
-            _app.Workbooks.Close();
+            if (_app != null)
+            {
+                _app.Workbooks.Close();
+            }
         }
 
         protected ExcelBookHolder _GetBookholder()
@@ -110,8 +119,8 @@ namespace InvestmentBuilder
     {
         private SqlConnection _conn;
 
-        public DatabaseInvestmentFactory(string path, string connectionstr, DateTime dtValuation, bool bTest) :
-            base(path, dtValuation, bTest)
+        public DatabaseInvestmentFactory(string path, string connectionstr, DateTime dtValuation, bool bUpdate) :
+            base(path, dtValuation, bUpdate)
         {
             _conn = new SqlConnection(connectionstr);
             _conn.Open();

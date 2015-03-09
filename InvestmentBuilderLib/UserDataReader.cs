@@ -19,6 +19,8 @@ namespace InvestmentBuilder
         public abstract IEnumerable<KeyValuePair<string, double>> GetMemberAccountData(DateTime dtValuation);
         public abstract double GetPreviousUnitValuation(DateTime dtValuation, DateTime? previousDate);
         public abstract void SaveNewUnitValue(DateTime dtValuation, double dUnitValue);
+        public abstract double GetIssuedUnits(DateTime dtValuation);
+        public abstract DateTime? GetPreviousValuationDate(DateTime dtValuation);
     }
 
     internal class DBUserData : UserData
@@ -107,6 +109,44 @@ namespace InvestmentBuilder
                 command.ExecuteNonQuery();
             }
         }
+
+        public override double GetIssuedUnits(DateTime dtValuation)
+        {
+            using (var command = new SqlCommand("sp_GetIssuedUnits", _connection))
+            {
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+                command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
+                command.Parameters.Add(new SqlParameter("@AccountName", Name));
+
+                var result = command.ExecuteScalar();
+                if(result != null)
+                {
+                    return (double)result;
+                }
+            }
+            return 0d;
+        }
+
+        public override DateTime? GetPreviousValuationDate(DateTime dtValuation)
+        {
+            DateTime? dtPrevious = null;
+            using (var command = new SqlCommand("SELECT Valuation_Date FROM Valuations ORDER BY Valuation_Date ASC", _connection))
+            {
+                command.CommandType = System.Data.CommandType.Text;
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    
+                    while (reader.Read())
+                    {
+                        var dtCurrent = (DateTime)reader["Valuation_Date"];
+                        if (dtCurrent >= dtValuation)
+                            return dtPrevious;
+                        dtPrevious = dtCurrent;
+                    }
+                }
+            }
+            return dtPrevious;
+        }
     }
 
     interface IUserDataReader
@@ -132,14 +172,18 @@ namespace InvestmentBuilder
                 command.Parameters.Add(new SqlParameter("@Name", name));
                 using (var reader = command.ExecuteReader())
                 {
-                    return new DBUserData(_connection)
+                    if (reader.Read())
                     {
-                        Name = name,
-                        Currency = (string)reader["Currency"],
-                        Description = (string)reader["Description"]
-                    };
+                        return new DBUserData(_connection)
+                        {
+                            Name = name,
+                            Currency = (string)reader["Currency"],
+                            Description = (string)reader["Description"]
+                        };
+                    }
                 }
             }
+            return null;
         }
     }
 }

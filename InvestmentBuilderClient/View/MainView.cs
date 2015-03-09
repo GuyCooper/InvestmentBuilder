@@ -125,9 +125,9 @@ namespace InvestmentBuilderClient.View
                                                    _settings.TradeFile,
                                                   _settings.OutputFolder,
                                                   _settings.DatasourceString,
-                                                  false,
                                                   dtValuation,
-                                                  DataFormat.DATABASE);
+                                                  DataFormat.DATABASE,
+                                                  true); //persist report to database and spreadsheet
             }
         }
 
@@ -169,6 +169,44 @@ namespace InvestmentBuilderClient.View
         private void cmboAccountName_SelectedIndexChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void btnViewReport_Click(object sender, EventArgs e)
+        {
+            DateTime dtValuation = (DateTime)cmboValuationDate.SelectedItem;
+            string selectedAccount = (string)cmboAccountName.SelectedItem;
+
+            if(_dataModel.IsExistingValuationDate(dtValuation))
+            {
+                //marshall view builder onto a seperate thread
+                Task.Factory.StartNew(() =>
+                    {
+                        var report = AssetSheetBuilder.BuildAssetSheet(selectedAccount,
+                                                           _settings.TradeFile,
+                                                          _settings.OutputFolder,
+                                                          _settings.DatasourceString,
+                                                          dtValuation,
+                                                          DataFormat.DATABASE,
+                                                          false); //view only
+                        if (report != null)
+                        {
+                            //now marshall back onto main thread to display report
+                            if (_displayContext != null)
+                            {
+                                _displayContext.Post(o =>
+                                {
+                                    var reportView = new AssetReportView((AssetReport)o);
+                                    reportView.TopLevel = true;
+                                    reportView.Show();
+                                }, report);
+                            }
+                        }
+                    });
+            }
+            else
+            {
+                logger.Log(LogLevel.Warn, "no report available for date {0}", dtValuation.ToShortDateString());
+            }
         }
     }
 }

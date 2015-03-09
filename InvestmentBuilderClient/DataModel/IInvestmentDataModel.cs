@@ -19,5 +19,6 @@ namespace InvestmentBuilderClient.DataModel
                                     string type, string parameter, double amount);
         void ReloadData(string dataSource);
         IEnumerable<string> GetAccountNames();
+        bool IsExistingValuationDate(DateTime dtValuation);
     }
 }

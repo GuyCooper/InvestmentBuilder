@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using InvestmentBuilderClient.DataModel;
-using System.ComponentModel;
 using NLog;
 
 namespace InvestmentBuilderClient.ViewModel

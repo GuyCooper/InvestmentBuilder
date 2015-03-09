@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -62,6 +63,12 @@
     </Compile>
     <Compile Include="View\AddTransactionView.Designer.cs">
       <DependentUpon>AddTransactionView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="View\AssetReportView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="View\AssetReportView.Designer.cs">
+      <DependentUpon>AssetReportView.cs</DependentUpon>
     </Compile>
     <Compile Include="View\CashAccountView.cs">
       <SubType>Form</SubType>
@@ -112,6 +119,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="View\AddTransactionView.resx">
       <DependentUpon>AddTransactionView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\AssetReportView.resx">
+      <DependentUpon>AssetReportView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="View\CashAccountView.resx">
       <DependentUpon>CashAccountView.cs</DependentUpon>

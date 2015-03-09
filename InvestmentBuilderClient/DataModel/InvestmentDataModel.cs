@@ -181,6 +181,17 @@ namespace InvestmentBuilderClient.DataModel
             }
         }
 
+        public bool IsExistingValuationDate(DateTime dtValuation)
+        {
+            using (var sqlCommand = new SqlCommand("sp_IsExistingValuationDate", _connection))
+            {
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
+                var result = sqlCommand.ExecuteScalar();
+                return result != null;
+            }
+        }
+
         public void Dispose()
         {
             _connection.Close();

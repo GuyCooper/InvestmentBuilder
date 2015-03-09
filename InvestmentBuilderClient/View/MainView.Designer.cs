@@ -30,6 +30,8 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainView));
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.toolStripLabel2 = new System.Windows.Forms.ToolStripLabel();
+            this.cmboAccountName = new System.Windows.Forms.ToolStripComboBox();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
             this.cmboValuationDate = new System.Windows.Forms.ToolStripComboBox();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
@@ -38,8 +40,7 @@
             this.btnCommitData = new System.Windows.Forms.ToolStripButton();
             this.btnRunBuilder = new System.Windows.Forms.ToolStripButton();
             this.btnPerformance = new System.Windows.Forms.ToolStripButton();
-            this.toolStripLabel2 = new System.Windows.Forms.ToolStripLabel();
-            this.cmboAccountName = new System.Windows.Forms.ToolStripComboBox();
+            this.btnViewReport = new System.Windows.Forms.ToolStripButton();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -56,12 +57,25 @@
             this.toolStripSeparator2,
             this.btnCommitData,
             this.btnRunBuilder,
-            this.btnPerformance});
+            this.btnPerformance,
+            this.btnViewReport});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(694, 39);
+            this.toolStrip1.Size = new System.Drawing.Size(736, 39);
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
+            // 
+            // toolStripLabel2
+            // 
+            this.toolStripLabel2.Name = "toolStripLabel2";
+            this.toolStripLabel2.Size = new System.Drawing.Size(102, 36);
+            this.toolStripLabel2.Text = "Account Name";
+            // 
+            // cmboAccountName
+            // 
+            this.cmboAccountName.Name = "cmboAccountName";
+            this.cmboAccountName.Size = new System.Drawing.Size(121, 39);
+            this.cmboAccountName.SelectedIndexChanged += new System.EventHandler(this.cmboAccountName_SelectedIndexChanged);
             // 
             // toolStripLabel1
             // 
@@ -136,23 +150,24 @@
             this.btnPerformance.ToolTipText = "Build Performance Charts";
             this.btnPerformance.Click += new System.EventHandler(this.btnPerformance_Click);
             // 
-            // toolStripLabel2
+            // btnViewReport
             // 
-            this.toolStripLabel2.Name = "toolStripLabel2";
-            this.toolStripLabel2.Size = new System.Drawing.Size(102, 36);
-            this.toolStripLabel2.Text = "Account Name";
-            // 
-            // cmboAccountName
-            // 
-            this.cmboAccountName.Name = "cmboAccountName";
-            this.cmboAccountName.Size = new System.Drawing.Size(121, 39);
-            this.cmboAccountName.SelectedIndexChanged += new System.EventHandler(this.cmboAccountName_SelectedIndexChanged);
+            this.btnViewReport.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnViewReport.Image = ((System.Drawing.Image)(resources.GetObject("btnViewReport.Image")));
+            this.btnViewReport.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.btnViewReport.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnViewReport.Margin = new System.Windows.Forms.Padding(5, 1, 5, 2);
+            this.btnViewReport.Name = "btnViewReport";
+            this.btnViewReport.Size = new System.Drawing.Size(36, 36);
+            this.btnViewReport.Text = "toolStripButton1";
+            this.btnViewReport.ToolTipText = "view report";
+            this.btnViewReport.Click += new System.EventHandler(this.btnViewReport_Click);
             // 
             // MainView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(694, 350);
+            this.ClientSize = new System.Drawing.Size(736, 350);
             this.Controls.Add(this.toolStrip1);
             this.IsMdiContainer = true;
             this.Name = "MainView";
@@ -178,6 +193,7 @@
         private System.Windows.Forms.ToolStripButton btnPerformance;
         private System.Windows.Forms.ToolStripLabel toolStripLabel2;
         private System.Windows.Forms.ToolStripComboBox cmboAccountName;
+        private System.Windows.Forms.ToolStripButton btnViewReport;
 
 
 

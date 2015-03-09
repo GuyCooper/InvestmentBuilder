@@ -25,35 +25,42 @@ namespace InvestmentBuilder
         /// <param name="connectionstr"></param>
         /// <param name="bTest"></param>
         /// <returns></returns>
-        private static IInvestmentFactory BuildFactory(DataFormat format, string path, string connectionstr, DateTime dtValuation, bool bTest)
+        private static IInvestmentFactory BuildFactory(DataFormat format, string path, string connectionstr, DateTime dtValuation, bool bUpdate)
         {
             switch(format)
             {
                 case DataFormat.EXCEL:
-                    return new ExcelInvestmentFactory(path, dtValuation, bTest);
+                    return new ExcelInvestmentFactory(path, dtValuation, bUpdate);
                 case DataFormat.DATABASE:
-                    return new DatabaseInvestmentFactory(path, connectionstr, dtValuation, bTest);
+                    return new DatabaseInvestmentFactory(path, connectionstr, dtValuation, bUpdate);
             }
 
             throw new ArgumentException("invalid dataformat");
              
         }
-          /// <summary>
-        /// build asset sheet for current month
+
+        /// <summary>
+        /// generate asset report
         /// </summary>
-        /// <param name="bTest"></param>
-        /// <param name="path"></param>
-        public static AssetReport BuildAssetSheet(string userName, string tradeFile, string path, string connectionstr, bool bTest, DateTime valuationDate, DataFormat format)
+        /// <param name="userName">club /account name</param>
+        /// <param name="tradeFile">trade file</param>
+        /// <param name="path">output path</param>
+        /// <param name="connectionstr">db connectionstring</param>
+        /// <param name="valuationDate">valuation date</param>
+        /// <param name="format">format EXCEL / DATABASE</param>
+        /// <param name="bUpdate">flag to save report to db and spreadsheet</param>
+        /// <returns></returns>
+        public static AssetReport BuildAssetSheet(string userName, string tradeFile, string path, string connectionstr, DateTime valuationDate, DataFormat format, bool bUpdate)
         {
             logger.Log(LogLevel.Info, string.Format("Begin BuildAssetSheet"));
             logger.Log(LogLevel.Info,string.Format("trade file: {0}", tradeFile));
             logger.Log(LogLevel.Info,string.Format("path: {0}", path));
             logger.Log(LogLevel.Info,string.Format("datasource: {0}",connectionstr));
-            logger.Log(LogLevel.Info,string.Format("test: {0}", bTest));
+            logger.Log(LogLevel.Info,string.Format("update: {0}", bUpdate));
             logger.Log(LogLevel.Info,string.Format("valuation date: {0}", valuationDate.ToShortDateString()));
             logger.Log(LogLevel.Info, string.Format("data format: {0}", format));
 
-            var factory = BuildFactory(format, path, connectionstr, valuationDate, bTest);
+            var factory = BuildFactory(format, path, connectionstr, valuationDate, bUpdate);
 
             AssetReport assetReport = null;
             try
@@ -68,15 +75,27 @@ namespace InvestmentBuilder
 
                 var userData = userDataReader.GetUserData(userName);
 
-                //rollback any previous updates made for this valuation date
-                userData.RollbackValuationDate(valuationDate);
+                if(userData == null)
+                {
+                    logger.Log(LogLevel.Error, "invalid username {0}", userName);
+                    return assetReport;
+                }
 
-                var dtPreviousValuation = cashAccountReader.GetPreviousValuationDate();
+                //rollback any previous updates made for this valuation date
+                if (bUpdate)
+                {
+                    userData.RollbackValuationDate(valuationDate);
+                }
+
+                var dtPreviousValuation = userData.GetPreviousValuationDate(valuationDate);
                 //first extract the cash account data
                 var cashAccountData = cashAccountReader.GetCashAccountData(valuationDate);
                 //parse the trade file for any trades for this month and update the investment record
                 //var trades = TradeLoader.GetTrades(tradeFile);
-                recordBuilder.BuildInvestmentRecords(trades, cashAccountData, valuationDate, dtPreviousValuation);
+                if (bUpdate)
+                {
+                    recordBuilder.BuildInvestmentRecords(trades, cashAccountData, valuationDate, dtPreviousValuation);
+                }
 
                 //now extract the latest data from the investment record
                 var lstData = dataReader.GetCompanyData(valuationDate, dtPreviousValuation).ToList();
@@ -90,7 +109,8 @@ namespace InvestmentBuilder
                                                 dtPreviousValuation,
                                                 userData,
                                                 lstData,
-                                                cashAccountData.BankBalance);
+                                                cashAccountData.BankBalance,
+                                                bUpdate);
                 //finally, build the asset statement
                 //assetWriter.WriteAssetStatement(lstData, cashAccountData, dtPreviousValuation, valuationDate);
 
@@ -111,18 +131,27 @@ namespace InvestmentBuilder
                                                      DateTime? dtPreviousValution,
                                                      UserData userData,
                                                      IEnumerable<CompanyData> companyData,
-                                                     double dBankBalance)
+                                                     double dBankBalance,
+                                                     bool bUpdate)
         {
             logger.Log(LogLevel.Info, "building asset report...");
             AssetReport report = new AssetReport
             {
                 ClubName = userData.Name,
                 ReportingCurrency = userData.Currency,
+                ValuationDate = dtValuationDate,
                 Assets = companyData,
                 BankBalance = dBankBalance
             };
 
-            report.IssuedUnits = _UpdateMembersCapitalAccount(userData, dtPreviousValution, dtValuationDate);
+            if (bUpdate)
+            {
+                report.IssuedUnits = _UpdateMembersCapitalAccount(userData, dtPreviousValution, dtValuationDate);
+            }
+            else
+            {
+                report.IssuedUnits = userData.GetIssuedUnits(dtValuationDate);
+            }
 
             report.TotalAssetValue = companyData.Sum(c => c.dNetSellingValue);
             report.TotalAssets = report.BankBalance + report.TotalAssetValue;

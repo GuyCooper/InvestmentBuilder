@@ -22,8 +22,6 @@ namespace InvestmentBuilder
     interface ICashAccountReader
     {
         CashAccountData GetCashAccountData(DateTime valuationDate);
-        DateTime? GetPreviousValuationDate();
-
     }
 
     //this class is used for extracting the cash account data. this includes any dividends payed for the current month and the
@@ -79,11 +77,6 @@ namespace InvestmentBuilder
             //if we get here then there is an error in the spreadsheet
             throw new ApplicationException("error finding bank balance for current month");
         }
-    
-        public DateTime? GetPreviousValuationDate()
-        {
-            return null;
-        }
     }
 
     class CashAccountReaderDatabase : ICashAccountReader
@@ -129,17 +122,6 @@ namespace InvestmentBuilder
                 }
             }
             return cashData;
-        }
-
-        public DateTime? GetPreviousValuationDate()
-        {
-            DateTime? dtReturn = null;
-            using (var command = new SqlCommand("sp_GetPreviousValuationDate", _conn))
-            {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                dtReturn = (DateTime)command.ExecuteScalar();
-            }
-            return dtReturn;
         }
     }
 }
