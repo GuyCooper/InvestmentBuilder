@@ -29,6 +29,8 @@ namespace InvestmentBuilder
 
         public string Name { get; private set; }
 
+        public CompanyInformation CompanyData { get; private set; }
+
         public void DeactivateInvestment()
         {
             _sheet.get_Range("B7").Value = false;
@@ -81,7 +83,7 @@ namespace InvestmentBuilder
             _sheet.get_Range("P" + _lastRow).Value = dExistingDividend + dDividend;
         }
 
-        public void UpdateClosingPrice()
+        public void UpdateClosingPrice(double dClosing)
         {
             //now download the previous close price for this stock and update the record
             string symbol = _sheet.get_Range("B4").Value as string;
@@ -89,12 +91,7 @@ namespace InvestmentBuilder
             double dScaling = 1;
             _sheet.GetValueDouble("C", 4, ref dScaling);
             //_SetClosingPrice(Name, symbol, currency, dScaling, _lastRow);
-            double dClosing;
-            if (MarketDataService.TryGetClosingPrice(symbol, Name, currency, dScaling, out dClosing))
-            {
-                _sheet.get_Range("J" + _lastRow).Value = dClosing;
-            }
- 
+            _sheet.get_Range("J" + _lastRow).Value = dClosing;
         }
 
         //private void _SetClosingPrice(string company, string symbol, string currency, double scaling, int row)
@@ -128,7 +125,7 @@ namespace InvestmentBuilder
             }
         }
 
-        override protected void CreateNewInvestment(Stock newTrade, DateTime valuationDate)
+        override protected void CreateNewInvestment(Stock newTrade, DateTime valuationDate, double dClosing)
         {
             _Worksheet templateSheet = _bookHolder.GetTemplateBook().Worksheets["Investment"];
             templateSheet.Copy(Type.Missing, _bookHolder.GetInvestmentRecordBook().Worksheets
@@ -148,7 +145,7 @@ namespace InvestmentBuilder
             newRecordSheet.get_Range("G10").Value = newTrade.TotalCost;
             newRecordSheet.get_Range("C4").Value = newTrade.ScalingFactor;
             var newInvestment = new ExcelInvestment(newRecordSheet);
-            newInvestment.UpdateClosingPrice();
+            newInvestment.UpdateClosingPrice(dClosing);
         }
     }
 }

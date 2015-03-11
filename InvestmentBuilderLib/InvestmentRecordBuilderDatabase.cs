@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
-using MarketDataServices;
 
 namespace InvestmentBuilder
 {
@@ -20,13 +19,17 @@ namespace InvestmentBuilder
         SqlConnection _connection;
         DateTime _currentDate;
 
-        public DatabaseInvestment(SqlConnection connection, DateTime dtValuationDate)
+        public DatabaseInvestment(SqlConnection connection, DateTime dtValuationDate, string name)
         {
             _connection = connection;
             _currentDate = dtValuationDate;
+            Name = name;
+            CompanyData = _GetCompanyData();
         }
 
-        public string Name { get; set; }
+        public string Name { get; private set; }
+
+        public CompanyInformation CompanyData { get; private set; }
 
         public void DeactivateInvestment()
         {
@@ -74,49 +77,15 @@ namespace InvestmentBuilder
             }
         }
 
-        private CompanyInformation GetCompanyData()
+        public void UpdateClosingPrice(double dClosing)
         {
-            CompanyInformation data = null;
-            using (var command = new SqlCommand("sp_GetCompanyData", _connection))
+            using (var updateCommand = new SqlCommand("sp_UpdateClosingPrice", _connection))
             {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@Name", Name));
-                 using (var reader = command.ExecuteReader())
-                 {
-                     if (reader.Read())
-                     {
-                         var symbol = (string)reader["Symbol"];
-                         var ccy = (string)reader["Currency"];
-                         data = new CompanyInformation
-                         {
-                             Symbol = symbol.Trim(),
-                             Currency = ccy.Trim(),
-                             ScalingFactor = (double)reader["ScalingFactor"]
-                         };
-                     }
-                     reader.Close();
-                 }
-            }
-            return data;
-        }
-
-        public void UpdateClosingPrice()
-        {
-            var companyData = GetCompanyData();
-            if(companyData != null)
-            {
-                double dClosing;
-                if (MarketDataService.TryGetClosingPrice(companyData.Symbol, Name, companyData.Currency, companyData.ScalingFactor, out dClosing))
-                {
-                    using (var updateCommand = new SqlCommand("sp_UpdateClosingPrice", _connection))
-                    {
-                        updateCommand.CommandType = System.Data.CommandType.StoredProcedure;
-                        updateCommand.Parameters.Add(new SqlParameter("@valuationDate", _currentDate));
-                        updateCommand.Parameters.Add(new SqlParameter("@investment", Name));
-                        updateCommand.Parameters.Add(new SqlParameter("@closingPrice", dClosing));
-                        updateCommand.ExecuteNonQuery();
-                    }
-                }
+                updateCommand.CommandType = System.Data.CommandType.StoredProcedure;
+                updateCommand.Parameters.Add(new SqlParameter("@valuationDate", _currentDate));
+                updateCommand.Parameters.Add(new SqlParameter("@investment", Name));
+                updateCommand.Parameters.Add(new SqlParameter("@closingPrice", dClosing));
+                updateCommand.ExecuteNonQuery();
             }
         }
 
@@ -131,6 +100,32 @@ namespace InvestmentBuilder
                 updateCommand.ExecuteNonQuery();
             }
         }
+
+        private CompanyInformation _GetCompanyData()
+        {
+            CompanyInformation data = null;
+            using (var command = new SqlCommand("sp_GetCompanyData", _connection))
+            {
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+                command.Parameters.Add(new SqlParameter("@Name", Name));
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        var symbol = (string)reader["Symbol"];
+                        var ccy = (string)reader["Currency"];
+                        data = new CompanyInformation
+                        {
+                            Symbol = symbol.Trim(),
+                            Currency = ccy.Trim(),
+                            ScalingFactor = (double)reader["ScalingFactor"]
+                        };
+                    }
+                    reader.Close();
+                }
+            }
+            return data;
+        }
     }
 
     class InvestmentRecordBuilderDatabase : InvestmentRecordBuilder
@@ -143,26 +138,22 @@ namespace InvestmentBuilder
 
         override protected IEnumerable<IInvestment> GetInvestments(DateTime valuationDate)
         {
+            var companies = new List<string>();
             using (var command = new SqlCommand("SELECT Name FROM Companies", _connection))
             {
                 var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
-                    yield return new DatabaseInvestment(_connection, valuationDate)
-                    {
-                        Name = (string)reader["Name"]
-                    };
-
+                    companies.Add((string)reader["Name"]);
                 }
                 reader.Close();
             }
+
+            return companies.Select( c => new DatabaseInvestment(_connection, valuationDate, c));
         }
 
-        override protected void CreateNewInvestment(Stock newTrade, DateTime valuationDate)
-        {
-            double dClosing;
-            MarketDataService.TryGetClosingPrice(newTrade.Name, newTrade.Symbol, newTrade.Currency, newTrade.ScalingFactor, out dClosing);
-            
+        override protected void CreateNewInvestment(Stock newTrade, DateTime valuationDate, double dClosing)
+        {   
             using (var command = new SqlCommand("sp_CreateNewInvestment", _connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;

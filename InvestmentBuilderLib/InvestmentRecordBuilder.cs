@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MarketDataServices;
 using NLog;
 
 namespace InvestmentBuilder
@@ -13,13 +14,13 @@ namespace InvestmentBuilder
     interface IInvestment
     {
         string Name {get;}
+        CompanyInformation CompanyData {get;}
         void DeactivateInvestment();
         void UpdateRow(DateTime valuationDate, DateTime? previousDate);
         void ChangeShareHolding(int holding);
         void AddNewShares(Stock stock);
-        void UpdateClosingPrice();
+        void UpdateClosingPrice(double dClosing);
         void UpdateDividend(double dDividend);
-
     }
 
   
@@ -30,7 +31,7 @@ namespace InvestmentBuilder
         protected Logger Log { get; private set; }
 
         abstract protected IEnumerable<IInvestment> GetInvestments(DateTime dtValuationDate);
-        abstract protected void CreateNewInvestment(Stock newTrade, DateTime valuationDate);
+        abstract protected void CreateNewInvestment(Stock newTrade, DateTime valuationDate, double dClosing);
 
         public InvestmentRecordBuilder()
         {
@@ -87,7 +88,17 @@ namespace InvestmentBuilder
                         //remove the trade from the trade buys
                         trades.Buys = trades.Buys.Where(x => x != trade).ToArray();
                     }
-                    investment.UpdateClosingPrice();
+
+                    //ifwe have the correct comapy data then calculate the closing price forthis company
+                    if (investment.CompanyData != null)
+                    {
+                        var companyData = investment.CompanyData;
+                        double dClosing;
+                        if (MarketDataService.TryGetClosingPrice(companyData.Symbol, investment.Name, companyData.Currency, companyData.ScalingFactor, out dClosing))
+                        {
+                            investment.UpdateClosingPrice(dClosing);       
+                        }
+                    }
                 }
             }
             foreach(var newTrade in trades.Buys)
@@ -95,7 +106,9 @@ namespace InvestmentBuilder
                 Log.Log(LogLevel.Info, string.Format("adding new trade {0}", newTrade.Name));
                 //Console.WriteLine("adding new trade {0}", newTrade.Name);
                 //new trade to add to investment record
-                CreateNewInvestment(newTrade, valuationDate);               
+                double dClosing;
+                MarketDataService.TryGetClosingPrice(newTrade.Name, newTrade.Symbol, newTrade.Currency, newTrade.ScalingFactor, out dClosing);
+                CreateNewInvestment(newTrade, valuationDate, dClosing);               
             }
         }
     }

@@ -15,6 +15,7 @@ namespace InvestmentBuilder
         AssetStatementWriter CreateAssetStatementWriter();
         ICashAccountReader CreateCashAccountReader();
         IUserDataReader CreateUserDataReader();
+        IAssetReportWriter CreateAssetReportWriter();
 
         void CommitData();
         void Close();
@@ -46,7 +47,8 @@ namespace InvestmentBuilder
                     path = path + "\\";
                 }
                 string ext = dtValuation.Year.ToString();
-                AssetSheetLocation = _CreateFormattedFileCopy(path, ExcelBookHolder.MonthlyAssetName, ext);
+                AssetSheetLocation = string.Format("{0}{1}-{2}.xls", path, ExcelBookHolder.MonthlyAssetName, ext);
+                //AssetSheetLocation = _CreateFormattedFileCopy(path, ExcelBookHolder.MonthlyAssetName, ext);
                 templateLocation = string.Format("{0}Template.xls", path);
             }
 
@@ -76,6 +78,11 @@ namespace InvestmentBuilder
         public virtual IUserDataReader CreateUserDataReader()
         {
             return null;
+        }
+
+        public virtual IAssetReportWriter CreateAssetReportWriter()
+        {
+            return new AssetReportWriterExcel(_bookHolder);
         }
 
         public void CommitData()

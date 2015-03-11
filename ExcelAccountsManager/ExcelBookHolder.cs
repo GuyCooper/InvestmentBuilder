@@ -26,8 +26,26 @@ namespace ExcelAccountsManager
                                 string templateSheetLocation,
                                 string path)
         {
+            if (!string.IsNullOrEmpty(assetSheetLocation))
+            {
+                //if the asset sheet already exists,just open it,otherwise create a new one
+                if(File.Exists(assetSheetLocation))
+                {
+                    _assetBook = app.Workbooks.Open(assetSheetLocation);
+                }
+                else
+                {
+                    _assetBook = app.Workbooks.Add();
+                    _assetBook.SaveAs(assetSheetLocation);
+                }
+            }
+            else
+            {
+                _assetBook = null;
+            }
+
             //_investmentRecordBook = !string.IsNullOrEmpty(investmentRecordSheetLocation) ? app.Workbooks.Open(investmentRecordSheetLocation) : null;
-            _assetBook = !string.IsNullOrEmpty(assetSheetLocation) ? app.Workbooks.Open(assetSheetLocation) : null;
+            //_assetBook = !string.IsNullOrEmpty(assetSheetLocation) ? app.Workbooks.Open(assetSheetLocation) : null;
             _templateBook = !string.IsNullOrEmpty(templateSheetLocation) ? app.Workbooks.Open(templateSheetLocation) : null;
             //_cashBook = !string.IsNullOrEmpty(cashAccountSheetLocation) ?  app.Workbooks.Open(cashAccountSheetLocation) : null;
             //_historicalAssetBooks = LoadAllBooks(path, MonthlyAssetName, app);

@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssetReport.cs" />
+    <Compile Include="AssetReportWriter.cs" />
     <Compile Include="AssetSheetBuilder.cs" />
     <Compile Include="AssetStatementWriter.cs" />
     <Compile Include="CashAccountReader.cs" />

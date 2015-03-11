@@ -69,7 +69,7 @@ namespace InvestmentBuilder
 
                 var recordBuilder = factory.CreateInvestmentRecordBuilder();
                 var dataReader = factory.CreateCompanyDataReader();
-                var assetWriter = factory.CreateAssetStatementWriter();
+                var assetWriter = factory.CreateAssetReportWriter();
                 var cashAccountReader = factory.CreateCashAccountReader();
                 var userDataReader = factory.CreateUserDataReader();
 
@@ -113,6 +113,10 @@ namespace InvestmentBuilder
                                                 bUpdate);
                 //finally, build the asset statement
                 //assetWriter.WriteAssetStatement(lstData, cashAccountData, dtPreviousValuation, valuationDate);
+                if(bUpdate)
+                {
+                    assetWriter.WriteAssetReport(assetReport);
+                }
 
                 logger.Log(LogLevel.Info, "commiting changes...");
                 factory.CommitData();
