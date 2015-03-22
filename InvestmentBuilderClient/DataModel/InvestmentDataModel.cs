@@ -15,11 +15,14 @@ namespace InvestmentBuilderClient.DataModel
     {
         private SqlConnection _connection;
         private static Logger logger = LogManager.GetCurrentClassLogger();
+        private string _Account;
+
+        public DateTime? LatestDate { get; set; }
 
         private Dictionary<string, string> _typeProcedureLookup = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase)
         {
-            {"Dividend", "SELECT NAME FROM Companies WHERE IsActive = 1"},
-            {"Subscription", "SELECT NAME FROM Members"}
+            {"Dividend", "sp_GetActiveCompanies"},
+            {"Subscription", "sp_GetAccountMembers"}
         };
 
         public InvestmentDataModel(string dataSource) 
@@ -33,8 +36,10 @@ namespace InvestmentBuilderClient.DataModel
         public IEnumerable<DateTime> GetValuationDates()
         {
             var dates = new List<DateTime>();
-            using(var command = new SqlCommand("SELECT TOP 5 Valuation_Date FROM Valuations ORDER BY Valuation_Date DESC", _connection))
+            using (var command = new SqlCommand("sp_RecentValuationDates", _connection))
             {
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.Add(new SqlParameter("@Account", _Account));
                 using (SqlDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
@@ -78,7 +83,9 @@ namespace InvestmentBuilderClient.DataModel
             {
                 using (var command = new SqlCommand(_typeProcedureLookup[type], _connection))
                 {
-                    command.CommandType = CommandType.Text;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@Account", _Account));
+                    command.Parameters.Add(new SqlParameter("@ValuationDate", LatestDate));
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
                         while (reader.Read())
@@ -102,6 +109,7 @@ namespace InvestmentBuilderClient.DataModel
                 sqlCommand.CommandType = CommandType.StoredProcedure;
                 sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", dtValuationDate));
                 sqlCommand.Parameters.Add(new SqlParameter("@Side", side));
+                sqlCommand.Parameters.Add(new SqlParameter("@Account", _Account));
                 using(var reader = sqlCommand.ExecuteReader())
                 {
                     while(reader.Read())
@@ -112,19 +120,20 @@ namespace InvestmentBuilderClient.DataModel
             }
         }
 
-        public DateTime? GetLatestValuationDate()
+        private void GetLatestValuationDate()
         {
-            using (var sqlCommand = new SqlCommand("sp_GetPreviousValuationDate", _connection))
+            using (var sqlCommand = new SqlCommand("sp_GetLatestValuationDate", _connection))
             {
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                sqlCommand.Parameters.Add(new SqlParameter("@Account", _Account));
                 using (var reader = sqlCommand.ExecuteReader())
                 {
                     if (reader.Read())
                     {
-                        return reader.GetDateTime(0);
+                        LatestDate = reader.GetDateTime(0);
                     }
                 }
             }
-            return null;
         }
 
         public double GetBalanceInHand(DateTime dtValuation)
@@ -133,6 +142,7 @@ namespace InvestmentBuilderClient.DataModel
             {
                 sqlCommand.CommandType = CommandType.StoredProcedure;
                 sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
+                sqlCommand.Parameters.Add(new SqlParameter("@Account", _Account));
                 using (var reader = sqlCommand.ExecuteReader())
                 {
                     if (reader.Read())
@@ -155,6 +165,7 @@ namespace InvestmentBuilderClient.DataModel
                 sqlCommand.Parameters.Add(new SqlParameter("@TransactionType", type));
                 sqlCommand.Parameters.Add(new SqlParameter("@Parameter", parameter));
                 sqlCommand.Parameters.Add(new SqlParameter("@Amount", amount));
+                sqlCommand.Parameters.Add(new SqlParameter("@Account", _Account));
                 sqlCommand.ExecuteNonQuery();
             }
         }
@@ -187,9 +198,16 @@ namespace InvestmentBuilderClient.DataModel
             {
                 sqlCommand.CommandType = CommandType.StoredProcedure;
                 sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
+                sqlCommand.Parameters.Add(new SqlParameter("@Account", _Account));
                 var result = sqlCommand.ExecuteScalar();
                 return result != null;
             }
+        }
+
+        public void UpdateAccount(string account)
+        {
+            _Account = account;
+            GetLatestValuationDate();
         }
 
         public void Dispose()

@@ -13,13 +13,24 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].sp_RollbackUpdate(@ValuationDate as DATETIME) AS
+CREATE PROCEDURE [dbo].sp_RollbackUpdate(@Account as VARCHAR(30), @ValuationDate as DATETIME) AS
 BEGIN
 
+DECLARE @AccountID INT
+
+SELECT
+	 @AccountID = [User_Id]
+FROM 
+	Users
+WHERE
+	Name = @Account
+
 DELETE FROM
-	Valuations
+	Valuations	
 WHERE
 	Valuation_Date = @ValuationDate
+AND
+	account_id = @AccountID
 
 DELETE FROM
 	MembersCapitalAccount
@@ -30,5 +41,7 @@ DELETE FROM
 	InvestmentRecord
 WHERE
 	Valuation_Date = @ValuationDate
+AND
+	account_id = @AccountID
 
 END

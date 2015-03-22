@@ -21,7 +21,7 @@ namespace InvestmentBuilder
 
     interface ICashAccountReader
     {
-        CashAccountData GetCashAccountData(DateTime valuationDate);
+        CashAccountData GetCashAccountData(string account, DateTime valuationDate);
     }
 
     //this class is used for extracting the cash account data. this includes any dividends payed for the current month and the
@@ -34,7 +34,7 @@ namespace InvestmentBuilder
             _bookHolder = bookHolder;
         }
 
-        public CashAccountData GetCashAccountData(DateTime valuationDate)
+        public CashAccountData GetCashAccountData(string account, DateTime valuationDate)
         {
             _Worksheet cashSheet = _bookHolder.GetCashBook().Worksheets["Cash Account"];
             int month = valuationDate.Month;
@@ -90,7 +90,7 @@ namespace InvestmentBuilder
             _conn = conn;
         }
 
-        public CashAccountData GetCashAccountData(DateTime valuationDate)
+        public CashAccountData GetCashAccountData(string account, DateTime valuationDate)
         {
             var cashData = new CashAccountData();
             
@@ -98,7 +98,8 @@ namespace InvestmentBuilder
             using (SqlCommand cmdBankBalance = new SqlCommand("sp_GetBankBalance", _conn))
             {
                 cmdBankBalance.CommandType = System.Data.CommandType.StoredProcedure;
-                cmdBankBalance.Parameters.Add(new SqlParameter("valuationDate", System.Data.SqlDbType.DateTime) { Value = valuationDate });
+                cmdBankBalance.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
+                cmdBankBalance.Parameters.Add(new SqlParameter("@Account", account));
 
                 //var balanceParam = new SqlParameter("@balance", System.Data.SqlDbType.Float);
                 //balanceParam.Direction = System.Data.ParameterDirection.Output;
@@ -111,7 +112,8 @@ namespace InvestmentBuilder
                 using (SqlCommand cmdDividends = new SqlCommand("sp_GetDividends", _conn))
                 {
                     cmdDividends.CommandType = System.Data.CommandType.StoredProcedure;
-                    cmdDividends.Parameters.Add(new SqlParameter("@valuationDate", System.Data.SqlDbType.DateTime) { Value = valuationDate });
+                    cmdDividends.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
+                    cmdBankBalance.Parameters.Add(new SqlParameter("@Account", account));
                     using (SqlDataReader reader = cmdDividends.ExecuteReader())
                     {
                         while (reader.Read())

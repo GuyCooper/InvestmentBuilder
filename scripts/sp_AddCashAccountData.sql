@@ -12,18 +12,24 @@ END
 GO
 
 CREATE PROCEDURE sp_AddCashAccountData(@ValuationDate as DateTime, @TransactionDate as DateTime, @TransactionType as varchar(20),
-									@Parameter as varchar(50), @Amount as float) AS
+									@Parameter as varchar(50), @Amount as float, @Account as varchar(30)) AS
 BEGIN
 
-INSERT INTO CashAccount (valuation_date, transaction_date, [type_id], parameter, amount )
+INSERT INTO CashAccount (valuation_date, transaction_date, [type_id], parameter, amount, [account_id])
 SELECT 
 	@ValuationDate,
 	@TransactionDate,
-	[type_id],
+	t.[type_id],
 	@Parameter,
-	@Amount
+	@Amount,
+	u.[user_id]
 FROM
-	TransactionType
+	TransactionType t, Users u 
 WHERE
-	[type] = @TransactionType	
+	t.[type] = @TransactionType 
+AND
+	u.Name = @Account		
+
+
+
 END

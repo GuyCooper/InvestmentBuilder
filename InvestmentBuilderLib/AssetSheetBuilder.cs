@@ -89,16 +89,16 @@ namespace InvestmentBuilder
 
                 var dtPreviousValuation = userData.GetPreviousValuationDate(valuationDate);
                 //first extract the cash account data
-                var cashAccountData = cashAccountReader.GetCashAccountData(valuationDate);
+                var cashAccountData = cashAccountReader.GetCashAccountData(userName, valuationDate);
                 //parse the trade file for any trades for this month and update the investment record
                 //var trades = TradeLoader.GetTrades(tradeFile);
                 if (bUpdate)
                 {
-                    recordBuilder.BuildInvestmentRecords(trades, cashAccountData, valuationDate, dtPreviousValuation);
+                    recordBuilder.BuildInvestmentRecords(userName, trades, cashAccountData, valuationDate, dtPreviousValuation);
                 }
 
                 //now extract the latest data from the investment record
-                var lstData = dataReader.GetCompanyData(valuationDate, dtPreviousValuation).ToList();
+                var lstData = dataReader.GetCompanyData(userName, valuationDate, dtPreviousValuation).ToList();
                 foreach (var val in lstData)
                 {
                     logger.Log(LogLevel.Info, string.Format("{0} : {1} : {2} : {3} : {4}", val.sName, val.dSharePrice, val.dNetSellingValue, val.dMonthChange, val.dMonthChangeRatio));
@@ -164,6 +164,11 @@ namespace InvestmentBuilder
             report.ValuePerUnit = report.NetAssets / report.IssuedUnits;
             //todo total assets
             //unit price
+            if(bUpdate)
+            {
+                userData.SaveNewUnitValue(dtValuationDate, report.ValuePerUnit);
+            }
+
             return report;
         }
 

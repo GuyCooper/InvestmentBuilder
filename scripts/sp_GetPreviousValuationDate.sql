@@ -13,11 +13,23 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_GetPreviousValuationDate] AS
+CREATE PROCEDURE [dbo].[sp_GetPreviousValuationDate](@ValuationDate as DATETIME, @Account AS VARCHAR(30)) AS
 BEGIN
 
---return the latest date from valuation table
-SELECT top 1 Valuation_Date FROM dbo.Valuations
-order by Valuation_Date desc
+--return the previous date from valuation table
+SELECT 
+	TOP 1 V.Valuation_Date 
+FROM
+	Valuations V
+INNER JOIN 
+	Users U
+ON 
+	V.[account_id] = U.[User_Id]
+WHERE
+	U.Name = @Account
+AND
+	V.Valuation_Date < @ValuationDate
+ORDER BY
+	 Valuation_Date Desc
 
-end
+END

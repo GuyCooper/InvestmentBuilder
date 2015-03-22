@@ -78,22 +78,34 @@ namespace InvestmentBuilderClient.View
             logView.MdiParent = this;
             logView.Show();
 
+            var logConfig = LogManager.Configuration;
+            logger.Log(LogLevel.Info, "welcome to the Investment Builder");
+
+            InitialiseValues();
+
             _AddView(new PaymentsDataView(_dataModel));
             _AddView(new TradeView(_settings));
             _AddView(new ReceiptDataView(_dataModel));
 
+            UpdateValuationDate();
+
             this.WindowState = FormWindowState.Maximized;
             this.LayoutMdi(MdiLayout.TileHorizontal);
 
-            var  logConfig = LogManager.Configuration;
-            logger.Log(LogLevel.Info, "welcome to the Investment Builder");
+        }
 
-            cmboValuationDate.Items.AddRange(_dataModel.GetValuationDates().Cast<object>().ToArray());
-            cmboValuationDate.SelectedIndex = 0;
-            UpdateValuationDate();
-
+        private void InitialiseValues()
+        {
+            cmboAccountName.Items.Clear();
             cmboAccountName.Items.AddRange(_dataModel.GetAccountNames().Cast<object>().ToArray());
             cmboAccountName.SelectedIndex = 0;
+
+            _dataModel.UpdateAccount(cmboAccountName.SelectedItem as string);
+
+            cmboValuationDate.Items.Clear();
+            cmboValuationDate.Items.AddRange(_dataModel.GetValuationDates().Cast<object>().ToArray());
+            cmboValuationDate.SelectedIndex = 0;
+            
         }
 
         private void btnCommitData_Click(object sender, EventArgs e)
@@ -150,6 +162,7 @@ namespace InvestmentBuilderClient.View
                 if (_settings.UpdateDatasource(configView.GetDataSource()))
                 {
                     _dataModel.ReloadData(_settings.DatasourceString);
+                    InitialiseValues();
                     UpdateValuationDate();
                 }
                 if (_settings.UpdateTradeFile(configView.GetTradeFile()))

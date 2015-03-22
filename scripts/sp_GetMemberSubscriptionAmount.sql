@@ -13,7 +13,7 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_GetMemberSubscriptionAmount](@Member as varchar(50), @ValuationDate as DATETIME) AS
+CREATE PROCEDURE [dbo].[sp_GetMemberSubscriptionAmount](@Member as varchar(50), @ValuationDate as DATETIME, @Account as VARCHAR(30)) AS
 BEGIN
 
 SELECT ca.amount 
@@ -22,9 +22,13 @@ CashAccount ca
 INNER JOIN TransactionType tt
 ON
 ca.type_id = tt.type_id
+INNER JOIN Users U
+ON
+ca.account_id = U.[User_Id]
 WHERE ca.valuation_date = @ValuationDate
 and ca.parameter = @Member
 and tt.[type] = 'Subscription'
+and U.Name = @Account
 END
 GO
 

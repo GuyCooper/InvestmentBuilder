@@ -21,6 +21,12 @@ BEGIN
 		MembersCapitalAccount mca
 	ON 
 		m.Member_Id = mca.Member_Id
+	INNER JOIN
+		Users U
+	ON
+		m.account_id = U.[User_Id]
 	WHERE
 		mca.Valuation_Date = @ValuationDate
+	AND
+		U.Name = @AccountName
 END

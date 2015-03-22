@@ -37,6 +37,7 @@ namespace InvestmentBuilder
             using (var updateCommand = new SqlCommand("sp_RollbackUpdate", _connection))
             {
                 updateCommand.CommandType = System.Data.CommandType.StoredProcedure;
+                updateCommand.Parameters.Add(new SqlParameter("@Account", Name));
                 updateCommand.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
                 updateCommand.ExecuteNonQuery();
             }
@@ -50,6 +51,7 @@ namespace InvestmentBuilder
                 updateCommand.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
                 updateCommand.Parameters.Add(new SqlParameter("@Member", member));
                 updateCommand.Parameters.Add(new SqlParameter("@Units", dAmount));
+                updateCommand.Parameters.Add(new SqlParameter("@Account", Name));
                 updateCommand.ExecuteNonQuery();
             }
         }
@@ -62,6 +64,7 @@ namespace InvestmentBuilder
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 command.Parameters.Add(new SqlParameter("@Member", member));
                 command.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
+                command.Parameters.Add(new SqlParameter("@Account", Name));
                 dSubscription = (double)command.ExecuteScalar();
             }
             return dSubscription;
@@ -73,6 +76,7 @@ namespace InvestmentBuilder
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 command.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
+                command.Parameters.Add(new SqlParameter("@Account", Name));
 
                 using (var reader = command.ExecuteReader())
                 {
@@ -93,6 +97,7 @@ namespace InvestmentBuilder
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 command.Parameters.Add(new SqlParameter("@valuationDate", previousDate.Value));
+                command.Parameters.Add(new SqlParameter("@Account", Name));
                 return (double)command.ExecuteScalar();
             }
         }
@@ -105,7 +110,7 @@ namespace InvestmentBuilder
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
                 command.Parameters.Add(new SqlParameter("@unitValue", dUnitValue));
-
+                command.Parameters.Add(new SqlParameter("@Account", Name));
                 command.ExecuteNonQuery();
             }
         }
@@ -130,19 +135,15 @@ namespace InvestmentBuilder
         public override DateTime? GetPreviousValuationDate(DateTime dtValuation)
         {
             DateTime? dtPrevious = null;
-            using (var command = new SqlCommand("SELECT Valuation_Date FROM Valuations ORDER BY Valuation_Date ASC", _connection))
+            using (var command = new SqlCommand("sp_GetPreviousValuationDate", _connection))
             {
-                command.CommandType = System.Data.CommandType.Text;
-                using (SqlDataReader reader = command.ExecuteReader())
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+                command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
+                command.Parameters.Add(new SqlParameter("@AccountName", Name));
+                var result = command.ExecuteScalar();
+                if(result != null)
                 {
-                    
-                    while (reader.Read())
-                    {
-                        var dtCurrent = (DateTime)reader["Valuation_Date"];
-                        if (dtCurrent >= dtValuation)
-                            return dtPrevious;
-                        dtPrevious = dtCurrent;
-                    }
+                    dtPrevious = (DateTime)result;
                 }
             }
             return dtPrevious;

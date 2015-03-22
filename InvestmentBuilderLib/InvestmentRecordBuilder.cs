@@ -22,7 +22,6 @@ namespace InvestmentBuilder
         void UpdateClosingPrice(double dClosing);
         void UpdateDividend(double dDividend);
     }
-
   
     //class generates the current investment record for each stock for the current month. sets and sold stocks to inactive
     //and adds any new stocks to a new sheet
@@ -30,8 +29,8 @@ namespace InvestmentBuilder
     {
         protected Logger Log { get; private set; }
 
-        abstract protected IEnumerable<IInvestment> GetInvestments(DateTime dtValuationDate);
-        abstract protected void CreateNewInvestment(Stock newTrade, DateTime valuationDate, double dClosing);
+        abstract protected IEnumerable<IInvestment> GetInvestments(string account, DateTime dtValuationDate);
+        abstract protected void CreateNewInvestment(string account, Stock newTrade, DateTime valuationDate, double dClosing);
 
         public InvestmentRecordBuilder()
         {
@@ -45,11 +44,11 @@ namespace InvestmentBuilder
         /// <param name="trades"></param>
         /// <param name="cashData"></param>
         /// <param name="valuationDate"></param>
-        public void BuildInvestmentRecords(Trades trades, CashAccountData cashData, DateTime valuationDate, DateTime? previousValuation)
+        public void BuildInvestmentRecords(string account, Trades trades, CashAccountData cashData, DateTime valuationDate, DateTime? previousValuation)
         {
             Log.Log(LogLevel.Info, "building investment records...");
             //Console.WriteLine("building investment records...");
-            var enInvestments = GetInvestments(valuationDate).ToList();
+            var enInvestments = GetInvestments(account, valuationDate).ToList();
             foreach(var investment in enInvestments)
             {
                 var company = investment.Name;
@@ -108,7 +107,7 @@ namespace InvestmentBuilder
                 //new trade to add to investment record
                 double dClosing;
                 MarketDataService.TryGetClosingPrice(newTrade.Name, newTrade.Symbol, newTrade.Currency, newTrade.ScalingFactor, out dClosing);
-                CreateNewInvestment(newTrade, valuationDate, dClosing);               
+                CreateNewInvestment(account, newTrade, valuationDate, dClosing);               
             }
         }
     }

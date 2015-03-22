@@ -37,12 +37,10 @@ namespace InvestmentBuilderClient.ViewModel
     internal abstract class CashAccountViewModel
     {
         protected InvestmentDataModel _dataModel;
-        protected DateTime? _latestValuationDate;
 
         public CashAccountViewModel(InvestmentDataModel dataModel) 
         {
             _dataModel = dataModel;
-            _latestValuationDate = _dataModel.GetLatestValuationDate();
             Log = LogManager.GetLogger(GetType().FullName);
         }
 

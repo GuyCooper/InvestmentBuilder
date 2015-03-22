@@ -28,7 +28,7 @@ namespace InvestmentBuilder
 
     interface ICompanyDataReader
     {
-        IEnumerable<CompanyData> GetCompanyData(DateTime dtValuationDate, DateTime? dtPreviousValuationDate);
+        IEnumerable<CompanyData> GetCompanyData(string account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate);
     }
 
     /// <summary>
@@ -44,7 +44,7 @@ namespace InvestmentBuilder
             _bookHolder = bookHolder;
         }
 
-        public IEnumerable<CompanyData> GetCompanyData(DateTime dtValuationDate, DateTime? dtPreviousValuationDate)
+        public IEnumerable<CompanyData> GetCompanyData(string account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate)
         {
             //var spreadsheetLocation = Path.Combine(Directory.GetCurrentDirectory(), @"C:\Users\Guy\Documents\Guy\Investments\Investment Club\accounts\Investment Record-2014.xls");
             //var spreadsheetLocation = @"C:\Users\Guy\Documents\Guy\Investments\Investment Club\accounts\Investment Record-2014.xls";
@@ -108,12 +108,13 @@ namespace InvestmentBuilder
             return dGrossValue - 7.5d;
         }
 
-        private IEnumerable<CompanyData> _GetCompanyDataImpl(DateTime dtValuationDate)
+        private IEnumerable<CompanyData> _GetCompanyDataImpl(string account, DateTime dtValuationDate)
         {
             using (var command = new SqlCommand("sp_GetLatestInvestmentRecords", _connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@valuationDate", dtValuationDate));
+                command.Parameters.Add(new SqlParameter("@ValuationDate", dtValuationDate));
+                command.Parameters.Add(new SqlParameter("@Account", account));
                 var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
@@ -145,10 +146,10 @@ namespace InvestmentBuilder
             currentData.dMonthChangeRatio = currentData.dMonthChange / previousData.dNetSellingValue * 100;
         }
 
-        public IEnumerable<CompanyData> GetCompanyData(DateTime dtValuationDate, DateTime? dtPreviousValuationDate)
+        public IEnumerable<CompanyData> GetCompanyData(string account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate)
         {
-            var lstPreviousData = _GetCompanyDataImpl(dtPreviousValuationDate.Value).ToList();
-            var lstCurrentData = _GetCompanyDataImpl(dtValuationDate).ToList();
+            var lstPreviousData = _GetCompanyDataImpl(account, dtPreviousValuationDate.Value).ToList();
+            var lstCurrentData = _GetCompanyDataImpl(account, dtValuationDate).ToList();
 
             foreach(var company in lstCurrentData)
             {
