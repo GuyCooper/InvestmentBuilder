@@ -17,11 +17,12 @@ namespace PerformanceBuilderLib
             _connection.Open();
         }
 
-        public IEnumerable<HistoricalData> GetClubData()
+        public IEnumerable<HistoricalData> GetClubData(string account)
         {
-            using (var command = new SqlCommand("SELECT Valuation_Date, Unit_Price FROM Valuations", _connection))
+            using (var command = new SqlCommand("sp_GetUnitPriceData", _connection))
             {
-                command.CommandType = System.Data.CommandType.Text;
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+                command.Parameters.Add(new SqlParameter("@Account", account));
                 using (var reader = command.ExecuteReader())
                 {
                     while(reader.Read())

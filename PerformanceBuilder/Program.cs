@@ -14,6 +14,7 @@ namespace PerformanceBuilder
         static void Main(string[] args)
         {
             //string path = @"C:\Users\Guy\Documents\Guy\Investments\Investment Club\accounts\";
+            string account = "Argyll Investments";
             string path = @"C:\Users\Guy\Documents\Guy\Investment Club\Accounts\";
             string dbConn = @"Data Source=TRAVELPC\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest;Integrated Security=True";
 
@@ -25,7 +26,7 @@ namespace PerformanceBuilder
 
             Console.WriteLine("performance builder: valuation date: {0}.type any key to continue...", dtValuation);
             Console.ReadKey();
-            PerformanceBuilderExternal.RunBuilder(path, dbConn, dtValuation);
+            PerformanceBuilderExternal.RunBuilder(account, path, dbConn, dtValuation);
         }
     }
 }

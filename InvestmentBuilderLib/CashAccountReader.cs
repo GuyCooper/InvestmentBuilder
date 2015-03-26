@@ -113,7 +113,7 @@ namespace InvestmentBuilder
                 {
                     cmdDividends.CommandType = System.Data.CommandType.StoredProcedure;
                     cmdDividends.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
-                    cmdBankBalance.Parameters.Add(new SqlParameter("@Account", account));
+                    cmdDividends.Parameters.Add(new SqlParameter("@Account", account));
                     using (SqlDataReader reader = cmdDividends.ExecuteReader())
                     {
                         while (reader.Read())

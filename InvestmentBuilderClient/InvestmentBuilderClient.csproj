@@ -50,8 +50,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigurationSettings.cs" />
+    <Compile Include="DataModel\AccountModel.cs" />
     <Compile Include="DataModel\IInvestmentDataModel.cs" />
     <Compile Include="Validator.cs" />
+    <Compile Include="View\AddMember.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="View\AddMember.Designer.cs">
+      <DependentUpon>AddMember.cs</DependentUpon>
+    </Compile>
     <Compile Include="View\AddTradeView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -97,6 +104,12 @@
     <Compile Include="View\MainView.Designer.cs">
       <DependentUpon>MainView.cs</DependentUpon>
     </Compile>
+    <Compile Include="View\ManageUserView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="View\ManageUserView.Designer.cs">
+      <DependentUpon>ManageUserView.cs</DependentUpon>
+    </Compile>
     <Compile Include="View\PaymentsDataView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -114,6 +127,9 @@
       <DependentUpon>TradeView.cs</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\TradeViewModel.cs" />
+    <EmbeddedResource Include="View\AddMember.resx">
+      <DependentUpon>AddMember.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="View\AddTradeView.resx">
       <DependentUpon>AddTradeView.cs</DependentUpon>
     </EmbeddedResource>
@@ -144,6 +160,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="View\ManageUserView.resx">
+      <DependentUpon>ManageUserView.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="View\TradeView.resx">
       <DependentUpon>TradeView.cs</DependentUpon>
     </EmbeddedResource>

@@ -8,7 +8,7 @@ RESTORE DATABASE InvestmentBuilderTest2
       MOVE 'InvestmentBuilderTest' TO 
 'C:\Data\SQLEXPRESS\InvestmentBuilder\InvestmentBuilderTest2.mdf', 
       MOVE 'InvestmentBuilderTest_log' 
-TO 'C:\Data\SQLEXPRESS\InvestmentBuilder\InvestmentBuilderTest2_log.ldf';
+TO 'C:\Data\SQLEXPRESS\InvestmentBuilder\InvestmentBuilderTest_log2.ldf';
 RESTORE LOG InvestmentBuilderTest2
    FROM DISK = 'C:\Data\backups\InvestmentBuilderTest'
    WITH RECOVERY;

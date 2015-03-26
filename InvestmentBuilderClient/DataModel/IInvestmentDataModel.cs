@@ -19,7 +19,11 @@ namespace InvestmentBuilderClient.DataModel
         void ReloadData(string dataSource);
         IEnumerable<string> GetAccountNames();
         bool IsExistingValuationDate(DateTime dtValuation);
-        void UpdateAccount(string account);
+        void UpdateAccountName(string account);
         DateTime? LatestDate { get; set; }
+        IEnumerable<string> GetAccountMembers(string account);
+        void UpdateUserAccount(AccountModel account);
+        IEnumerable<string> GetAccountTypes();
+        AccountModel GetAccountData(string account);
     }
 }

@@ -94,18 +94,25 @@ namespace InvestmentBuilderClient.View
 
         }
 
+        private void PopulateValuationDates()
+        {
+            cmboValuationDate.Items.Clear();
+            cmboValuationDate.Items.AddRange(_dataModel.GetValuationDates().Cast<object>().ToArray());
+            if (cmboValuationDate.Items.Count > 0)
+            {
+                cmboValuationDate.SelectedIndex = 0;
+            }
+        }
+
         private void InitialiseValues()
         {
             cmboAccountName.Items.Clear();
             cmboAccountName.Items.AddRange(_dataModel.GetAccountNames().Cast<object>().ToArray());
             cmboAccountName.SelectedIndex = 0;
 
-            _dataModel.UpdateAccount(cmboAccountName.SelectedItem as string);
+            _dataModel.UpdateAccountName(cmboAccountName.SelectedItem as string);
 
-            cmboValuationDate.Items.Clear();
-            cmboValuationDate.Items.AddRange(_dataModel.GetValuationDates().Cast<object>().ToArray());
-            cmboValuationDate.SelectedIndex = 0;
-            
+            //PopulateValuationDates();        
         }
 
         private void btnCommitData_Click(object sender, EventArgs e)
@@ -179,7 +186,9 @@ namespace InvestmentBuilderClient.View
             if (MessageBox.Show("Are You Sure?", "Build Charts", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes)
             {
                 DateTime dtValuation = (DateTime)cmboValuationDate.SelectedItem;
+                string account = (string)cmboAccountName.SelectedItem;
                 PerformanceBuilderLib.PerformanceBuilderExternal.RunBuilder(
+                    account,
                     _settings.OutputFolder,
                     _settings.DatasourceString,
                     dtValuation
@@ -189,7 +198,9 @@ namespace InvestmentBuilderClient.View
 
         private void cmboAccountName_SelectedIndexChanged(object sender, EventArgs e)
         {
-
+            _dataModel.UpdateAccountName(cmboAccountName.SelectedItem as string);
+            PopulateValuationDates();
+            UpdateValuationDate();
         }
 
         private void btnViewReport_Click(object sender, EventArgs e)
@@ -233,6 +244,26 @@ namespace InvestmentBuilderClient.View
                         reportView.Show();
                     }, report);
                 }
+            }
+        }
+
+        private void btnManageUsers_Click(object sender, EventArgs e)
+        {
+            var view = new ManageUserView(cmboAccountName.SelectedItem as string, _dataModel);
+            if(view.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                var account = new AccountModel
+                {
+                    Name = view.GetAccountName(),
+                    Description = view.GetDescription(),
+                    Password = view.GetPassword(),
+                    Type = view.GetAccountType(),
+                    Enabled = view.GetIsEnabled(),
+                    Members = view.GetMembers(),
+                    ReportingCurrency = view.GetCurrency()
+                };
+
+                _dataModel.UpdateUserAccount(account);
             }
         }
     }

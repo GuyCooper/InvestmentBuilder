@@ -22,7 +22,7 @@ namespace PerformanceBuilderLib
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
-        public static void RunBuilder(string path, string dataSource, DateTime dtValuation )
+        public static void RunBuilder(string account, string path, string dataSource, DateTime dtValuation )
         {
             logger.Log(LogLevel.Info, "running performance chartbuilder...");
             logger.Log(LogLevel.Info, string.Format("output folder {0}", path));
@@ -33,7 +33,7 @@ namespace PerformanceBuilderLib
             //Console.WriteLine("datasource: {0}", dataSource);
             //Console.WriteLine("valuation date: {0}", dtValuation);
 
-            using(var builder = new PerformanceBuilder(path, dataSource, dtValuation))
+            using(var builder = new PerformanceBuilder(account, path, dataSource, dtValuation))
             {
                 builder.Run();
             }
@@ -50,7 +50,7 @@ namespace PerformanceBuilderLib
 
         private string performanceBookName;
 
-        public PerformanceBuilder(string path, string datasource, DateTime dtValuation)
+        public PerformanceBuilder(string account, string path, string datasource, DateTime dtValuation)
         {
              _app = new Microsoft.Office.Interop.Excel.Application();
 
@@ -58,7 +58,7 @@ namespace PerformanceBuilderLib
              _bookHolder = new ExcelBookHolder(_app, performanceBookName);
             using (var reader = new HistoricalDataReader(datasource))
             {
-                _historicalData = reader.GetClubData().ToList();
+                _historicalData = reader.GetClubData(account).ToList();
             }
         }
 

@@ -139,7 +139,7 @@ namespace InvestmentBuilder
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
-                command.Parameters.Add(new SqlParameter("@AccountName", Name));
+                command.Parameters.Add(new SqlParameter("@Account", Name));
                 var result = command.ExecuteScalar();
                 if(result != null)
                 {

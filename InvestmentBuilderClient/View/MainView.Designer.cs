@@ -41,6 +41,7 @@
             this.btnRunBuilder = new System.Windows.Forms.ToolStripButton();
             this.btnPerformance = new System.Windows.Forms.ToolStripButton();
             this.btnViewReport = new System.Windows.Forms.ToolStripButton();
+            this.btnManageUsers = new System.Windows.Forms.ToolStripButton();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -58,10 +59,11 @@
             this.btnCommitData,
             this.btnRunBuilder,
             this.btnPerformance,
-            this.btnViewReport});
+            this.btnViewReport,
+            this.btnManageUsers});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(736, 39);
+            this.toolStrip1.Size = new System.Drawing.Size(777, 39);
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -163,11 +165,22 @@
             this.btnViewReport.ToolTipText = "view report";
             this.btnViewReport.Click += new System.EventHandler(this.btnViewReport_Click);
             // 
+            // btnManageUsers
+            // 
+            this.btnManageUsers.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnManageUsers.Image = ((System.Drawing.Image)(resources.GetObject("btnManageUsers.Image")));
+            this.btnManageUsers.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.btnManageUsers.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnManageUsers.Name = "btnManageUsers";
+            this.btnManageUsers.Size = new System.Drawing.Size(36, 36);
+            this.btnManageUsers.ToolTipText = "Manage Users";
+            this.btnManageUsers.Click += new System.EventHandler(this.btnManageUsers_Click);
+            // 
             // MainView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(736, 350);
+            this.ClientSize = new System.Drawing.Size(777, 350);
             this.Controls.Add(this.toolStrip1);
             this.IsMdiContainer = true;
             this.Name = "MainView";
@@ -194,6 +207,7 @@
         private System.Windows.Forms.ToolStripLabel toolStripLabel2;
         private System.Windows.Forms.ToolStripComboBox cmboAccountName;
         private System.Windows.Forms.ToolStripButton btnViewReport;
+        private System.Windows.Forms.ToolStripButton btnManageUsers;
 
 
 

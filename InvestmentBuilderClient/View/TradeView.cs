@@ -44,7 +44,7 @@ namespace InvestmentBuilderClient.View
                          Currency = addView.GetCurrency(),
                          Name = addView.GetName(),
                          Number = addView.GetAmount(),
-                         Type  = addView.GetTradeType(),
+                         Action  = addView.GetTradeType(),
                          Symbol = addView.GetSymbol(),
                          ScalingFactor = addView.GetScalingFactor(),
                          TotalCost = addView.GetTotalCost()

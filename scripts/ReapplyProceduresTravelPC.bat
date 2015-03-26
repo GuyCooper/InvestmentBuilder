@@ -1,2 +1,2 @@
-call ReapplyProcedures.bat TRAVELPC\SQLEXPRESS InvestmentBuilderTest
+call ReapplyProcedures.bat TRAVELPC\SQLEXPRESS InvestmentBuilderTest2
  

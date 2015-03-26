@@ -46,6 +46,7 @@ create table dbo.Users
 	[Description]	  varchar(1024) null,
 	[Currency]		  char(3) not null,
 	[Type_Id]		  int not null,
+	[Enabled]		  tinyint not null
 
 	constraint UN_UserName unique([Name]),
 
@@ -54,12 +55,16 @@ create table dbo.Users
 )
 
 insert into dbo.UserTypes ([Type]) values ('Club')
+insert into dbo.UserTypes ([Type]) values ('Personal')
+go
+
 insert into dbo.Users 
 select 'Argyll Investments',
 	   'password',
 	   'Argyll Investments',
 	   'GBP',
-	   [Type_Id]
+	   [Type_Id],
+	   1
 from 
 	dbo.UserTypes
 where
@@ -83,7 +88,11 @@ create index IDX_InvestmentRecordAccountID on
 dbo.InvestmentRecord([account_id])
 
 alter table Members
-add [account_id] int not null default(1) 
+add [account_id] int not null default(1)
+go
+
+alter table Members
+add [enabled] tinyint not null default(1)
 go
 
 create index IDX_MembersAccountID on

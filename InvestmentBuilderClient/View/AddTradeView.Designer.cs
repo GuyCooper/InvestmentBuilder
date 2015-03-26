@@ -87,9 +87,9 @@
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(28, 101);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(31, 13);
+            this.label3.Size = new System.Drawing.Size(37, 13);
             this.label3.TabIndex = 4;
-            this.label3.Text = "Type";
+            this.label3.Text = "Action";
             // 
             // cmboType
             // 
@@ -112,6 +112,11 @@
             // nmrcNumber
             // 
             this.nmrcNumber.Location = new System.Drawing.Point(177, 136);
+            this.nmrcNumber.Maximum = new decimal(new int[] {
+            999999,
+            0,
+            0,
+            0});
             this.nmrcNumber.Name = "nmrcNumber";
             this.nmrcNumber.Size = new System.Drawing.Size(120, 20);
             this.nmrcNumber.TabIndex = 7;
