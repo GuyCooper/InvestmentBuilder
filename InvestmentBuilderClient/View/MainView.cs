@@ -187,12 +187,15 @@ namespace InvestmentBuilderClient.View
             {
                 DateTime dtValuation = (DateTime)cmboValuationDate.SelectedItem;
                 string account = (string)cmboAccountName.SelectedItem;
-                PerformanceBuilderLib.PerformanceBuilderExternal.RunBuilder(
-                    account,
-                    _settings.OutputFolder,
-                    _settings.DatasourceString,
-                    dtValuation
-                    );
+                Task.Factory.StartNew(() =>
+                    {
+                        PerformanceBuilderLib.PerformanceBuilderExternal.RunBuilder(
+                            account,
+                            _settings.OutputFolder,
+                            _settings.DatasourceString,
+                            dtValuation
+                            );
+                    });
             }
         }
 
@@ -264,6 +267,8 @@ namespace InvestmentBuilderClient.View
                 };
 
                 _dataModel.UpdateUserAccount(account);
+                InitialiseValues();
+                PopulateValuationDates();
             }
         }
     }

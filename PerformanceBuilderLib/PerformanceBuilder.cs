@@ -54,7 +54,7 @@ namespace PerformanceBuilderLib
         {
              _app = new Microsoft.Office.Interop.Excel.Application();
 
-             performanceBookName = string.Format(@"{0}{1}-{2}.xlsx", path, ExcelBookHolder.PerformanceChartName, dtValuation.ToString("MMM-yyyy"));
+             performanceBookName = string.Format(@"{0}\{1}-{2}.xlsx", path, ExcelBookHolder.PerformanceChartName, dtValuation.ToString("MMM-yyyy"));
              _bookHolder = new ExcelBookHolder(_app, performanceBookName);
             using (var reader = new HistoricalDataReader(datasource))
             {

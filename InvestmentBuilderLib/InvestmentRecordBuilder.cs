@@ -48,7 +48,7 @@ namespace InvestmentBuilder
         {
             Log.Log(LogLevel.Info, "building investment records...");
             //Console.WriteLine("building investment records...");
-            var enInvestments = GetInvestments(account, valuationDate).ToList();
+            var enInvestments = GetInvestments(account, previousValuation.HasValue ? previousValuation.Value : valuationDate).ToList();
             foreach(var investment in enInvestments)
             {
                 var company = investment.Name;

@@ -90,7 +90,7 @@ namespace InvestmentBuilder
             {
                 updateCommand.CommandType = System.Data.CommandType.StoredProcedure;
                 updateCommand.Parameters.Add(new SqlParameter("@valuationDate", _currentDate));
-                updateCommand.Parameters.Add(new SqlParameter("@company", Name));
+                updateCommand.Parameters.Add(new SqlParameter("@investment", Name));
                 updateCommand.Parameters.Add(new SqlParameter("@closingPrice", dClosing));
                 updateCommand.Parameters.Add(new SqlParameter("@account", _account));
                 updateCommand.ExecuteNonQuery();

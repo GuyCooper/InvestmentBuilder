@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestmentBuilderClient", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerformanceBuilderLib", "PerformanceBuilderLib\PerformanceBuilderLib.csproj", "{A69B4E7E-44C1-4C52-9C86-5C1148131C79}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestmentBuilderTests", "InvestmentBuilderTests\InvestmentBuilderTests.csproj", "{093F417F-31DE-4CC9-AD63-3019F5023078}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{A69B4E7E-44C1-4C52-9C86-5C1148131C79}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A69B4E7E-44C1-4C52-9C86-5C1148131C79}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A69B4E7E-44C1-4C52-9C86-5C1148131C79}.Release|Any CPU.Build.0 = Release|Any CPU
+		{093F417F-31DE-4CC9-AD63-3019F5023078}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{093F417F-31DE-4CC9-AD63-3019F5023078}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{093F417F-31DE-4CC9-AD63-3019F5023078}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{093F417F-31DE-4CC9-AD63-3019F5023078}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
