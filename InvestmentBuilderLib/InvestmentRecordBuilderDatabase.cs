@@ -18,9 +18,9 @@ namespace InvestmentBuilder
     {
         private SqlConnection _connection;
         private DateTime _currentDate;
-        private string _account;
+        private UserData _account;
 
-        public DatabaseInvestment(string account, SqlConnection connection, DateTime dtValuationDate, string name)
+        public DatabaseInvestment(UserData account, SqlConnection connection, DateTime dtValuationDate, string name)
         {
             _connection = connection;
             _currentDate = dtValuationDate;
@@ -39,7 +39,7 @@ namespace InvestmentBuilder
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 command.Parameters.Add(new SqlParameter("@Name", Name));
-                command.Parameters.Add(new SqlParameter("@Account", _account));
+                command.Parameters.Add(new SqlParameter("@Account", _account.Name));
                 command.ExecuteNonQuery();
             }
         }
@@ -52,7 +52,7 @@ namespace InvestmentBuilder
                 command.Parameters.Add(new SqlParameter("@valuationDate", valuationDate));
                 command.Parameters.Add(new SqlParameter("@previousDate", previousDate.Value));
                 command.Parameters.Add(new SqlParameter("@company", Name));
-                command.Parameters.Add(new SqlParameter("@account", _account));
+                command.Parameters.Add(new SqlParameter("@account", _account.Name));
                 command.ExecuteNonQuery();
             }
         }
@@ -65,7 +65,7 @@ namespace InvestmentBuilder
                 command.Parameters.Add(new SqlParameter("@holding", holding));
                 command.Parameters.Add(new SqlParameter("@valuationDate", _currentDate));
                 command.Parameters.Add(new SqlParameter("@company", Name));
-                command.Parameters.Add(new SqlParameter("@account", _account));
+                command.Parameters.Add(new SqlParameter("@account", _account.Name));
                 command.ExecuteNonQuery();
             }
         }
@@ -79,7 +79,7 @@ namespace InvestmentBuilder
                 command.Parameters.Add(new SqlParameter("@investment", Name));
                 command.Parameters.Add(new SqlParameter("@shares", stock.Number));
                 command.Parameters.Add(new SqlParameter("@totalCost", stock.TotalCost));
-                command.Parameters.Add(new SqlParameter("@account", _account));
+                command.Parameters.Add(new SqlParameter("@account", _account.Name));
                 command.ExecuteNonQuery();
             }
         }
@@ -92,7 +92,7 @@ namespace InvestmentBuilder
                 updateCommand.Parameters.Add(new SqlParameter("@valuationDate", _currentDate));
                 updateCommand.Parameters.Add(new SqlParameter("@investment", Name));
                 updateCommand.Parameters.Add(new SqlParameter("@closingPrice", dClosing));
-                updateCommand.Parameters.Add(new SqlParameter("@account", _account));
+                updateCommand.Parameters.Add(new SqlParameter("@account", _account.Name));
                 updateCommand.ExecuteNonQuery();
             }
         }
@@ -105,7 +105,7 @@ namespace InvestmentBuilder
                 updateCommand.Parameters.Add(new SqlParameter("@valuationDate", _currentDate));
                 updateCommand.Parameters.Add(new SqlParameter("@company", Name));
                 updateCommand.Parameters.Add(new SqlParameter("@dividend", dDividend));
-                updateCommand.Parameters.Add(new SqlParameter("@account", _account));
+                updateCommand.Parameters.Add(new SqlParameter("@account", _account.Name));
                 updateCommand.ExecuteNonQuery();
             }
         }
@@ -145,14 +145,14 @@ namespace InvestmentBuilder
             _connection = connection;
         }
 
-        override protected IEnumerable<IInvestment> GetInvestments(string account, DateTime valuationDate)
+        override protected IEnumerable<IInvestment> GetInvestments(UserData account, DateTime valuationDate)
         {
             var companies = new List<string>();
             using (var command = new SqlCommand("sp_GetUserCompanies", _connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 command.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
-                command.Parameters.Add(new SqlParameter("@Account", account));
+                command.Parameters.Add(new SqlParameter("@Account", account.Name));
                 var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
@@ -164,7 +164,7 @@ namespace InvestmentBuilder
             return companies.Select( c => new DatabaseInvestment(account, _connection, valuationDate, c));
         }
 
-        override protected void CreateNewInvestment(string account, Stock newTrade, DateTime valuationDate, double dClosing)
+        override protected void CreateNewInvestment(UserData account, Stock newTrade, DateTime valuationDate, double dClosing)
         {   
             using (var command = new SqlCommand("sp_CreateNewInvestment", _connection))
             {
@@ -178,7 +178,7 @@ namespace InvestmentBuilder
                 command.Parameters.Add(new SqlParameter("@totalCost", newTrade.TotalCost));
                 command.Parameters.Add(new SqlParameter("@closingPrice", dClosing));
                 command.Parameters.Add(new SqlParameter("@dividend", 0d));
-                command.Parameters.Add(new SqlParameter("@account", account));
+                command.Parameters.Add(new SqlParameter("@account", account.Name));
 
                 command.ExecuteNonQuery();
             }

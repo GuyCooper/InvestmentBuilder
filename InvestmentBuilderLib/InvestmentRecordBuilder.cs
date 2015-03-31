@@ -29,8 +29,8 @@ namespace InvestmentBuilder
     {
         protected Logger Log { get; private set; }
 
-        abstract protected IEnumerable<IInvestment> GetInvestments(string account, DateTime dtValuationDate);
-        abstract protected void CreateNewInvestment(string account, Stock newTrade, DateTime valuationDate, double dClosing);
+        abstract protected IEnumerable<IInvestment> GetInvestments(UserData account, DateTime dtValuationDate);
+        abstract protected void CreateNewInvestment(UserData account, Stock newTrade, DateTime valuationDate, double dClosing);
 
         public InvestmentRecordBuilder()
         {
@@ -44,7 +44,7 @@ namespace InvestmentBuilder
         /// <param name="trades"></param>
         /// <param name="cashData"></param>
         /// <param name="valuationDate"></param>
-        public void BuildInvestmentRecords(string account, Trades trades, CashAccountData cashData, DateTime valuationDate, DateTime? previousValuation)
+        public void BuildInvestmentRecords(UserData account, Trades trades, CashAccountData cashData, DateTime valuationDate, DateTime? previousValuation)
         {
             Log.Log(LogLevel.Info, "building investment records...");
             //Console.WriteLine("building investment records...");
@@ -93,7 +93,7 @@ namespace InvestmentBuilder
                     {
                         var companyData = investment.CompanyData;
                         double dClosing;
-                        if (MarketDataService.TryGetClosingPrice(companyData.Symbol, investment.Name, companyData.Currency, companyData.ScalingFactor, out dClosing))
+                        if (MarketDataService.TryGetClosingPrice(companyData.Symbol, investment.Name, companyData.Currency, account.Currency, companyData.ScalingFactor, out dClosing))
                         {
                             investment.UpdateClosingPrice(dClosing);       
                         }
@@ -106,7 +106,7 @@ namespace InvestmentBuilder
                 //Console.WriteLine("adding new trade {0}", newTrade.Name);
                 //new trade to add to investment record
                 double dClosing;
-                MarketDataService.TryGetClosingPrice(newTrade.Name, newTrade.Symbol, newTrade.Currency, newTrade.ScalingFactor, out dClosing);
+                MarketDataService.TryGetClosingPrice(newTrade.Name, newTrade.Symbol, newTrade.Currency, account.Currency, newTrade.ScalingFactor, out dClosing);
                 CreateNewInvestment(account, newTrade, valuationDate, dClosing);               
             }
         }

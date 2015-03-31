@@ -43,15 +43,24 @@ namespace InvestmentBuilder
     {
         static public Trades GetTrades(string tradefile)
         {
-            using (var fs = new FileStream(tradefile, FileMode.Open))
+            if (File.Exists(tradefile))
             {
-                XmlSerializer serialiser = new XmlSerializer(typeof(Trades));
-                return (Trades)serialiser.Deserialize(fs);
+                using (var fs = new FileStream(tradefile, FileMode.Open))
+                {
+                    XmlSerializer serialiser = new XmlSerializer(typeof(Trades));
+                    return (Trades)serialiser.Deserialize(fs);
+                }
             }
+            return new Trades();
         }
 
         static public void SaveTrades(Trades trades, string tradefile)
         {
+            if(File.Exists(tradefile))
+            {
+                File.Delete(tradefile);
+            }
+
             using (var fs = new FileStream(tradefile, FileMode.Create))
             {
                 XmlSerializer serialiser = new XmlSerializer(typeof(Trades));

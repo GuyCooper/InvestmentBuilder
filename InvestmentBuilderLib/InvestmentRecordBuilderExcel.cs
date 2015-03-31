@@ -112,7 +112,7 @@ namespace InvestmentBuilder
             _bookHolder = bookHolder;
         }
 
-        override protected IEnumerable<IInvestment> GetInvestments(string account, DateTime valuationDate)
+        override protected IEnumerable<IInvestment> GetInvestments(UserData account, DateTime valuationDate)
         {
             for (int index = 1; index <= _bookHolder.GetInvestmentRecordBook().Worksheets.Count; ++index)
             {
@@ -125,7 +125,7 @@ namespace InvestmentBuilder
             }
         }
 
-        override protected void CreateNewInvestment(string account, Stock newTrade, DateTime valuationDate, double dClosing)
+        override protected void CreateNewInvestment(UserData account, Stock newTrade, DateTime valuationDate, double dClosing)
         {
             _Worksheet templateSheet = _bookHolder.GetTemplateBook().Worksheets["Investment"];
             templateSheet.Copy(Type.Missing, _bookHolder.GetInvestmentRecordBook().Worksheets

@@ -93,6 +93,8 @@
             // 
             // cmboType
             // 
+            this.cmboType.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
+            this.cmboType.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
             this.cmboType.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.cmboType.FormattingEnabled = true;
             this.cmboType.Location = new System.Drawing.Point(176, 101);

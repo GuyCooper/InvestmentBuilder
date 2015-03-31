@@ -94,7 +94,7 @@ namespace InvestmentBuilder
                 //var trades = TradeLoader.GetTrades(tradeFile);
                 if (bUpdate)
                 {
-                    recordBuilder.BuildInvestmentRecords(userName, trades, cashAccountData, valuationDate, dtPreviousValuation);
+                    recordBuilder.BuildInvestmentRecords(userData, trades, cashAccountData, valuationDate, dtPreviousValuation);
                 }
 
                 //now extract the latest data from the investment record

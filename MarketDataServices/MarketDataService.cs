@@ -52,11 +52,11 @@ namespace MarketDataServices
             return result;
         }
 
-        private static double _GetFxRate(string currency)
+        private static double _GetFxRate(string currency, string reportingCurrency)
         {
             if(!_fxLookup.ContainsKey(currency))
             {
-                string fxurl = string.Format("http://finance.yahoo.com/d/quotes.csv?s={0}GBP=X&f=sl1", currency);
+                string fxurl = string.Format("http://finance.yahoo.com/d/quotes.csv?s={0}{1}=X&f=sl1", currency, reportingCurrency);
                 var result = _GetData(fxurl).ToList().First();
                 var dFx = _GetDoubleFromResult(result,1);
                 _fxLookup.Add(currency,dFx);
@@ -76,7 +76,7 @@ namespace MarketDataServices
         /// <param name="name"></param>
         /// <param name="exchange"></param>
         /// <returns></returns>
-        public static bool TryGetClosingPrice(string symbol, string name, string currency, double dScaling, out double dClosing)
+        public static bool TryGetClosingPrice(string symbol, string name, string currency, string reportingCurrency, double dScaling, out double dClosing)
         {
             dClosing = 0d;
             string closingurl = String.Format(
@@ -91,19 +91,17 @@ namespace MarketDataServices
                 //string resName = arr[1].Trim(new [] {'\n','\r',' ','\"'});
                 //string resExchange = arr[2].Trim(new[] { '\n', '\r', ' ', '\"' });
 
-                //now determine if we need to do an fx conversion to get this price in sterling
-                if(currency == "GBP")
+                if (currency != reportingCurrency)
                 {
-                    //sterling stocks are price in pence, but displayed in £ on the spreadsheet as it is easier to read
-                    dClosing = dClosing / dScaling;
-                }
-                else
-                {
-                    //download the fx mid price rate for currency / GBP
-                    var dFx = _GetFxRate(currency);
-                    dClosing = dClosing * dFx * dScaling;
+                    //need todo an fx conversion to get correct price
+                    var dFx = _GetFxRate(currency, reportingCurrency);
+                    dClosing = dClosing * dFx;
                 }
                 
+                //now scale price todisplay price.i.e. exchange may price in pence but we want it displayed
+                //in pounds
+                dClosing = dClosing / dScaling;
+
                 //http://download.finance.yahoo.com/d/quotes.csv?s=GBPEUR=X&f=sl1d1t1ba&e=.csv
                 //http://finance.yahoo.com/d/quotes.csv?s=GBPEUR=X&f=sl1d1t1
                 //http://finance.yahoo.com/d/quotes.csv?s=GBPEUR=X&f=sl1

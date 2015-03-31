@@ -74,13 +74,27 @@ namespace InvestmentBuilderClient.ViewModel
             Trades.Remove(trade);
         }
 
+        private Stock _ToStock(TradeDetails trade)
+        {
+            return new Stock
+            {
+                Name = trade.Name,
+                Currency = trade.Currency,
+                Number = trade.Number,
+                ScalingFactor = trade.ScalingFactor,
+                Symbol = trade.Symbol,
+                TotalCost = trade.TotalCost,
+                TransactionDate = trade.TransactionDate
+            };
+        }
+
         public void CommitTrades()
         {
             logger.Log(LogLevel.Info, "commiting trade data...");
             var trades = new Trades();
-            trades.Buys = Trades.Where(t => t.Action == TradeType.BUY).ToArray();
-            trades.Sells = Trades.Where(t => t.Action == TradeType.SELL).ToArray();
-            trades.Changed = Trades.Where(t => t.Action == TradeType.MODIFY).ToArray();
+            trades.Buys = Trades.Where(t => t.Action == TradeType.BUY).Select(t => _ToStock(t)).ToArray();
+            trades.Sells = Trades.Where(t => t.Action == TradeType.SELL).Select(t => _ToStock(t)).ToArray();
+            trades.Changed = Trades.Where(t => t.Action == TradeType.MODIFY).Select(t => _ToStock(t)).ToArray();
             TradeLoader.SaveTrades(trades, _tradeFile);
         }
     }
