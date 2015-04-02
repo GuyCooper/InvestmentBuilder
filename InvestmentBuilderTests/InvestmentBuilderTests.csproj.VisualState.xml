@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VisualState xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ShowCheckBoxes="false">
+  <TopNode>[0-1000]C:\Projects\InvestmentBuilder\InvestmentBuilderTests\InvestmentBuilderTests.csproj</TopNode>
+  <SelectedNode>[0-1002]InvestmentBuilderTests.MarketDataServiceTests.When_getting_a_closing_price</SelectedNode>
+  <ExcludeCategories>false</ExcludeCategories>
+  <Nodes>
+    <Node UniqueName="[0-1000]C:\Projects\InvestmentBuilder\InvestmentBuilderTests\InvestmentBuilderTests.csproj" Expanded="true" />
+    <Node UniqueName="[0-1008]C:\Projects\InvestmentBuilder\InvestmentBuilderTests\..\bin\Debug\InvestmentBuilderTests.dll" Expanded="true" />
+    <Node UniqueName="[0-1009]InvestmentBuilderTests" Expanded="true" />
+    <Node UniqueName="[0-1001]InvestmentBuilderTests.MarketDataServiceTests" Expanded="true" />
+    <Node UniqueName="[0-1003]InvestmentBuilderTests.TradeLoaderTests" Expanded="true" />
+  </Nodes>
+</VisualState>

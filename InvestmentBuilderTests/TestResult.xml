@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!--This file represents the results of running a test suite-->
+<test-results name="C:\Projects\InvestmentBuilder\InvestmentBuilderTests\InvestmentBuilderTests.csproj" total="1" errors="0" failures="1" not-run="0" inconclusive="0" ignored="0" skipped="0" invalid="0" date="2015-04-02" time="21:37:59">
+  <environment nunit-version="2.6.4.14350" clr-version="2.0.50727.8009" os-version="Microsoft Windows NT 6.2.9200.0" platform="Win32NT" cwd="C:\nUnit-2.6.4\bin" machine-name="TRAVELPC" user="Guy" user-domain="TRAVELPC" />
+  <culture-info current-culture="en-GB" current-uiculture="en-GB" />
+  <test-suite type="Project" name="C:\Projects\InvestmentBuilder\InvestmentBuilderTests\InvestmentBuilderTests.csproj" executed="True" result="Failure" success="False" time="1.124" asserts="0">
+    <results>
+      <test-suite type="Assembly" name="C:\Projects\InvestmentBuilder\InvestmentBuilderTests\..\bin\Debug\InvestmentBuilderTests.dll" executed="True" result="Failure" success="False" time="1.123" asserts="0">
+        <results>
+          <test-suite type="Namespace" name="InvestmentBuilderTests" executed="True" result="Failure" success="False" time="1.122" asserts="0">
+            <results>
+              <test-suite type="TestFixture" name="MarketDataServiceTests" executed="True" result="Failure" success="False" time="1.120" asserts="0">
+                <results>
+                  <test-case name="InvestmentBuilderTests.MarketDataServiceTests.When_getting_a_closing_price" executed="True" result="Failure" success="False" time="0.964" asserts="2">
+                    <failure>
+                      <message><![CDATA[  Expected: same as 28.37332d
+  But was:  0.0d
+]]></message>
+                      <stack-trace><![CDATA[at InvestmentBuilderTests.MarketDataServiceTests.When_getting_a_closing_price() in c:\Projects\InvestmentBuilder\InvestmentBuilderTests\MarketDataServiceTests.cs:line 38
+]]></stack-trace>
+                    </failure>
+                  </test-case>
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+    </results>
+  </test-suite>
+</test-results>

@@ -7,6 +7,7 @@ using Microsoft.Office.Interop.Excel;
 using ExcelAccountsManager;
 using MarketDataServices;
 using NLog;
+using Microsoft.Practices.Unity;
 
 namespace PerformanceBuilderLib
 {
@@ -159,7 +160,7 @@ namespace PerformanceBuilderLib
             DateTime dtFirstDate = rebasedClubData.First().Date;
             var indexResults = indexes.Select( index =>
                 {
-                    var indexedData = MarketDataService.GetHistoricalData(index.Item1, dtFirstDate);
+                    var indexedData = ContainerManager.ResolveValue<IMarketDataSource>().GetHistoricalData(index.Item1, dtFirstDate);
                     var rebasedIndexedData = RebaseDataList(indexedData, null).ToList();
                     return new { Name = index.Item2, Index = rebasedIndexedData};
                 }).ToList();

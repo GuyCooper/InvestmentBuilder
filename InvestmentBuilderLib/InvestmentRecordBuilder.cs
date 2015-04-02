@@ -32,9 +32,12 @@ namespace InvestmentBuilder
         abstract protected IEnumerable<IInvestment> GetInvestments(UserData account, DateTime dtValuationDate);
         abstract protected void CreateNewInvestment(UserData account, Stock newTrade, DateTime valuationDate, double dClosing);
 
+        private IMarketDataService _marketDataService;
+
         public InvestmentRecordBuilder()
         {
             Log = LogManager.GetLogger(GetType().FullName);
+            _marketDataService = ContainerManager.ResolveValue<IMarketDataService>();
         }
 
         /// <summary>
@@ -93,7 +96,7 @@ namespace InvestmentBuilder
                     {
                         var companyData = investment.CompanyData;
                         double dClosing;
-                        if (MarketDataService.TryGetClosingPrice(companyData.Symbol, investment.Name, companyData.Currency, account.Currency, companyData.ScalingFactor, out dClosing))
+                        if (_marketDataService.TryGetClosingPrice(companyData.Symbol, investment.Name, companyData.Currency, account.Currency, companyData.ScalingFactor, out dClosing))
                         {
                             investment.UpdateClosingPrice(dClosing);       
                         }
@@ -106,7 +109,7 @@ namespace InvestmentBuilder
                 //Console.WriteLine("adding new trade {0}", newTrade.Name);
                 //new trade to add to investment record
                 double dClosing;
-                MarketDataService.TryGetClosingPrice(newTrade.Name, newTrade.Symbol, newTrade.Currency, account.Currency, newTrade.ScalingFactor, out dClosing);
+                _marketDataService.TryGetClosingPrice(newTrade.Name, newTrade.Symbol, newTrade.Currency, account.Currency, newTrade.ScalingFactor, out dClosing);
                 CreateNewInvestment(account, newTrade, valuationDate, dClosing);               
             }
         }
