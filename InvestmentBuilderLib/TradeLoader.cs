@@ -17,6 +17,8 @@ namespace InvestmentBuilder
         public string TransactionDate { get; set; }
         [XmlElement("symbol")]
         public string Symbol { get; set; }
+        [XmlElement("exchange")]
+        public string Exchange { get; set; }
         [XmlElement("currency")]
         public string Currency { get; set; }
         [XmlElement("number")]

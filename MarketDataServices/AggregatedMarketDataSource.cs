@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel.Composition;
+using System.ComponentModel.Composition.Hosting;
+using System.Reflection;
 
 namespace MarketDataServices
 {
@@ -16,16 +18,25 @@ namespace MarketDataServices
         [ImportMany(typeof(IMarketDataSource))]
         private IEnumerable<IMarketDataSource> Sources { get; set; }
 
+        private CompositionContainer _container;
+
+        public string Name { get { return "Aggregated"; } }
+
         public AggregatedMarketDataSource()
         {
-            //todo,compose here
+            var catalog = new AggregateCatalog();
+            //inject all IMarketDataSource instances in this assemlby
+            catalog.Catalogs.Add(new AssemblyCatalog(typeof(IMarketDataSource).Assembly));
+
+            _container = new CompositionContainer(catalog);
+            _container.ComposeParts(this);
         }
 
-        public bool TryGetMarketData(string symbol, out double dData)
+        public bool TryGetMarketData(string symbol, string exchange, out double dData)
         {
             foreach(var source in Sources)
             {
-                if(source.TryGetMarketData(symbol, out dData))
+                if(source.TryGetMarketData(symbol, exchange, out dData))
                 {
                     return true;
                 }

@@ -12,14 +12,10 @@ namespace InvestmentBuilderTests
     [TestFixture]
     public class MarketDataServiceTests
     {
-        private IUnityContainer _container;
-
         [TestFixtureSetUp]
         public void Setup()
         {
-            _container = new UnityContainer();
-            _container.RegisterType<IMarketDataSource, TestMarketDataSource>();
-            _container.RegisterType<IMarketDataService, MarketDataService>();
+            
         }
 
         private bool _AreEqual(double d1, double d2)
@@ -30,17 +26,95 @@ namespace InvestmentBuilderTests
         [Test]
         public void When_getting_a_closing_price()
         {
-            double dResult;
-            bool success = _container.Resolve<IMarketDataService>().TryGetClosingPrice(
-                                "BOA",
-                                "Vodaphone",
-                                "USD",
-                                "GBP",
-                                1,
-                                out dResult);
+            using (var container = new UnityContainer())
+            {
+                container.RegisterType<IMarketDataSource, TestMarketDataSource>();
+                container.RegisterType<IMarketDataService, MarketDataService>();
 
-            Assert.IsTrue(success);
-            Assert.IsTrue(_AreEqual(TestMarketDataSource.TestPrice * TestMarketDataSource.TestFxRate, dResult));
+                double dResult;
+                bool success = container.Resolve<IMarketDataService>().TryGetClosingPrice(
+                                    "BAC",
+                                    null,
+                                    "Bank Of America",
+                                    "USD",
+                                    "GBP",
+                                    1,
+                                    out dResult);
+
+                Assert.IsTrue(success);
+                Assert.IsTrue(_AreEqual(TestMarketDataSource.TestPrice * TestMarketDataSource.TestFxRate, dResult));
+            }
+        }
+
+        [Test]
+        public void When_getting_a_closing_price_from_yahoo()
+        {
+            using (var container = new UnityContainer())
+            {
+                container.RegisterType<IMarketDataSource, YahooMarketDataSource>();
+                container.RegisterType<IMarketDataService, MarketDataService>();
+
+                double dResult;
+                bool success = container.Resolve<IMarketDataService>().TryGetClosingPrice(
+                                    "VOD",
+                                    "LSE",
+                                    "Vodaphone",
+                                    "GBP",
+                                    "GBP",
+                                    1,
+                                    out dResult);
+
+                Assert.IsTrue(success);
+                Assert.IsTrue(dResult > 0d);
+            }
+        }
+
+        [Test]
+        public void When_getting_a_closing_price_from_yahoo_with_fx()
+        {
+            using (var container = new UnityContainer())
+            {
+                container.RegisterType<IMarketDataSource, YahooMarketDataSource>();
+                container.RegisterType<IMarketDataService, MarketDataService>();
+
+                double dResult;
+                bool success = container.Resolve<IMarketDataService>().TryGetClosingPrice(
+                                    "BAC",
+                                    null,
+                                    "Bank Of America",
+                                    "USD",
+                                    "GBP",
+                                    1,
+                                    out dResult);
+
+                Assert.IsTrue(success);
+                Assert.IsTrue(dResult > 0d);
+            }
+            
+        }
+
+        [Test]
+        public void When_getting_a_closing_price_from_aggregate()
+        {
+            using (var container = new UnityContainer())
+            {
+                container.RegisterType<IMarketDataSource, AggregatedMarketDataSource>();
+                container.RegisterType<IMarketDataService, MarketDataService>();
+
+                double dResult;
+                bool success = container.Resolve<IMarketDataService>().TryGetClosingPrice(
+                                    "BAC",
+                                    null,
+                                    "Bank Of America",
+                                    "USD",
+                                    "GBP",
+                                    1,
+                                    out dResult);
+
+                Assert.IsTrue(success);
+                Assert.IsTrue(dResult > 0d);
+            }
+
         }
     }
 }

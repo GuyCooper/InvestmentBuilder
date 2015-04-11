@@ -14,7 +14,7 @@ namespace MarketDataServices
         /// <param name="symbol">name of instrument</param>
         /// <param name="dData">price</param>
         /// <returns>true success, false fail</returns>
-        bool TryGetMarketData(string symbol, out double dData);
+        bool TryGetMarketData(string symbol, string exchange, out double dData);
         /// <summary>
         /// try to fx rate for ccy pair, return true for success, false for fail 
         /// </summary>
@@ -30,6 +30,10 @@ namespace MarketDataServices
         /// <param name="dtFrom"></param>
         /// <returns></returns>
         IEnumerable<HistoricalData> GetHistoricalData(string instrument, DateTime dtFrom);
+        /// <summary>
+        /// name ofsource
+        /// </summary>
+        string Name { get; }
     }
 
     public class HistoricalData

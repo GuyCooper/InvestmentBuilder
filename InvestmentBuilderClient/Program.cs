@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using NLog;
+using MarketDataServices;
 
 namespace InvestmentBuilderClient
 {
@@ -17,6 +18,10 @@ namespace InvestmentBuilderClient
         [STAThread]
         static void Main()
         {
+            //registerunity dependencies.temporary,move to config file
+            ContainerManager.RegisterType(typeof(IMarketDataSource), typeof(AggregatedMarketDataSource));
+            ContainerManager.RegisterType(typeof(IMarketDataService), typeof(MarketDataService));
+
             //var connectstr = @"Data Source=TRAVELPC\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest;Integrated Security=True";
             var settings = new ConfigurationSettings();
             Application.EnableVisualStyles();

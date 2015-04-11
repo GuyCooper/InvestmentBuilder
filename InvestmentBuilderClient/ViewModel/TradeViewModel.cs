@@ -56,6 +56,7 @@ namespace InvestmentBuilderClient.ViewModel
                         Number = trade.Number,
                         ScalingFactor = trade.ScalingFactor,
                         Symbol = trade.Symbol,
+                        Exchange = trade.Exchange,
                         Currency = trade.Currency,
                         TotalCost = trade.TotalCost
                     });
@@ -83,6 +84,7 @@ namespace InvestmentBuilderClient.ViewModel
                 Number = trade.Number,
                 ScalingFactor = trade.ScalingFactor,
                 Symbol = trade.Symbol,
+                Exchange = trade.Exchange,
                 TotalCost = trade.TotalCost,
                 TransactionDate = trade.TransactionDate
             };

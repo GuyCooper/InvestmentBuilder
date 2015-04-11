@@ -16,6 +16,11 @@ namespace MarketDataServices
             return _container;
         }
 
+        public static void RegisterType(Type typeFrom, Type typeTo)
+        {
+            _container.RegisterType(typeFrom,typeTo);
+        }
+
         public static T ResolveValue<T>() where T : class
         {
             var result = _container.Resolve<T>();

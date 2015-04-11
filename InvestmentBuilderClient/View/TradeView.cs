@@ -46,6 +46,7 @@ namespace InvestmentBuilderClient.View
                          Number = addView.GetAmount(),
                          Action  = addView.GetTradeType(),
                          Symbol = addView.GetSymbol(),
+                         Exchange = addView.GetExchange(),
                          ScalingFactor = addView.GetScalingFactor(),
                          TotalCost = addView.GetTotalCost()
                     });

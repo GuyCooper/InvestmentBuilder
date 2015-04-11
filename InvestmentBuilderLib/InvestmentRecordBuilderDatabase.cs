@@ -10,6 +10,7 @@ namespace InvestmentBuilder
     internal class CompanyInformation
     {
         public string Symbol { get; set; }
+        public string Exchange { get; set; }
         public string Currency { get; set; }
         public double ScalingFactor { get; set; }
     }
@@ -122,10 +123,12 @@ namespace InvestmentBuilder
                     if (reader.Read())
                     {
                         var symbol = (string)reader["Symbol"];
+                        var exchange = (string)reader["Exchange"];
                         var ccy = (string)reader["Currency"];
                         data = new CompanyInformation
                         {
                             Symbol = symbol.Trim(),
+                            Exchange = exchange.Trim(),
                             Currency = ccy.Trim(),
                             ScalingFactor = (double)reader["ScalingFactor"]
                         };
@@ -179,6 +182,7 @@ namespace InvestmentBuilder
                 command.Parameters.Add(new SqlParameter("@closingPrice", dClosing));
                 command.Parameters.Add(new SqlParameter("@dividend", 0d));
                 command.Parameters.Add(new SqlParameter("@account", account.Name));
+                command.Parameters.Add(new SqlParameter("@exchange", newTrade.Exchange));
 
                 command.ExecuteNonQuery();
             }

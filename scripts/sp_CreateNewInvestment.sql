@@ -16,11 +16,11 @@ GO
 CREATE PROCEDURE [dbo].[sp_CreateNewInvestment](@valuationDate as DATETIME, @investment as VARCHAR(50), @symbol as CHAR(10),
 				 @currency as CHAR(3), @scalingFactor as FLOAT, @shares as INT,
 				 @totalCost as FLOAT, @closingPrice as FLOAT, @dividend as FLOAT,
-				 @account as VARCHAR(30)) AS
+				 @account as VARCHAR(30), @exchange as VARCHAR(10)) AS
 BEGIN
 
-	INSERT INTO Companies (Name, Symbol, Currency, ScalingFactor)
-	VALUES (@investment, @symbol, @currency, @scalingFactor )
+	INSERT INTO Companies (Name, Symbol, Currency, ScalingFactor, Exchange)
+	VALUES (@investment, @symbol, @currency, @scalingFactor, @exchange )
 
 	INSERT INTO InvestmentRecord
 	 ([Company_Id],[Valuation_Date],[Shares_Bought],[Total_Cost],[Selling_Price],[Dividends_Received], [account_id], [is_active], [last_bought])

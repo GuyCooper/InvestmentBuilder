@@ -21,6 +21,7 @@ namespace InvestmentBuilder
         public abstract void SaveNewUnitValue(DateTime dtValuation, double dUnitValue);
         public abstract double GetIssuedUnits(DateTime dtValuation);
         public abstract DateTime? GetPreviousValuationDate(DateTime dtValuation);
+        public abstract IEnumerable<string> GetAccountMembers(string account);
     }
 
     internal class DBUserData : UserData
@@ -93,6 +94,10 @@ namespace InvestmentBuilder
 
         public override double GetPreviousUnitValuation(DateTime dtValuation, DateTime? previousDate)
         {
+            if(previousDate.HasValue == false)
+            {
+                return 1d;  //if first time then unit value starts at 1
+            }
             using (var command = new SqlCommand("sp_GetUnitValuation", _connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -147,6 +152,23 @@ namespace InvestmentBuilder
                 }
             }
             return dtPrevious;
+        }
+
+        public override IEnumerable<string> GetAccountMembers(string account)
+        {
+            using (var sqlCommand = new SqlCommand("sp_GetAccountMembers", _connection))
+            {
+                sqlCommand.CommandType = System.Data.CommandType.StoredProcedure;
+                sqlCommand.Parameters.Add(new SqlParameter("@Account", account));
+                sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", DateTime.Today));
+                using (var reader = sqlCommand.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        yield return reader.GetString(0);
+                    }
+                }
+            }
         }
     }
 

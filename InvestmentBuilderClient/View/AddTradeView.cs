@@ -44,6 +44,11 @@ namespace InvestmentBuilderClient.View
             return txtSymbol.Text;
         }
 
+        public string GetExchange()
+        {
+            return txtExchange.Text;
+        }
+
         public string GetCurrency()
         {
             return txtCcy.Text;

@@ -11,7 +11,7 @@ namespace MarketDataServices
 {
     public interface IMarketDataService
     {
-        bool TryGetClosingPrice(string symbol, string name, string currency, string reportingCurrency, double dScaling, out double dClosing);
+        bool TryGetClosingPrice(string symbol, string exchange, string name, string currency, string reportingCurrency, double dScaling, out double dClosing);
     }
 
     /// <summary>
@@ -35,12 +35,12 @@ namespace MarketDataServices
         /// <param name="name"></param>
         /// <param name="exchange"></param>
         /// <returns></returns>
-        public bool TryGetClosingPrice(string symbol, string name, string currency, string reportingCurrency, double dScaling, out double dClosing)
+        public bool TryGetClosingPrice(string symbol, string exchange, string name, string currency, string reportingCurrency, double dScaling, out double dClosing)
         {
             logger.Log(LogLevel.Info, string.Format("getting closing price for : {0}", name));
 
             dClosing = 0d;
-            if(_marketSource.TryGetMarketData(symbol,out dClosing))
+            if(_marketSource.TryGetMarketData(symbol, exchange, out dClosing))
             {
                 if (currency != reportingCurrency)
                 {

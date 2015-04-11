@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel.Composition;
-using System.Net;
+//using System.Net;
 using System.IO;
 using NLog;
 
@@ -19,12 +19,28 @@ namespace MarketDataServices
         private static Logger logger = LogManager.GetCurrentClassLogger();
         private Dictionary<string, double> _fxLookup = new Dictionary<string, double>();
 
-        public bool TryGetMarketData(string symbol, out double dData)
+        private static Dictionary<string, string> _exchangeMapper = new Dictionary<string, string>()
+        {
+            {"LSE","L"},
+            {"DAX","DE"},
+            {"MIL","MI"}
+        };
+
+        public string Name { get { return "Yahoo"; } }
+
+        public bool TryGetMarketData(string symbol, string exchange, out double dData)
         { 
+            if(string.IsNullOrEmpty(exchange) == false &&
+               symbol.Contains('.') == false && 
+               _exchangeMapper.ContainsKey(exchange))
+            {
+                symbol = string.Format("{0}.{1}", symbol, _exchangeMapper[exchange]);
+            }
+
             string url = String.Format("http://finance.yahoo.com/d/quotes.csv?s={0}&f=pnx", symbol);
             try
             {
-                string result = _GetData(url).ToList().First();
+                string result = WebDataHandler.GetData(url).ToList().First();
                 dData = _GetDoubleFromResult(result, 0);
                 return true;
             }
@@ -48,7 +64,7 @@ namespace MarketDataServices
             try
             {
                 string fxurl = string.Format("http://finance.yahoo.com/d/quotes.csv?s={0}{1}=X&f=sl1", baseCurrency, contraCurrency);
-                var result = _GetData(fxurl).ToList().First();
+                var result = WebDataHandler.GetData(fxurl).ToList().First();
                 dFxRate = _GetDoubleFromResult(result, 1);
                 _fxLookup.Add(ccypair, dFxRate);
                 return true;
@@ -71,7 +87,7 @@ namespace MarketDataServices
 
             try
             {
-                var data = _GetData(url);
+                var data = WebDataHandler.GetData(url);
 
                 return data.Select(x =>
                 {
@@ -105,24 +121,24 @@ namespace MarketDataServices
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
-        private IEnumerable<string> _GetData(string url)
-        {
-            HttpWebRequest request = null;
-            var result = new List<string>();
-            request = (HttpWebRequest)WebRequest.CreateDefault(new Uri(url));
-            request.Timeout = 30000;
+        //private IEnumerable<string> _GetData(string url)
+        //{
+        //    HttpWebRequest request = null;
+        //    var result = new List<string>();
+        //    request = (HttpWebRequest)WebRequest.CreateDefault(new Uri(url));
+        //    request.Timeout = 30000;
 
-            using (var response = (HttpWebResponse)request.GetResponse())
-            using (StreamReader input = new StreamReader(
-                response.GetResponseStream()))
-            {
-                while (input.EndOfStream == false)
-                {
-                    result.Add(input.ReadLine());
-                }
-            }
-            return result;
-        }
+        //    using (var response = (HttpWebResponse)request.GetResponse())
+        //    using (StreamReader input = new StreamReader(
+        //        response.GetResponseStream()))
+        //    {
+        //        while (input.EndOfStream == false)
+        //        {
+        //            result.Add(input.ReadLine());
+        //        }
+        //    }
+        //    return result;
+        //}
  
         /// <summary>
         /// helpermethod parses the result and extracts the price

@@ -96,7 +96,7 @@ namespace InvestmentBuilder
                     {
                         var companyData = investment.CompanyData;
                         double dClosing;
-                        if (_marketDataService.TryGetClosingPrice(companyData.Symbol, investment.Name, companyData.Currency, account.Currency, companyData.ScalingFactor, out dClosing))
+                        if (_marketDataService.TryGetClosingPrice(companyData.Symbol, companyData.Exchange, investment.Name, companyData.Currency, account.Currency, companyData.ScalingFactor, out dClosing))
                         {
                             investment.UpdateClosingPrice(dClosing);       
                         }
@@ -109,7 +109,7 @@ namespace InvestmentBuilder
                 //Console.WriteLine("adding new trade {0}", newTrade.Name);
                 //new trade to add to investment record
                 double dClosing;
-                _marketDataService.TryGetClosingPrice(newTrade.Name, newTrade.Symbol, newTrade.Currency, account.Currency, newTrade.ScalingFactor, out dClosing);
+                _marketDataService.TryGetClosingPrice(newTrade.Symbol, newTrade.Exchange, newTrade.Name, newTrade.Currency, account.Currency, newTrade.ScalingFactor, out dClosing);
                 CreateNewInvestment(account, newTrade, valuationDate, dClosing);               
             }
         }

@@ -14,7 +14,9 @@ namespace InvestmentBuilderTests
         public static DateTime TestDate = new DateTime(2015, 02, 14);
         public static double HistoricalPrice = 45.87;
 
-        public bool TryGetMarketData(string symbol, out double dData)
+        public string Name { get { return "TestDatasource"; } }
+
+        public bool TryGetMarketData(string symbol, string exchange, out double dData)
         {
             dData = TestPrice;
             return true;

@@ -58,6 +58,8 @@
     <Compile Include="IMarketDataSource.cs" />
     <Compile Include="MarketDataService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QuandlMarketDataSource.cs" />
+    <Compile Include="WebDataHandler.cs" />
     <Compile Include="YahooMarketDataSource.cs" />
   </ItemGroup>
   <ItemGroup>
