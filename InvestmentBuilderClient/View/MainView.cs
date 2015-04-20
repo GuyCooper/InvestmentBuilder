@@ -53,7 +53,7 @@ namespace InvestmentBuilderClient.View
         }
         private void UpdateValuationDate()
         {
-            DateTime  dtValuation = (DateTime)cmboValuationDate.SelectedItem;
+            DateTime dtValuation = _GetSelectedValuationDate();
             foreach(var view in _views)
             {
                 view.UpdateValuationDate(dtValuation);
@@ -125,7 +125,7 @@ namespace InvestmentBuilderClient.View
                 }
                 else
                 {
-                    DateTime dtValuation = (DateTime)cmboValuationDate.SelectedItem;
+                    DateTime dtValuation = _GetSelectedValuationDate();
                     foreach (var view in _views)
                     {
                         view.CommitData(dtValuation);
@@ -138,7 +138,7 @@ namespace InvestmentBuilderClient.View
         {
             if (MessageBox.Show("Are You Sure?", "Run Accounts Builder", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes)
             {
-                DateTime  dtValuation = (DateTime)cmboValuationDate.SelectedItem;
+                DateTime dtValuation = _GetSelectedValuationDate();
                 string selectedAccount = (string)cmboAccountName.SelectedItem;
 
                 Task.Factory.StartNew(() =>
@@ -185,7 +185,7 @@ namespace InvestmentBuilderClient.View
         {
             if (MessageBox.Show("Are You Sure?", "Build Charts", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes)
             {
-                DateTime dtValuation = (DateTime)cmboValuationDate.SelectedItem;
+                DateTime dtValuation = _GetSelectedValuationDate();
                 string account = (string)cmboAccountName.SelectedItem;
                 Task.Factory.StartNew(() =>
                     {
@@ -208,7 +208,7 @@ namespace InvestmentBuilderClient.View
 
         private void btnViewReport_Click(object sender, EventArgs e)
         {
-            DateTime dtValuation = (DateTime)cmboValuationDate.SelectedItem;
+            DateTime dtValuation = _GetSelectedValuationDate();
             string selectedAccount = (string)cmboAccountName.SelectedItem;
 
             if(_dataModel.IsExistingValuationDate(dtValuation))
@@ -270,6 +270,20 @@ namespace InvestmentBuilderClient.View
                 InitialiseValues();
                 PopulateValuationDates();
             }
+        }
+
+        private void OnValuationDateEnter(object sender, KeyPressEventArgs e)
+        {
+            if(e.KeyChar == '\r')
+            {
+                UpdateValuationDate();
+            }
+        }
+
+        private DateTime _GetSelectedValuationDate()
+        {
+            return cmboValuationDate.SelectedItem != null ? (DateTime)cmboValuationDate.SelectedItem :
+                                                            DateTime.Parse(cmboValuationDate.Text);
         }
     }
 }

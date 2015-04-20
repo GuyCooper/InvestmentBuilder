@@ -66,6 +66,7 @@
     <Compile Include="InvestmentRecordBuilder.cs" />
     <Compile Include="InvestmentRecordBuilderDatabase.cs" />
     <Compile Include="InvestmentRecordBuilderExcel.cs" />
+    <Compile Include="InvestmentUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TradeLoader.cs" />
     <Compile Include="UserDataReader.cs" />

@@ -112,7 +112,7 @@ namespace InvestmentBuilder
                                                 cashAccountData.BankBalance,
                                                 bUpdate);
                 //finally, build the asset statement
-                //assetWriter.WriteAssetStatement(lstData, cashAccountData, dtPreviousValuation, valuationDate);
+                //assetWriter.WrC:\Projects\InvestmentBuilder\InvestmentBuilderLib\AssetSheetBuilder.csiteAssetStatement(lstData, cashAccountData, dtPreviousValuation, valuationDate);
                 if(bUpdate)
                 {
                     assetWriter.WriteAssetReport(assetReport);
@@ -141,30 +141,39 @@ namespace InvestmentBuilder
             logger.Log(LogLevel.Info, "building asset report...");
             AssetReport report = new AssetReport
             {
-                ClubName = userData.Name,
+                AccountName = userData.Name,
                 ReportingCurrency = userData.Currency,
                 ValuationDate = dtValuationDate,
                 Assets = companyData,
                 BankBalance = dBankBalance
             };
 
+            report.TotalAssetValue = companyData.Sum(c => c.dNetSellingValue);
+            report.TotalAssets = report.BankBalance + report.TotalAssetValue;
+            report.TotalLiabilities = default(double); //todo, record liabilities(if any)
+            report.NetAssets = report.TotalAssets - report.TotalLiabilities;
+
             if (bUpdate)
             {
-                report.IssuedUnits = _UpdateMembersCapitalAccount(userData, dtPreviousValution, dtValuationDate);
+                report.IssuedUnits = _UpdateMembersCapitalAccount(userData, dtPreviousValution, dtValuationDate, report.NetAssets);
             }
             else
             {
                 report.IssuedUnits = userData.GetIssuedUnits(dtValuationDate);
             }
 
-            report.TotalAssetValue = companyData.Sum(c => c.dNetSellingValue);
-            report.TotalAssets = report.BankBalance + report.TotalAssetValue;
-            report.TotalLiabilities = 0d; //todo, record liabilities(if any)
-            report.NetAssets = report.TotalAssets - report.TotalLiabilities;
-            report.ValuePerUnit = report.NetAssets / report.IssuedUnits;
+            if (report.IssuedUnits > default(double))
+            {
+                report.ValuePerUnit = report.NetAssets / report.IssuedUnits;
+            }
+            else
+            {
+                report.ValuePerUnit = 1d; //default unit value
+            }
+
             //todo total assets
             //unit price
-            if(bUpdate)
+            if (bUpdate)
             {
                 userData.SaveNewUnitValue(dtValuationDate, report.ValuePerUnit);
             }
@@ -172,20 +181,36 @@ namespace InvestmentBuilder
             return report;
         }
 
-        private static double _UpdateMembersCapitalAccount(UserData userData, DateTime? dtPreviousValution, DateTime dtValuationDate)
+        private static double _UpdateMembersCapitalAccount(UserData userData, DateTime? dtPreviousValution, DateTime dtValuationDate, double dNetAssets)
         {
             logger.Log(LogLevel.Info, "updating members capital account...");
             //get total number of shares allocated for previous month
             //get list of all members who have made a deposit for current month
-            double dResult = 0d;
-            var dPreviousUnitValue = userData.GetPreviousUnitValuation(dtValuationDate, dtPreviousValution);
-            var memberAccountData = userData.GetMemberAccountData(dtPreviousValution ?? dtValuationDate).ToList();
-            foreach (var member in memberAccountData)
+            double dResult = default(double);
+            if (dtPreviousValution.HasValue)
             {
-                double dSubscription = userData.GetMemberSubscription(dtValuationDate, member.Key);
-                double dNewAmount = member.Value + (dSubscription * (1 / dPreviousUnitValue));
-                dResult += dNewAmount;
-                userData.UpdateMemberAccount(dtValuationDate, member.Key, dNewAmount);
+                var dPreviousUnitValue = userData.GetPreviousUnitValuation(dtValuationDate, dtPreviousValution);
+                var memberAccountData = userData.GetMemberAccountData(dtPreviousValution ?? dtValuationDate).ToList();
+                foreach (var member in memberAccountData)
+                {
+                    double dSubscription = userData.GetMemberSubscription(dtValuationDate, member.Key);
+                    double dNewAmount = member.Value + (dSubscription * (1 / dPreviousUnitValue));
+                    dResult += dNewAmount;
+                    userData.UpdateMemberAccount(dtValuationDate, member.Key, dNewAmount);
+                }
+            }
+            else
+            {
+                logger.Log(LogLevel.Info, "new account. setting issued units equal to net assets");
+                //no previous valaution this is a new account, the total issued units should be the same as
+                //the total netassets. this will give a unit valuation of 1.
+                var members = userData.GetAccountMembers().ToList();
+                double memberUnits = dNetAssets / members.Count;
+                dResult = dNetAssets;
+                foreach(var member in members)
+                {
+                    userData.UpdateMemberAccount(dtValuationDate, member, memberUnits);
+                }
             }
             return dResult;
         }

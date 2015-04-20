@@ -91,6 +91,7 @@
             this.cmboValuationDate.Name = "cmboValuationDate";
             this.cmboValuationDate.Size = new System.Drawing.Size(140, 39);
             this.cmboValuationDate.SelectedIndexChanged += new System.EventHandler(this.OnValuationDateChanged);
+            this.cmboValuationDate.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.OnValuationDateEnter);
             // 
             // toolStripSeparator1
             // 

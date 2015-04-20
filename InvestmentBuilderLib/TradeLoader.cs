@@ -11,6 +11,25 @@ namespace InvestmentBuilder
     [XmlType("stock")]
     public class Stock
     {
+        public Stock()
+        {
+        }
+
+        public Stock(Stock toCopy)
+        {
+            if (toCopy != null)
+            {
+                Name = toCopy.Name;
+                TransactionDate = toCopy.TransactionDate;
+                Symbol = toCopy.Symbol;
+                Exchange = toCopy.Exchange;
+                Currency = toCopy.Currency;
+                Number = toCopy.Number;
+                TotalCost = toCopy.TotalCost;
+                ScalingFactor = toCopy.ScalingFactor;
+            }
+        }
+
         [XmlElement("name")]
         public string Name { get; set; }
         [XmlElement("date")]

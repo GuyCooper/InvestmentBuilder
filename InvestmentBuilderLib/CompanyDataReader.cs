@@ -146,18 +146,34 @@ namespace InvestmentBuilder
             currentData.dMonthChangeRatio = currentData.dMonthChange / previousData.dNetSellingValue * 100;
         }
 
+        private void DeactivateInvestment(string investment, string account)
+        {
+            using (var command = new SqlCommand("sp_DeactivateCompany", _connection))
+            {
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+                command.Parameters.Add(new SqlParameter("@Name", investment));
+                command.Parameters.Add(new SqlParameter("@Account", account));
+                command.ExecuteNonQuery();
+            }
+        }
+
         public IEnumerable<CompanyData> GetCompanyData(string account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate)
         {
-            var lstPreviousData = _GetCompanyDataImpl(account, dtPreviousValuationDate.Value).ToList();
             var lstCurrentData = _GetCompanyDataImpl(account, dtValuationDate).ToList();
-
-            foreach(var company in lstCurrentData)
+            var lstPreviousData = dtPreviousValuationDate.HasValue ? _GetCompanyDataImpl(account, dtPreviousValuationDate.Value).ToList() : new List<CompanyData>();
+            foreach (var company in lstCurrentData)
             {
                 var previousData = lstPreviousData.Find(c => c.sName == company.sName);
-                _updateMonthlyData(company, previousData);
+                if (previousData != null)
+                {
+                    _updateMonthlyData(company, previousData);
+                }
                 company.dProfitLoss = company.dNetSellingValue - company.dTotalCost;
+                if(company.iNumberOfShares.IsZero() == true)
+                {
+                    DeactivateInvestment(company.sName, account);
+                }
             }
-
             return lstCurrentData;
         }
     }

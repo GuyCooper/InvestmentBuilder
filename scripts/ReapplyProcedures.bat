@@ -36,6 +36,7 @@ sqlcmd -S %ServerName% -E -d %DBName% -i sp_IsExistingValuationDate.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_RecentValuationDates.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_RollbackUpdate.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_RollInvestment.sql
+sqlcmd -S %ServerName% -E -d %DBName% -i sp_SellShares.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_UpdateClosingPrice.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_UpdateDividend.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_UpdateHolding.sql

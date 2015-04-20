@@ -56,7 +56,7 @@ namespace InvestmentBuilderClient.View
             }
 
             int row = 0;
-            AddTagValue("Club Name", _report.ClubName, row++, 1, true);
+            AddTagValue("Account Name", _report.AccountName, row++, 1, true);
             AddTagValue("Reporting Currency", _report.ReportingCurrency, row++, 1, true);
             AddTagValue("Valuation Date", _report.ValuationDate.ToShortDateString(), row++, 1, true);
             row++;

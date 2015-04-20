@@ -31,11 +31,6 @@ namespace InvestmentBuilder
 
         public CompanyInformation CompanyData { get; private set; }
 
-        public void DeactivateInvestment()
-        {
-            _sheet.get_Range("B7").Value = false;
-        }
-
         public void UpdateRow(DateTime valuationDate, DateTime? previousDate)
         {            
             //check if the last row was written this month, if it was then just update the current last
@@ -74,6 +69,11 @@ namespace InvestmentBuilder
             var newTotalCost = (double)_sheet.get_Range("G" + _lastRow).Value + stock.TotalCost;
             _sheet.get_Range("B" + _lastRow).Value = newBought;
             _sheet.get_Range("G" + _lastRow).Value = newTotalCost;
+        }
+
+        public void SellShares(Stock stock)
+        {
+
         }
 
         public void UpdateDividend(double dDividend)

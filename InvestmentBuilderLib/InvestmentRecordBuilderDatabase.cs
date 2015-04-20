@@ -34,17 +34,6 @@ namespace InvestmentBuilder
 
         public CompanyInformation CompanyData { get; private set; }
 
-        public void DeactivateInvestment()
-        {
-            using (var command = new SqlCommand("sp_DeactivateCompany", _connection))
-            {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@Name", Name));
-                command.Parameters.Add(new SqlParameter("@Account", _account.Name));
-                command.ExecuteNonQuery();
-            }
-        }
-
         public void UpdateRow(DateTime valuationDate, DateTime? previousDate)
         {
             using (var command = new SqlCommand("sp_RollInvestment", _connection))
@@ -80,6 +69,19 @@ namespace InvestmentBuilder
                 command.Parameters.Add(new SqlParameter("@investment", Name));
                 command.Parameters.Add(new SqlParameter("@shares", stock.Number));
                 command.Parameters.Add(new SqlParameter("@totalCost", stock.TotalCost));
+                command.Parameters.Add(new SqlParameter("@account", _account.Name));
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public void SellShares(Stock stock)
+        {
+            using (var command = new SqlCommand("sp_SellShares", _connection))
+            {
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+                command.Parameters.Add(new SqlParameter("@valuationDate", _currentDate));
+                command.Parameters.Add(new SqlParameter("@investment", Name));
+                command.Parameters.Add(new SqlParameter("@shares", stock.Number));
                 command.Parameters.Add(new SqlParameter("@account", _account.Name));
                 command.ExecuteNonQuery();
             }
@@ -180,9 +182,8 @@ namespace InvestmentBuilder
                 command.Parameters.Add(new SqlParameter("@shares", newTrade.Number));
                 command.Parameters.Add(new SqlParameter("@totalCost", newTrade.TotalCost));
                 command.Parameters.Add(new SqlParameter("@closingPrice", dClosing));
-                command.Parameters.Add(new SqlParameter("@dividend", 0d));
                 command.Parameters.Add(new SqlParameter("@account", account.Name));
-                command.Parameters.Add(new SqlParameter("@exchange", newTrade.Exchange));
+                command.Parameters.Add(new SqlParameter("@exchange", newTrade.Exchange ?? string.Empty));
 
                 command.ExecuteNonQuery();
             }

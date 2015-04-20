@@ -15,12 +15,12 @@ namespace InvestmentBuilder
     {
         string Name {get;}
         CompanyInformation CompanyData {get;}
-        void DeactivateInvestment();
         void UpdateRow(DateTime valuationDate, DateTime? previousDate);
         void ChangeShareHolding(int holding);
         void AddNewShares(Stock stock);
         void UpdateClosingPrice(double dClosing);
         void UpdateDividend(double dDividend);
+        void SellShares(Stock stock);
     }
   
     //class generates the current investment record for each stock for the current month. sets and sold stocks to inactive
@@ -51,16 +51,22 @@ namespace InvestmentBuilder
         {
             Log.Log(LogLevel.Info, "building investment records...");
             //Console.WriteLine("building investment records...");
+
+            var aggregatedBuys = trades.Buys.AggregateStocks().ToList();
+            var aggregatedSells = trades.Sells.AggregateStocks().ToList();
+
             var enInvestments = GetInvestments(account, previousValuation.HasValue ? previousValuation.Value : valuationDate).ToList();
             foreach(var investment in enInvestments)
             {
                 var company = investment.Name;
-                if(trades.Sells.Any(x => company.Equals(x.Name, StringComparison.CurrentCultureIgnoreCase)))
+                var sellTrade = aggregatedSells.FirstOrDefault(x => company.Equals(x.Name, StringComparison.CurrentCultureIgnoreCase));
+                if(sellTrade != null)
                 {
-                    //trade sold, set to inactive
-                    Log.Log(LogLevel.Info, string.Format("company {0} sold", company));
+                    //trade sold, set to inactive. todo do this properly
+                    Log.Log(LogLevel.Info, string.Format("company {0} sold {1} shares", company, sellTrade.Number));
                     //Console.WriteLine("company {0} sold", company);
-                    investment.DeactivateInvestment();
+                    //investment.DeactivateInvestment();
+                    investment.SellShares(sellTrade);
                 }                 
                 else
                 {
@@ -83,12 +89,12 @@ namespace InvestmentBuilder
                         investment.UpdateDividend(dDividend);
                     }
                     //now update this stock if more shres have been brought
-                    trade = trades.Buys.FirstOrDefault(x => company.Equals(x.Name, StringComparison.CurrentCultureIgnoreCase));
+                    trade = aggregatedBuys.FirstOrDefault(x => company.Equals(x.Name, StringComparison.CurrentCultureIgnoreCase));
                     if(trade != null)
                     {
                         investment.AddNewShares(trade);
                         //remove the trade from the trade buys
-                        trades.Buys = trades.Buys.Where(x => x != trade).ToArray();
+                        aggregatedBuys = aggregatedBuys.Where(x => x != trade).ToList();
                     }
 
                     //ifwe have the correct comapy data then calculate the closing price forthis company
@@ -103,7 +109,8 @@ namespace InvestmentBuilder
                     }
                 }
             }
-            foreach(var newTrade in trades.Buys)
+
+            foreach(var newTrade in aggregatedBuys)
             {
                 Log.Log(LogLevel.Info, string.Format("adding new trade {0}", newTrade.Name));
                 //Console.WriteLine("adding new trade {0}", newTrade.Name);

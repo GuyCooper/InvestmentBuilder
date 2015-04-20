@@ -8,7 +8,7 @@ namespace InvestmentBuilder
 {
     public class AssetReport
     {
-        public string ClubName { get;  set; }
+        public string AccountName { get;  set; }
         public string ReportingCurrency { get; set; }
         public DateTime ValuationDate { get; set; }
         public IEnumerable<CompanyData> Assets { get; set; }

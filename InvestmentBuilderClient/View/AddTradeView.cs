@@ -56,7 +56,7 @@ namespace InvestmentBuilderClient.View
 
         public int GetScalingFactor()
         {
-            return (int)nmrcScaling.Value;
+            return nmrcScaling.Value > 0 ? (int) nmrcScaling.Value : (int)1;
         }
 
         public double GetTotalCost()

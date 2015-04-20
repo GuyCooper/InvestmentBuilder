@@ -22,7 +22,8 @@ namespace MarketDataServices
 
         public bool TryGetMarketData(string symbol, string exchange, out double dData)
         {
-            if(string.IsNullOrEmpty(exchange))
+            //still work to do this 
+            if (string.IsNullOrEmpty(exchange))
             {
                 exchange = "WIKI";
             }
