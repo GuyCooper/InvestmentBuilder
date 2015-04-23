@@ -17,20 +17,24 @@ namespace InvestmentBuilder
         /// <returns></returns>
         public static IEnumerable<Stock> AggregateStocks(this IEnumerable<Stock> stocks)
         {
-            return stocks.Aggregate(new List<Stock>(), (a, s) =>
+            if (stocks != null)
             {
-                var existing = a.FirstOrDefault(x => string.Compare(x.Name, s.Name) == 0);
-                if (existing == null)
+                return stocks.Aggregate(new List<Stock>(), (a, s) =>
                 {
-                    a.Add(new Stock(s));
-                }
-                else
-                {
-                    existing.Number += s.Number;
-                    existing.TotalCost += s.TotalCost;
-                }
-                return a;
-            });
+                    var existing = a.FirstOrDefault(x => string.Compare(x.Name, s.Name) == 0);
+                    if (existing == null)
+                    {
+                        a.Add(new Stock(s));
+                    }
+                    else
+                    {
+                        existing.Number += s.Number;
+                        existing.TotalCost += s.TotalCost;
+                    }
+                    return a;
+                });
+            }
+            return Enumerable.Empty<Stock>();
         }
 
         public static bool IsZero(this double lhs)

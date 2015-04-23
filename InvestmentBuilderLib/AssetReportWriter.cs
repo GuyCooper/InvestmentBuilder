@@ -26,15 +26,33 @@ namespace InvestmentBuilder
             _bookHolder = bookHolder;
         }
 
+        private void _DeleteExistingSheet(string newSheetName)
+        {
+            foreach (_Worksheet existingSheet in _bookHolder.GetAssetSheetBook().Worksheets)
+            {
+                if (string.Compare(existingSheet.Name, newSheetName) == 0)
+                {
+                    existingSheet.Delete();
+                    return;
+                }
+            }
+        }
+
         public void WriteAssetReport(AssetReport report)
         {
             logger.Log(LogLevel.Info, "persisting asset report to excel spreadsheet");
+
+            var newSheetName = report.ValuationDate.ToString("MMMM");
+            //if this sheet already exists then delete it
+            //_DeleteExistingSheet(newSheetName);
+
             _Worksheet templateSheet = _bookHolder.GetTemplateBook().Worksheets["Assets"];
             templateSheet.Copy(_bookHolder.GetAssetSheetBook().Worksheets[1]);
 
             _Worksheet newSheet = _bookHolder.GetAssetSheetBook().Worksheets[1];
+
             newSheet.EnableCalculation = true;
-            newSheet.Name = report.ValuationDate.ToString("MMMM");
+            newSheet.Name = newSheetName; 
 
             newSheet.get_Range("A1").Value = report.AccountName;
             newSheet.get_Range("C4").Value = report.ValuationDate;

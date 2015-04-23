@@ -18,13 +18,11 @@ namespace InvestmentBuilder
     class DatabaseInvestment : IInvestment
     {
         private SqlConnection _connection;
-        private DateTime _currentDate;
         private UserData _account;
 
-        public DatabaseInvestment(UserData account, SqlConnection connection, DateTime dtValuationDate, string name)
+        public DatabaseInvestment(UserData account, SqlConnection connection, string name)
         {
             _connection = connection;
-            _currentDate = dtValuationDate;
             _account = account;
             Name = name;
             CompanyData = _GetCompanyData();
@@ -34,38 +32,38 @@ namespace InvestmentBuilder
 
         public CompanyInformation CompanyData { get; private set; }
 
-        public void UpdateRow(DateTime valuationDate, DateTime? previousDate)
+        public void UpdateRow(DateTime valuationDate, DateTime previousDate)
         {
             using (var command = new SqlCommand("sp_RollInvestment", _connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 command.Parameters.Add(new SqlParameter("@valuationDate", valuationDate));
-                command.Parameters.Add(new SqlParameter("@previousDate", previousDate.Value));
+                command.Parameters.Add(new SqlParameter("@previousDate", previousDate));
                 command.Parameters.Add(new SqlParameter("@company", Name));
                 command.Parameters.Add(new SqlParameter("@account", _account.Name));
                 command.ExecuteNonQuery();
             }
         }
 
-        public void ChangeShareHolding(int holding)
+        public void ChangeShareHolding(DateTime valuationDate, int holding)
         {
             using (var command = new SqlCommand("sp_UpdateHolding", _connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 command.Parameters.Add(new SqlParameter("@holding", holding));
-                command.Parameters.Add(new SqlParameter("@valuationDate", _currentDate));
+                command.Parameters.Add(new SqlParameter("@valuationDate", valuationDate));
                 command.Parameters.Add(new SqlParameter("@company", Name));
                 command.Parameters.Add(new SqlParameter("@account", _account.Name));
                 command.ExecuteNonQuery();
             }
         }
 
-        public void AddNewShares(Stock stock)
+        public void AddNewShares(DateTime valuationDate, Stock stock)
         {
             using (var command = new SqlCommand("sp_AddNewShares", _connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@valuationDate", _currentDate));
+                command.Parameters.Add(new SqlParameter("@valuationDate", valuationDate));
                 command.Parameters.Add(new SqlParameter("@investment", Name));
                 command.Parameters.Add(new SqlParameter("@shares", stock.Number));
                 command.Parameters.Add(new SqlParameter("@totalCost", stock.TotalCost));
@@ -74,12 +72,12 @@ namespace InvestmentBuilder
             }
         }
 
-        public void SellShares(Stock stock)
+        public void SellShares(DateTime valuationDate, Stock stock)
         {
             using (var command = new SqlCommand("sp_SellShares", _connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@valuationDate", _currentDate));
+                command.Parameters.Add(new SqlParameter("@valuationDate", valuationDate));
                 command.Parameters.Add(new SqlParameter("@investment", Name));
                 command.Parameters.Add(new SqlParameter("@shares", stock.Number));
                 command.Parameters.Add(new SqlParameter("@account", _account.Name));
@@ -87,12 +85,12 @@ namespace InvestmentBuilder
             }
         }
 
-        public void UpdateClosingPrice(double dClosing)
+        public void UpdateClosingPrice(DateTime valuationDate, double dClosing)
         {
             using (var updateCommand = new SqlCommand("sp_UpdateClosingPrice", _connection))
             {
                 updateCommand.CommandType = System.Data.CommandType.StoredProcedure;
-                updateCommand.Parameters.Add(new SqlParameter("@valuationDate", _currentDate));
+                updateCommand.Parameters.Add(new SqlParameter("@valuationDate", valuationDate));
                 updateCommand.Parameters.Add(new SqlParameter("@investment", Name));
                 updateCommand.Parameters.Add(new SqlParameter("@closingPrice", dClosing));
                 updateCommand.Parameters.Add(new SqlParameter("@account", _account.Name));
@@ -100,12 +98,12 @@ namespace InvestmentBuilder
             }
         }
 
-        public void UpdateDividend(double dDividend)
+        public void UpdateDividend(DateTime valuationDate, double dDividend)
         {
             using (var updateCommand = new SqlCommand("sp_UpdateDividend", _connection))
             {
                 updateCommand.CommandType = System.Data.CommandType.StoredProcedure;
-                updateCommand.Parameters.Add(new SqlParameter("@valuationDate", _currentDate));
+                updateCommand.Parameters.Add(new SqlParameter("@valuationDate", valuationDate));
                 updateCommand.Parameters.Add(new SqlParameter("@company", Name));
                 updateCommand.Parameters.Add(new SqlParameter("@dividend", dDividend));
                 updateCommand.Parameters.Add(new SqlParameter("@account", _account.Name));
@@ -125,12 +123,12 @@ namespace InvestmentBuilder
                     if (reader.Read())
                     {
                         var symbol = (string)reader["Symbol"];
-                        var exchange = (string)reader["Exchange"];
                         var ccy = (string)reader["Currency"];
+                        var exchange = reader["Exchange"] as string;
                         data = new CompanyInformation
                         {
                             Symbol = symbol.Trim(),
-                            Exchange = exchange.Trim(),
+                            Exchange = exchange != null ? exchange.Trim() : string.Empty,
                             Currency = ccy.Trim(),
                             ScalingFactor = (double)reader["ScalingFactor"]
                         };
@@ -166,7 +164,7 @@ namespace InvestmentBuilder
                 reader.Close();
             }
 
-            return companies.Select( c => new DatabaseInvestment(account, _connection, valuationDate, c));
+            return companies.Select( c => new DatabaseInvestment(account, _connection, c));
         }
 
         override protected void CreateNewInvestment(UserData account, Stock newTrade, DateTime valuationDate, double dClosing)

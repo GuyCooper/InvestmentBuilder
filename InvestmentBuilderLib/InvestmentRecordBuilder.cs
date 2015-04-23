@@ -15,12 +15,12 @@ namespace InvestmentBuilder
     {
         string Name {get;}
         CompanyInformation CompanyData {get;}
-        void UpdateRow(DateTime valuationDate, DateTime? previousDate);
-        void ChangeShareHolding(int holding);
-        void AddNewShares(Stock stock);
-        void UpdateClosingPrice(double dClosing);
-        void UpdateDividend(double dDividend);
-        void SellShares(Stock stock);
+        void UpdateRow(DateTime valuationDate, DateTime previousDate);
+        void ChangeShareHolding(DateTime valuationDate, int holding);
+        void AddNewShares(DateTime valuationDate, Stock stock);
+        void UpdateClosingPrice(DateTime valuationDate, double dClosing);
+        void UpdateDividend(DateTime valuationDate, double dDividend);
+        void SellShares(DateTime valuationDate, Stock stock);
     }
   
     //class generates the current investment record for each stock for the current month. sets and sold stocks to inactive
@@ -58,7 +58,15 @@ namespace InvestmentBuilder
             var enInvestments = GetInvestments(account, previousValuation.HasValue ? previousValuation.Value : valuationDate).ToList();
             foreach(var investment in enInvestments)
             {
+                if(previousValuation.HasValue == false)
+                {
+                    throw new ApplicationException(string.Format("BuildInvestmentRecords: no previous valuation date for {0}. please investigate!!!", account.Name));
+                }
+
                 var company = investment.Name;
+                //Console.WriteLine("updating company {0}", company);
+                //now copy the last row into a new row and update
+                investment.UpdateRow(valuationDate, previousValuation.Value);
                 var sellTrade = aggregatedSells.FirstOrDefault(x => company.Equals(x.Name, StringComparison.CurrentCultureIgnoreCase));
                 if(sellTrade != null)
                 {
@@ -66,46 +74,41 @@ namespace InvestmentBuilder
                     Log.Log(LogLevel.Info, string.Format("company {0} sold {1} shares", company, sellTrade.Number));
                     //Console.WriteLine("company {0} sold", company);
                     //investment.DeactivateInvestment();
-                    investment.SellShares(sellTrade);
+                    investment.SellShares(valuationDate, sellTrade);
                 }                 
-                else
+  
+                //update share number if it has changed
+                var trade = trades.Changed != null ? trades.Changed.FirstOrDefault(x => company.Equals(x.Name, StringComparison.CurrentCultureIgnoreCase)) : null;
+                if(trade != null)
                 {
-                    Log.Log(LogLevel.Info, string.Format("updating company {0}", company));
-                    //Console.WriteLine("updating company {0}", company);
-                    //now copy the last row into a new row and update
-                    investment.UpdateRow(valuationDate, previousValuation);
-                    //update share number if it has changed
-                    var trade = trades.Changed.FirstOrDefault(x => company.Equals(x.Name, StringComparison.CurrentCultureIgnoreCase));
-                    if(trade != null)
-                    {
-                        Log.Log(LogLevel.Info, string.Format("company share number changed {0}", company));
-                        //Console.WriteLine("company share number changed {0}", company);
-                        investment.ChangeShareHolding(trade.Number);
-                    }
-                    //update any dividend 
-                    double dDividend;
-                    if (cashData.Dividends.TryGetValue(company, out dDividend))
-                    {
-                        investment.UpdateDividend(dDividend);
-                    }
-                    //now update this stock if more shres have been brought
-                    trade = aggregatedBuys.FirstOrDefault(x => company.Equals(x.Name, StringComparison.CurrentCultureIgnoreCase));
-                    if(trade != null)
-                    {
-                        investment.AddNewShares(trade);
-                        //remove the trade from the trade buys
-                        aggregatedBuys = aggregatedBuys.Where(x => x != trade).ToList();
-                    }
+                    Log.Log(LogLevel.Info, string.Format("company share number changed {0}", company));
+                    //Console.WriteLine("company share number changed {0}", company);
+                    investment.ChangeShareHolding(valuationDate, trade.Number);
+                }
 
-                    //ifwe have the correct comapy data then calculate the closing price forthis company
-                    if (investment.CompanyData != null)
+                //now update this stock if more shres have been brought
+                trade = aggregatedBuys.FirstOrDefault(x => company.Equals(x.Name, StringComparison.CurrentCultureIgnoreCase));
+                if(trade != null)
+                {
+                    investment.AddNewShares(valuationDate, trade);
+                    //remove the trade from the trade buys
+                    aggregatedBuys = aggregatedBuys.Where(x => x != trade).ToList();
+                }
+
+                //update any dividend 
+                double dDividend;
+                if (cashData.Dividends.TryGetValue(company, out dDividend))
+                {
+                    investment.UpdateDividend(valuationDate, dDividend);
+                }
+                //ifwe have the correct comapy data then calculate the closing price forthis company
+                if (investment.CompanyData != null)
+                {
+                    var companyData = investment.CompanyData;
+                    double dClosing;
+                    if (_marketDataService.TryGetClosingPrice(companyData.Symbol, companyData.Exchange, investment.Name, companyData.Currency, account.Currency, companyData.ScalingFactor, out dClosing))
                     {
-                        var companyData = investment.CompanyData;
-                        double dClosing;
-                        if (_marketDataService.TryGetClosingPrice(companyData.Symbol, companyData.Exchange, investment.Name, companyData.Currency, account.Currency, companyData.ScalingFactor, out dClosing))
-                        {
-                            investment.UpdateClosingPrice(dClosing);       
-                        }
+                        investment.UpdateClosingPrice(valuationDate, dClosing);       
                     }
                 }
             }

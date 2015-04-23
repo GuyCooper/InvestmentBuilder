@@ -31,7 +31,7 @@ namespace InvestmentBuilder
 
         public CompanyInformation CompanyData { get; private set; }
 
-        public void UpdateRow(DateTime valuationDate, DateTime? previousDate)
+        public void UpdateRow(DateTime valuationDate, DateTime previousDate)
         {            
             //check if the last row was written this month, if it was then just update the current last
             //row, otherwise add a new row
@@ -55,12 +55,12 @@ namespace InvestmentBuilder
 
         }
 
-        public void ChangeShareHolding(int holding)
+        public void ChangeShareHolding(DateTime valuationDate, int holding)
         {
             _sheet.get_Range("B" + _lastRow).Value = holding;
         }
 
-        public void AddNewShares(Stock stock)
+        public void AddNewShares(DateTime valuationDate, Stock stock)
         {
             logger.Log(LogLevel.Info, string.Format("adding new shares to existing for company {0}", Name));
             //Console.WriteLine("adding new shares to existing for company {0}", Name);
@@ -71,19 +71,19 @@ namespace InvestmentBuilder
             _sheet.get_Range("G" + _lastRow).Value = newTotalCost;
         }
 
-        public void SellShares(Stock stock)
+        public void SellShares(DateTime valuationDate, Stock stock)
         {
 
         }
 
-        public void UpdateDividend(double dDividend)
+        public void UpdateDividend(DateTime valuationDate, double dDividend)
         {
             double dExistingDividend = 0;
             _sheet.GetValueDouble("P", _lastRow, ref dExistingDividend);
             _sheet.get_Range("P" + _lastRow).Value = dExistingDividend + dDividend;
         }
 
-        public void UpdateClosingPrice(double dClosing)
+        public void UpdateClosingPrice(DateTime valuationDate, double dClosing)
         {
             //now download the previous close price for this stock and update the record
             string symbol = _sheet.get_Range("B4").Value as string;
@@ -145,7 +145,7 @@ namespace InvestmentBuilder
             newRecordSheet.get_Range("G10").Value = newTrade.TotalCost;
             newRecordSheet.get_Range("C4").Value = newTrade.ScalingFactor;
             var newInvestment = new ExcelInvestment(newRecordSheet);
-            newInvestment.UpdateClosingPrice(dClosing);
+            newInvestment.UpdateClosingPrice(valuationDate, dClosing);
         }
     }
 }
