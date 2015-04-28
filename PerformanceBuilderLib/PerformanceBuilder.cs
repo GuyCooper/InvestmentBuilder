@@ -3,67 +3,51 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Office.Interop.Excel;
-using ExcelAccountsManager;
 using MarketDataServices;
 using NLog;
 using Microsoft.Practices.Unity;
 
 namespace PerformanceBuilderLib
 {
-    struct RangeDimensions
-    {
-        public int FirstRow;
-        public int LastRow;
-        public char FirstCol;
-        public char LastCol;
-    }
-
-    class IndexData
+    public class IndexedRangeData
     {
         public string Name { get; set; }
-        public DateTime StartDate { get; set; }
-        public IList<HistoricalData> Data { get; set; }
+        public IList<IndexData> Data { get; set; }
     }
 
     public static class PerformanceBuilderExternal
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
-        public static void RunBuilder(string account, string path, string dataSource, DateTime dtValuation )
+        public static IList<IndexedRangeData> RunBuilder(string account, string path, string dataSource, DateTime dtValuation)
         {
             logger.Log(LogLevel.Info, "running performance chartbuilder...");
             logger.Log(LogLevel.Info, string.Format("output folder {0}", path));
             logger.Log(LogLevel.Info, string.Format("datasource: {0}", dataSource));
             logger.Log(LogLevel.Info, string.Format("valuation date: {0}", dtValuation));
-            //Console.WriteLine("running performance chartbuilder...");
-            //Console.WriteLine("output folder {0}", path);
-            //Console.WriteLine("datasource: {0}", dataSource);
-            //Console.WriteLine("valuation date: {0}", dtValuation);
-
-            using(var builder = new PerformanceBuilder(account, path, dataSource, dtValuation))
+         
+            //todo: inject all of this
+            using (var dataWriter = new PerformanceExcelSheetWriter(path, dtValuation))
             {
-                builder.Run();
+                var builder = new PerformanceBuilder(dataWriter, account, dataSource);
+                return builder.Run();
             }
         }
     }
 
-    internal class PerformanceBuilder : IDisposable
+    internal class PerformanceBuilder 
     {
-        private ExcelBookHolder _bookHolder;
         private IEnumerable<HistoricalData> _historicalData;
-        private Application _app;
-
+        
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
-        private string performanceBookName;
+        private IPerformanceDataWriter _dataWriter;
+        private string _account;
 
-        public PerformanceBuilder(string account, string path, string datasource, DateTime dtValuation)
+        public PerformanceBuilder(IPerformanceDataWriter dataWriter, string account, string datasource)
         {
-             _app = new Microsoft.Office.Interop.Excel.Application();
-
-             performanceBookName = string.Format(@"{0}\{1}-{2}.xlsx", path, ExcelBookHolder.PerformanceChartName, dtValuation.ToString("MMM-yyyy"));
-             _bookHolder = new ExcelBookHolder(_app, performanceBookName);
+            _dataWriter = dataWriter;
+            _account = account;
             using (var reader = new HistoricalDataReader(datasource))
             {
                 _historicalData = reader.GetClubData(account).ToList();
@@ -130,7 +114,7 @@ namespace PerformanceBuilderLib
             return result;
         }
 
-        public IList<KeyValuePair<string, IList<IndexData>>> Run()
+        public IList<IndexedRangeData> Run()
         {
             logger.Log(LogLevel.Info, "starting performance builder...");
             //Console.WriteLine("starting performance builder...");
@@ -139,56 +123,28 @@ namespace PerformanceBuilderLib
                                                                 new Tuple<string, string>("^GSPC","S&P 500") };
 
             var performanceRangeList = _DetermineIndexRanges();
-            //benchmark for 1 year, 3 year and all time
-            //var performanceRangeList = new List<Tuple<DateTime?, string>>{ new Tuple<DateTime?, string>(null, "All Time"),
-            //                                                               new Tuple<DateTime?,string>(DateTime.Today.AddYears(-5), "5 Year"),
-            //                                                               new Tuple<DateTime?,string>(DateTime.Today.AddYears(-3), "3 Year"),
-            //                                                               new Tuple<DateTime?, string>( DateTime.Today.AddYears(-1), "1 Year")};
-
             //now retrieve all historical data ladders from the market data source 
-            var allLadders = new List<KeyValuePair<string, IList<IndexData>>>();
+            var allLadders = new List<IndexedRangeData>();
             foreach(var point in performanceRangeList)
             {
                 logger.Log(LogLevel.Info, "building data ladder for {0}", point.Item2);
 
                 //Console.WriteLine("building data ladder for {0}", perfPoint.Item2);
                 var indexladder = _BuildIndexLadders(point.Item1, listIndexes);
-                allLadders.Add(new KeyValuePair<string,IList<IndexData>>(point.Item2, indexladder));
+                allLadders.Add(new IndexedRangeData
+                    {
+                        Name = point.Item2,
+                        Data = indexladder
+                    });
             }
 
+            logger.Log(LogLevel.Info, "data ladders complete...");
+
             //now persist it to the spreadsheet
-            _WritePerformanceSheet(allLadders);
+            _dataWriter.WritePerformanceData(allLadders);
 
-            logger.Log(LogLevel.Info, "performance chartbuilder complete, performance chart location: {0}", performanceBookName);
+            logger.Log(LogLevel.Info, "performance chartbuilder complete");
             return allLadders;
-            //char startCol = 'B';
-            //var lstRanges = new List<Tuple<string, RangeDimensions>>();
-            //foreach(var perfPoint in performanceRangeList)
-            //{
-            //    logger.Log(LogLevel.Info, "building data ladder for {0}", perfPoint.Item2);
-            //    //Console.WriteLine("building data ladder for {0}", perfPoint.Item2);
-            //    var dimensions = BuildDataLadder(perfPoint.Item1, listIndexes, 1, startCol);
-            //    lstRanges.Add(new Tuple<string, RangeDimensions>(perfPoint.Item2, dimensions));
-            //    startCol = dimensions.LastCol;
-            //    startCol++;
-            //    startCol++;
-            //}
-
-            //_Worksheet sourceSheet = _bookHolder.GetPerformanceBook().Worksheets[1];
-            //each performance rabge will be added to a new sheet
-            //foreach(var perfRange in lstRanges )
-            //{
-            //    logger.Log(LogLevel.Info, "building chart for {0}", perfRange.Item1);
-            //    //Console.WriteLine("building chart for {0}", perfRange.Item1);
-            //    _bookHolder.GetPerformanceBook().Worksheets.Add();
-            //    var targetSheet = _bookHolder.GetPerformanceBook().Worksheets[1];
-            //    targetSheet.Name = perfRange.Item1;
-            //    //app.ActiveSheet.Name = perfRange.Item1;
-            //    //BuildPivotTableAndChart(listIndexes.Select(x => x.Item2), perfRange.Item2, app,sourceSheet, app.ActiveSheet);
-            //    BuildPivotTableAndChart(listIndexes.Select(x => x.Item2), perfRange.Item2, sourceSheet, targetSheet);
-            //}
-
-            //_bookHolder.SaveBooks();
         }
 
         /// <summary>
@@ -213,6 +169,13 @@ namespace PerformanceBuilderLib
 
         }
 
+        /// <summary>
+        /// method retrieves the historical price information for all the configured indexes for all required
+        /// date ranges. Data is then rebased for each date range to allow easy determination of relative performance
+        /// </summary>
+        /// <param name="startDate"></param>
+        /// <param name="indexes"></param>
+        /// <returns></returns>
         private IList<IndexData> _BuildIndexLadders(DateTime? startDate, IEnumerable<Tuple<string, string>> indexes)
         {
             //first get club history
@@ -227,14 +190,14 @@ namespace PerformanceBuilderLib
 
             result.Add(new IndexData
                 {
-                    Name = "Club Data",
+                    Name = _account,
                     StartDate = dtFirstDate,    
                     Data = rebasedClubData
                 });
             
             indexes.ToList().ForEach( index =>
                 {
-                    var indexedData = ContainerManager.ResolveValue<IMarketDataSource>().GetHistoricalData(index.Item1, dtFirstDate);
+                    var indexedData = ContainerManager.ResolveValue<IMarketDataSource>().GetHistoricalData(index.Item1, dtFirstDate).ToList();
                     var rebasedIndexedData = RebaseDataList(indexedData, null).ToList();
                     result.Add(new IndexData
                     {
@@ -245,111 +208,6 @@ namespace PerformanceBuilderLib
                 });
 
             return result;
-        }
-
-        private void _WritePerformanceSheet(IList<KeyValuePair<string, IList<IndexData>>> data)
-        {
-
-        }
-
-        //private RangeDimensions BuildDataLadder(DateTime? startDate, IEnumerable<Tuple<string, string>> indexes, int startRow, char startCol)
-        //{
-        //    //first get club history
-        //    //var clubData = _GetClubData().OrderBy(x => x.Date).ToList();
-        //    var clubData = _historicalData.OrderBy(x => x.Date).ToList();
-        //    DumpData("club data", clubData);
-
-        //    var rebasedClubData = RebaseDataList(clubData, startDate).ToList();
-
-        //    int currentRow = startRow;
-        //    DateTime dtFirstDate = rebasedClubData.First().Date;
-        //    var indexResults = indexes.Select( index =>
-        //        {
-        //            var indexedData = ContainerManager.ResolveValue<IMarketDataSource>().GetHistoricalData(index.Item1, dtFirstDate);
-        //            var rebasedIndexedData = RebaseDataList(indexedData, null).ToList();
-        //            return new { Name = index.Item2, Index = rebasedIndexedData};
-        //        }).ToList();
-
-            
-        //    //now add the data to a new performance sheet
-        //    _Worksheet perfSheet = _bookHolder.GetPerformanceBook().Worksheets[1];
-
-        //    var chFirstCol = startCol;
-        //    var chCol = chFirstCol;
-        //    //add the headers in the result sheet
-        //    perfSheet.get_Range(chCol++.ToString() + currentRow).Value = "Date";
-        //    var clubPriceCell = perfSheet.get_Range(chCol++.ToString() + currentRow);
-        //    clubPriceCell.Value = "Club Price";
-        //    foreach (var indexPoint in indexResults)
-        //    {
-        //        var nextCell = perfSheet.get_Range(chCol++.ToString() + currentRow);
-        //        nextCell.Value = indexPoint.Name;
-        //    }
-
-        //    //now add the data
-        //    currentRow++;
-        //    for (int i = 0; i < rebasedClubData.Count; ++i )
-        //    {
-        //        chCol = chFirstCol;
-        //        perfSheet.get_Range(chCol++.ToString() + currentRow).Value = rebasedClubData[i].Date;
-        //        clubPriceCell = perfSheet.get_Range(chCol++.ToString() + currentRow);
-        //        clubPriceCell.Value = rebasedClubData[i].Price;
-        //        foreach (var indexPoint in indexResults)
-        //        {
-        //            var nextCell = perfSheet.get_Range(chCol++.ToString() + currentRow);
-        //            nextCell.Value = indexPoint.Index.Count > i ? indexPoint.Index[i].Price : 0d;
-        //        }
-        //        currentRow++;
-        //    }
-
-        //    return new RangeDimensions { FirstRow = startRow, LastRow = currentRow - 1, FirstCol = chFirstCol, LastCol = (char)(chCol - 1) };
-        //}
-
-        private void BuildPivotTableAndChart(IEnumerable<string> enIndexes, RangeDimensions dimensions, _Worksheet sourceSheet, _Worksheet pivotSheet)
-        {
-            var perfBook = _bookHolder.GetPerformanceBook();
-            
-            var firstCell = dimensions.FirstCol.ToString() + dimensions.FirstRow;
-            var lastCell = dimensions.LastCol.ToString() + dimensions.LastRow;
-            var sourceRange = sourceSheet.Range[firstCell, lastCell];
-
-            var destinationFirstCell = pivotSheet.Range["B1"];
-            var destinationLastCell = dimensions.LastCol.ToString() + (1 + (dimensions.LastRow - dimensions.FirstRow));
-            var destinationRange = pivotSheet.Range["B1", destinationLastCell];
-
-            //var destinationRange = pivotSheet.Range["B1", "D" + (count - 1)];
-            //Macro for building pivor table and chart
-            PivotCache pivotCache = perfBook.PivotCaches().Create(XlPivotTableSourceType.xlDatabase, sourceRange, XlPivotTableVersionList.xlPivotTableVersion14);
-            PivotTable pivotTable = pivotCache.CreatePivotTable(destinationFirstCell, "Club Performance");// true, XlPivotTableVersionList.xlPivotTableVersion14);
-
-            //pivotSheet.Select();
-            //app.ActiveSheet.Shapes.AddChart(240, XlChartType.xlColumnClustered).Select();
-            //app.ActiveChart.SetSourceData(destinationRange);
-
-            //pivotSheet.Shapes.AddChart(240, XlChartType.xlColumnClustered).Select();
-            var newShape = pivotSheet.Shapes.AddChart(240, XlChartType.xlColumnClustered);
-            var newChart = newShape.Chart;
-            newChart.SetSourceData(destinationRange);
-
-            pivotTable.PivotFields("Date").Orientation = XlPivotFieldOrientation.xlRowField;
-            pivotTable.PivotFields("Date").Position = 1;
-
-            pivotTable.AddDataField(pivotTable.PivotFields("Club Price"), "Sum Of Club Price");
-            foreach (var index in enIndexes)
-            {
-                pivotTable.AddDataField(pivotTable.PivotFields(index), string.Format("Sum Of {0}", index));
-            }
-
-            newChart.ChartType = XlChartType.xlLineMarkers;
-            newShape.ScaleWidth(1.8979166667f, Microsoft.Office.Core.MsoTriState.msoFalse);
-            newShape.ScaleHeight(1.5902777778f, Microsoft.Office.Core.MsoTriState.msoFalse);
-
-            newChart.Axes(XlAxisType.xlValue).MinimumScale = 0.8;
-        }
-
-        public void Dispose()
-        {
-            _bookHolder.Dispose();
         }
     }
 }

@@ -69,9 +69,35 @@ namespace MarketDataServices
             return _fxDataLookup.TryGetValue(baseCurrency + contraCurrency, out dFxRate);
         }
 
+        private IEnumerable<HistoricalData> _GenerateHistoricalData(DateTime dtFrom, double dIncrement)
+        {
+            DateTime dtDate = dtFrom;
+            double dPrice = 1.0;
+            while(dtDate < DateTime.Today)
+            {
+                yield return new HistoricalData
+                {
+                    Date = dtDate,
+                    Price = dPrice
+                };
+
+                dtDate = dtDate.AddMonths(1);
+                dPrice += dIncrement;
+            }
+        }
+
         public IEnumerable<HistoricalData> GetHistoricalData(string instrument, DateTime dtFrom)
         {
-            throw new NotImplementedException();
+            if(instrument.Contains("FTSE"))
+            {
+                return _GenerateHistoricalData(dtFrom, 0.008); //ftse
+            }
+            else if(instrument.Contains("GSPC"))
+            {
+                return _GenerateHistoricalData(dtFrom, 0.009); //s&p
+            }
+            
+            return _GenerateHistoricalData(dtFrom, 0.006);
         }
 
         public string Name

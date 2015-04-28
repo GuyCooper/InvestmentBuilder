@@ -17,8 +17,8 @@ namespace InvestmentBuilderClient
         static void Main()
         {
             //registerunity dependencies.temporary,move to config file
-            ContainerManager.RegisterType(typeof(IMarketDataSource), typeof(AggregatedMarketDataSource));
-            //ContainerManager.RegisterType(typeof(IMarketDataSource), typeof(TestFileMarketDataSource));
+            //ContainerManager.RegisterType(typeof(IMarketDataSource), typeof(AggregatedMarketDataSource));
+            ContainerManager.RegisterType(typeof(IMarketDataSource), typeof(TestFileMarketDataSource));
             ContainerManager.RegisterType(typeof(IMarketDataService), typeof(MarketDataService));
 
             //var connectstr = @"Data Source=TRAVELPC\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest;Integrated Security=True";
