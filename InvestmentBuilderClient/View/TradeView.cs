@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using InvestmentBuilderClient.ViewModel;
 using InvestmentBuilderClient.DataModel;
 using NLog;
+using InvestmentBuilderCore;
 
 namespace InvestmentBuilderClient.View
 {
@@ -19,10 +20,10 @@ namespace InvestmentBuilderClient.View
 
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
-        public TradeView(ConfigurationSettings settings)
+        public TradeView(IConfigurationSettings settings, string account)
         {
             InitializeComponent();
-            ReLoadTrades(settings.TradeFile);
+            ReLoadTrades(settings.GetTradeFile(account));
         }
 
         public void ReLoadTrades(string tradeFile)
@@ -43,7 +44,7 @@ namespace InvestmentBuilderClient.View
                          TransactionDate = addView.GetTransactionDate(),
                          Currency = addView.GetCurrency(),
                          Name = addView.GetName(),
-                         Number = addView.GetAmount(),
+                         Quantity = addView.GetAmount(),
                          Action  = addView.GetTradeType(),
                          Symbol = addView.GetSymbol(),
                          Exchange = addView.GetExchange(),

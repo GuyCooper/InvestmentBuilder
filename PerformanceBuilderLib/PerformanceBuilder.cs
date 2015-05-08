@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MarketDataServices;
 using NLog;
-using Microsoft.Practices.Unity;
+using InvestmentBuilderCore;
 
 namespace PerformanceBuilderLib
 {
@@ -15,43 +15,18 @@ namespace PerformanceBuilderLib
         public IList<IndexData> Data { get; set; }
     }
 
-    public static class PerformanceBuilderExternal
+    public class PerformanceBuilder 
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
+        private IConfigurationSettings _settings;
+        private IHistoricalDataReader _historicalDataReader;
+        private IMarketDataSource _marketDataSource;
 
-        public static IList<IndexedRangeData> RunBuilder(string account, string path, string dataSource, DateTime dtValuation)
+        public PerformanceBuilder(IConfigurationSettings settings, IDataLayer dataLayer, IMarketDataSource marketDataSource)
         {
-            logger.Log(LogLevel.Info, "running performance chartbuilder...");
-            logger.Log(LogLevel.Info, string.Format("output folder {0}", path));
-            logger.Log(LogLevel.Info, string.Format("datasource: {0}", dataSource));
-            logger.Log(LogLevel.Info, string.Format("valuation date: {0}", dtValuation));
-         
-            //todo: inject all of this
-            using (var dataWriter = new PerformanceExcelSheetWriter(path, dtValuation))
-            {
-                var builder = new PerformanceBuilder(dataWriter, account, dataSource);
-                return builder.Run();
-            }
-        }
-    }
-
-    internal class PerformanceBuilder 
-    {
-        private IEnumerable<HistoricalData> _historicalData;
-        
-        private static Logger logger = LogManager.GetCurrentClassLogger();
-
-        private IPerformanceDataWriter _dataWriter;
-        private string _account;
-
-        public PerformanceBuilder(IPerformanceDataWriter dataWriter, string account, string datasource)
-        {
-            _dataWriter = dataWriter;
-            _account = account;
-            using (var reader = new HistoricalDataReader(datasource))
-            {
-                _historicalData = reader.GetClubData(account).ToList();
-            }
+            _historicalDataReader = dataLayer.HistoricalData;
+            _marketDataSource = marketDataSource;
+            _settings = settings;
         }
 
         private DateTime MonthlyDate(DateTime dt)
@@ -88,11 +63,11 @@ namespace PerformanceBuilderLib
         /// charts
         /// </summary>
         /// <returns></returns>
-        private IList<Tuple<DateTime?, string>> _DetermineIndexRanges()
+        private IList<Tuple<DateTime?, string>> _DetermineIndexRanges(IEnumerable<HistoricalData> historicalData)
         { 
             //historical data must be in ascending chronological order (oldest data first)
             var result = new List<Tuple<DateTime?, string>>();
-            var firstRecord = _historicalData.FirstOrDefault();
+            var firstRecord = historicalData.FirstOrDefault();
             if(firstRecord != null)
             {
                 //add all time range
@@ -114,15 +89,20 @@ namespace PerformanceBuilderLib
             return result;
         }
 
-        public IList<IndexedRangeData> Run()
+        public IList<IndexedRangeData> Run(string account, DateTime dtValuation)
         {
             logger.Log(LogLevel.Info, "starting performance builder...");
+            logger.Log(LogLevel.Info, "output path: {0}", _settings.GetOutputPath(account));
+            logger.Log(LogLevel.Info, "valuation date {0}", dtValuation);
+
+            var historicalData = _historicalDataReader.GetHistoricalAccountData(account);
+
             //Console.WriteLine("starting performance builder...");
             //compre performance to FTSE100 and S&p 500
-            var listIndexes = new List<Tuple<string, string>> { new Tuple<string, string>("^FTSE", "FTSE 100"),
-                                                                new Tuple<string, string>("^GSPC","S&P 500") };
+            //var listIndexes = new List<Tuple<string, string>> { new Tuple<string, string>("^FTSE", "FTSE 100"),
+            //                                                    new Tuple<string, string>("^GSPC","S&P 500") };
 
-            var performanceRangeList = _DetermineIndexRanges();
+            var performanceRangeList = _DetermineIndexRanges(historicalData);
             //now retrieve all historical data ladders from the market data source 
             var allLadders = new List<IndexedRangeData>();
             foreach(var point in performanceRangeList)
@@ -130,7 +110,7 @@ namespace PerformanceBuilderLib
                 logger.Log(LogLevel.Info, "building data ladder for {0}", point.Item2);
 
                 //Console.WriteLine("building data ladder for {0}", perfPoint.Item2);
-                var indexladder = _BuildIndexLadders(point.Item1, listIndexes);
+                var indexladder = _BuildIndexLadders(point.Item1, historicalData, account);
                 allLadders.Add(new IndexedRangeData
                     {
                         Name = point.Item2,
@@ -141,7 +121,10 @@ namespace PerformanceBuilderLib
             logger.Log(LogLevel.Info, "data ladders complete...");
 
             //now persist it to the spreadsheet
-            _dataWriter.WritePerformanceData(allLadders);
+            using(var dataWriter = new PerformanceExcelSheetWriter(_settings.GetOutputPath(account), dtValuation))
+            {
+                dataWriter.WritePerformanceData(allLadders);
+            }
 
             logger.Log(LogLevel.Info, "performance chartbuilder complete");
             return allLadders;
@@ -176,13 +159,13 @@ namespace PerformanceBuilderLib
         /// <param name="startDate"></param>
         /// <param name="indexes"></param>
         /// <returns></returns>
-        private IList<IndexData> _BuildIndexLadders(DateTime? startDate, IEnumerable<Tuple<string, string>> indexes)
+        private IList<IndexData> _BuildIndexLadders(DateTime? startDate, IEnumerable<HistoricalData> historicalData, string account)
         {
             //first get club history
             //var clubData = _GetClubData().OrderBy(x => x.Date).ToList();
             var result = new List<IndexData>();
 
-            var clubData = _historicalData.OrderBy(x => x.Date).ToList();
+            var clubData = historicalData.OrderBy(x => x.Date).ToList();
             DumpData("club data", clubData);
             var rebasedClubData = RebaseDataList(clubData, startDate).ToList();
 
@@ -190,18 +173,18 @@ namespace PerformanceBuilderLib
 
             result.Add(new IndexData
                 {
-                    Name = _account,
+                    Name = account,
                     StartDate = dtFirstDate,    
                     Data = rebasedClubData
                 });
-            
-            indexes.ToList().ForEach( index =>
+
+            _settings.ComparisonIndexes.ToList().ForEach(index =>
                 {
-                    var indexedData = ContainerManager.ResolveValue<IMarketDataSource>().GetHistoricalData(index.Item1, dtFirstDate).ToList();
+                    var indexedData = _marketDataSource.GetHistoricalData(index.Symbol, dtFirstDate).ToList();
                     var rebasedIndexedData = RebaseDataList(indexedData, null).ToList();
                     result.Add(new IndexData
                     {
-                        Name = index.Item2,
+                        Name = index.Name,
                         StartDate = dtFirstDate,    
                         Data = rebasedIndexedData
                     });

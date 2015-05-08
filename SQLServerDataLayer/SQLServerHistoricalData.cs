@@ -3,29 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MarketDataServices;
+using InvestmentBuilderCore;
 using System.Data.SqlClient;
 
-namespace PerformanceBuilderLib
+namespace SQLServerDataLayer
 {
-    class HistoricalDataReader : IDisposable
+    class SQLServerHistoricalData : SQLServerBase, IHistoricalDataReader
     {
-        private SqlConnection _connection;
-        public HistoricalDataReader(string connectionStr)
+        public SQLServerHistoricalData(SqlConnection connection)
         {
-            _connection = new SqlConnection(connectionStr);
-            _connection.Open();
+            Connection = connection;
         }
 
-        public IEnumerable<HistoricalData> GetClubData(string account)
+        public IEnumerable<HistoricalData> GetHistoricalAccountData(string account)
         {
-            using (var command = new SqlCommand("sp_GetUnitPriceData", _connection))
+            using (var command = new SqlCommand("sp_GetUnitPriceData", Connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 command.Parameters.Add(new SqlParameter("@Account", account));
                 using (var reader = command.ExecuteReader())
                 {
-                    while(reader.Read())
+                    while (reader.Read())
                     {
                         yield return new HistoricalData
                         {
@@ -36,11 +34,6 @@ namespace PerformanceBuilderLib
                     reader.Close();
                 }
             }
-        }
-
-        public void Dispose()
-        {
-            _connection.Close();
         }
     }
 }

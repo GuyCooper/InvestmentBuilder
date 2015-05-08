@@ -53,7 +53,7 @@ namespace InvestmentBuilderClient.ViewModel
                         TransactionDate = trade.TransactionDate,
                         Action  = type,
                         Name = trade.Name,
-                        Number = trade.Number,
+                        Quantity = trade.Quantity,
                         ScalingFactor = trade.ScalingFactor,
                         Symbol = trade.Symbol,
                         Exchange = trade.Exchange,

@@ -46,7 +46,7 @@ namespace InvestmentBuilderTests
                 Currency = _TestCurrency,
                 TotalCost = _TestCost,
                 Symbol = _TestSymbol,
-                Number = _TestAmount1,
+                Quantity = _TestAmount1,
                 ScalingFactor = _TestScalingFactor,
                 TransactionDate = _TestDate
             };
@@ -62,7 +62,7 @@ namespace InvestmentBuilderTests
                 new Stock
                 {
                     Name = _Stock2,
-                    Number = _TestAmount2
+                    Quantity = _TestAmount2
                 }
             };
 

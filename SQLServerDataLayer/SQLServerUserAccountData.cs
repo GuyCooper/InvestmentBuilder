@@ -3,81 +3,64 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using InvestmentBuilderCore;
 using System.Data.SqlClient;
-using NLog;
-namespace InvestmentBuilder
+using System.Data;
+
+namespace SQLServerDataLayer
 {
-    internal abstract class UserData
+    public class SQLServerUserAccountData : SQLServerBase, IUserAccountInterface
     {
-        public string Name { get; set; }
-        public string Currency { get; set; }
-        public string Description { get; set; }
-
-        public abstract void RollbackValuationDate(DateTime dtValuation);
-        public abstract void UpdateMemberAccount(DateTime dtValuation, string member, double dAmount);
-        public abstract double GetMemberSubscription(DateTime dtValuation, string member);
-        public abstract IEnumerable<KeyValuePair<string, double>> GetMemberAccountData(DateTime dtValuation);
-        public abstract double GetPreviousUnitValuation(DateTime dtValuation, DateTime? previousDate);
-        public abstract void SaveNewUnitValue(DateTime dtValuation, double dUnitValue);
-        public abstract double GetIssuedUnits(DateTime dtValuation);
-        public abstract DateTime? GetPreviousValuationDate(DateTime dtValuation);
-        public abstract IEnumerable<string> GetAccountMembers();
-    }
-
-    internal class DBUserData : UserData
-    {
-        private SqlConnection _connection;
-
-        public DBUserData(SqlConnection conn)
+        public SQLServerUserAccountData(SqlConnection connection)
         {
-            _connection = conn;
+            Connection = connection;
         }
 
-        public override void RollbackValuationDate(DateTime dtValuation)
+        public void RollbackValuationDate(string account, DateTime dtValuation)
         {
-            using (var updateCommand = new SqlCommand("sp_RollbackUpdate", _connection))
+            using (var updateCommand = new SqlCommand("sp_RollbackUpdate", Connection))
             {
                 updateCommand.CommandType = System.Data.CommandType.StoredProcedure;
-                updateCommand.Parameters.Add(new SqlParameter("@Account", Name));
+                updateCommand.Parameters.Add(new SqlParameter("@Account", account));
                 updateCommand.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
                 updateCommand.ExecuteNonQuery();
             }
         }
 
-        public override void UpdateMemberAccount(DateTime dtValuation, string member, double dAmount)
+        public void UpdateMemberAccount(string account, DateTime dtValuation, string member, double dAmount)
         {
-            using (var updateCommand = new SqlCommand("sp_UpdateMembersCapitalAccount", _connection))
+            using (var updateCommand = new SqlCommand("sp_UpdateMembersCapitalAccount", Connection))
             {
                 updateCommand.CommandType = System.Data.CommandType.StoredProcedure;
                 updateCommand.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
                 updateCommand.Parameters.Add(new SqlParameter("@Member", member));
                 updateCommand.Parameters.Add(new SqlParameter("@Units", dAmount));
-                updateCommand.Parameters.Add(new SqlParameter("@Account", Name));
+                updateCommand.Parameters.Add(new SqlParameter("@Account", account));
                 updateCommand.ExecuteNonQuery();
             }
         }
 
-        public override double GetMemberSubscription(DateTime dtValuation, string member)
+        public double GetMemberSubscription(string account, DateTime dtValuation, string member)
         {
             double dSubscription = 0d;
-            using (var command = new SqlCommand("sp_GetMemberSubscriptionAmount", _connection))
+            using (var command = new SqlCommand("sp_GetMemberSubscriptionAmount", Connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 command.Parameters.Add(new SqlParameter("@Member", member));
                 command.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
-                command.Parameters.Add(new SqlParameter("@Account", Name));
+                command.Parameters.Add(new SqlParameter("@Account", account));
                 dSubscription = (double)command.ExecuteScalar();
             }
             return dSubscription;
         }
 
-        public override IEnumerable<KeyValuePair<string, double>> GetMemberAccountData(DateTime dtValuation)
+        public IEnumerable<KeyValuePair<string, double>> GetMemberAccountData(string account, DateTime dtValuation)
         {
-            using (var command = new SqlCommand("sp_GetMembersCapitalAccount", _connection))
+            using (var command = new SqlCommand("sp_GetMembersCapitalAccount", Connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 command.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
-                command.Parameters.Add(new SqlParameter("@Account", Name));
+                command.Parameters.Add(new SqlParameter("@Account", account));
 
                 using (var reader = command.ExecuteReader())
                 {
@@ -92,44 +75,43 @@ namespace InvestmentBuilder
             }
         }
 
-        public override double GetPreviousUnitValuation(DateTime dtValuation, DateTime? previousDate)
+        public double GetPreviousUnitValuation(string account, DateTime dtValuation, DateTime? previousDate)
         {
-            if(previousDate.HasValue == false)
+            if (previousDate.HasValue == false)
             {
                 return 1d;  //if first time then unit value starts at 1
             }
-            using (var command = new SqlCommand("sp_GetUnitValuation", _connection))
+            using (var command = new SqlCommand("sp_GetUnitValuation", Connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 command.Parameters.Add(new SqlParameter("@valuationDate", previousDate.Value));
-                command.Parameters.Add(new SqlParameter("@Account", Name));
+                command.Parameters.Add(new SqlParameter("@Account", account));
                 return (double)command.ExecuteScalar();
             }
         }
 
-        public override void SaveNewUnitValue(DateTime dtValuation, double dUnitValue)
+        public void SaveNewUnitValue(string account, DateTime dtValuation, double dUnitValue)
         {
-            //TODO - save new unit value
-            using (var command = new SqlCommand("sp_AddNewUnitValuation", _connection))
+            using (var command = new SqlCommand("sp_AddNewUnitValuation", Connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
                 command.Parameters.Add(new SqlParameter("@unitValue", dUnitValue));
-                command.Parameters.Add(new SqlParameter("@Account", Name));
+                command.Parameters.Add(new SqlParameter("@Account", account));
                 command.ExecuteNonQuery();
             }
         }
 
-        public override double GetIssuedUnits(DateTime dtValuation)
+        public double GetIssuedUnits(string account, DateTime dtValuation)
         {
-            using (var command = new SqlCommand("sp_GetIssuedUnits", _connection))
+            using (var command = new SqlCommand("sp_GetIssuedUnits", Connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
-                command.Parameters.Add(new SqlParameter("@AccountName", Name));
+                command.Parameters.Add(new SqlParameter("@AccountName", account));
 
                 var result = command.ExecuteScalar();
-                if(result != null)
+                if (result != null)
                 {
                     return (double)result;
                 }
@@ -137,16 +119,16 @@ namespace InvestmentBuilder
             return 0d;
         }
 
-        public override DateTime? GetPreviousValuationDate(DateTime dtValuation)
+        public DateTime? GetPreviousValuationDate(string account, DateTime dtValuation)
         {
             DateTime? dtPrevious = null;
-            using (var command = new SqlCommand("sp_GetPreviousValuationDate", _connection))
+            using (var command = new SqlCommand("sp_GetPreviousValuationDate", Connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
-                command.Parameters.Add(new SqlParameter("@Account", Name));
+                command.Parameters.Add(new SqlParameter("@Account", account));
                 var result = command.ExecuteScalar();
-                if(result != null)
+                if (result != null)
                 {
                     dtPrevious = (DateTime)result;
                 }
@@ -154,12 +136,12 @@ namespace InvestmentBuilder
             return dtPrevious;
         }
 
-        public override IEnumerable<string> GetAccountMembers()
+        public IEnumerable<string> GetAccountMembers(string account)
         {
-            using (var sqlCommand = new SqlCommand("sp_GetAccountMembers", _connection))
+            using (var sqlCommand = new SqlCommand("sp_GetAccountMembers", Connection))
             {
                 sqlCommand.CommandType = System.Data.CommandType.StoredProcedure;
-                sqlCommand.Parameters.Add(new SqlParameter("@Account", Name));
+                sqlCommand.Parameters.Add(new SqlParameter("@Account", account));
                 sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", DateTime.Today));
                 using (var reader = sqlCommand.ExecuteReader())
                 {
@@ -170,36 +152,20 @@ namespace InvestmentBuilder
                 }
             }
         }
-    }
 
-    interface IUserDataReader
-    {
-        UserData GetUserData(string name);
-    }
-
-    class UserDataReaderDB :IUserDataReader
-    {
-        private  SqlConnection _connection;
-        private static Logger logger = LogManager.GetCurrentClassLogger();
-
-        public UserDataReaderDB(SqlConnection connection)
+        public UserAccountData GetUserAccountData(string account)
         {
-            _connection = connection;
-        }
-
-        public UserData GetUserData(string name)
-        {
-            using (var command = new SqlCommand("sp_GetUserData", _connection))
+            using (var command = new SqlCommand("sp_GetUserData", Connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@Name", name));
+                command.Parameters.Add(new SqlParameter("@Name", account));
                 using (var reader = command.ExecuteReader())
                 {
                     if (reader.Read())
                     {
-                        return new DBUserData(_connection)
+                        return new UserAccountData
                         {
-                            Name = name,
+                            Name = account,
                             Currency = (string)reader["Currency"],
                             Description = (string)reader["Description"]
                         };

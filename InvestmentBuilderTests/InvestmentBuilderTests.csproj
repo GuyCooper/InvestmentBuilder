@@ -60,6 +60,10 @@
     <Compile Include="UtilityTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\InvestmentBuilderCore\InvestmentBuilderCore.csproj">
+      <Project>{a1b060c6-10fa-443b-8191-556d1b03102f}</Project>
+      <Name>InvestmentBuilderCore</Name>
+    </ProjectReference>
     <ProjectReference Include="..\InvestmentBuilderLib\InvestmentBuilderLib.csproj">
       <Project>{9fa7e2cc-b5c6-463b-856a-e0e21eff93e4}</Project>
       <Name>InvestmentBuilderLib</Name>

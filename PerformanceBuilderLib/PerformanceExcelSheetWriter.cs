@@ -4,29 +4,32 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Office.Interop.Excel;
-using ExcelAccountsManager;
 using NLog;
+using System.IO;
+using InvestmentBuilderCore;
 
 namespace PerformanceBuilderLib
 {
     class PerformanceExcelSheetWriter : IPerformanceDataWriter, IDisposable
     {
-        private ExcelBookHolder _bookHolder;
         private Application _app;
+        private _Workbook _performanceBook;
 
+        private const string PerformanceChartName = "Performance Chart";
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
         public PerformanceExcelSheetWriter(string path, DateTime dtValuation)
         {
             _app = new Microsoft.Office.Interop.Excel.Application();
-            var performanceBookName = string.Format(@"{0}\{1}-{2}.xlsx", path, ExcelBookHolder.PerformanceChartName, dtValuation.ToString("MMM-yyyy"));
-            _bookHolder = new ExcelBookHolder(_app, performanceBookName);
-
+            var performanceBookName = string.Format(@"{0}\{1}-{2}.xlsx", path, PerformanceChartName, dtValuation.ToString("MMM-yyyy"));
+            File.Delete(performanceBookName);
+            _performanceBook = _app.Workbooks.Add();
+            _performanceBook.SaveAs(performanceBookName);
         }
 
         public void WritePerformanceData(IList<IndexedRangeData> data)
         {
-            Microsoft.Office.Interop.Excel._Worksheet perfsheet = _bookHolder.GetPerformanceBook().Worksheets[1];
+            _Worksheet perfsheet = _performanceBook.Worksheets[1];
 
             char startCol = 'B';
             int startRow = 1;
@@ -70,7 +73,10 @@ namespace PerformanceBuilderLib
                 startCol++;
             }
 
-            _bookHolder.SaveBooks();
+            logger.Log(LogLevel.Info, "saving performance chart to sheet {0}",
+                                _performanceBook.FullName);
+
+            _performanceBook.Save();
         }
 
         /// <summary>
@@ -88,8 +94,8 @@ namespace PerformanceBuilderLib
             logger.Log(LogLevel.Info, "building chart for {0}", dateRange);
 
             //add a pivot sheet for this date range 
-            _bookHolder.GetPerformanceBook().Worksheets.Add();
-            var pivotSheet = _bookHolder.GetPerformanceBook().Worksheets[1];
+            _performanceBook.Worksheets.Add();
+            var pivotSheet = _performanceBook.Worksheets[1];
             pivotSheet.Name = dateRange;
 
             var firstCell = firstCol.ToString() + firstRow;
@@ -101,7 +107,7 @@ namespace PerformanceBuilderLib
             var destinationRange = pivotSheet.Range["B1", destinationLastCell];
 
             //Macro for building pivot table and chart
-            PivotCache pivotCache = _bookHolder.GetPerformanceBook().PivotCaches().Create(XlPivotTableSourceType.xlDatabase, sourceRange, XlPivotTableVersionList.xlPivotTableVersion14);
+            PivotCache pivotCache = _performanceBook.PivotCaches().Create(XlPivotTableSourceType.xlDatabase, sourceRange, XlPivotTableVersionList.xlPivotTableVersion14);
             PivotTable pivotTable = pivotCache.CreatePivotTable(destinationFirstCell, "Club Performance");// true, XlPivotTableVersionList.xlPivotTableVersion14);
 
             var newShape = pivotSheet.Shapes.AddChart(240, XlChartType.xlColumnClustered);
@@ -125,7 +131,7 @@ namespace PerformanceBuilderLib
 
         public void Dispose()
         {
-            _bookHolder.Dispose();
+            _performanceBook.Close();
         }
     }
 }

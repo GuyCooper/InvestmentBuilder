@@ -24,7 +24,7 @@ namespace InvestmentBuilder
                 Symbol = toCopy.Symbol;
                 Exchange = toCopy.Exchange;
                 Currency = toCopy.Currency;
-                Number = toCopy.Number;
+                Quantity = toCopy.Quantity;
                 TotalCost = toCopy.TotalCost;
                 ScalingFactor = toCopy.ScalingFactor;
             }
@@ -41,7 +41,7 @@ namespace InvestmentBuilder
         [XmlElement("currency")]
         public string Currency { get; set; }
         [XmlElement("number")]
-        public int Number { get; set; }
+        public int Quantity { get; set; }
         [XmlElement("totalcost")]
         public double TotalCost { get; set; }
         [XmlElement("scaling")]

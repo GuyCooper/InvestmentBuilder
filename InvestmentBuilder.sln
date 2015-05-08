@@ -26,6 +26,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{9D6AC9
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestmentBuilderTestRunner", "InvestmentBuilderTests\InvestmentBuilderTestRunner\InvestmentBuilderTestRunner.csproj", "{F40760F0-6E40-4502-AEB8-D56486609445}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestmentBuilderCore", "InvestmentBuilderCore\InvestmentBuilderCore.csproj", "{A1B060C6-10FA-443B-8191-556D1B03102F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLServerDataLayer", "SQLServerDataLayer\SQLServerDataLayer.csproj", "{674585E8-84AA-4111-B675-47F7E13C8CB7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -68,6 +72,14 @@ Global
 		{F40760F0-6E40-4502-AEB8-D56486609445}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F40760F0-6E40-4502-AEB8-D56486609445}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F40760F0-6E40-4502-AEB8-D56486609445}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1B060C6-10FA-443B-8191-556D1B03102F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1B060C6-10FA-443B-8191-556D1B03102F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1B060C6-10FA-443B-8191-556D1B03102F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1B060C6-10FA-443B-8191-556D1B03102F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{674585E8-84AA-4111-B675-47F7E13C8CB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{674585E8-84AA-4111-B675-47F7E13C8CB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{674585E8-84AA-4111-B675-47F7E13C8CB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{674585E8-84AA-4111-B675-47F7E13C8CB7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

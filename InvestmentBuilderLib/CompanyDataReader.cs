@@ -3,29 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Office.Interop.Excel;
-using ExcelAccountsManager;
-using System.Data.SqlClient;
 using NLog;
+using InvestmentBuilderCore;
 
 namespace InvestmentBuilder
 {
-
-    public class CompanyData
-    {
-        public string sName;
-        public DateTime? dtLastBrought;
-        public double iNumberOfShares;
-        public double dAveragePricePaid;
-        public double dTotalCost;
-        public double dSharePrice;
-        public double dNetSellingValue;
-        public double dProfitLoss;
-        public double dMonthChange;
-        public double dMonthChangeRatio;
-        public double dDividend;
-    }
-
     interface ICompanyDataReader
     {
         IEnumerable<CompanyData> GetCompanyData(string account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate);
@@ -34,70 +16,13 @@ namespace InvestmentBuilder
     /// <summary>
     /// class returns all the investment record data from the investment record
     /// </summary>
-    class CompanyDataReaderExcel : ICompanyDataReader
+    class CompanyDataReader : ICompanyDataReader
     {
-        private static Logger logger = LogManager.GetCurrentClassLogger();
+        private IInvestmentRecordInterface _investmentRecordData;
 
-        private ExcelBookHolder _bookHolder;
-        public CompanyDataReaderExcel(ExcelBookHolder bookHolder)
+        public CompanyDataReader(IInvestmentRecordInterface investmentRecordData)
         {
-            _bookHolder = bookHolder;
-        }
-
-        public IEnumerable<CompanyData> GetCompanyData(string account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate)
-        {
-            //var spreadsheetLocation = Path.Combine(Directory.GetCurrentDirectory(), @"C:\Users\Guy\Documents\Guy\Investments\Investment Club\accounts\Investment Record-2014.xls");
-            //var spreadsheetLocation = @"C:\Users\Guy\Documents\Guy\Investments\Investment Club\accounts\Investment Record-2014.xls";
-            logger.Log(LogLevel.Info, "getting company data...");
-            //Console.WriteLine("getting company data...");
-            for (int index = 1; index <= _bookHolder.GetInvestmentRecordBook().Worksheets.Count; ++index)
-            {
-                _Worksheet sheet = _bookHolder.GetInvestmentRecordBook().Worksheets[index];
-                var title = sheet.get_Range("A3").Value as string;                
-                if (title != null && title.ToUpper() == "NAME OF COMPANY")
-                {
-                    var bValid = (bool)sheet.get_Range("B7").Value;
-                    if(!bValid)
-                    {
-                        continue;
-                    }
-
-                    int count = 10;
-                    bool bValidRow = true;
-                    CompanyData companyData = new CompanyData();
-                    companyData.sName = sheet.Name; //sheet.get_Range("B3").Value as string;
-                    while (bValidRow)
-                    {
-                        bValidRow = sheet.IsCellPopulated("J", count);
-                        if (bValidRow)
-                        {
-                            if (companyData.dtLastBrought.HasValue == false)
-                            {
-                                companyData.dtLastBrought = sheet.GetValueDateTime("A", count );
-                            }
-                            sheet.GetValueDouble("F", count, ref companyData.iNumberOfShares);
-                            sheet.GetValueDouble("H", count, ref companyData.dAveragePricePaid);
-                            sheet.GetValueDouble("G", count, ref companyData.dTotalCost);
-                            sheet.GetValueDouble("J", count, ref companyData.dSharePrice);
-                            sheet.GetValueDouble("M", count, ref companyData.dNetSellingValue);
-                            sheet.GetValueDouble("N", count, ref companyData.dMonthChange);
-                            sheet.GetValueDouble("O", count, ref companyData.dMonthChangeRatio);
-                            sheet.GetValueDouble("P", count, ref companyData.dDividend);
-                        }
-                        count++;
-                    }
-                    yield return companyData;
-                }
-            }
-        }
-    }
-
-    class CompanyDataReaderDatabase : ICompanyDataReader
-    {
-        private SqlConnection _connection;
-        public CompanyDataReaderDatabase(SqlConnection connection)
-        {
-            _connection = connection;
+            _investmentRecordData = investmentRecordData;
         }
 
         private double _GetNetSellingValue(double dSharesHeld, double dPrice)
@@ -110,34 +35,12 @@ namespace InvestmentBuilder
 
         private IEnumerable<CompanyData> _GetCompanyDataImpl(string account, DateTime dtValuationDate)
         {
-            using (var command = new SqlCommand("sp_GetLatestInvestmentRecords", _connection))
+            var investments = _investmentRecordData.GetInvestmentRecordData(account, dtValuationDate).ToList();
+            foreach(var investment in investments)
             {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@ValuationDate", dtValuationDate));
-                command.Parameters.Add(new SqlParameter("@Account", account));
-                var reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    double dTotalCost = (double)reader["TotalCost"];
-                    double dSharesHeld = (int)reader["Bought"] + (int)reader["Bonus"] - (int)reader["Sold"];
-                    double dAveragePrice = dTotalCost / dSharesHeld;
-                    double dSharePrice = (double)reader["Price"];
-                    double dDividend = (double)reader["Dividends"];
-
-                    yield return new CompanyData
-                    {
-                        sName = (string)reader["Name"],
-                        dtLastBrought = (DateTime)reader["LastBoughtDate"],
-                        iNumberOfShares = dSharesHeld,
-                        dAveragePricePaid = dAveragePrice,
-                        dTotalCost = dTotalCost,
-                        dSharePrice = dSharePrice,
-                        dNetSellingValue = _GetNetSellingValue(dSharesHeld, dSharePrice),
-                        dDividend = dDividend  
-                    };
-                }
-                reader.Close();
+                investment.dNetSellingValue = _GetNetSellingValue(investment.iNumberOfShares, investment.dSharePrice);
             }
+            return investments;
         }
 
         private void _updateMonthlyData(CompanyData currentData, CompanyData previousData)
@@ -148,13 +51,7 @@ namespace InvestmentBuilder
 
         private void DeactivateInvestment(string investment, string account)
         {
-            using (var command = new SqlCommand("sp_DeactivateCompany", _connection))
-            {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@Name", investment));
-                command.Parameters.Add(new SqlParameter("@Account", account));
-                command.ExecuteNonQuery();
-            }
+            _investmentRecordData.DeactivateInvestment(account, investment);
         }
 
         public IEnumerable<CompanyData> GetCompanyData(string account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate)

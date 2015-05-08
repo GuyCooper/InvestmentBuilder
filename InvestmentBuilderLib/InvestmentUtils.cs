@@ -28,7 +28,7 @@ namespace InvestmentBuilder
                     }
                     else
                     {
-                        existing.Number += s.Number;
+                        existing.Quantity += s.Quantity;
                         existing.TotalCost += s.TotalCost;
                     }
                     return a;

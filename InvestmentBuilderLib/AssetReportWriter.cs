@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ExcelAccountsManager;
 using Microsoft.Office.Interop.Excel;
+using System.IO;
 using NLog;
 
 namespace InvestmentBuilder
@@ -16,19 +17,37 @@ namespace InvestmentBuilder
     }
 
     //persist asset report to excel 
-    class AssetReportWriterExcel : IAssetReportWriter
+    class AssetReportWriterExcel : IAssetReportWriter, IDisposable
     {
-        private ExcelBookHolder _bookHolder;
+        _Application _app;
+        private _Workbook _assetBook;
+        private _Workbook _templateBook;
+
+        public const string MonthlyAssetName = "Monthly Assets Statement";
+
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
-        public AssetReportWriterExcel(ExcelBookHolder bookHolder)
+        public AssetReportWriterExcel(string outputPath, string templateBookLocation)
         {
-            _bookHolder = bookHolder;
+            _app = new Microsoft.Office.Interop.Excel.Application();
+            var assetSheetLocation = string.Format(@"{0}\{1}-{2}.xls", outputPath, MonthlyAssetName, DateTime.Today.ToString("YYYY"));
+            //if the asset sheet already exists,just open it,otherwise create a new one
+            if (File.Exists(assetSheetLocation))
+            {
+                _assetBook = _app.Workbooks.Open(assetSheetLocation);
+            }
+            else
+            {
+                _assetBook = _app.Workbooks.Add();
+                _assetBook.SaveAs(assetSheetLocation);
+            }
+            //open the template book
+            _templateBook = !string.IsNullOrEmpty(templateBookLocation) ? _app.Workbooks.Open(templateBookLocation) : null;
         }
 
         private void _DeleteExistingSheet(string newSheetName)
         {
-            foreach (_Worksheet existingSheet in _bookHolder.GetAssetSheetBook().Worksheets)
+            foreach (_Worksheet existingSheet in _assetBook.Worksheets)
             {
                 if (string.Compare(existingSheet.Name, newSheetName) == 0)
                 {
@@ -46,10 +65,10 @@ namespace InvestmentBuilder
             //if this sheet already exists then delete it
             //_DeleteExistingSheet(newSheetName);
 
-            _Worksheet templateSheet = _bookHolder.GetTemplateBook().Worksheets["Assets"];
-            templateSheet.Copy(_bookHolder.GetAssetSheetBook().Worksheets[1]);
+            _Worksheet templateSheet = _templateBook.Worksheets["Assets"];
+            templateSheet.Copy(_assetBook.Worksheets[1]);
 
-            _Worksheet newSheet = _bookHolder.GetAssetSheetBook().Worksheets[1];
+            _Worksheet newSheet = _assetBook.Worksheets[1];
 
             newSheet.EnableCalculation = true;
             newSheet.Name = newSheetName; 
@@ -102,6 +121,21 @@ namespace InvestmentBuilder
             newSheet.get_Range("H" + count++).Value = report.NetAssets;
             newSheet.get_Range("H" + count++).Value = report.IssuedUnits;
             newSheet.get_Range("H" + count++).Value = report.ValuePerUnit;
+
+            logger.Log(LogLevel.Info, "saving asset sheet: {0}", _assetBook.FullName);
+            _assetBook.Save();
+        }
+
+        public void Dispose()
+        {
+            if(_assetBook != null)
+            {
+                _assetBook.Close();
+            }
+            if(_templateBook != null)
+            {
+                _templateBook.Close();
+            }
         }
     }
 }

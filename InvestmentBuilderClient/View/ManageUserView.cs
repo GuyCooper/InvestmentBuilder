@@ -8,13 +8,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using InvestmentBuilderClient.DataModel;
+using InvestmentBuilderCore;
 
 namespace InvestmentBuilderClient.View
 {
     internal partial class ManageUserView : Form
     {
-        private IInvestmentDataModel _dataModel;
-        public ManageUserView(string account, IInvestmentDataModel dataModel)
+        private InvestmentDataModel _dataModel;
+        public ManageUserView(string account, InvestmentDataModel dataModel)
         {
             _dataModel = dataModel;
             InitializeComponent();

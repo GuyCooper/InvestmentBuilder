@@ -11,6 +11,8 @@ using InvestmentBuilderClient.DataModel;
 using InvestmentBuilder;
 using System.Threading;
 using NLog;
+using InvestmentBuilderCore;
+using PerformanceBuilderLib;
 
 namespace InvestmentBuilderClient.View
 {
@@ -18,7 +20,7 @@ namespace InvestmentBuilderClient.View
     {
         private InvestmentDataModel _dataModel;
         private List<IInvestmentBuilderView> _views;
-        private ConfigurationSettings _settings;
+        private IConfigurationSettings _settings;
 
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -27,7 +29,7 @@ namespace InvestmentBuilderClient.View
 
         private static SynchronizationContext _displayContext;
 
-        public MainView(InvestmentDataModel dataModel, ConfigurationSettings settings)
+        public MainView(InvestmentDataModel dataModel, IConfigurationSettings settings)
         {
             InitializeComponent();
             _dataModel = dataModel;
@@ -84,7 +86,7 @@ namespace InvestmentBuilderClient.View
             InitialiseValues();
 
             _AddView(new PaymentsDataView(_dataModel));
-            _AddView(new TradeView(_settings));
+            _AddView(new TradeView(_settings, cmboAccountName.SelectedItem as string));
             _AddView(new ReceiptDataView(_dataModel));
 
             UpdateValuationDate();
@@ -143,14 +145,9 @@ namespace InvestmentBuilderClient.View
 
                 Task.Factory.StartNew(() =>
                     {
-                        var report = AssetSheetBuilder.BuildAssetSheet(selectedAccount,
-                                              _settings.TradeFile,
-                                              _settings.OutputFolder,
-                                              _settings.DatasourceString,
-                                              dtValuation,
-                                              DataFormat.DATABASE,
-                                              true); //persist report to database and spreadsheet
 
+                        var report = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>()
+                                               .BuildAssetReport(selectedAccount, dtValuation, true);
                         DisplayAssetReport(report);
                     });
             }
@@ -172,12 +169,14 @@ namespace InvestmentBuilderClient.View
                     InitialiseValues();
                     UpdateValuationDate();
                 }
-                if (_settings.UpdateTradeFile(configView.GetTradeFile()))
-                {
-                    _views.OfType<TradeView>().First().ReLoadTrades(_settings.TradeFile);
-                }
 
-                _settings.UpdateOutputFolder(configView.GetOutputFolder());
+                _settings.UpdateComparisonIndexes(configView.GetHistoricalIndexes());
+
+                if(_settings.UpdateOutputFolder(configView.GetOutputFolder()))
+                {
+                    logger.Log(LogLevel.Info,"changed output folder to {0}", _settings.OutputFolder);
+                    _views.OfType<TradeView>().First().ReLoadTrades(_settings.GetTradeFile(cmboAccountName.SelectedItem as string));
+                }
             }
         }
 
@@ -189,12 +188,7 @@ namespace InvestmentBuilderClient.View
                 string account = (string)cmboAccountName.SelectedItem;
                 Task.Factory.StartNew(() =>
                     {
-                        PerformanceBuilderLib.PerformanceBuilderExternal.RunBuilder(
-                            account,
-                            _settings.OutputFolder,
-                            _settings.DatasourceString,
-                            dtValuation
-                            );
+                        ContainerManager.ResolveValue<PerformanceBuilder>().Run(account, dtValuation);
                     });
             }
         }
@@ -216,14 +210,8 @@ namespace InvestmentBuilderClient.View
                 //marshall view builder onto a seperate thread
                 Task.Factory.StartNew(() =>
                     {
-                        var report = AssetSheetBuilder.BuildAssetSheet(selectedAccount,
-                                                           _settings.TradeFile,
-                                                          _settings.OutputFolder,
-                                                          _settings.DatasourceString,
-                                                          dtValuation,
-                                                          DataFormat.DATABASE,
-                                                          false); //view only
-
+                        var report = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>()
+                                         .BuildAssetReport(selectedAccount, dtValuation, false);
                         DisplayAssetReport(report);
                     });
             }

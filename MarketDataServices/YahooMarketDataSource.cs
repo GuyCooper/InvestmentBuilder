@@ -7,6 +7,7 @@ using System.ComponentModel.Composition;
 //using System.Net;
 using System.IO;
 using NLog;
+using InvestmentBuilderCore;
 
 namespace MarketDataServices
 {

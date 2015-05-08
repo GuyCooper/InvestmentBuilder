@@ -5,39 +5,36 @@ using System.Text;
 using System.Threading.Tasks;
 using MarketDataServices;
 using NLog;
+using InvestmentBuilderCore;
 
 namespace InvestmentBuilder
 {
-    /// <summary>
-    /// investment record interface
-    /// </summary>
-    interface IInvestment
-    {
-        string Name {get;}
-        CompanyInformation CompanyData {get;}
-        void UpdateRow(DateTime valuationDate, DateTime previousDate);
-        void ChangeShareHolding(DateTime valuationDate, int holding);
-        void AddNewShares(DateTime valuationDate, Stock stock);
-        void UpdateClosingPrice(DateTime valuationDate, double dClosing);
-        void UpdateDividend(DateTime valuationDate, double dDividend);
-        void SellShares(DateTime valuationDate, Stock stock);
-    }
-  
     //class generates the current investment record for each stock for the current month. sets and sold stocks to inactive
     //and adds any new stocks to a new sheet
-    abstract class InvestmentRecordBuilder
+    internal class InvestmentRecordBuilder
     {
         protected Logger Log { get; private set; }
-
-        abstract protected IEnumerable<IInvestment> GetInvestments(UserData account, DateTime dtValuationDate);
-        abstract protected void CreateNewInvestment(UserData account, Stock newTrade, DateTime valuationDate, double dClosing);
-
         private IMarketDataService _marketDataService;
+        private IInvestmentRecordInterface _investmentRecordData;
 
-        public InvestmentRecordBuilder()
+        public InvestmentRecordBuilder(IMarketDataService marketDataService, IInvestmentRecordInterface investmentRecordData)
         {
+            _investmentRecordData = investmentRecordData;
+            _marketDataService = marketDataService;
             Log = LogManager.GetLogger(GetType().FullName);
-            _marketDataService = ContainerManager.ResolveValue<IMarketDataService>();
+        }
+
+        protected IEnumerable<IInvestment> GetInvestments(string account, DateTime dtValuationDate)
+        {
+            var companies = _investmentRecordData.GetInvestments(account, dtValuationDate);
+            return companies.Select(c => new InvestmentData(account, c, _investmentRecordData));
+        }
+
+        protected void CreateNewInvestment(string account, Stock newTrade, DateTime valuationDate, double dClosing)
+        {
+            _investmentRecordData.CreateNewInvestment(account, newTrade.Name, newTrade.Symbol, newTrade.Currency,
+                                                      newTrade.Quantity, newTrade.ScalingFactor, newTrade.TotalCost, dClosing, newTrade.Exchange,
+                                                      valuationDate);
         }
 
         /// <summary>
@@ -47,7 +44,7 @@ namespace InvestmentBuilder
         /// <param name="trades"></param>
         /// <param name="cashData"></param>
         /// <param name="valuationDate"></param>
-        public void BuildInvestmentRecords(UserData account, Trades trades, CashAccountData cashData, DateTime valuationDate, DateTime? previousValuation)
+        public void BuildInvestmentRecords(UserAccountData account, Trades trades, CashAccountData cashData, DateTime valuationDate, DateTime? previousValuation)
         {
             Log.Log(LogLevel.Info, "building investment records...");
             //Console.WriteLine("building investment records...");
@@ -55,12 +52,12 @@ namespace InvestmentBuilder
             var aggregatedBuys = trades.Buys.AggregateStocks().ToList();
             var aggregatedSells = trades.Sells.AggregateStocks().ToList();
 
-            var enInvestments = GetInvestments(account, previousValuation.HasValue ? previousValuation.Value : valuationDate).ToList();
+            var enInvestments = GetInvestments(account.Name, previousValuation.HasValue ? previousValuation.Value : valuationDate).ToList();
             foreach(var investment in enInvestments)
             {
                 if(previousValuation.HasValue == false)
                 {
-                    throw new ApplicationException(string.Format("BuildInvestmentRecords: no previous valuation date for {0}. please investigate!!!", account.Name));
+                    throw new ApplicationException(string.Format("BuildInvestmentRecords: no previous valuation date for {0}. please investigate!!!", account));
                 }
 
                 var company = investment.Name;
@@ -71,7 +68,7 @@ namespace InvestmentBuilder
                 if(sellTrade != null)
                 {
                     //trade sold, set to inactive. todo do this properly
-                    Log.Log(LogLevel.Info, string.Format("company {0} sold {1} shares", company, sellTrade.Number));
+                    Log.Log(LogLevel.Info, string.Format("company {0} sold {1} shares", company, sellTrade.Quantity));
                     //Console.WriteLine("company {0} sold", company);
                     //investment.DeactivateInvestment();
                     investment.SellShares(valuationDate, sellTrade);
@@ -83,7 +80,7 @@ namespace InvestmentBuilder
                 {
                     Log.Log(LogLevel.Info, string.Format("company share number changed {0}", company));
                     //Console.WriteLine("company share number changed {0}", company);
-                    investment.ChangeShareHolding(valuationDate, trade.Number);
+                    investment.ChangeShareHolding(valuationDate, trade.Quantity);
                 }
 
                 //now update this stock if more shres have been brought
@@ -120,7 +117,7 @@ namespace InvestmentBuilder
                 //new trade to add to investment record
                 double dClosing;
                 _marketDataService.TryGetClosingPrice(newTrade.Symbol, newTrade.Exchange, newTrade.Name, newTrade.Currency, account.Currency, newTrade.ScalingFactor, out dClosing);
-                CreateNewInvestment(account, newTrade, valuationDate, dClosing);               
+                CreateNewInvestment(account.Name, newTrade, valuationDate, dClosing);               
             }
         }
     }

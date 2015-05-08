@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using InvestmentBuilderCore;
 
 namespace MarketDataServices
 {
@@ -36,9 +37,4 @@ namespace MarketDataServices
         string Name { get; }
     }
 
-    public class HistoricalData
-    {
-        public DateTime Date { get; set; }
-        public double Price { get; set; }
-    }
 }

@@ -55,21 +55,21 @@ namespace InvestmentBuilderConsole
             //load in any trades from the trades file
             string tradeFile = string.Format("{0}Trades.xml", path);
 
-            var format = string.IsNullOrEmpty(connectionsstr) ? InvestmentBuilder.DataFormat.EXCEL :
-                InvestmentBuilder.DataFormat.DATABASE;
+            //var format = string.IsNullOrEmpty(connectionsstr) ? InvestmentBuilder.DataFormat.EXCEL :
+            //    InvestmentBuilder.DataFormat.DATABASE;
 
-            Console.WriteLine("path:{0}", path);
-            Console.WriteLine("db str: {0}", connectionsstr);
-            Console.WriteLine("valuation date:{0}", dtValuationDate);
-            Console.WriteLine("type any key to continue...");
-            Console.ReadKey();
-            InvestmentBuilder.AssetSheetBuilder.BuildAssetSheet("Argyll Investments", 
-                                                                tradeFile,
-                                                                path,
-                                                                connectionsstr, 
-                                                                dtValuationDate,
-                                                                format,
-                                                                true); //save report to database and  spreadsheet
+            //Console.WriteLine("path:{0}", path);
+            //Console.WriteLine("db str: {0}", connectionsstr);
+            //Console.WriteLine("valuation date:{0}", dtValuationDate);
+            //Console.WriteLine("type any key to continue...");
+            //Console.ReadKey();
+            //InvestmentBuilder.AssetSheetBuilder.BuildAssetSheet("Argyll Investments", 
+            //                                                    tradeFile,
+            //                                                    path,
+            //                                                    connectionsstr, 
+            //                                                    dtValuationDate,
+            //                                                    format,
+            //                                                    true); //save report to database and  spreadsheet
 
         }
     }

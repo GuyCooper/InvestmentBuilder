@@ -49,9 +49,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfigurationSettings.cs" />
-    <Compile Include="DataModel\AccountModel.cs" />
-    <Compile Include="DataModel\IInvestmentDataModel.cs" />
     <Compile Include="Validator.cs" />
     <Compile Include="View\AddMember.cs">
       <SubType>Form</SubType>
@@ -181,6 +178,10 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\InvestmentBuilderCore\InvestmentBuilderCore.csproj">
+      <Project>{a1b060c6-10fa-443b-8191-556d1b03102f}</Project>
+      <Name>InvestmentBuilderCore</Name>
+    </ProjectReference>
     <ProjectReference Include="..\InvestmentBuilderLib\InvestmentBuilderLib.csproj">
       <Project>{9fa7e2cc-b5c6-463b-856a-e0e21eff93e4}</Project>
       <Name>InvestmentBuilderLib</Name>
@@ -192,6 +193,10 @@
     <ProjectReference Include="..\PerformanceBuilderLib\PerformanceBuilderLib.csproj">
       <Project>{a69b4e7e-44c1-4c52-9c86-5c1148131c79}</Project>
       <Name>PerformanceBuilderLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SQLServerDataLayer\SQLServerDataLayer.csproj">
+      <Project>{674585e8-84aa-4111-b675-47f7e13c8cb7}</Project>
+      <Name>SQLServerDataLayer</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

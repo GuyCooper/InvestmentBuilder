@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Practices.Unity;
 
-namespace MarketDataServices
+namespace InvestmentBuilderCore
 {
     public static class ContainerManager
     {
@@ -16,9 +16,17 @@ namespace MarketDataServices
             return _container;
         }
 
-        public static void RegisterType(Type typeFrom, Type typeTo)
+        public static void RegisterType(Type typeFrom, Type typeTo, bool bHierachialLifetime, params string[] prm)
         {
-            _container.RegisterType(typeFrom,typeTo);
+            var lifetimeManager = bHierachialLifetime ? new HierarchicalLifetimeManager() : new ContainerControlledLifetimeManager();
+            if (prm == null)
+            {
+                _container.RegisterType(typeFrom, typeTo, lifetimeManager);
+            }
+            else
+            {
+                _container.RegisterType(typeFrom, typeTo, lifetimeManager, new InjectionConstructor(prm));
+            }
         }
 
         public static T ResolveValue<T>() where T : class
