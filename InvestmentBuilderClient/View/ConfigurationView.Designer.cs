@@ -41,8 +41,8 @@
             this.colName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.colSymbol = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.btnAddIndex = new System.Windows.Forms.Button();
             this.btnRemoveIndex = new System.Windows.Forms.Button();
+            this.btnAddIndex = new System.Windows.Forms.Button();
             this.btnSaveChanges = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -147,15 +147,6 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Historical Chart Indexes";
             // 
-            // btnAddIndex
-            // 
-            this.btnAddIndex.Location = new System.Drawing.Point(269, 38);
-            this.btnAddIndex.Name = "btnAddIndex";
-            this.btnAddIndex.Size = new System.Drawing.Size(75, 23);
-            this.btnAddIndex.TabIndex = 11;
-            this.btnAddIndex.Text = "Add";
-            this.btnAddIndex.UseVisualStyleBackColor = true;
-            // 
             // btnRemoveIndex
             // 
             this.btnRemoveIndex.Location = new System.Drawing.Point(269, 89);
@@ -164,6 +155,17 @@
             this.btnRemoveIndex.TabIndex = 12;
             this.btnRemoveIndex.Text = "Remove Index";
             this.btnRemoveIndex.UseVisualStyleBackColor = true;
+            this.btnRemoveIndex.Click += new System.EventHandler(this.btnRemoveIndex_Click);
+            // 
+            // btnAddIndex
+            // 
+            this.btnAddIndex.Location = new System.Drawing.Point(269, 38);
+            this.btnAddIndex.Name = "btnAddIndex";
+            this.btnAddIndex.Size = new System.Drawing.Size(75, 23);
+            this.btnAddIndex.TabIndex = 11;
+            this.btnAddIndex.Text = "Add";
+            this.btnAddIndex.UseVisualStyleBackColor = true;
+            this.btnAddIndex.Click += new System.EventHandler(this.btnAddIndex_Click);
             // 
             // btnSaveChanges
             // 

@@ -19,7 +19,7 @@ namespace InvestmentBuilderCore
         public static void RegisterType(Type typeFrom, Type typeTo, bool bHierachialLifetime, params string[] prm)
         {
             var lifetimeManager = bHierachialLifetime ? new HierarchicalLifetimeManager() : new ContainerControlledLifetimeManager();
-            if (prm == null)
+            if (prm == null || prm.Length == 0)
             {
                 _container.RegisterType(typeFrom, typeTo, lifetimeManager);
             }

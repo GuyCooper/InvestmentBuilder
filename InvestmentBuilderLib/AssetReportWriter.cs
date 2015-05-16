@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ExcelAccountsManager;
 using Microsoft.Office.Interop.Excel;
 using System.IO;
 using NLog;
@@ -24,13 +23,14 @@ namespace InvestmentBuilder
         private _Workbook _templateBook;
 
         public const string MonthlyAssetName = "Monthly Assets Statement";
+        public const string TemplateBookName = "template.xls";
 
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
         public AssetReportWriterExcel(string outputPath, string templateBookLocation)
         {
             _app = new Microsoft.Office.Interop.Excel.Application();
-            var assetSheetLocation = string.Format(@"{0}\{1}-{2}.xls", outputPath, MonthlyAssetName, DateTime.Today.ToString("YYYY"));
+            var assetSheetLocation = string.Format(@"{0}\{1}-{2}.xls", outputPath, MonthlyAssetName, DateTime.Today.ToString("yyyy"));
             //if the asset sheet already exists,just open it,otherwise create a new one
             if (File.Exists(assetSheetLocation))
             {
@@ -39,22 +39,24 @@ namespace InvestmentBuilder
             else
             {
                 _assetBook = _app.Workbooks.Add();
-                _assetBook.SaveAs(assetSheetLocation);
+                _assetBook.SaveAs(assetSheetLocation, XlFileFormat.xlWorkbookNormal);
             }
             //open the template book
-            _templateBook = !string.IsNullOrEmpty(templateBookLocation) ? _app.Workbooks.Open(templateBookLocation) : null;
+            var templateFileName = Path.Combine(templateBookLocation, TemplateBookName);
+            _templateBook = _app.Workbooks.Open(templateFileName);
         }
 
-        private void _DeleteExistingSheet(string newSheetName)
+        private bool _SheetExists(string newSheetName)
         {
             foreach (_Worksheet existingSheet in _assetBook.Worksheets)
             {
-                if (string.Compare(existingSheet.Name, newSheetName) == 0)
+                if (string.Compare(existingSheet.Name, newSheetName, true) == 0)
                 {
-                    existingSheet.Delete();
-                    return;
+                    //existingSheet.Delete();
+                    return true;
                 }
             }
+            return false;
         }
 
         public void WriteAssetReport(AssetReport report)
@@ -64,6 +66,11 @@ namespace InvestmentBuilder
             var newSheetName = report.ValuationDate.ToString("MMMM");
             //if this sheet already exists then delete it
             //_DeleteExistingSheet(newSheetName);
+            if(_SheetExists(newSheetName))
+            {
+                logger.Log(LogLevel.Warn, "sheet {0} already exists in asset book", newSheetName);
+                return;
+            }
 
             _Worksheet templateSheet = _templateBook.Worksheets["Assets"];
             templateSheet.Copy(_assetBook.Worksheets[1]);

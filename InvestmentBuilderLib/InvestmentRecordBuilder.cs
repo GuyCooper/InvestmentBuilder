@@ -26,7 +26,7 @@ namespace InvestmentBuilder
 
         protected IEnumerable<IInvestment> GetInvestments(string account, DateTime dtValuationDate)
         {
-            var companies = _investmentRecordData.GetInvestments(account, dtValuationDate);
+            var companies = _investmentRecordData.GetInvestments(account, dtValuationDate).ToList(); 
             return companies.Select(c => new InvestmentData(account, c, _investmentRecordData));
         }
 

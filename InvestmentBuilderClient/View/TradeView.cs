@@ -11,6 +11,7 @@ using InvestmentBuilderClient.ViewModel;
 using InvestmentBuilderClient.DataModel;
 using NLog;
 using InvestmentBuilderCore;
+using MarketDataServices;
 
 namespace InvestmentBuilderClient.View
 {
@@ -20,9 +21,12 @@ namespace InvestmentBuilderClient.View
 
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
-        public TradeView(IConfigurationSettings settings, string account)
+        private IMarketDataSource _marketDataSource;
+ 
+        public TradeView(IConfigurationSettings settings, IMarketDataSource marketDataSource, string account)
         {
             InitializeComponent();
+            _marketDataSource = marketDataSource;
             ReLoadTrades(settings.GetTradeFile(account));
         }
 
@@ -36,7 +40,7 @@ namespace InvestmentBuilderClient.View
 
         private void btnAddTradeClick(object sender, EventArgs e)
         {
-            var addView = new AddTradeView();
+            var addView = new AddTradeView(_marketDataSource);
             if(addView.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 _vm.AddTrade(new TradeDetails

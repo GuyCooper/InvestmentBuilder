@@ -49,7 +49,19 @@ namespace SQLServerDataLayer
                 command.Parameters.Add(new SqlParameter("@Member", member));
                 command.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
                 command.Parameters.Add(new SqlParameter("@Account", account));
-                dSubscription = (double)command.ExecuteScalar();
+                //var oSubscription = (double)command.ExecuteScalar();
+                //if(oSubscription != null)
+                //{
+                //    dSubscription = (double)oSubscription;
+                //}
+                using (var reader = command.ExecuteReader())
+                {
+                    if(reader.Read())
+                    {
+                        dSubscription = reader.GetDouble(0);
+                    }
+                    reader.Close();
+                }
             }
             return dSubscription;
         }

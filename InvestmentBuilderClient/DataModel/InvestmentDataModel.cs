@@ -22,8 +22,8 @@ namespace InvestmentBuilderClient.DataModel
 
         private Dictionary<string, string> _typeProcedureLookup = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase)
         {
-            {"Dividend", "sp_GetActiveCompanies"},
-            {"Subscription", "sp_GetAccountMembers"}
+            {"Dividend", "GetActiveCompanies"},
+            {"Subscription", "GetAccountMembers"}
         };
 
         public InvestmentDataModel(IDataLayer dataLayer) 

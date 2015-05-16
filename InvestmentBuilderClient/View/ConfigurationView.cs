@@ -8,16 +8,20 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using InvestmentBuilderCore;
+using MarketDataServices;
 
 namespace InvestmentBuilderClient.View
 {
     internal partial class ConfigurationView : Form
     {
         private IConfigurationSettings _settings;
-        public ConfigurationView(IConfigurationSettings settings)
+        private IMarketDataSource _marketDataSource;
+
+        public ConfigurationView(IConfigurationSettings settings, IMarketDataSource marketDataSource)
         {
             InitializeComponent();
             _settings = settings;
+            _marketDataSource = marketDataSource;
             this.txtDataSource.Text = _settings.DatasourceString;
             this.txtOutputFolder.Text = _settings.OutputFolder;
             foreach(var index in _settings.ComparisonIndexes)
@@ -59,6 +63,21 @@ namespace InvestmentBuilderClient.View
                     };
                 }
             }
+        }
+
+        private void btnAddIndex_Click(object sender, EventArgs e)
+        {
+            var addIndexView = new AddIndexView(_marketDataSource);
+            if(addIndexView.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                var lvi = new ListViewItem(addIndexView.GetName());
+                lvi.SubItems.Add(addIndexView.GetSymbol());
+                this.listIndexes.Items.Insert(0, lvi);
+            }
+        }
+
+        private void btnRemoveIndex_Click(object sender, EventArgs e)
+        {
         }
     }
 }

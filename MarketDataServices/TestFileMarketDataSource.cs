@@ -71,9 +71,11 @@ namespace MarketDataServices
 
         private IEnumerable<HistoricalData> _GenerateHistoricalData(DateTime dtFrom, double dIncrement)
         {
-            DateTime dtDate = dtFrom;
+            //always take basedate from first day of month
+            DateTime dtDate = new DateTime(dtFrom.Year,dtFrom.Month, 1);
+           
             double dPrice = 1.0;
-            while(dtDate < DateTime.Today)
+            while(dtDate <= DateTime.Today)
             {
                 yield return new HistoricalData
                 {

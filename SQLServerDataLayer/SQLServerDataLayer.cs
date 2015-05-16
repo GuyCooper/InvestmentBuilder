@@ -24,6 +24,7 @@ namespace SQLServerDataLayer
         public SQLServerDataLayer(IConfigurationSettings settings)
         {
             Connection = new SqlConnection(settings.DatasourceString);
+            Connection.Open();
             _cashAccountData = new SQLServerCashAccountData(Connection);
             _clientData = new SQLServerClientData(Connection);
             _investmentRecordData = new SQLServerInvestmentRecordData(Connection);

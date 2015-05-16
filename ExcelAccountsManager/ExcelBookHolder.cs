@@ -59,7 +59,7 @@ namespace ExcelAccountsManager
 
         private void _SaveBook(_Workbook book)
         {
-            if(book != null)
+               if(book != null)
             {
                 book.Save();
             }

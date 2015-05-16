@@ -28,18 +28,21 @@ namespace InvestmentBuilderClient
             ContainerManager.RegisterType(typeof(IDataLayer), typeof(SQLServerDataLayer.SQLServerDataLayer), false);
             ContainerManager.RegisterType(typeof(InvestmentBuilder.InvestmentBuilder), typeof(InvestmentBuilder.InvestmentBuilder), false);
             ContainerManager.RegisterType(typeof(PerformanceBuilder), typeof(PerformanceBuilder), false);
-
+            ContainerManager.RegisterType(typeof(DataModel.InvestmentDataModel), typeof(DataModel.InvestmentDataModel), false);
+            ContainerManager.RegisterType(typeof(View.MainView), typeof(View.MainView), false);
+            
             //var connectstr = @"Data Source=TRAVELPC\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest;Integrated Security=True";
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             //settings.DatasourceString
-            var settings = ContainerManager.ResolveValue<IConfigurationSettings>();
+            //var settings = ContainerManager.ResolveValue<IConfigurationSettings>();
 
-            using (var dataModel = new DataModel.InvestmentDataModel(ContainerManager.ResolveValue<IDataLayer>()))
-            {
-                var mainView = new View.MainView(dataModel, settings);
-                Application.Run(mainView);
-            }
+            Application.Run(ContainerManager.ResolveValue<View.MainView>());
+            //using (var dataModel = new DataModel.InvestmentDataModel(ContainerManager.ResolveValue<IDataLayer>()))
+            //{
+            //    var mainView = new View.MainView(dataModel, settings);
+            //    Application.Run(mainView);
+            //}
         }
     }
 }

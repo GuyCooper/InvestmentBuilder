@@ -96,14 +96,14 @@ namespace InvestmentBuilder
                                             bUpdate);
             //finally, build the asset statement
             //assetWriter.WrC:\Projects\InvestmentBuilder\InvestmentBuilderLib\AssetSheetBuilder.csiteAssetStatement(lstData, cashAccountData, dtPreviousValuation, valuationDate);
-            if(bUpdate)
-            {
+            //if(bUpdate)
+            //{
                 using(var assetWriter = new AssetReportWriterExcel(_settings.GetOutputPath(accountData.Name),
                                                                    _settings.GetTemplatePath()))
                 {
                     assetWriter.WriteAssetReport(assetReport);
                 }
-            }
+            //}
 
             logger.Log(LogLevel.Info, "Report Generated, Account Builder Complete");
             return assetReport;

@@ -8,13 +8,17 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using InvestmentBuilderClient.ViewModel;
+using MarketDataServices;
 
 namespace InvestmentBuilderClient.View
 {
     internal partial class AddTradeView : Form
     {
-        public AddTradeView()
+        private IMarketDataSource _marketDataSource;
+
+        public AddTradeView(IMarketDataSource marketDataSource)
         {
+            _marketDataSource = marketDataSource;
             InitializeComponent();
             cmboType.Items.AddRange(Enum.GetNames(typeof(TradeType)));
         }
@@ -62,6 +66,19 @@ namespace InvestmentBuilderClient.View
         public double GetTotalCost()
         {
             return Double.Parse(txtTotalCost.Text);
+        }
+
+        private void btnCheck_Click(object sender, EventArgs e)
+        {
+            double dPrice;
+            if(_marketDataSource.TryGetMarketData(GetSymbol(), GetExchange(), out dPrice))
+            {
+                lblCheckResult.Text = "Success. Valid Symbol!";
+            }
+            else
+            {
+                lblCheckResult.Text = "Fail. Invalid Symbol!";
+            }
         }
     }
 }

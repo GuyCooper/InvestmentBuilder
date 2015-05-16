@@ -13,6 +13,7 @@ using System.Threading;
 using NLog;
 using InvestmentBuilderCore;
 using PerformanceBuilderLib;
+using MarketDataServices;
 
 namespace InvestmentBuilderClient.View
 {
@@ -21,6 +22,7 @@ namespace InvestmentBuilderClient.View
         private InvestmentDataModel _dataModel;
         private List<IInvestmentBuilderView> _views;
         private IConfigurationSettings _settings;
+        private IMarketDataSource _marketDataSource;
 
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -29,10 +31,11 @@ namespace InvestmentBuilderClient.View
 
         private static SynchronizationContext _displayContext;
 
-        public MainView(InvestmentDataModel dataModel, IConfigurationSettings settings)
+        public MainView(InvestmentDataModel dataModel, IConfigurationSettings settings, IMarketDataSource marketDataSource)
         {
             InitializeComponent();
             _dataModel = dataModel;
+            _marketDataSource = marketDataSource;
             _views = new List<IInvestmentBuilderView>();
             _settings = settings;
 
@@ -86,7 +89,7 @@ namespace InvestmentBuilderClient.View
             InitialiseValues();
 
             _AddView(new PaymentsDataView(_dataModel));
-            _AddView(new TradeView(_settings, cmboAccountName.SelectedItem as string));
+            _AddView(new TradeView(_settings, _marketDataSource, cmboAccountName.SelectedItem as string));
             _AddView(new ReceiptDataView(_dataModel));
 
             UpdateValuationDate();
@@ -160,7 +163,7 @@ namespace InvestmentBuilderClient.View
 
         private void btnConfig_Click(object sender, EventArgs e)
         {
-            var configView = new ConfigurationView(_settings);
+            var configView = new ConfigurationView(_settings, _marketDataSource);
             if (configView.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 if (_settings.UpdateDatasource(configView.GetDataSource()))
@@ -188,7 +191,20 @@ namespace InvestmentBuilderClient.View
                 string account = (string)cmboAccountName.SelectedItem;
                 Task.Factory.StartNew(() =>
                     {
-                        ContainerManager.ResolveValue<PerformanceBuilder>().Run(account, dtValuation);
+                        var performanceData = ContainerManager.ResolveValue<PerformanceBuilder>().Run(account, dtValuation);
+                        if(performanceData != null && _displayContext != null)
+                        {
+                            _displayContext.Post(o =>
+                            {
+                                var data = (IList<IndexedRangeData>)o;
+                                foreach(var range in data)
+                                {
+                                    var chartView = new PerformanceChartView(range);
+                                    chartView.TopLevel = true;
+                                    chartView.Show();
+                                }
+                            },performanceData);
+                        }
                     });
             }
         }
@@ -198,6 +214,11 @@ namespace InvestmentBuilderClient.View
             _dataModel.UpdateAccountName(cmboAccountName.SelectedItem as string);
             PopulateValuationDates();
             UpdateValuationDate();
+            var tradeView = _views.OfType<TradeView>().FirstOrDefault();
+            if(tradeView != null)
+            {
+                tradeView.ReLoadTrades(_settings.GetTradeFile(cmboAccountName.SelectedItem as string));
+            }
         }
 
         private void btnViewReport_Click(object sender, EventArgs e)

@@ -48,6 +48,8 @@
             this.button2 = new System.Windows.Forms.Button();
             this.label9 = new System.Windows.Forms.Label();
             this.txtExchange = new System.Windows.Forms.TextBox();
+            this.btnCheck = new System.Windows.Forms.Button();
+            this.lblCheckResult = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.nmrcNumber)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nmrcScaling)).BeginInit();
             this.SuspendLayout();
@@ -192,7 +194,7 @@
             // btnOK
             // 
             this.btnOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.btnOK.Location = new System.Drawing.Point(360, 321);
+            this.btnOK.Location = new System.Drawing.Point(360, 342);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 16;
@@ -202,7 +204,7 @@
             // button2
             // 
             this.button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.button2.Location = new System.Drawing.Point(276, 322);
+            this.button2.Location = new System.Drawing.Point(276, 342);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 23);
             this.button2.TabIndex = 17;
@@ -225,11 +227,31 @@
             this.txtExchange.Size = new System.Drawing.Size(160, 20);
             this.txtExchange.TabIndex = 19;
             // 
+            // btnCheck
+            // 
+            this.btnCheck.Location = new System.Drawing.Point(12, 342);
+            this.btnCheck.Name = "btnCheck";
+            this.btnCheck.Size = new System.Drawing.Size(65, 23);
+            this.btnCheck.TabIndex = 20;
+            this.btnCheck.Text = "Check";
+            this.btnCheck.UseVisualStyleBackColor = true;
+            this.btnCheck.Click += new System.EventHandler(this.btnCheck_Click);
+            // 
+            // lblCheckResult
+            // 
+            this.lblCheckResult.AutoSize = true;
+            this.lblCheckResult.Location = new System.Drawing.Point(105, 347);
+            this.lblCheckResult.Name = "lblCheckResult";
+            this.lblCheckResult.Size = new System.Drawing.Size(0, 13);
+            this.lblCheckResult.TabIndex = 21;
+            // 
             // AddTradeView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(447, 354);
+            this.ClientSize = new System.Drawing.Size(447, 371);
+            this.Controls.Add(this.lblCheckResult);
+            this.Controls.Add(this.btnCheck);
             this.Controls.Add(this.txtExchange);
             this.Controls.Add(this.label9);
             this.Controls.Add(this.button2);
@@ -285,5 +307,7 @@
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.TextBox txtExchange;
+        private System.Windows.Forms.Button btnCheck;
+        private System.Windows.Forms.Label lblCheckResult;
     }
 }
