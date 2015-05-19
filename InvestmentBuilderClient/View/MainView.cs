@@ -294,5 +294,14 @@ namespace InvestmentBuilderClient.View
             return cmboValuationDate.SelectedItem != null ? (DateTime)cmboValuationDate.SelectedItem :
                                                             DateTime.Parse(cmboValuationDate.Text);
         }
+
+        private void btnOpenOutputFolder_Click(object sender, EventArgs e)
+        {
+            var process = new System.Diagnostics.Process();
+            process.StartInfo.FileName = "explorer.exe";
+            process.StartInfo.Arguments = _settings.GetOutputPath(cmboAccountName.SelectedItem as string);
+            process.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
+            process.Start();
+        }
     }
 }

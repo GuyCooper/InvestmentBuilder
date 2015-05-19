@@ -29,8 +29,10 @@
         private void InitializeComponent()
         {
             System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             System.Windows.Forms.DataVisualization.Charting.Title title1 = new System.Windows.Forms.DataVisualization.Charting.Title();
             this.performanceChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.btnResetZoom = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.performanceChart)).BeginInit();
             this.SuspendLayout();
             // 
@@ -41,6 +43,8 @@
             chartArea1.Name = "ChartArea1";
             this.performanceChart.ChartAreas.Add(chartArea1);
             this.performanceChart.Dock = System.Windows.Forms.DockStyle.Fill;
+            legend1.Name = "Default";
+            this.performanceChart.Legends.Add(legend1);
             this.performanceChart.Location = new System.Drawing.Point(0, 0);
             this.performanceChart.Name = "performanceChart";
             this.performanceChart.Size = new System.Drawing.Size(985, 366);
@@ -48,11 +52,22 @@
             title1.Name = "Title1";
             this.performanceChart.Titles.Add(title1);
             // 
+            // btnResetZoom
+            // 
+            this.btnResetZoom.Location = new System.Drawing.Point(855, 314);
+            this.btnResetZoom.Name = "btnResetZoom";
+            this.btnResetZoom.Size = new System.Drawing.Size(75, 23);
+            this.btnResetZoom.TabIndex = 1;
+            this.btnResetZoom.Text = "Reset Zoom";
+            this.btnResetZoom.UseVisualStyleBackColor = true;
+            this.btnResetZoom.Click += new System.EventHandler(this.btnResetZoom_Click);
+            // 
             // PerformanceChartView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(985, 366);
+            this.Controls.Add(this.btnResetZoom);
             this.Controls.Add(this.performanceChart);
             this.Name = "PerformanceChartView";
             this.Text = "PerformanceChartView";
@@ -65,5 +80,6 @@
         #endregion
 
         private System.Windows.Forms.DataVisualization.Charting.Chart performanceChart;
+        private System.Windows.Forms.Button btnResetZoom;
     }
 }

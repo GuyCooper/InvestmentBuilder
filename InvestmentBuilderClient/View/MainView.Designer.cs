@@ -42,6 +42,7 @@
             this.btnPerformance = new System.Windows.Forms.ToolStripButton();
             this.btnViewReport = new System.Windows.Forms.ToolStripButton();
             this.btnManageUsers = new System.Windows.Forms.ToolStripButton();
+            this.btnOpenOutputFolder = new System.Windows.Forms.ToolStripButton();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -60,10 +61,11 @@
             this.btnRunBuilder,
             this.btnPerformance,
             this.btnViewReport,
-            this.btnManageUsers});
+            this.btnManageUsers,
+            this.btnOpenOutputFolder});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(777, 39);
+            this.toolStrip1.Size = new System.Drawing.Size(825, 39);
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -172,16 +174,29 @@
             this.btnManageUsers.Image = ((System.Drawing.Image)(resources.GetObject("btnManageUsers.Image")));
             this.btnManageUsers.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.btnManageUsers.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnManageUsers.Margin = new System.Windows.Forms.Padding(5, 1, 5, 2);
             this.btnManageUsers.Name = "btnManageUsers";
             this.btnManageUsers.Size = new System.Drawing.Size(36, 36);
             this.btnManageUsers.ToolTipText = "Manage Users";
             this.btnManageUsers.Click += new System.EventHandler(this.btnManageUsers_Click);
             // 
+            // btnOpenOutputFolder
+            // 
+            this.btnOpenOutputFolder.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnOpenOutputFolder.Image = ((System.Drawing.Image)(resources.GetObject("btnOpenOutputFolder.Image")));
+            this.btnOpenOutputFolder.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.btnOpenOutputFolder.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnOpenOutputFolder.Margin = new System.Windows.Forms.Padding(5, 1, 5, 2);
+            this.btnOpenOutputFolder.Name = "btnOpenOutputFolder";
+            this.btnOpenOutputFolder.Size = new System.Drawing.Size(36, 36);
+            this.btnOpenOutputFolder.Text = "toolStripButton1";
+            this.btnOpenOutputFolder.Click += new System.EventHandler(this.btnOpenOutputFolder_Click);
+            // 
             // MainView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(777, 350);
+            this.ClientSize = new System.Drawing.Size(825, 350);
             this.Controls.Add(this.toolStrip1);
             this.IsMdiContainer = true;
             this.Name = "MainView";
@@ -209,6 +224,7 @@
         private System.Windows.Forms.ToolStripComboBox cmboAccountName;
         private System.Windows.Forms.ToolStripButton btnViewReport;
         private System.Windows.Forms.ToolStripButton btnManageUsers;
+        private System.Windows.Forms.ToolStripButton btnOpenOutputFolder;
 
 
 

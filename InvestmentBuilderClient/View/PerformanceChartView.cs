@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using PerformanceBuilderLib;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace InvestmentBuilderClient.View
 {
@@ -24,30 +25,53 @@ namespace InvestmentBuilderClient.View
 
         private void OnChartViewLoad(object sender, EventArgs e)
         {
-            this.performanceChart.Series.Clear();
-            this.performanceChart.Legends.Clear();
+            var legend = this.performanceChart.Legends["Default"];
+            var chartArea = this.performanceChart.ChartAreas["ChartArea1"];
 
-            this.performanceChart.Legends["Default"].LegendStyle =
-                System.Windows.Forms.DataVisualization.Charting.LegendStyle.Table;
-            this.performanceChart.Legends["Default"].TableStyle =
-                System.Windows.Forms.DataVisualization.Charting.LegendTableStyle.Auto;
-            this.performanceChart.Legends["Default"].Alignment =
-                StringAlignment.Center;
+            this.performanceChart.Palette = ChartColorPalette.Bright;
+
+            legend.LegendStyle = LegendStyle.Table;
+            legend.TableStyle = LegendTableStyle.Auto;
+            legend.Alignment = StringAlignment.Center;
+            legend.Docking = Docking.Right;
+
+            chartArea.AxisY.Minimum = 0.8;
+            chartArea.AxisX.Title = "Date";
+            chartArea.AxisY.Title = "Unit Price";
+            chartArea.AxisX.MinorGrid.LineDashStyle = ChartDashStyle.Dash;
+            chartArea.AxisX.MinorGrid.Enabled = true;
+            chartArea.AxisX.MinorGrid.LineColor = Color.LightGray;
+            chartArea.AxisX.ScaleView.Zoomable = true;
+            chartArea.AxisY.ScaleView.Zoomable = true;
+            chartArea.CursorX.IsUserEnabled = true;
+            chartArea.CursorX.IsUserSelectionEnabled = true;
+            chartArea.CursorX.AutoScroll = true;
+            chartArea.CursorY.AutoScroll = true;
+
             //
+            this.performanceChart.BorderlineDashStyle = ChartDashStyle.Solid;
+            this.performanceChart.BorderSkin.SkinStyle = BorderSkinStyle.Emboss;
+            //this.performanceChart.BorderlineColor = Color.Red;
+
             foreach (var index in _rangeData.Data)
             {
-                System.Windows.Forms.DataVisualization.Charting.Legend legend = new System.Windows.Forms.DataVisualization.Charting.Legend();
-                System.Windows.Forms.DataVisualization.Charting.Series series = new System.Windows.Forms.DataVisualization.Charting.Series();
-
-                legend.Name = index.Name;
-                this.performanceChart.Legends.Add(legend);
-                series.ChartArea = "ChartArea1";
-                series.Legend = index.Name;
+                Series series = new Series();
+                series.ChartArea = chartArea.Name;
+                series.Legend = legend.Name;
                 series.Name = index.Name;
                 series.Points.DataBindXY(index.Data, "Date", index.Data, "Price");
-                series.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
+                series.MarkerStyle = MarkerStyle.Square;
+                series.MarkerSize = 2;
+                series.ChartType = SeriesChartType.Line;
+                series["PixelPointWidth"] = "20";
                 this.performanceChart.Series.Add(series);
             }
+        }
+
+        private void btnResetZoom_Click(object sender, EventArgs e)
+        {
+            this.performanceChart.ChartAreas["ChartArea1"].AxisX.ScaleView.ZoomReset(0);
+            this.performanceChart.ChartAreas["ChartArea1"].AxisY.ScaleView.ZoomReset(0);
         }
     }
 }

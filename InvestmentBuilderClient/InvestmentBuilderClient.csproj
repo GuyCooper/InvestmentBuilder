@@ -39,6 +39,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -50,6 +51,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Validator.cs" />
+    <Compile Include="View\AddIndexView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="View\AddIndexView.Designer.cs">
+      <DependentUpon>AddIndexView.cs</DependentUpon>
+    </Compile>
     <Compile Include="View\AddMember.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -113,6 +120,12 @@
     <Compile Include="ViewModel\PaymentsDataViewModel.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="View\PerformanceChartView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="View\PerformanceChartView.Designer.cs">
+      <DependentUpon>PerformanceChartView.cs</DependentUpon>
+    </Compile>
     <Compile Include="View\ReceiptDataView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -124,6 +137,9 @@
       <DependentUpon>TradeView.cs</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\TradeViewModel.cs" />
+    <EmbeddedResource Include="View\AddIndexView.resx">
+      <DependentUpon>AddIndexView.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="View\AddMember.resx">
       <DependentUpon>AddMember.cs</DependentUpon>
     </EmbeddedResource>
@@ -159,6 +175,9 @@
     </Compile>
     <EmbeddedResource Include="View\ManageUserView.resx">
       <DependentUpon>ManageUserView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\PerformanceChartView.resx">
+      <DependentUpon>PerformanceChartView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="View\TradeView.resx">
       <DependentUpon>TradeView.cs</DependentUpon>
