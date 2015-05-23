@@ -47,6 +47,7 @@ Temporary Items
 *.dll
 *.lib
 *.pdb
+*.suo
 
 obj
 bin
