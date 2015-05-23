@@ -133,12 +133,10 @@ namespace SQLServerDataLayer
                 sqlCommand.CommandType = CommandType.StoredProcedure;
                 sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
                 sqlCommand.Parameters.Add(new SqlParameter("@Account", account));
-                using (var reader = sqlCommand.ExecuteReader())
+                var result = sqlCommand.ExecuteScalar();
+                if (result != null)
                 {
-                    if (reader.Read())
-                    {
-                        return reader.GetDouble(0);
-                    }
+                    return (double)result;
                 }
             }
             return 0d;

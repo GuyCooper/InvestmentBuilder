@@ -275,7 +275,11 @@ namespace InvestmentBuilderClient.View
                     ReportingCurrency = view.GetCurrency()
                 };
 
+                logger.Log(LogLevel.Info, "updating account {0}", account.Name);
+                //ensure the account folder has been created 
+                _settings.GetOutputPath(account.Name);
                 _dataModel.UpdateUserAccount(account);
+                
                 InitialiseValues();
                 PopulateValuationDates();
             }

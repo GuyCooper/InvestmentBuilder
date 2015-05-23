@@ -28,9 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Title title1 = new System.Windows.Forms.DataVisualization.Charting.Title();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Title title2 = new System.Windows.Forms.DataVisualization.Charting.Title();
             this.performanceChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.btnResetZoom = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.performanceChart)).BeginInit();
@@ -40,21 +40,22 @@
             // 
             this.performanceChart.BorderlineColor = System.Drawing.Color.Aqua;
             this.performanceChart.BorderlineWidth = 2;
-            chartArea1.Name = "ChartArea1";
-            this.performanceChart.ChartAreas.Add(chartArea1);
+            chartArea2.Name = "ChartArea1";
+            this.performanceChart.ChartAreas.Add(chartArea2);
             this.performanceChart.Dock = System.Windows.Forms.DockStyle.Fill;
-            legend1.Name = "Default";
-            this.performanceChart.Legends.Add(legend1);
+            legend2.Name = "Default";
+            this.performanceChart.Legends.Add(legend2);
             this.performanceChart.Location = new System.Drawing.Point(0, 0);
             this.performanceChart.Name = "performanceChart";
             this.performanceChart.Size = new System.Drawing.Size(985, 366);
             this.performanceChart.TabIndex = 0;
-            title1.Name = "Title1";
-            this.performanceChart.Titles.Add(title1);
+            title2.Name = "Title1";
+            this.performanceChart.Titles.Add(title2);
             // 
             // btnResetZoom
             // 
-            this.btnResetZoom.Location = new System.Drawing.Point(855, 314);
+            this.btnResetZoom.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnResetZoom.Location = new System.Drawing.Point(898, 331);
             this.btnResetZoom.Name = "btnResetZoom";
             this.btnResetZoom.Size = new System.Drawing.Size(75, 23);
             this.btnResetZoom.TabIndex = 1;

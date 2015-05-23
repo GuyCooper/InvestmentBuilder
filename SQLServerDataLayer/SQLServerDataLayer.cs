@@ -15,11 +15,11 @@ namespace SQLServerDataLayer
 
     public class SQLServerDataLayer : SQLServerBase, IDataLayer, IDisposable
     {
-        SQLServerCashAccountData _cashAccountData;
-        SQLServerClientData _clientData;
-        SQLServerInvestmentRecordData _investmentRecordData;
-        SQLServerUserAccountData _userAccountData;
-        SQLServerHistoricalData _historicalData;
+        private SQLServerCashAccountData _cashAccountData;
+        private SQLServerClientData _clientData;
+        private SQLServerInvestmentRecordData _investmentRecordData;
+        private SQLServerUserAccountData _userAccountData;
+        private SQLServerHistoricalData _historicalData;
 
         public SQLServerDataLayer(IConfigurationSettings settings)
         {

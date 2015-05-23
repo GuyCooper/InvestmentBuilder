@@ -67,10 +67,6 @@
     <Compile Include="TradeLoader.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ExcelAccountsManager\ExcelAccountsManager.csproj">
-      <Project>{084edb02-a1ea-430e-8e61-b31fcfd0ca34}</Project>
-      <Name>ExcelAccountsManager</Name>
-    </ProjectReference>
     <ProjectReference Include="..\InvestmentBuilderCore\InvestmentBuilderCore.csproj">
       <Project>{a1b060c6-10fa-443b-8191-556d1b03102f}</Project>
       <Name>InvestmentBuilderCore</Name>

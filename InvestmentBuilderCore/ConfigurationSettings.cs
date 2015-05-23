@@ -93,7 +93,9 @@ namespace InvestmentBuilderCore
 
         public string GetOutputPath(string account)
         {
-            return Path.Combine(_configuration.OutputFolder, account);
+            var path = Path.Combine(_configuration.OutputFolder, account);
+            Directory.CreateDirectory(path);
+            return path;
         }
 
         public string GetTemplatePath()

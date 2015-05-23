@@ -78,6 +78,10 @@ namespace InvestmentBuilderClient.View
 
         private void btnRemoveIndex_Click(object sender, EventArgs e)
         {
+            foreach (ListViewItem item in this.listIndexes.SelectedItems)
+            {
+                this.listIndexes.Items.Remove(item);
+            }
         }
     }
 }

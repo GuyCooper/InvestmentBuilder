@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerformanceBuilder", "Perfo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarketDataServices", "MarketDataServices\MarketDataServices.csproj", "{13BAE8CD-2876-44C4-A39A-74F7313FBA80}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcelAccountsManager", "ExcelAccountsManager\ExcelAccountsManager.csproj", "{084EDB02-A1EA-430E-8E61-B31FCFD0CA34}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestmentBuilderLib", "InvestmentBuilderLib\InvestmentBuilderLib.csproj", "{9FA7E2CC-B5C6-463B-856A-E0E21EFF93E4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestmentBuilderConsole", "InvestmentBuilderConsole\InvestmentBuilderConsole.csproj", "{4091673D-985E-4567-935B-E8F43E1FDD1A}"
@@ -44,10 +42,6 @@ Global
 		{13BAE8CD-2876-44C4-A39A-74F7313FBA80}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{13BAE8CD-2876-44C4-A39A-74F7313FBA80}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{13BAE8CD-2876-44C4-A39A-74F7313FBA80}.Release|Any CPU.Build.0 = Release|Any CPU
-		{084EDB02-A1EA-430E-8E61-B31FCFD0CA34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{084EDB02-A1EA-430E-8E61-B31FCFD0CA34}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{084EDB02-A1EA-430E-8E61-B31FCFD0CA34}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{084EDB02-A1EA-430E-8E61-B31FCFD0CA34}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9FA7E2CC-B5C6-463B-856A-E0E21EFF93E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9FA7E2CC-B5C6-463B-856A-E0E21EFF93E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9FA7E2CC-B5C6-463B-856A-E0E21EFF93E4}.Release|Any CPU.ActiveCfg = Release|Any CPU

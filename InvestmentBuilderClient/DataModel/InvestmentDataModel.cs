@@ -82,7 +82,7 @@ namespace InvestmentBuilderClient.DataModel
 
         private void GetLatestValuationDate()
         {
-            LatestDate = _clientData.GetLatestValuationDate(_Account);
+            LatestDate = _clientData.GetLatestValuationDate(_Account) ?? DateTime.Today;
         }
 
         public double GetBalanceInHand(DateTime dtValuation)
@@ -133,7 +133,7 @@ namespace InvestmentBuilderClient.DataModel
             logger.Log(LogLevel.Info, "Enabled {0}", account.Enabled);
 
             _clientData.CreateAccount(account);
-            var existingMembers = GetAccountMembers(account.Name);
+            var existingMembers = GetAccountMembers(account.Name).ToList();
             foreach(var member in existingMembers)
             {
                 if(account.Members.Contains(member, StringComparer.CurrentCultureIgnoreCase) == false)
