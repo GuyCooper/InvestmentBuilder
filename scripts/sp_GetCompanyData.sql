@@ -14,6 +14,6 @@ GO
 CREATE PROCEDURE sp_GetCompanyData(@Name as VARCHAR(50)) AS
 BEGIN
 
-SELECT Symbol, Currency, ScalingFactor FROM Companies where  Name = @Name
+SELECT Symbol, Exchange, Currency, ScalingFactor FROM Companies where  Name = @Name
  
 END

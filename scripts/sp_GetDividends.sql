@@ -13,15 +13,18 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_GetDividends](@valuationDate as DATETIME) AS
+CREATE PROCEDURE [dbo].[sp_GetDividends](@ValuationDate as DATETIME,  @Account as VARCHAR(30)) AS
 BEGIN
 
 select ca.parameter as Company, ca.amount as Dividend 
 from dbo.CashAccount ca
 inner join TransactionType tt
 on ca.type_id = tt.type_id
+inner join Users u
+on ca.account_id = u.[User_Id]
 where tt.type = 'Dividend'
-and ca.valuation_date = @valuationDate
+and ca.valuation_date = @ValuationDate
+and u.Name = @Account
 order by ca.valuation_date desc 
  
 END

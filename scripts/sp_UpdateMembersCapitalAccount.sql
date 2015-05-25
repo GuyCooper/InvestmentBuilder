@@ -11,10 +11,13 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_UpdateMembersCapitalAccount](@ValuationDate as DATETIME, @Member as varchar(50), @Units as float) AS
+CREATE PROCEDURE [dbo].[sp_UpdateMembersCapitalAccount](@ValuationDate as DATETIME, @Member as varchar(50), @Units as float, @Account as VARCHAR(30)) AS
 BEGIN
 	INSERT INTO MembersCapitalAccount 
 	SELECT @ValuationDate, M.Member_Id, @Units
 	FROM Members M
-	WHERE M.Name = @Member
+	INNER JOIN Users U
+	ON M.account_id = U.[User_Id]
+	WHERE M.Name = @Member AND
+	U.Name = @Account
 END

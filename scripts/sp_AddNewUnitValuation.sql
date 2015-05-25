@@ -12,9 +12,14 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_AddNewUnitValuation](@valuationDate as DATETIME, @unitValue AS FLOAT ) AS
+CREATE PROCEDURE [dbo].[sp_AddNewUnitValuation](@valuationDate as DATETIME, @unitValue AS FLOAT, @Account as VARCHAR(30)) AS
 BEGIN
 
-INSERT INTO dbo.Valuations (Valuation_Date, Unit_Price)
-VALUES (@valuationDate, @unitValue)
-end
+INSERT INTO dbo.Valuations (Valuation_Date, Unit_Price, account_id)
+SELECT
+	@valuationDate, @unitValue, U.[User_Id]
+FROM
+	Users U
+WHERE
+	U.Name = @Account
+END

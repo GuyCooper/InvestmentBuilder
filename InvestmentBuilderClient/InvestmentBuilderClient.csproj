@@ -17,19 +17,21 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="NLog">
@@ -37,6 +39,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -47,9 +50,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfigurationSettings.cs" />
-    <Compile Include="DataModel\IInvestmentDataModel.cs" />
     <Compile Include="Validator.cs" />
+    <Compile Include="View\AddIndexView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="View\AddIndexView.Designer.cs">
+      <DependentUpon>AddIndexView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="View\AddMember.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="View\AddMember.Designer.cs">
+      <DependentUpon>AddMember.cs</DependentUpon>
+    </Compile>
     <Compile Include="View\AddTradeView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -61,6 +74,12 @@
     </Compile>
     <Compile Include="View\AddTransactionView.Designer.cs">
       <DependentUpon>AddTransactionView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="View\AssetReportView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="View\AssetReportView.Designer.cs">
+      <DependentUpon>AssetReportView.cs</DependentUpon>
     </Compile>
     <Compile Include="View\CashAccountView.cs">
       <SubType>Form</SubType>
@@ -89,12 +108,24 @@
     <Compile Include="View\MainView.Designer.cs">
       <DependentUpon>MainView.cs</DependentUpon>
     </Compile>
+    <Compile Include="View\ManageUserView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="View\ManageUserView.Designer.cs">
+      <DependentUpon>ManageUserView.cs</DependentUpon>
+    </Compile>
     <Compile Include="View\PaymentsDataView.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="ViewModel\PaymentsDataViewModel.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="View\PerformanceChartView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="View\PerformanceChartView.Designer.cs">
+      <DependentUpon>PerformanceChartView.cs</DependentUpon>
+    </Compile>
     <Compile Include="View\ReceiptDataView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -106,11 +137,20 @@
       <DependentUpon>TradeView.cs</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\TradeViewModel.cs" />
+    <EmbeddedResource Include="View\AddIndexView.resx">
+      <DependentUpon>AddIndexView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\AddMember.resx">
+      <DependentUpon>AddMember.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="View\AddTradeView.resx">
       <DependentUpon>AddTradeView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="View\AddTransactionView.resx">
       <DependentUpon>AddTransactionView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\AssetReportView.resx">
+      <DependentUpon>AssetReportView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="View\CashAccountView.resx">
       <DependentUpon>CashAccountView.cs</DependentUpon>
@@ -133,6 +173,12 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="View\ManageUserView.resx">
+      <DependentUpon>ManageUserView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\PerformanceChartView.resx">
+      <DependentUpon>PerformanceChartView.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="View\TradeView.resx">
       <DependentUpon>TradeView.cs</DependentUpon>
     </EmbeddedResource>
@@ -151,13 +197,25 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\InvestmentBuilderCore\InvestmentBuilderCore.csproj">
+      <Project>{a1b060c6-10fa-443b-8191-556d1b03102f}</Project>
+      <Name>InvestmentBuilderCore</Name>
+    </ProjectReference>
     <ProjectReference Include="..\InvestmentBuilderLib\InvestmentBuilderLib.csproj">
       <Project>{9fa7e2cc-b5c6-463b-856a-e0e21eff93e4}</Project>
       <Name>InvestmentBuilderLib</Name>
     </ProjectReference>
+    <ProjectReference Include="..\MarketDataServices\MarketDataServices.csproj">
+      <Project>{13bae8cd-2876-44c4-a39a-74f7313fba80}</Project>
+      <Name>MarketDataServices</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PerformanceBuilderLib\PerformanceBuilderLib.csproj">
       <Project>{a69b4e7e-44c1-4c52-9c86-5c1148131c79}</Project>
       <Name>PerformanceBuilderLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SQLServerDataLayer\SQLServerDataLayer.csproj">
+      <Project>{674585e8-84aa-4111-b675-47f7e13c8cb7}</Project>
+      <Name>SQLServerDataLayer</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

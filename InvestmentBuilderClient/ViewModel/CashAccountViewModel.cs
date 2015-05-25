@@ -37,12 +37,10 @@ namespace InvestmentBuilderClient.ViewModel
     internal abstract class CashAccountViewModel
     {
         protected InvestmentDataModel _dataModel;
-        protected DateTime? _latestValuationDate;
 
         public CashAccountViewModel(InvestmentDataModel dataModel) 
         {
             _dataModel = dataModel;
-            _latestValuationDate = _dataModel.GetLatestValuationDate();
             Log = LogManager.GetLogger(GetType().FullName);
         }
 
@@ -71,5 +69,23 @@ namespace InvestmentBuilderClient.ViewModel
 
         protected abstract double _AddTotalRow(DateTime dtValuationDate);
 
+        //protected bool UpdateExistingTransaction<T>(BindingList<T> existing, T data) where T : Transaction
+        //{
+        //    var matching = existing.FirstOrDefault(t =>
+        //        {
+        //            return t.Parameter == data.Parameter &&
+        //                   t.TransactionType == data.TransactionType;
+        //        });
+
+        //    if(matching != null)
+        //    {
+        //        matching.Amount += data.Amount;
+        //        AppendTransactions(matching, data);
+        //        return true;
+        //    }
+        //    return false;
+        //}
+
+        //protected abstract void AppendTransactions(Transaction t1, Transaction t2);
     }
 }

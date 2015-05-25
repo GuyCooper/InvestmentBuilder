@@ -1,6 +1,6 @@
 
 alter table CashAccount
-drop constraint FK_transactionType_CashAccount
+drop constraint uniq
 go
 
 alter table dbo.Companies

@@ -17,7 +17,7 @@ namespace InvestmentBuilderClient.ViewModel
 
     class TradeDetails : Stock
     {
-        public TradeType Type { get; set; }
+        public TradeType Action { get; set; }
     }    
 
     internal class TradeViewModel
@@ -41,16 +41,22 @@ namespace InvestmentBuilderClient.ViewModel
 
         private void _LoadTrades(IEnumerable<Stock> trades, TradeType type)
         {
+            if(trades == null)
+            {
+                return;
+            }
+
             foreach(var trade in trades)
             {
                 _tradesList.Add(new TradeDetails
                     {
                         TransactionDate = trade.TransactionDate,
-                        Type  = type,
+                        Action  = type,
                         Name = trade.Name,
-                        Number = trade.Number,
+                        Quantity = trade.Quantity,
                         ScalingFactor = trade.ScalingFactor,
                         Symbol = trade.Symbol,
+                        Exchange = trade.Exchange,
                         Currency = trade.Currency,
                         TotalCost = trade.TotalCost
                     });
@@ -73,9 +79,9 @@ namespace InvestmentBuilderClient.ViewModel
         {
             logger.Log(LogLevel.Info, "commiting trade data...");
             var trades = new Trades();
-            trades.Buys = Trades.Where(t => t.Type == TradeType.BUY).ToArray();
-            trades.Sells = Trades.Where(t => t.Type == TradeType.SELL).ToArray();
-            trades.Changed = Trades.Where(t => t.Type == TradeType.MODIFY).ToArray();
+            trades.Buys = Trades.Where(t => t.Action == TradeType.BUY).Select(t => new Stock(t)).ToArray();
+            trades.Sells = Trades.Where(t => t.Action == TradeType.SELL).Select(t => new Stock(t)).ToArray();
+            trades.Changed = Trades.Where(t => t.Action == TradeType.MODIFY).Select(t => new Stock(t)).ToArray();
             TradeLoader.SaveTrades(trades, _tradeFile);
         }
     }

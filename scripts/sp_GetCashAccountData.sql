@@ -11,7 +11,7 @@ END
 
 GO
 
-CREATE PROCEDURE sp_GetCashAccountData(@ValuationDate as DateTime, @Side as char(1)) AS
+CREATE PROCEDURE sp_GetCashAccountData(@ValuationDate as DateTime, @Side as char(1), @Account as varchar(30)) AS
 BEGIN
 
 SELECT 
@@ -25,8 +25,13 @@ INNER JOIN
 	TransactionType tt
 ON
 	ca.type_id = tt.type_id
+INNER JOIN
+	Users u
+ON 
+	ca.account_id = u.User_Id
 WHERE
 	ca.valuation_date = @ValuationDate AND
-	tt.side = @Side
+	tt.side = @Side AND
+	u.Name = @Account
 	
 END

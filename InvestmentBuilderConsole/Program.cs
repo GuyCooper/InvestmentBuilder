@@ -20,7 +20,6 @@ namespace InvestmentBuilderConsole
             string path = @"C:\Users\Guy\Documents\Guy\Investments\Investment Club\accounts";
             //string connectionsstr = @"Data Source=TRAVELPC\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest;Integrated Security=True";
             string connectionsstr = @"Data Source=GUYANDSUE\GUYC;Initial Catalog=InvestmentBuilderTest;Integrated Security=True";
-            bool bTest = false;
             DateTime dtValuationDate = DateTime.Now;
 
             foreach (var arg in args)
@@ -33,9 +32,9 @@ namespace InvestmentBuilderConsole
                             if (arg[2] == ':')
                                 path = arg.Substring(3);
                             break;
-                        case 't':
-                            bTest = true;
-                            break;
+                        //case 't':
+                        //    bTest = true;
+                        //    break;
                         case 'v':
                             if (arg[2] == ':')
                                 dtValuationDate = DateTime.Parse(arg.Substring(3));
@@ -56,16 +55,21 @@ namespace InvestmentBuilderConsole
             //load in any trades from the trades file
             string tradeFile = string.Format("{0}Trades.xml", path);
 
-            var format = string.IsNullOrEmpty(connectionsstr) ? InvestmentBuilder.DataFormat.EXCEL :
-                InvestmentBuilder.DataFormat.DATABASE;
+            //var format = string.IsNullOrEmpty(connectionsstr) ? InvestmentBuilder.DataFormat.EXCEL :
+            //    InvestmentBuilder.DataFormat.DATABASE;
 
-            Console.WriteLine("path:{0}", path);
-            Console.WriteLine("db str: {0}", connectionsstr);
-            Console.WriteLine("valuation date:{0}", dtValuationDate);
-            Console.WriteLine("type any key to continue...");
-            Console.ReadKey();
-            InvestmentBuilder.AssetSheetBuilder.BuildAssetSheet(tradeFile, path, connectionsstr, bTest, dtValuationDate,
-                                                                   format);
+            //Console.WriteLine("path:{0}", path);
+            //Console.WriteLine("db str: {0}", connectionsstr);
+            //Console.WriteLine("valuation date:{0}", dtValuationDate);
+            //Console.WriteLine("type any key to continue...");
+            //Console.ReadKey();
+            //InvestmentBuilder.AssetSheetBuilder.BuildAssetSheet("Argyll Investments", 
+            //                                                    tradeFile,
+            //                                                    path,
+            //                                                    connectionsstr, 
+            //                                                    dtValuationDate,
+            //                                                    format,
+            //                                                    true); //save report to database and  spreadsheet
 
         }
     }

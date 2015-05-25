@@ -15,14 +15,33 @@ GO
 
 CREATE PROCEDURE [dbo].[sp_CreateNewInvestment](@valuationDate as DATETIME, @investment as VARCHAR(50), @symbol as CHAR(10),
 				 @currency as CHAR(3), @scalingFactor as FLOAT, @shares as INT,
-				 @totalCost as FLOAT, @closingPrice as FLOAT, @dividend as FLOAT) AS
+				 @totalCost as FLOAT, @closingPrice as FLOAT,
+				 @account as VARCHAR(30), @exchange as VARCHAR(10)) AS
 BEGIN
 
-	INSERT INTO Companies (Name, Symbol, Currency, IsActive, ScalingFactor, LastBoughtDate)
-	VALUES (@investment, @symbol, @currency, 1, @scalingFactor, @valuationDate )
+	IF NOT EXISTS (SELECT 1 FROM Companies WHERE Name = @investment)
+	BEGIN
+		INSERT INTO Companies (Name, Symbol, Currency, ScalingFactor, Exchange)
+		VALUES (@investment, @symbol, @currency, @scalingFactor, @exchange )
+	END
 
-	INSERT INTO InvestmentRecord ([Company_Id],[Valuation_Date],[Shares_Bought],[Total_Cost],[Selling_Price],[Dividends_Received])
-	SELECT C.Company_Id, @valuationDate, @shares, @totalCost, @closingPrice, @dividend
-	FROM Companies C WHERE C.Name = @investment 
+	DECLARE @CompanyId INT
+	DECLARE @AccountId INT
+
+	SELECT @CompanyId = Company_Id
+	FROM Companies
+	WHERE Name = @investment
+
+	SELECT @AccountId = [User_Id]
+	FROM Users
+	WHERE Name = @Account
+
+	INSERT INTO InvestmentRecord
+	 ([Company_Id],[Valuation_Date],[Shares_Bought],[Total_Cost],[Selling_Price],[Dividends_Received], [account_id], [is_active], [last_bought])
+	SELECT 
+		@CompanyId, @valuationDate, @shares, @totalCost, @closingPrice, 0,
+		@AccountId, 1, @valuationDate
+	
+	return @@ROWCOUNT		 
 END
 GO

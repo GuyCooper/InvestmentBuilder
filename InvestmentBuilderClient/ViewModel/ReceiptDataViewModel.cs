@@ -126,11 +126,11 @@ namespace InvestmentBuilderClient.ViewModel
         //method add the previous balanceinhand if required
         private void IncludePreviousBalanceInHand(DateTime dtValuationDate)
         {
-            if (dtValuationDate > _latestValuationDate)
+            if (_dataModel.LatestDate.HasValue && dtValuationDate > _dataModel.LatestDate)
             {
                 if (Receipts.FirstOrDefault(r => r.TransactionType == "BalanceInHand") == null)
                 {
-                    var dAmount = _dataModel.GetBalanceInHand(_latestValuationDate.Value);
+                    var dAmount = _dataModel.GetBalanceInHand(_dataModel.LatestDate.Value);
                     Receipts.Add(new ReceiptTransaction
                     {
                         Parameter = "BalanceInHand",
@@ -143,5 +143,18 @@ namespace InvestmentBuilderClient.ViewModel
                 }
             }
         }
+
+        //protected override void AppendTransactions(Transaction t1, Transaction t2)
+        //{
+        //    var receipt1 = t1 as ReceiptTransaction;
+        //    var receipt2 = t2 as ReceiptTransaction;
+        //    if (receipt1 != null && receipt2 != null)
+        //    {
+        //        if (_receiptTransactionLookup.ContainsKey(receipt1.TransactionType))
+        //        {
+        //            _receiptTransactionLookup[receipt1.TransactionType](receipt1, receipt2.Amount);
+        //        }
+        //    }
+        //}
     }
 }

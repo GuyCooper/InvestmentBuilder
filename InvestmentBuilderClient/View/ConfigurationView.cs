@@ -7,28 +7,32 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using InvestmentBuilderCore;
+using MarketDataServices;
 
 namespace InvestmentBuilderClient.View
 {
     internal partial class ConfigurationView : Form
     {
-        public ConfigurationView(ConfigurationSettings settings)
+        private IConfigurationSettings _settings;
+        private IMarketDataSource _marketDataSource;
+
+        public ConfigurationView(IConfigurationSettings settings, IMarketDataSource marketDataSource)
         {
             InitializeComponent();
-            this.txtTradeFile.Text = settings.TradeFile;
-            this.txtDataSource.Text = settings.DatasourceString;
-            this.txtOutputFolder.Text = settings.OutputFolder;
-        }
-
-        private void btnSelectTradeFile_Click(object sender, EventArgs e)
-        {
-            if(openFileDialog1.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            _settings = settings;
+            _marketDataSource = marketDataSource;
+            this.txtDataSource.Text = _settings.DatasourceString;
+            this.txtOutputFolder.Text = _settings.OutputFolder;
+            foreach(var index in _settings.ComparisonIndexes)
             {
-                txtTradeFile.Text = openFileDialog1.FileName;
+                var lvi = new ListViewItem(index.Name);
+                lvi.SubItems.Add(index.Symbol);
+                this.listIndexes.Items.Insert(0, lvi);
             }
         }
 
-        private void btnSelectOutputFolder_Click(object sender, EventArgs e)
+         private void btnSelectOutputFolder_Click(object sender, EventArgs e)
         {
             if(folderBrowserDialog1.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
@@ -36,12 +40,7 @@ namespace InvestmentBuilderClient.View
             }
         }
 
-        public string GetTradeFile()
-        {
-            return txtTradeFile.Text;
-        }
-
-        public string GetOutputFolder()
+         public string GetOutputFolder()
         {
             return txtOutputFolder.Text;
         }
@@ -49,6 +48,40 @@ namespace InvestmentBuilderClient.View
         public string GetDataSource()
         {
             return txtDataSource.Text;
+        }
+
+        public IEnumerable<Index> GetHistoricalIndexes()
+        {
+            foreach (var item in this.listIndexes.Items.Cast<ListViewItem>())
+            {
+                if (item.SubItems.Count == 2)
+                {
+                    yield return new Index
+                    {
+                        Name = item.SubItems[0].ToString(),
+                        Symbol = item.SubItems[1].ToString()
+                    };
+                }
+            }
+        }
+
+        private void btnAddIndex_Click(object sender, EventArgs e)
+        {
+            var addIndexView = new AddIndexView(_marketDataSource);
+            if(addIndexView.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                var lvi = new ListViewItem(addIndexView.GetName());
+                lvi.SubItems.Add(addIndexView.GetSymbol());
+                this.listIndexes.Items.Insert(0, lvi);
+            }
+        }
+
+        private void btnRemoveIndex_Click(object sender, EventArgs e)
+        {
+            foreach (ListViewItem item in this.listIndexes.SelectedItems)
+            {
+                this.listIndexes.Items.Remove(item);
+            }
         }
     }
 }

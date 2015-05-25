@@ -35,7 +35,15 @@ namespace InvestmentBuilderClient.View
             cmboParameters.Items.Clear();
             var type = (string)cmboType.SelectedItem;
             cmboParameters.Items.AddRange(_dataModel.GetParametersForType(type).ToArray());
-            cmboParameters.Items.Add(ALL);
+            if (cmboParameters.Items.Count > 0)
+            {
+                cmboParameters.Items.Add(ALL);
+            }
+            else
+            {
+                cmboParameters.Items.Add(type);
+            }
+
             cmboParameters.SelectedIndex = 0;
         }
 

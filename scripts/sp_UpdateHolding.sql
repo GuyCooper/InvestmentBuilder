@@ -11,12 +11,23 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_UpdateHolding](@holding as INT, @valuationDate as DATETIME, @investment as VARCHAR(50)) AS
+CREATE PROCEDURE [dbo].[sp_UpdateHolding](@holding as INT, @valuationDate as DATETIME, @company as VARCHAR(50), @account as VARCHAR(30)) AS
 BEGIN
 
-UPDATE IR SET IR.Shares_Bought = @holding
-FROM InvestmentRecord AS IR JOIN Companies C ON IR.Company_Id = C.Company_Id
-AND C.Name = @investment
+UPDATE	
+	 IR
+SET
+	IR.Shares_Bought = @holding
+FROM InvestmentRecord AS IR 
+INNER JOIN
+	 Companies C 
+ON 
+	IR.Company_Id = C.Company_Id
+INNER JOIN
+	Users U
+ON IR.account_id = U.[User_Id]	
+AND C.Name = @company
 AND IR.Valuation_Date = @valuationDate
+AND U.Name = @account
 
 END

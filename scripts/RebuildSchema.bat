@@ -6,7 +6,7 @@ echo rebuild schema, server name: %ServerName%, db name: %DBName%
 
 pause
 
-sqlcmd -S %ServerName% -E -d %DBName% -i CreateTables.sql
+rem sqlcmd -S %ServerName% -E -d %DBName% -i CreateTables.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddNewShares.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddNewUnitValuation.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_CreateInvestment.sql

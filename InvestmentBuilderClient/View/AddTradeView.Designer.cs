@@ -46,6 +46,10 @@
             this.txtTotalCost = new System.Windows.Forms.TextBox();
             this.btnOK = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
+            this.label9 = new System.Windows.Forms.Label();
+            this.txtExchange = new System.Windows.Forms.TextBox();
+            this.btnCheck = new System.Windows.Forms.Button();
+            this.lblCheckResult = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.nmrcNumber)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nmrcScaling)).BeginInit();
             this.SuspendLayout();
@@ -87,12 +91,14 @@
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(28, 101);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(31, 13);
+            this.label3.Size = new System.Drawing.Size(37, 13);
             this.label3.TabIndex = 4;
-            this.label3.Text = "Type";
+            this.label3.Text = "Action";
             // 
             // cmboType
             // 
+            this.cmboType.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
+            this.cmboType.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
             this.cmboType.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.cmboType.FormattingEnabled = true;
             this.cmboType.Location = new System.Drawing.Point(176, 101);
@@ -112,6 +118,11 @@
             // nmrcNumber
             // 
             this.nmrcNumber.Location = new System.Drawing.Point(177, 136);
+            this.nmrcNumber.Maximum = new decimal(new int[] {
+            999999,
+            0,
+            0,
+            0});
             this.nmrcNumber.Name = "nmrcNumber";
             this.nmrcNumber.Size = new System.Drawing.Size(120, 20);
             this.nmrcNumber.TabIndex = 7;
@@ -135,7 +146,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(28, 206);
+            this.label6.Location = new System.Drawing.Point(28, 238);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(49, 13);
             this.label6.TabIndex = 10;
@@ -143,7 +154,7 @@
             // 
             // txtCcy
             // 
-            this.txtCcy.Location = new System.Drawing.Point(176, 203);
+            this.txtCcy.Location = new System.Drawing.Point(176, 235);
             this.txtCcy.Name = "txtCcy";
             this.txtCcy.Size = new System.Drawing.Size(100, 20);
             this.txtCcy.TabIndex = 11;
@@ -151,7 +162,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(28, 244);
+            this.label7.Location = new System.Drawing.Point(28, 270);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(75, 13);
             this.label7.TabIndex = 12;
@@ -159,7 +170,7 @@
             // 
             // nmrcScaling
             // 
-            this.nmrcScaling.Location = new System.Drawing.Point(176, 237);
+            this.nmrcScaling.Location = new System.Drawing.Point(176, 268);
             this.nmrcScaling.Name = "nmrcScaling";
             this.nmrcScaling.Size = new System.Drawing.Size(120, 20);
             this.nmrcScaling.TabIndex = 13;
@@ -167,7 +178,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(28, 276);
+            this.label8.Location = new System.Drawing.Point(28, 303);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(55, 13);
             this.label8.TabIndex = 14;
@@ -175,7 +186,7 @@
             // 
             // txtTotalCost
             // 
-            this.txtTotalCost.Location = new System.Drawing.Point(177, 269);
+            this.txtTotalCost.Location = new System.Drawing.Point(176, 300);
             this.txtTotalCost.Name = "txtTotalCost";
             this.txtTotalCost.Size = new System.Drawing.Size(100, 20);
             this.txtTotalCost.TabIndex = 15;
@@ -183,7 +194,7 @@
             // btnOK
             // 
             this.btnOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.btnOK.Location = new System.Drawing.Point(360, 291);
+            this.btnOK.Location = new System.Drawing.Point(360, 342);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 16;
@@ -193,18 +204,56 @@
             // button2
             // 
             this.button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.button2.Location = new System.Drawing.Point(279, 291);
+            this.button2.Location = new System.Drawing.Point(276, 342);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 23);
             this.button2.TabIndex = 17;
             this.button2.Text = "Cancel";
             this.button2.UseVisualStyleBackColor = true;
             // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(28, 204);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(101, 13);
+            this.label9.TabIndex = 18;
+            this.label9.Text = "Exchange (optional)";
+            // 
+            // txtExchange
+            // 
+            this.txtExchange.Location = new System.Drawing.Point(177, 201);
+            this.txtExchange.Name = "txtExchange";
+            this.txtExchange.Size = new System.Drawing.Size(160, 20);
+            this.txtExchange.TabIndex = 19;
+            // 
+            // btnCheck
+            // 
+            this.btnCheck.Location = new System.Drawing.Point(12, 342);
+            this.btnCheck.Name = "btnCheck";
+            this.btnCheck.Size = new System.Drawing.Size(65, 23);
+            this.btnCheck.TabIndex = 20;
+            this.btnCheck.Text = "Check";
+            this.btnCheck.UseVisualStyleBackColor = true;
+            this.btnCheck.Click += new System.EventHandler(this.btnCheck_Click);
+            // 
+            // lblCheckResult
+            // 
+            this.lblCheckResult.AutoSize = true;
+            this.lblCheckResult.Location = new System.Drawing.Point(105, 347);
+            this.lblCheckResult.Name = "lblCheckResult";
+            this.lblCheckResult.Size = new System.Drawing.Size(0, 13);
+            this.lblCheckResult.TabIndex = 21;
+            // 
             // AddTradeView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(447, 321);
+            this.ClientSize = new System.Drawing.Size(447, 371);
+            this.Controls.Add(this.lblCheckResult);
+            this.Controls.Add(this.btnCheck);
+            this.Controls.Add(this.txtExchange);
+            this.Controls.Add(this.label9);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.btnOK);
             this.Controls.Add(this.txtTotalCost);
@@ -256,5 +305,9 @@
         private System.Windows.Forms.TextBox txtTotalCost;
         private System.Windows.Forms.Button btnOK;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.TextBox txtExchange;
+        private System.Windows.Forms.Button btnCheck;
+        private System.Windows.Forms.Label lblCheckResult;
     }
 }
