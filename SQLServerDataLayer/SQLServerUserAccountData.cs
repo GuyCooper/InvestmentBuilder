@@ -123,7 +123,7 @@ namespace SQLServerDataLayer
                 command.Parameters.Add(new SqlParameter("@AccountName", account));
 
                 var result = command.ExecuteScalar();
-                if (result != null)
+                if (result is double)
                 {
                     return (double)result;
                 }

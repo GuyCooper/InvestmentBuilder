@@ -33,7 +33,11 @@ namespace SQLServerDataLayer
                 //cmdBankBalance.ExecuteNonQuery();
 
                 //cashData.BankBalance = balanceParam.Value is double ? (double)balanceParam.Value : 0d;
-                cashData.BankBalance = (double)cmdBankBalance.ExecuteScalar();
+                var oBalance = cmdBankBalance.ExecuteScalar();
+                if(oBalance is double)
+                {
+                    cashData.BankBalance = (double)cmdBankBalance.ExecuteScalar();
+                }
 
                 using (SqlCommand cmdDividends = new SqlCommand("sp_GetDividends", Connection))
                 {

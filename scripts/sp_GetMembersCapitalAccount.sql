@@ -26,6 +26,7 @@ INNER JOIN Users U
 ON M.account_id = U.[User_Id]
 WHERE
 	Valuation_Date = @valuationDate
+	and U.[Name] = @Account
 END
 GO
 

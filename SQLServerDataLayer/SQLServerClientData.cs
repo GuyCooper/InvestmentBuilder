@@ -134,7 +134,7 @@ namespace SQLServerDataLayer
                 sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
                 sqlCommand.Parameters.Add(new SqlParameter("@Account", account));
                 var result = sqlCommand.ExecuteScalar();
-                if (result != null)
+                if (result is double)
                 {
                     return (double)result;
                 }
