@@ -54,7 +54,7 @@ namespace InvestmentBuilderCore
                                  string exchange, DateTime dtValuation);
         IEnumerable<CompanyData> GetInvestmentRecordData(string account, DateTime dtValuation);
         void DeactivateInvestment(string account, string investment);
-
+        DateTime? GetLatestRecordInvestmentValuationDate(string account);
     }
 
     public interface ICashAccountInterface
@@ -72,7 +72,7 @@ namespace InvestmentBuilderCore
         double GetPreviousUnitValuation(string account, DateTime dtValuation, DateTime? previousDate);
         void SaveNewUnitValue(string account, DateTime dtValuation, double dUnitValue);
         double GetIssuedUnits(string account, DateTime dtValuation);
-        DateTime? GetPreviousValuationDate(string account, DateTime dtValuation);
+        DateTime? GetPreviousAccountValuationDate(string account, DateTime dtValuation);
         IEnumerable<string> GetAccountMembers(string account);
         UserAccountData GetUserAccountData(string account);
     }

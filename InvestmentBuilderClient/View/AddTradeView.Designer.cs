@@ -50,6 +50,9 @@
             this.txtExchange = new System.Windows.Forms.TextBox();
             this.btnCheck = new System.Windows.Forms.Button();
             this.lblCheckResult = new System.Windows.Forms.Label();
+            this.chkSellAll = new System.Windows.Forms.CheckBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.txtManualPrice = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.nmrcNumber)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nmrcScaling)).BeginInit();
             this.SuspendLayout();
@@ -105,6 +108,7 @@
             this.cmboType.Name = "cmboType";
             this.cmboType.Size = new System.Drawing.Size(121, 21);
             this.cmboType.TabIndex = 5;
+            this.cmboType.SelectedIndexChanged += new System.EventHandler(this.cmboType_SelectedIndexChanged);
             // 
             // label4
             // 
@@ -194,7 +198,7 @@
             // btnOK
             // 
             this.btnOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.btnOK.Location = new System.Drawing.Point(360, 342);
+            this.btnOK.Location = new System.Drawing.Point(360, 368);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 16;
@@ -204,7 +208,7 @@
             // button2
             // 
             this.button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.button2.Location = new System.Drawing.Point(276, 342);
+            this.button2.Location = new System.Drawing.Point(279, 368);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 23);
             this.button2.TabIndex = 17;
@@ -229,7 +233,7 @@
             // 
             // btnCheck
             // 
-            this.btnCheck.Location = new System.Drawing.Point(12, 342);
+            this.btnCheck.Location = new System.Drawing.Point(4, 368);
             this.btnCheck.Name = "btnCheck";
             this.btnCheck.Size = new System.Drawing.Size(65, 23);
             this.btnCheck.TabIndex = 20;
@@ -245,11 +249,41 @@
             this.lblCheckResult.Size = new System.Drawing.Size(0, 13);
             this.lblCheckResult.TabIndex = 21;
             // 
+            // chkSellAll
+            // 
+            this.chkSellAll.AutoSize = true;
+            this.chkSellAll.Enabled = false;
+            this.chkSellAll.Location = new System.Drawing.Point(312, 103);
+            this.chkSellAll.Name = "chkSellAll";
+            this.chkSellAll.Size = new System.Drawing.Size(57, 17);
+            this.chkSellAll.TabIndex = 22;
+            this.chkSellAll.Text = "Sell All";
+            this.chkSellAll.UseVisualStyleBackColor = true;
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(28, 340);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(69, 13);
+            this.label10.TabIndex = 23;
+            this.label10.Text = "Manual Price";
+            // 
+            // txtManualPrice
+            // 
+            this.txtManualPrice.Location = new System.Drawing.Point(176, 333);
+            this.txtManualPrice.Name = "txtManualPrice";
+            this.txtManualPrice.Size = new System.Drawing.Size(100, 20);
+            this.txtManualPrice.TabIndex = 24;
+            // 
             // AddTradeView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(447, 371);
+            this.ClientSize = new System.Drawing.Size(447, 406);
+            this.Controls.Add(this.txtManualPrice);
+            this.Controls.Add(this.label10);
+            this.Controls.Add(this.chkSellAll);
             this.Controls.Add(this.lblCheckResult);
             this.Controls.Add(this.btnCheck);
             this.Controls.Add(this.txtExchange);
@@ -309,5 +343,8 @@
         private System.Windows.Forms.TextBox txtExchange;
         private System.Windows.Forms.Button btnCheck;
         private System.Windows.Forms.Label lblCheckResult;
+        private System.Windows.Forms.CheckBox chkSellAll;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.TextBox txtManualPrice;
     }
 }

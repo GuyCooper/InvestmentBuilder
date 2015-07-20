@@ -152,5 +152,9 @@ namespace InvestmentBuilderClient.View
                 cashAccountGrid.Rows[e.RowIndex].ReadOnly = transaction.Added == false;
             }
         }
+
+        public void UpdateAccountName(string account)
+        {
+        }
     }
 }

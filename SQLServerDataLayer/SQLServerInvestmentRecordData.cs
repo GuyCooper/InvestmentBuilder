@@ -171,21 +171,21 @@ namespace SQLServerDataLayer
                 while (reader.Read())
                 {
                     double dTotalCost = (double)reader["TotalCost"];
-                    double dSharesHeld = (int)reader["Bought"] + (int)reader["Bonus"] - (int)reader["Sold"];
+                    int dSharesHeld = (int)reader["Bought"] + (int)reader["Bonus"] - (int)reader["Sold"];
                     double dAveragePrice = dTotalCost / dSharesHeld;
                     double dSharePrice = (double)reader["Price"];
                     double dDividend = (double)reader["Dividends"];
 
                     yield return new CompanyData
                     {
-                        sName = (string)reader["Name"],
-                        dtLastBrought = (DateTime)reader["LastBoughtDate"],
-                        iNumberOfShares = dSharesHeld,
-                        dAveragePricePaid = dAveragePrice,
-                        dTotalCost = dTotalCost,
-                        dSharePrice = dSharePrice,
+                        Name = (string)reader["Name"],
+                        LastBrought = (DateTime)reader["LastBoughtDate"],
+                        Quantity = dSharesHeld,
+                        AveragePricePaid = dAveragePrice,
+                        TotalCost = dTotalCost,
+                        SharePrice = dSharePrice,
                         //dNetSellingValue = _GetNetSellingValue(dSharesHeld, dSharePrice),
-                        dDividend = dDividend
+                        Dividend = dDividend
                     };
                 }
                 reader.Close();
@@ -200,6 +200,17 @@ namespace SQLServerDataLayer
                 command.Parameters.Add(new SqlParameter("@Name", investment));
                 command.Parameters.Add(new SqlParameter("@Account", account));
                 command.ExecuteNonQuery();
+            }
+        }
+
+        public DateTime? GetLatestRecordInvestmentValuationDate(string account)
+        {
+            using (var command = new SqlCommand("sp_GetLatestRecordValuationDate", Connection))
+            {
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+                command.Parameters.Add(new SqlParameter("@Account", account));
+                var objResult = command.ExecuteScalar();
+                return objResult is DateTime ? (DateTime?)objResult : null;
             }
         }
     }

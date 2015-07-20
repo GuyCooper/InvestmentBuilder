@@ -9,7 +9,7 @@ using MarketDataServices;
 
 namespace InvestmentBuilder
 {
-     public class InvestmentBuilder
+    public class InvestmentBuilder
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -32,14 +32,10 @@ namespace InvestmentBuilder
         /// generate asset report
         /// </summary>
         /// <param name="accountName">club /account name</param>
-        /// <param name="tradeFile">trade file</param>
-        /// <param name="path">output path</param>
-        /// <param name="connectionstr">db connectionstring</param>
         /// <param name="valuationDate">valuation date</param>
-        /// <param name="format">format EXCEL / DATABASE</param>
         /// <param name="bUpdate">flag to save report to db and spreadsheet</param>
         /// <returns></returns>
-        public AssetReport BuildAssetReport(string accountName, DateTime valuationDate, bool bUpdate)
+        public AssetReport BuildAssetReport(string accountName, DateTime valuationDate, bool bUpdate, ManualPrices manualPrices)
         {
             logger.Log(LogLevel.Info, string.Format("Begin BuildAssetSheet"));
             logger.Log(LogLevel.Info,string.Format("trade file: {0}", _settings.GetTradeFile(accountName)));
@@ -54,7 +50,7 @@ namespace InvestmentBuilder
                 var trades = TradeLoader.GetTrades(_settings.GetTradeFile(accountName));
 
             var recordBuilder = new InvestmentRecordBuilder(_marketDataService, _dataLayer.InvestmentRecordData);
-            var dataReader = new CompanyDataReader(_dataLayer.InvestmentRecordData);
+            //var dataReader = new CompanyDataReader(_dataLayer.InvestmentRecordData);
 
             var accountData = _userAccountData.GetUserAccountData(accountName);
 
@@ -70,21 +66,37 @@ namespace InvestmentBuilder
                 _userAccountData.RollbackValuationDate(accountData.Name, valuationDate);
             }
 
-            var dtPreviousValuation = _userAccountData.GetPreviousValuationDate(accountData.Name, valuationDate);
+            var dtPreviousValuation = _userAccountData.GetPreviousAccountValuationDate(accountData.Name, valuationDate);
             //first extract the cash account data
             var cashAccountData = _cashAccountData.GetCashAccountData(accountName, valuationDate);
             //parse the trade file for any trades for this month and update the investment record
             //var trades = TradeLoader.GetTrades(tradeFile);
+            var dtTradeValuationDate = DateTime.Now;
             if (bUpdate)
             {
-                recordBuilder.BuildInvestmentRecords(accountData, trades, cashAccountData, valuationDate, dtPreviousValuation);
+                //trades now added seperately
+                var emptyTrades = new Trades
+                {
+                    Buys = Enumerable.Empty<Stock>().ToArray(),
+                    Sells = Enumerable.Empty<Stock>().ToArray(),
+                    Changed = Enumerable.Empty<Stock>().ToArray()
+                };
+                recordBuilder.UpdateInvestmentRecordsNew(accountData, emptyTrades/*trades*/, cashAccountData, dtTradeValuationDate, manualPrices);
+            }
+            else
+            {
+                var currentRecordData = recordBuilder.GetLatestRecordValuationDate(accountData.Name);
+                if(currentRecordData.HasValue)
+                {
+                    dtTradeValuationDate = currentRecordData.Value;
+                }
             }
 
             //now extract the latest data from the investment record
-            var lstData = dataReader.GetCompanyData(accountName, valuationDate, dtPreviousValuation).ToList();
+            var lstData = recordBuilder.GetInvestmentRecords(accountData, dtTradeValuationDate, dtPreviousValuation).ToList();
             foreach (var val in lstData)
             {
-                logger.Log(LogLevel.Info, string.Format("{0} : {1} : {2} : {3} : {4}", val.sName, val.dSharePrice, val.dNetSellingValue, val.dMonthChange, val.dMonthChangeRatio));
+                logger.Log(LogLevel.Info, string.Format("{0} : {1} : {2} : {3} : {4}", val.Name, val.SharePrice, val.NetSellingValue, val.MonthChange, val.MonthChangeRatio));
                 //Console.WriteLine("{0} : {1} : {2} : {3} : {4}", val.sName, val.dSharePrice, val.dNetSellingValue, val.dMonthChange, val.dMonthChangeRatio);
             }
 
@@ -109,6 +121,50 @@ namespace InvestmentBuilder
             return assetReport;
         }
 
+        /// <summary>
+        /// This method returns a snapshot of the investment records using today as the current 
+        /// valuation date and the most recent valuation date in the database as the previous
+        /// valuation date. if they are both the same date then just return previous valuation date 
+        /// </summary>
+        /// <param name="accountName"></param>
+        /// <returns></returns>
+        public IEnumerable<CompanyData> GetCurrentInvestments(string accountName, ManualPrices manualPrices)
+        {
+            var recordBuilder = new InvestmentRecordBuilder(_marketDataService, _dataLayer.InvestmentRecordData);
+            var accountData = _userAccountData.GetUserAccountData(accountName);
+
+            //check this is a valid account
+            if (accountData == null)
+            {
+                logger.Log(LogLevel.Error, "invalid username {0}", accountName);
+                return Enumerable.Empty<CompanyData>();
+            }
+
+            return recordBuilder.GetInvestmentRecordSnapshot(accountData, manualPrices);
+
+        }
+
+        /// <summary>
+        /// This method updates trade information. This is almost the same as build asset report because
+        /// we need to update the database with the new date so any subsequent calls to get investment records
+        /// will retrieve the new trades
+        /// </summary>
+        /// <param name="trades"></param>
+        public void UpdateTrades(string accountName, Trades trades, ManualPrices manualPrices)
+        {
+            var recordBuilder = new InvestmentRecordBuilder(_marketDataService, _dataLayer.InvestmentRecordData);
+
+            var accountData = _userAccountData.GetUserAccountData(accountName);
+
+            //check this is a valid account
+            if (accountData == null)
+            {
+                logger.Log(LogLevel.Error, "invalid username {0}", accountName);
+            }
+
+            recordBuilder.UpdateInvestmentRecordsNew(accountData, trades, null, DateTime.Now, manualPrices);
+        }
+
         private AssetReport _BuildAssetReport(DateTime dtValuationDate,
                                                      DateTime? dtPreviousValution,
                                                      UserAccountData userData,
@@ -126,7 +182,7 @@ namespace InvestmentBuilder
                 BankBalance = dBankBalance
             };
 
-            report.TotalAssetValue = companyData.Sum(c => c.dNetSellingValue);
+            report.TotalAssetValue = companyData.Sum(c => c.NetSellingValue);
             report.TotalAssets = report.BankBalance + report.TotalAssetValue;
             report.TotalLiabilities = default(double); //todo, record liabilities(if any)
             report.NetAssets = report.TotalAssets - report.TotalLiabilities;

@@ -5,11 +5,24 @@ using System.Text;
 using NLog;
 using InvestmentBuilderCore;
 using System.Data;
+using InvestmentBuilder;
 
 namespace InvestmentBuilderClient.DataModel
 {
+    enum TradeType
+    {
+        BUY,
+        SELL,
+        MODIFY
+    } 
+
     //ObservableCollection
     //BindingList
+    internal class TradeDetails : Stock
+    {
+        public TradeType Action { get; set; }
+        public double? ManualPrice { get; set; }
+    }   
 
     internal class InvestmentDataModel : IDisposable
     {
@@ -17,8 +30,11 @@ namespace InvestmentBuilderClient.DataModel
         private string _Account;
         private IDataLayer _dataLayer;
         private IClientDataInterface _clientData;
+        private IInvestmentRecordInterface _recordData;
 
         public DateTime? LatestDate { get; set; }
+
+        public List<CompanyData> PortfolioItemsList { get; set; }
 
         private Dictionary<string, string> _typeProcedureLookup = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase)
         {
@@ -30,6 +46,7 @@ namespace InvestmentBuilderClient.DataModel
         {
             _dataLayer = dataLayer;
             _clientData = dataLayer.ClientData;
+            _recordData = dataLayer.InvestmentRecordData;
             //var connectstr = @"Data Source=TRAVELPC\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest;Integrated Security=True";
             // _connection = new SqlConnection(dataSource);
             // _connection.Open();
@@ -173,6 +190,63 @@ namespace InvestmentBuilderClient.DataModel
             logger.Log(LogLevel.Info, "updating to account {0} ", account);
             _Account = account;
             GetLatestValuationDate();
+        }
+
+        public InvestmentInformation GetInvestmentDetails(string name)
+        {
+            return _recordData.GetInvestmentDetails(name);
+        }
+
+        private ManualPrices GetManualPrices()
+        {
+            ManualPrices manualPrices = new ManualPrices();
+            if (PortfolioItemsList != null)
+            {
+                PortfolioItemsList.ForEach(x =>
+                {
+                    double dPrice;
+                    if ((string.IsNullOrEmpty(x.ManualPrice) == false) && (Double.TryParse(x.ManualPrice, out dPrice) == true))
+                    {
+                        manualPrices.Add(x.Name, dPrice);
+                    }
+                });
+            }
+            return manualPrices;
+        }
+
+        public void LoadPortfolioItems()
+        {
+            ManualPrices manualPrices = GetManualPrices();
+            PortfolioItemsList =  ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().GetCurrentInvestments(_Account, manualPrices).ToList();
+            logger.Log(LogLevel.Info, "loaded {0} items from database for account {1}", PortfolioItemsList.Count, _Account);
+        }
+
+        public void UpdateTrade(TradeDetails trade)
+        {
+            if (trade != null)
+            {
+                logger.Log(LogLevel.Info, "updating trade {0} in database", trade.Name);
+                Trades tradesList = new Trades();
+                tradesList.Buys = trade.Action == TradeType.BUY ? new[] { trade } : Enumerable.Empty<Stock>().ToArray();
+                tradesList.Sells = trade.Action == TradeType.SELL ? new[] { trade } : Enumerable.Empty<Stock>().ToArray();
+                tradesList.Changed = trade.Action == TradeType.MODIFY ? new[] { trade } : Enumerable.Empty<Stock>().ToArray();
+
+                var manualPrices = new ManualPrices();
+                if(trade.ManualPrice.HasValue)
+                {
+                    manualPrices.Add(trade.Name, trade.ManualPrice.Value);
+                }
+                ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().UpdateTrades(
+                                                                _Account,
+                                                                tradesList,
+                                                                manualPrices);
+            }
+        }
+
+        public AssetReport BuildAssetReport(DateTime dtValuation)
+        {
+            return ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>()
+                                                           .BuildAssetReport(_Account, dtValuation, true, GetManualPrices());
         }
 
         public void Dispose()

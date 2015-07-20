@@ -99,26 +99,26 @@ namespace InvestmentBuilder
             //now add the company data
             foreach (var company in lstCompanyData)
             {
-                logger.Log(LogLevel.Info, string.Format("Adding {0} to asset sheet", company.sName));
+                logger.Log(LogLevel.Info, string.Format("Adding {0} to asset sheet", company.Name));
                 //Console.WriteLine("Adding {0} to asset sheet", company.sName);
 
-                newSheet.get_Range("B" + count).Value = company.sName;
-                newSheet.get_Range("C" + count).Value = company.dtLastBrought.Value;
-                newSheet.get_Range("D" + count).Value = company.iNumberOfShares;
-                newSheet.get_Range("E" + count).Value = company.dAveragePricePaid;
-                newSheet.get_Range("F" + count).Value = company.dTotalCost;
-                newSheet.get_Range("G" + count).Value = company.dSharePrice;
-                newSheet.get_Range("H" + count).Value = company.dNetSellingValue;
-                newSheet.get_Range("I" + count).Value = company.dProfitLoss;
-                newSheet.get_Range("J" + count).Value = company.dMonthChange;
-                newSheet.get_Range("K" + count).Value = company.dMonthChangeRatio;
-                newSheet.get_Range("L" + count).Value = company.dDividend;
+                newSheet.get_Range("B" + count).Value = company.Name;
+                newSheet.get_Range("C" + count).Value = company.LastBrought.Value;
+                newSheet.get_Range("D" + count).Value = company.Quantity;
+                newSheet.get_Range("E" + count).Value = company.AveragePricePaid;
+                newSheet.get_Range("F" + count).Value = company.TotalCost;
+                newSheet.get_Range("G" + count).Value = company.SharePrice;
+                newSheet.get_Range("H" + count).Value = company.NetSellingValue;
+                newSheet.get_Range("I" + count).Value = company.ProfitLoss;
+                newSheet.get_Range("J" + count).Value = company.MonthChange;
+                newSheet.get_Range("K" + count).Value = company.MonthChangeRatio;
+                newSheet.get_Range("L" + count).Value = company.Dividend;
                 count++;
             }
 
             newSheet.get_Range("H" + count).Value = report.TotalAssetValue;
-            newSheet.get_Range("J" + count).Value = lstCompanyData.Sum(a => a.dMonthChange);
-            newSheet.get_Range("L" + count).Value = lstCompanyData.Sum(a => a.dDividend);
+            newSheet.get_Range("J" + count).Value = lstCompanyData.Sum(a => a.MonthChange);
+            newSheet.get_Range("L" + count).Value = lstCompanyData.Sum(a => a.Dividend);
             count++;
             newSheet.get_Range("H" + count++).Value = report.BankBalance;
             count += 2;

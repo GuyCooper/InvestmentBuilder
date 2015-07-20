@@ -6,6 +6,12 @@ using System.Threading.Tasks;
 using NLog;
 using InvestmentBuilderCore;
 
+//
+//
+//  THIS CLASS IS NOW OBSOLETE!!!!!
+//
+//
+
 namespace InvestmentBuilder
 {
     interface ICompanyDataReader
@@ -38,15 +44,15 @@ namespace InvestmentBuilder
             var investments = _investmentRecordData.GetInvestmentRecordData(account, dtValuationDate).ToList();
             foreach(var investment in investments)
             {
-                investment.dNetSellingValue = _GetNetSellingValue(investment.iNumberOfShares, investment.dSharePrice);
+                investment.NetSellingValue = _GetNetSellingValue(investment.Quantity, investment.SharePrice);
             }
             return investments;
         }
 
         private void _updateMonthlyData(CompanyData currentData, CompanyData previousData)
         {
-            currentData.dMonthChange = currentData.dNetSellingValue - previousData.dNetSellingValue;
-            currentData.dMonthChangeRatio = currentData.dMonthChange / previousData.dNetSellingValue * 100;
+            currentData.MonthChange = currentData.NetSellingValue - previousData.NetSellingValue;
+            currentData.MonthChangeRatio = currentData.MonthChange / previousData.NetSellingValue * 100;
         }
 
         private void DeactivateInvestment(string investment, string account)
@@ -60,15 +66,15 @@ namespace InvestmentBuilder
             var lstPreviousData = dtPreviousValuationDate.HasValue ? _GetCompanyDataImpl(account, dtPreviousValuationDate.Value).ToList() : new List<CompanyData>();
             foreach (var company in lstCurrentData)
             {
-                var previousData = lstPreviousData.Find(c => c.sName == company.sName);
+                var previousData = lstPreviousData.Find(c => c.Name == company.Name);
                 if (previousData != null)
                 {
                     _updateMonthlyData(company, previousData);
                 }
-                company.dProfitLoss = company.dNetSellingValue - company.dTotalCost;
-                if(company.iNumberOfShares.IsZero() == true)
+                company.ProfitLoss = company.NetSellingValue - company.TotalCost;
+                if(company.Quantity == 0)
                 {
-                    DeactivateInvestment(company.sName, account);
+                    DeactivateInvestment(company.Name, account);
                 }
             }
             return lstCurrentData;

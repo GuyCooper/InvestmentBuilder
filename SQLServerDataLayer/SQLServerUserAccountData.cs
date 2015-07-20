@@ -131,7 +131,7 @@ namespace SQLServerDataLayer
             return 0d;
         }
 
-        public DateTime? GetPreviousValuationDate(string account, DateTime dtValuation)
+        public DateTime? GetPreviousAccountValuationDate(string account, DateTime dtValuation)
         {
             DateTime? dtPrevious = null;
             using (var command = new SqlCommand("sp_GetPreviousValuationDate", Connection))

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using InvestmentBuilderClient.ViewModel;
 using MarketDataServices;
+using InvestmentBuilderClient.DataModel;
 
 namespace InvestmentBuilderClient.View
 {
@@ -16,11 +17,46 @@ namespace InvestmentBuilderClient.View
     {
         private IMarketDataSource _marketDataSource;
 
-        public AddTradeView(IMarketDataSource marketDataSource)
+        public AddTradeView(IMarketDataSource marketDataSource, TradeDetails trade)
         {
             _marketDataSource = marketDataSource;
             InitializeComponent();
-            cmboType.Items.AddRange(Enum.GetNames(typeof(TradeType)));
+            if(trade != null)
+            {
+                this.Text = "Edit Trade";
+                dteTransactionDate.Value = DateTime.Parse(trade.TransactionDate);
+                txtName.Text = trade.Name;
+                nmrcNumber.Value = trade.Quantity;
+                nmrcScaling.Value = (decimal)trade.ScalingFactor;
+                txtSymbol.Text = trade.Symbol;
+                txtExchange.Text = trade.Exchange;
+                txtCcy.Text = trade.Currency;
+                txtTotalCost.Text = trade.TotalCost.ToString();
+                cmboType.Items.AddRange(Enum.GetNames(typeof(TradeType)));
+                cmboType.SelectedItem = trade.Action;
+            }
+            else
+            {
+                cmboType.Items.AddRange(Enum.GetNames(typeof(TradeType)));
+            }
+            btnCheck.Enabled = _marketDataSource != null;
+        }
+
+        public TradeDetails GetTrade()
+        {
+            return new TradeDetails
+            {
+                TransactionDate = GetTransactionDate(),
+                Currency = GetCurrency(),
+                Name = GetName(),
+                Quantity = GetAmount(),
+                Action = GetTradeType(),
+                Symbol = GetSymbol(),
+                Exchange = GetExchange(),
+                ScalingFactor = GetScalingFactor(),
+                TotalCost = GetTotalCost(),
+                ManualPrice = GetManualPrice()
+            };
         }
 
         public string GetTransactionDate()
@@ -68,6 +104,15 @@ namespace InvestmentBuilderClient.View
             return Double.Parse(txtTotalCost.Text);
         }
 
+        public double? GetManualPrice()
+        {
+            double dPrice;
+            if(Double.TryParse(txtManualPrice.Text, out dPrice) == true)
+            {
+                return dPrice;
+            }
+            return null;
+        }
         private void btnCheck_Click(object sender, EventArgs e)
         {
             double dPrice;
@@ -78,6 +123,19 @@ namespace InvestmentBuilderClient.View
             else
             {
                 lblCheckResult.Text = "Fail. Invalid Symbol!";
+            }
+        }
+
+        private void cmboType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var selectedType = (TradeType)Enum.Parse(typeof(TradeType), cmboType.SelectedItem.ToString());
+            if(selectedType == TradeType.SELL)
+            {
+                chkSellAll.Enabled = true;
+            }
+            else
+            {
+                chkSellAll.Enabled = false;
             }
         }
     }

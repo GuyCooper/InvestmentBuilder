@@ -43,6 +43,7 @@
             this.btnViewReport = new System.Windows.Forms.ToolStripButton();
             this.btnManageUsers = new System.Windows.Forms.ToolStripButton();
             this.btnOpenOutputFolder = new System.Windows.Forms.ToolStripButton();
+            this.btnAddTrade = new System.Windows.Forms.ToolStripButton();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -62,10 +63,11 @@
             this.btnPerformance,
             this.btnViewReport,
             this.btnManageUsers,
-            this.btnOpenOutputFolder});
+            this.btnOpenOutputFolder,
+            this.btnAddTrade});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(825, 39);
+            this.toolStrip1.Size = new System.Drawing.Size(994, 39);
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -198,11 +200,24 @@
             this.btnOpenOutputFolder.Text = "Open Output Folder";
             this.btnOpenOutputFolder.Click += new System.EventHandler(this.btnOpenOutputFolder_Click);
             // 
+            // btnAddTrade
+            // 
+            this.btnAddTrade.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnAddTrade.Image = ((System.Drawing.Image)(resources.GetObject("btnAddTrade.Image")));
+            this.btnAddTrade.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.btnAddTrade.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnAddTrade.Margin = new System.Windows.Forms.Padding(5, 1, 5, 2);
+            this.btnAddTrade.Name = "btnAddTrade";
+            this.btnAddTrade.Size = new System.Drawing.Size(36, 36);
+            this.btnAddTrade.Text = "toolStripButton1";
+            this.btnAddTrade.ToolTipText = "Add Trade";
+            this.btnAddTrade.Click += new System.EventHandler(this.btnAddTrade_Click);
+            // 
             // MainView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(825, 350);
+            this.ClientSize = new System.Drawing.Size(994, 350);
             this.Controls.Add(this.toolStrip1);
             this.IsMdiContainer = true;
             this.Name = "MainView";
@@ -231,6 +246,7 @@
         private System.Windows.Forms.ToolStripButton btnViewReport;
         private System.Windows.Forms.ToolStripButton btnManageUsers;
         private System.Windows.Forms.ToolStripButton btnOpenOutputFolder;
+        private System.Windows.Forms.ToolStripButton btnAddTrade;
 
 
 

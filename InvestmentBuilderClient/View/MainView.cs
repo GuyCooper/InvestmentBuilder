@@ -65,6 +65,14 @@ namespace InvestmentBuilderClient.View
             }
         }
 
+        private void UpdateAccountName()
+        {
+            var accountName = cmboAccountName.SelectedItem as string;
+            foreach (var view in _views)
+            {
+                view.UpdateAccountName(accountName);
+            }
+        }
         private void _AddView(Form view)
         {
             view.MdiParent = this;
@@ -89,10 +97,12 @@ namespace InvestmentBuilderClient.View
             InitialiseValues();
 
             _AddView(new PaymentsDataView(_dataModel));
-            _AddView(new TradeView(_settings, _marketDataSource, cmboAccountName.SelectedItem as string));
+            //_AddView(new TradeView(_settings, _marketDataSource, cmboAccountName.SelectedItem as string));
+            _AddView(new PortfolioView(_dataModel));
             _AddView(new ReceiptDataView(_dataModel));
 
             UpdateValuationDate();
+            UpdateAccountName();
 
             this.WindowState = FormWindowState.Maximized;
             this.LayoutMdi(MdiLayout.TileHorizontal);
@@ -148,9 +158,7 @@ namespace InvestmentBuilderClient.View
 
                 Task.Factory.StartNew(() =>
                     {
-
-                        var report = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>()
-                                               .BuildAssetReport(selectedAccount, dtValuation, true);
+                        var report = _dataModel.BuildAssetReport(dtValuation);
                         DisplayAssetReport(report);
                     });
             }
@@ -178,7 +186,7 @@ namespace InvestmentBuilderClient.View
                 if(_settings.UpdateOutputFolder(configView.GetOutputFolder()))
                 {
                     logger.Log(LogLevel.Info,"changed output folder to {0}", _settings.OutputFolder);
-                    _views.OfType<TradeView>().First().ReLoadTrades(_settings.GetTradeFile(cmboAccountName.SelectedItem as string));
+                    //_views.OfType<TradeView>().First().ReLoadTrades(_settings.GetTradeFile(cmboAccountName.SelectedItem as string));
                 }
             }
         }
@@ -214,11 +222,7 @@ namespace InvestmentBuilderClient.View
             _dataModel.UpdateAccountName(cmboAccountName.SelectedItem as string);
             PopulateValuationDates();
             UpdateValuationDate();
-            var tradeView = _views.OfType<TradeView>().FirstOrDefault();
-            if(tradeView != null)
-            {
-                tradeView.ReLoadTrades(_settings.GetTradeFile(cmboAccountName.SelectedItem as string));
-            }
+            UpdateAccountName();
         }
 
         private void btnViewReport_Click(object sender, EventArgs e)
@@ -232,7 +236,7 @@ namespace InvestmentBuilderClient.View
                 Task.Factory.StartNew(() =>
                     {
                         var report = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>()
-                                         .BuildAssetReport(selectedAccount, dtValuation, false);
+                                         .BuildAssetReport(selectedAccount, dtValuation, false, null);
                         DisplayAssetReport(report);
                     });
             }
@@ -306,6 +310,17 @@ namespace InvestmentBuilderClient.View
             process.StartInfo.Arguments = _settings.GetOutputPath(cmboAccountName.SelectedItem as string);
             process.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
             process.Start();
+        }
+
+        private void btnAddTrade_Click(object sender, EventArgs e)
+        {
+            var addView = new AddTradeView(_marketDataSource, null);
+            if (addView.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                _dataModel.UpdateTrade(addView.GetTrade());
+                //force all views to reload
+                UpdateAccountName();
+            }
         }
     }
 }

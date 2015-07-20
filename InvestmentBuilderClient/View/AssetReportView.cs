@@ -79,21 +79,21 @@ namespace InvestmentBuilderClient.View
             {
                 col = 1;
                 row++;
-                gridAssetReport.Rows[row].Cells[col++].Value = asset.sName;
-                gridAssetReport.Rows[row].Cells[col++].Value = asset.dtLastBrought.Value.ToShortDateString();
-                gridAssetReport.Rows[row].Cells[col++].Value = asset.iNumberOfShares;
-                gridAssetReport.Rows[row].Cells[col++].Value = asset.dAveragePricePaid;
-                gridAssetReport.Rows[row].Cells[col++].Value = asset.dTotalCost;
-                gridAssetReport.Rows[row].Cells[col++].Value = asset.dSharePrice;
-                gridAssetReport.Rows[row].Cells[col++].Value = asset.dNetSellingValue;
-                gridAssetReport.Rows[row].Cells[col++].Value = asset.dProfitLoss;
-                gridAssetReport.Rows[row].Cells[col++].Value = asset.dMonthChange;
-                gridAssetReport.Rows[row].Cells[col++].Value = asset.dMonthChangeRatio;
-                gridAssetReport.Rows[row].Cells[col++].Value = asset.dDividend;
+                gridAssetReport.Rows[row].Cells[col++].Value = asset.Name;
+                gridAssetReport.Rows[row].Cells[col++].Value = asset.LastBrought.Value.ToShortDateString();
+                gridAssetReport.Rows[row].Cells[col++].Value = asset.Quantity;
+                gridAssetReport.Rows[row].Cells[col++].Value = asset.AveragePricePaid;
+                gridAssetReport.Rows[row].Cells[col++].Value = asset.TotalCost;
+                gridAssetReport.Rows[row].Cells[col++].Value = asset.SharePrice;
+                gridAssetReport.Rows[row].Cells[col++].Value = asset.NetSellingValue;
+                gridAssetReport.Rows[row].Cells[col++].Value = asset.ProfitLoss;
+                gridAssetReport.Rows[row].Cells[col++].Value = asset.MonthChange;
+                gridAssetReport.Rows[row].Cells[col++].Value = asset.MonthChangeRatio;
+                gridAssetReport.Rows[row].Cells[col++].Value = asset.Dividend;
             }
             AddTagValue("Total Value of Investments", _report.TotalAssetValue, ++row, 6, true);
-            gridAssetReport.Rows[row].Cells[9].Value = assets.Sum(a => a.dMonthChange);
-            gridAssetReport.Rows[row].Cells[11].Value = assets.Sum(a => a.dDividend);
+            gridAssetReport.Rows[row].Cells[9].Value = assets.Sum(a => a.MonthChange);
+            gridAssetReport.Rows[row].Cells[11].Value = assets.Sum(a => a.Dividend);
             AddTagValue("Bank Balance", _report.BankBalance, ++row, 6, true);
             AddTagValue("Total Assets", _report.TotalAssets, ++row, 6, true);
             AddTagValue("Total Liabilities", _report.TotalLiabilities, ++row, 6, true);

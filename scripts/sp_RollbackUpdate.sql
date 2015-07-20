@@ -37,11 +37,11 @@ DELETE FROM
 WHERE
 	Valuation_Date = @ValuationDate
 
-DELETE FROM
-	InvestmentRecord
-WHERE
-	Valuation_Date = @ValuationDate
-AND
-	account_id = @AccountID
+--DELETE FROM
+--	InvestmentRecord
+--WHERE
+--	Valuation_Date = @ValuationDate
+--AND
+--	account_id = @AccountID
 
 END

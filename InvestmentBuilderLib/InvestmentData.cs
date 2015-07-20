@@ -76,4 +76,6 @@ namespace InvestmentBuilder
             _investmentRecordData.SellShares(_account, Name, stock.Quantity, valuationDate);
         }
     }
+
+
 }

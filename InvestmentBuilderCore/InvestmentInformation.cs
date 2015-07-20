@@ -26,17 +26,18 @@ namespace InvestmentBuilderCore
 
     public class CompanyData
     {
-        public string sName;
-        public DateTime? dtLastBrought;
-        public double iNumberOfShares;
-        public double dAveragePricePaid;
-        public double dTotalCost;
-        public double dSharePrice;
-        public double dNetSellingValue;
-        public double dProfitLoss;
-        public double dMonthChange;
-        public double dMonthChangeRatio;
-        public double dDividend;
+        public string Name { get; set; }
+        public DateTime? LastBrought {get;set;}
+        public int Quantity {get;set;}
+        public double AveragePricePaid { get; set; }
+        public double TotalCost { get; set; }
+        public double SharePrice { get; set; }
+        public double NetSellingValue { get; set; }
+        public double ProfitLoss { get; set; }
+        public double MonthChange { get; set; }
+        public double MonthChangeRatio { get; set; }
+        public double Dividend { get; set; }
+        public string ManualPrice { get; set; }
     }
 
     public class UserAccountData
@@ -52,4 +53,7 @@ namespace InvestmentBuilderCore
         public double Price { get; set; }
     }
 
+    public class ManualPrices : Dictionary<string, double>
+    {
+    }
 }

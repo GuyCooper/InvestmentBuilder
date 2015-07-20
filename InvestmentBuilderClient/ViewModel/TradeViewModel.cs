@@ -8,18 +8,6 @@ using NLog;
 
 namespace InvestmentBuilderClient.ViewModel
 {
-    enum TradeType
-    {
-        BUY,
-        SELL,
-        MODIFY
-    }
-
-    class TradeDetails : Stock
-    {
-        public TradeType Action { get; set; }
-    }    
-
     internal class TradeViewModel
     {
         private string _tradeFile;

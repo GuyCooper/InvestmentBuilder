@@ -40,21 +40,10 @@ namespace InvestmentBuilderClient.View
 
         private void btnAddTradeClick(object sender, EventArgs e)
         {
-            var addView = new AddTradeView(_marketDataSource);
+            var addView = new AddTradeView(_marketDataSource, null);
             if(addView.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                _vm.AddTrade(new TradeDetails
-                    {
-                         TransactionDate = addView.GetTransactionDate(),
-                         Currency = addView.GetCurrency(),
-                         Name = addView.GetName(),
-                         Quantity = addView.GetAmount(),
-                         Action  = addView.GetTradeType(),
-                         Symbol = addView.GetSymbol(),
-                         Exchange = addView.GetExchange(),
-                         ScalingFactor = addView.GetScalingFactor(),
-                         TotalCost = addView.GetTotalCost()
-                    });
+                _vm.AddTrade(addView.GetTrade());
             }
         }
 
@@ -74,7 +63,16 @@ namespace InvestmentBuilderClient.View
         {
         }
 
+        public void UpdateAccountName(string account)
+        {
+        }
+
         public void CommitData(DateTime dtValuation)
+        {
+           
+        }
+
+        private void btnSave_Click(object sender, EventArgs e)
         {
             _vm.CommitTrades();
         }

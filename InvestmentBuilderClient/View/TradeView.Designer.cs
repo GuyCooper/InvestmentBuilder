@@ -33,6 +33,7 @@
             this.button1 = new System.Windows.Forms.Button();
             this.tradeViewBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.btnRemoveTrade = new System.Windows.Forms.Button();
+            this.btnSave = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.gridTrades)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tradeViewBindingSource)).BeginInit();
             this.SuspendLayout();
@@ -70,11 +71,23 @@
             this.btnRemoveTrade.UseVisualStyleBackColor = true;
             this.btnRemoveTrade.Click += new System.EventHandler(this.btnRemoveTrade_Click);
             // 
+            // btnSave
+            // 
+            this.btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSave.Location = new System.Drawing.Point(438, 161);
+            this.btnSave.Name = "btnSave";
+            this.btnSave.Size = new System.Drawing.Size(88, 28);
+            this.btnSave.TabIndex = 3;
+            this.btnSave.Text = "Save Trade";
+            this.btnSave.UseVisualStyleBackColor = true;
+            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
+            // 
             // TradeView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(757, 201);
+            this.Controls.Add(this.btnSave);
             this.Controls.Add(this.btnRemoveTrade);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.gridTrades);
@@ -96,5 +109,6 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.BindingSource tradeViewBindingSource;
         private System.Windows.Forms.Button btnRemoveTrade;
+        private System.Windows.Forms.Button btnSave;
     }
 }

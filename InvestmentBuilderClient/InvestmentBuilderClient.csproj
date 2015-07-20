@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Validator.cs" />
+    <Compile Include="ViewModel\PortfolioViewModel.cs" />
     <Compile Include="View\AddIndexView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -126,6 +127,12 @@
     <Compile Include="View\PerformanceChartView.Designer.cs">
       <DependentUpon>PerformanceChartView.cs</DependentUpon>
     </Compile>
+    <Compile Include="View\PortfolioView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="View\PortfolioView.Designer.cs">
+      <DependentUpon>PortfolioView.cs</DependentUpon>
+    </Compile>
     <Compile Include="View\ReceiptDataView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -178,6 +185,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="View\PerformanceChartView.resx">
       <DependentUpon>PerformanceChartView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\PortfolioView.resx">
+      <DependentUpon>PortfolioView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="View\TradeView.resx">
       <DependentUpon>TradeView.cs</DependentUpon>
