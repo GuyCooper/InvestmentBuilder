@@ -55,6 +55,7 @@ namespace InvestmentBuilderCore
         IEnumerable<CompanyData> GetInvestmentRecordData(string account, DateTime dtValuation);
         void DeactivateInvestment(string account, string investment);
         DateTime? GetLatestRecordInvestmentValuationDate(string account);
+        DateTime? GetPreviousRecordInvestmentValuationDate(string account, DateTime dtValuation);
     }
 
     public interface ICashAccountInterface

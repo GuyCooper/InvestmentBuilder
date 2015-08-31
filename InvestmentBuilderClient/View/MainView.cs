@@ -67,10 +67,18 @@ namespace InvestmentBuilderClient.View
 
         private void UpdateAccountName()
         {
-            var accountName = cmboAccountName.SelectedItem as string;
-            foreach (var view in _views)
+            try
             {
-                view.UpdateAccountName(accountName);
+                UseWaitCursor = true;
+                var accountName = cmboAccountName.SelectedItem as string;
+                foreach (var view in _views)
+                {
+                    view.UpdateAccountName(accountName);
+                }
+            }
+            finally
+            {
+                UseWaitCursor = false;
             }
         }
         private void _AddView(Form view)

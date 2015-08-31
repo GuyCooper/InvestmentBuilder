@@ -44,6 +44,7 @@
             this.btnManageUsers = new System.Windows.Forms.ToolStripButton();
             this.btnOpenOutputFolder = new System.Windows.Forms.ToolStripButton();
             this.btnAddTrade = new System.Windows.Forms.ToolStripButton();
+            this.btnRefresh = new System.Windows.Forms.ToolStripButton();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -64,7 +65,8 @@
             this.btnViewReport,
             this.btnManageUsers,
             this.btnOpenOutputFolder,
-            this.btnAddTrade});
+            this.btnAddTrade,
+            this.btnRefresh});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(994, 39);
@@ -213,6 +215,17 @@
             this.btnAddTrade.ToolTipText = "Add Trade";
             this.btnAddTrade.Click += new System.EventHandler(this.btnAddTrade_Click);
             // 
+            // btnRefresh
+            // 
+            this.btnRefresh.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnRefresh.Image = ((System.Drawing.Image)(resources.GetObject("btnRefresh.Image")));
+            this.btnRefresh.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.btnRefresh.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnRefresh.Name = "btnRefresh";
+            this.btnRefresh.Size = new System.Drawing.Size(36, 36);
+            this.btnRefresh.Text = "toolStripButton1";
+            this.btnRefresh.ToolTipText = "refresh";
+            // 
             // MainView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -247,6 +260,7 @@
         private System.Windows.Forms.ToolStripButton btnManageUsers;
         private System.Windows.Forms.ToolStripButton btnOpenOutputFolder;
         private System.Windows.Forms.ToolStripButton btnAddTrade;
+        private System.Windows.Forms.ToolStripButton btnRefresh;
 
 
 

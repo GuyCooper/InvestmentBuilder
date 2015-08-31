@@ -54,7 +54,14 @@ namespace InvestmentBuilder
                 {
                     double dClosing;
                     var companyData = _investmentRecordData.GetInvestmentDetails(investment.Name);
-                    if(_tryGetClosingPrice(companyData.Symbol, companyData.Exchange, investment.Name, companyData.Currency, account.Currency, companyData.ScalingFactor, manualPrices, out dClosing) == true)
+                    if(_tryGetClosingPrice(companyData.Symbol, 
+                                           companyData.Exchange, 
+                                           investment.Name, 
+                                           companyData.Currency, 
+                                           account.Currency, 
+                                           companyData.ScalingFactor, 
+                                           manualPrices, 
+                                           out dClosing) == true)
                     {
                         investment.SharePrice = dClosing;
                     }
@@ -296,7 +303,10 @@ namespace InvestmentBuilder
         /// <returns></returns>
         public IEnumerable<CompanyData> GetInvestmentRecords(UserAccountData account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate)
         {
-            return GetInvestmentRecordsImpl(account, dtValuationDate, dtPreviousValuationDate, false, null);
+            //dtPreviousValuationDate parameteris the previous valuation date.we need to extract the previous record
+            //valuation date from this to retrieve the correct previous record data from the database
+            DateTime? dtPreviousRecordValuationDate = dtPreviousValuationDate.HasValue ? _investmentRecordData.GetPreviousRecordInvestmentValuationDate(account.Name, dtPreviousValuationDate.Value) : null;
+            return GetInvestmentRecordsImpl(account, dtValuationDate, dtPreviousRecordValuationDate, false, null);
         }
 
         /// <summary>

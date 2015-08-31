@@ -48,7 +48,7 @@ namespace SQLServerDataLayer
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 command.Parameters.Add(new SqlParameter("@valuationDate", dtValaution));
-                command.Parameters.Add(new SqlParameter("@investment", investment));
+                command.Parameters.Add(new SqlParameter("@company", investment));
                 command.Parameters.Add(new SqlParameter("@shares", quantity));
                 command.Parameters.Add(new SqlParameter("@totalCost", dTotalCost));
                 command.Parameters.Add(new SqlParameter("@account", account));
@@ -63,7 +63,7 @@ namespace SQLServerDataLayer
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
-                command.Parameters.Add(new SqlParameter("@investment", investment));
+                command.Parameters.Add(new SqlParameter("@company", investment));
                 command.Parameters.Add(new SqlParameter("@shares", quantity));
                 command.Parameters.Add(new SqlParameter("@account", account));
                 command.ExecuteNonQuery();
@@ -213,5 +213,18 @@ namespace SQLServerDataLayer
                 return objResult is DateTime ? (DateTime?)objResult : null;
             }
         }
+
+        public DateTime? GetPreviousRecordInvestmentValuationDate(string account, DateTime dtValuation)
+        {
+            using (var command = new SqlCommand("sp_GetPreviousRecordValuationDate", Connection))
+            {
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+                command.Parameters.Add(new SqlParameter("@Account", account));
+                command.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
+                var objResult = command.ExecuteScalar();
+                return objResult is DateTime ? (DateTime?)objResult : null;
+            }
+        }
+
     }
 }

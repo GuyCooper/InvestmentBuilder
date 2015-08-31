@@ -126,11 +126,11 @@ namespace InvestmentBuilderClient.ViewModel
         //method add the previous balanceinhand if required
         private void IncludePreviousBalanceInHand(DateTime dtValuationDate)
         {
-            if (_dataModel.LatestDate.HasValue && dtValuationDate > _dataModel.LatestDate)
+            if (_dataModel.LatestValuationDate.HasValue && dtValuationDate > _dataModel.LatestValuationDate)
             {
                 if (Receipts.FirstOrDefault(r => r.TransactionType == "BalanceInHand") == null)
                 {
-                    var dAmount = _dataModel.GetBalanceInHand(_dataModel.LatestDate.Value);
+                    var dAmount = _dataModel.GetBalanceInHand(_dataModel.LatestValuationDate.Value);
                     Receipts.Add(new ReceiptTransaction
                     {
                         Parameter = "BalanceInHand",

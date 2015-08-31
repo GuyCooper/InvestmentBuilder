@@ -32,7 +32,9 @@ namespace InvestmentBuilderClient.DataModel
         private IClientDataInterface _clientData;
         private IInvestmentRecordInterface _recordData;
 
-        public DateTime? LatestDate { get; set; }
+        public DateTime? LatestValuationDate { get; set; }
+
+        private DateTime LatestRecordValuationDate { get; set; }
 
         public List<CompanyData> PortfolioItemsList { get; set; }
 
@@ -85,7 +87,7 @@ namespace InvestmentBuilderClient.DataModel
                 var methodInfo = _clientData.GetType().GetMethod(_typeProcedureLookup[type]);
                 if(methodInfo != null)
                 {
-                    return methodInfo.Invoke(_clientData, new object[] {_Account, LatestDate}) as IEnumerable<string>;
+                    return methodInfo.Invoke(_clientData, new object[] { _Account, LatestRecordValuationDate}) as IEnumerable<string>;
                 }
             }
             return Enumerable.Empty<string>();
@@ -97,9 +99,10 @@ namespace InvestmentBuilderClient.DataModel
             _clientData.GetCashAccountData(_Account, side, dtValuationDate, fnAddTransaction);
         }
 
-        private void GetLatestValuationDate()
+        private void SetLatestValuationDate()
         {
-            LatestDate = _clientData.GetLatestValuationDate(_Account) ?? DateTime.Today;
+            LatestValuationDate = _clientData.GetLatestValuationDate(_Account);
+            LatestRecordValuationDate = _recordData.GetLatestRecordInvestmentValuationDate(_Account) ?? DateTime.Today;
         }
 
         public double GetBalanceInHand(DateTime dtValuation)
@@ -189,7 +192,7 @@ namespace InvestmentBuilderClient.DataModel
         {
             logger.Log(LogLevel.Info, "updating to account {0} ", account);
             _Account = account;
-            GetLatestValuationDate();
+            SetLatestValuationDate();
         }
 
         public InvestmentInformation GetInvestmentDetails(string name)
@@ -240,6 +243,8 @@ namespace InvestmentBuilderClient.DataModel
                                                                 _Account,
                                                                 tradesList,
                                                                 manualPrices);
+
+                PortfolioItemsList =  ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().GetCurrentInvestments(_Account, manualPrices).ToList();
             }
         }
 
