@@ -36,6 +36,7 @@ namespace InvestmentBuilderCore
         void CreateAccount(AccountModel account);
         AccountModel GetAccount(string account);
         IEnumerable<string> GetAccountTypes();
+        IEnumerable<string> GetAllCompanies();
     }
 
     public interface IInvestmentRecordInterface

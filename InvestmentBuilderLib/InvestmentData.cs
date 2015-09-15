@@ -10,7 +10,7 @@ namespace InvestmentBuilder
     /// <summary>
     /// investment record interface
     /// </summary>
-    interface IInvestment
+    internal interface IInvestment
     {
         string Name { get; }
         InvestmentInformation CompanyData { get; }
@@ -22,7 +22,7 @@ namespace InvestmentBuilder
         void SellShares(DateTime valuationDate, Stock stock);
     }
 
-    class InvestmentData : IInvestment
+    internal class InvestmentData : IInvestment
     {
         private string _account;
         private IInvestmentRecordInterface _investmentRecordData;

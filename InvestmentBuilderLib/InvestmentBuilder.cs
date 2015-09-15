@@ -47,7 +47,7 @@ namespace InvestmentBuilder
             //var factory = BuildFactory(format, path, connectionstr, valuationDate, bUpdate);
 
             AssetReport assetReport = null;
-                var trades = TradeLoader.GetTrades(_settings.GetTradeFile(accountName));
+            //    var trades = TradeLoader.GetTrades(_settings.GetTradeFile(accountName));
 
             var recordBuilder = new InvestmentRecordBuilder(_marketDataService, _dataLayer.InvestmentRecordData);
             //var dataReader = new CompanyDataReader(_dataLayer.InvestmentRecordData);
@@ -81,7 +81,7 @@ namespace InvestmentBuilder
                     Sells = Enumerable.Empty<Stock>().ToArray(),
                     Changed = Enumerable.Empty<Stock>().ToArray()
                 };
-                recordBuilder.UpdateInvestmentRecordsNew(accountData, emptyTrades/*trades*/, cashAccountData, dtTradeValuationDate, manualPrices);
+                recordBuilder.UpdateInvestmentRecords(accountData, emptyTrades/*trades*/, cashAccountData, dtTradeValuationDate, manualPrices);
             }
             else
             {
@@ -162,7 +162,7 @@ namespace InvestmentBuilder
                 logger.Log(LogLevel.Error, "invalid username {0}", accountName);
             }
 
-            recordBuilder.UpdateInvestmentRecordsNew(accountData, trades, null, DateTime.Now, manualPrices);
+            recordBuilder.UpdateInvestmentRecords(accountData, trades, null, DateTime.Now, manualPrices);
         }
 
         private AssetReport _BuildAssetReport(DateTime dtValuationDate,
@@ -183,6 +183,7 @@ namespace InvestmentBuilder
             };
 
             report.TotalAssetValue = companyData.Sum(c => c.NetSellingValue);
+            report.MonthlyPnL = companyData.Sum(c => c.MonthChange);
             report.TotalAssets = report.BankBalance + report.TotalAssetValue;
             report.TotalLiabilities = default(double); //todo, record liabilities(if any)
             report.NetAssets = report.TotalAssets - report.TotalLiabilities;

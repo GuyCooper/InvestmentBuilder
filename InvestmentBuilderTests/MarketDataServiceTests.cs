@@ -39,6 +39,7 @@ namespace InvestmentBuilderTests
                                     "USD",
                                     "GBP",
                                     1,
+                                    null,
                                     out dResult);
 
                 Assert.IsTrue(success);
@@ -62,6 +63,7 @@ namespace InvestmentBuilderTests
                                     "GBP",
                                     "GBP",
                                     1,
+                                    null,
                                     out dResult);
 
                 Assert.IsTrue(success);
@@ -85,6 +87,7 @@ namespace InvestmentBuilderTests
                                     "USD",
                                     "GBP",
                                     1,
+                                    null,
                                     out dResult);
 
                 Assert.IsTrue(success);
@@ -109,6 +112,7 @@ namespace InvestmentBuilderTests
                                     "USD",
                                     "GBP",
                                     1,
+                                    null,
                                     out dResult);
 
                 Assert.IsTrue(success);

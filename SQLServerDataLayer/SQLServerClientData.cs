@@ -228,7 +228,8 @@ namespace SQLServerDataLayer
                             Password = (string)reader["Password"],
                             Description = (string)reader["Description"],
                             ReportingCurrency = (string)reader["Currency"],
-                            Enabled = (byte)reader["Enabled"] != 0 ? true : false
+                            Enabled = (byte)reader["Enabled"] != 0 ? true : false,
+                            Type = (string)reader["Type"]
                         };
                     }
                 }
@@ -249,6 +250,20 @@ namespace SQLServerDataLayer
                 }
             }
 
+        }
+
+        public IEnumerable<string> GetAllCompanies()
+        {
+            using (var sqlCommand = new SqlCommand("SELECT [Name] FROM Companies", Connection))
+            {
+                using (var reader = sqlCommand.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        yield return reader.GetString(0);
+                    }
+                }
+            }
         }
     }
 }

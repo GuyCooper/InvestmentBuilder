@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<trades>
+	<buy>
+		<stock>
+			<name>iShares FTSE100 ETF</name>
+			<number>70</number>
+			<totalcost>997.45</totalcost>
+		</stock>
+		<stock>
+			<name>Severn Trent</name>
+			<number>21</number>
+			<totalcost>23.54</totalcost>
+		</stock>	
+		<stock>
+			<name>BP</name>
+			<number>243</number>
+			<totalcost>35.87</totalcost>
+		</stock>	
+		<stock>
+			<name>iShares FTSE100 ETF</name>
+			<number>12</number>
+			<totalcost>123.90</totalcost>
+		</stock>	
+	</buy>
+	<sell>
+	</sell>
+</trades>

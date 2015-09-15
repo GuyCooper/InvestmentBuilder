@@ -322,13 +322,19 @@ namespace InvestmentBuilderClient.View
 
         private void btnAddTrade_Click(object sender, EventArgs e)
         {
-            var addView = new AddTradeView(_marketDataSource, null);
+            var addView = new AddTradeView(_dataModel, _marketDataSource, null);
             if (addView.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 _dataModel.UpdateTrade(addView.GetTrade());
                 //force all views to reload
                 UpdateAccountName();
             }
+        }
+
+        private void btnRefresh_Click(object sender, EventArgs e)
+        {
+            //force the data to be reloaded by setting the account name
+            UpdateAccountName();
         }
     }
 }

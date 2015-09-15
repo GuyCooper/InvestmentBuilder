@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<trades>
+	<buy>
+		<stock>
+			<name>iShares FTSE100 ETF</name>
+			<number>70</number>
+			<totalcost>997.45</totalcost>
+		</stock>
+	</buy>
+	<sell>
+	</sell>
+</trades>

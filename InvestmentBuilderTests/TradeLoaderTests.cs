@@ -29,9 +29,9 @@ namespace InvestmentBuilderTests
         private const string _TestCompany = "iShares FTSE100 ETF";
 
         [Test]
-        public void When_loading_Trade_File()
+        public void When_loading_Trade_File(string tradeFile)
         {
-            var trades = TradeLoader.GetTrades(Path.Combine(_path,_loadFile));
+            var trades = TradeLoader.GetTrades(tradeFile);
             var stock = trades.Buys.FirstOrDefault();
 
             Assert.IsNotNull(stock);

@@ -16,16 +16,23 @@ namespace InvestmentBuilderClient.View
     internal partial class AddTradeView : Form
     {
         private IMarketDataSource _marketDataSource;
+        private InvestmentDataModel _dataModel;
 
-        public AddTradeView(IMarketDataSource marketDataSource, TradeDetails trade)
+        public AddTradeView(InvestmentDataModel dataModel, IMarketDataSource marketDataSource, TradeDetails trade)
         {
             _marketDataSource = marketDataSource;
+            _dataModel = dataModel;
             InitializeComponent();
+
+            //populate investment names combo
+            cmboName.Items.AddRange(_dataModel.GetAllCompanies().ToArray());
+
             if(trade != null)
             {
                 this.Text = "Edit Trade";
                 dteTransactionDate.Value = DateTime.Parse(trade.TransactionDate);
-                txtName.Text = trade.Name;
+                cmboName.SelectedText = trade.Name;
+                cmboName.Text = trade.Name;
                 nmrcNumber.Value = trade.Quantity;
                 nmrcScaling.Value = (decimal)trade.ScalingFactor;
                 txtSymbol.Text = trade.Symbol;
@@ -66,7 +73,15 @@ namespace InvestmentBuilderClient.View
 
         public string GetName()
         {
-            return txtName.Text;
+            if(string.IsNullOrEmpty(cmboName.SelectedText))
+            {
+                if (string.IsNullOrEmpty(cmboName.Text))
+                {
+                    return cmboName.SelectedItem as string;
+                }
+                return cmboName.Text;
+            }
+            return cmboName.SelectedText;
         }
 
         public TradeType GetTradeType()
@@ -136,6 +151,18 @@ namespace InvestmentBuilderClient.View
             else
             {
                 chkSellAll.Enabled = false;
+            }
+        }
+
+        private void cmboName_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var investmentDetails = _dataModel.GetInvestmentDetails(cmboName.SelectedItem as string);
+            if(investmentDetails != null)
+            {
+                nmrcScaling.Value = (decimal)investmentDetails.ScalingFactor;
+                txtSymbol.Text = investmentDetails.Symbol;
+                txtExchange.Text = investmentDetails.Exchange;
+                txtCcy.Text = investmentDetails.Currency;
             }
         }
     }

@@ -11,7 +11,7 @@ namespace MarketDataServices
 {
     public interface IMarketDataService
     {
-        bool TryGetClosingPrice(string symbol, string exchange, string name, string currency, string reportingCurrency, double dScaling, out double dClosing);
+        bool TryGetClosingPrice(string symbol, string exchange, string name, string currency, string reportingCurrency, double dScaling, double? dOverride, out double dClosing);
     }
 
     /// <summary>
@@ -35,32 +35,39 @@ namespace MarketDataServices
         /// <param name="name"></param>
         /// <param name="exchange"></param>
         /// <returns></returns>
-        public bool TryGetClosingPrice(string symbol, string exchange, string name, string currency, string reportingCurrency, double dScaling, out double dClosing)
+        public bool TryGetClosingPrice(string symbol, string exchange, string name, string currency, string reportingCurrency, double dScaling, double? dOverride, out double dClosing)
         {
             logger.Log(LogLevel.Info, string.Format("getting closing price for : {0}", name));
 
             dClosing = 0d;
-            if(_marketSource.TryGetMarketData(symbol, exchange, out dClosing))
+            if(dOverride.HasValue)
             {
-                if (currency != reportingCurrency)
-                {
-                    //need todo an fx conversion to get correct price
-                    double dFx;
-                    if(_marketSource.TryGetFxRate(currency, reportingCurrency, out dFx ))
-                    {
-                        dClosing = dClosing * dFx;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                //now scale price todisplay price.i.e. exchange may price in pence but we want it displayed
-                //in pounds
-                dClosing = dClosing / dScaling;
-                return true;
+                dClosing = dOverride.Value;
             }
-            return false;
+            else
+            {
+                if(_marketSource.TryGetMarketData(symbol, exchange, out dClosing) == false)
+                {
+                    return false;
+                }
+            }
+            if (currency != reportingCurrency)
+            {
+                //need todo an fx conversion to get correct price
+                double dFx;
+                if(_marketSource.TryGetFxRate(currency, reportingCurrency, out dFx ))
+                {
+                    dClosing = dClosing * dFx;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            //now scale price todisplay price.i.e. exchange may price in pence but we want it displayed
+            //in pounds
+            dClosing = dClosing / dScaling;
+            return true;
         }
     }
 }

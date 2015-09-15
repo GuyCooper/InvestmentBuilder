@@ -23,8 +23,8 @@ namespace MarketDataServices
         private Dictionary<string, double> _marketDataLookup = new Dictionary<string, double>();
         private Dictionary<string, double> _fxDataLookup = new Dictionary<string, double>();
 
-        private const string _testDataPath = @"C:\Projects\TestData\InvestmentBuilder";
-        private const string _testDataFile = "testMarketData.txt";
+        //private const string _testDataPath = @"C:\Projects\TestData\InvestmentBuilder";
+        //private const string _testDataFile = "testMarketData.txt";
 
         private void _addDataToLookup(string name, string strValue, Dictionary<string, double> lookup)
         {
@@ -35,9 +35,9 @@ namespace MarketDataServices
             }
         }
 
-        public TestFileMarketDataSource()
+        public TestFileMarketDataSource(string fileName)
         {
-            var fileName = Path.Combine(_testDataPath, _testDataFile);//Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "testMarketData.txt";
+            //var fileName = Path.Combine(_testDataPath, _testDataFile);//Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "testMarketData.txt";
             using (var reader = new StreamReader(fileName))
             {
                 string line;

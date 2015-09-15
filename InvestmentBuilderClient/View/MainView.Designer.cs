@@ -225,6 +225,7 @@
             this.btnRefresh.Size = new System.Drawing.Size(36, 36);
             this.btnRefresh.Text = "toolStripButton1";
             this.btnRefresh.ToolTipText = "refresh";
+            this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
             // 
             // MainView
             // 

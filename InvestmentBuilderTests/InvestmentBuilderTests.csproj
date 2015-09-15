@@ -55,6 +55,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FullInvestmentBuilderTests.cs" />
     <Compile Include="MarketDataServiceTests.cs" />
     <Compile Include="TestMarketDataSource.cs" />
     <Compile Include="TradeLoaderTests.cs" />
@@ -73,6 +74,10 @@
     <ProjectReference Include="..\MarketDataServices\MarketDataServices.csproj">
       <Project>{13bae8cd-2876-44c4-a39a-74f7313fba80}</Project>
       <Name>MarketDataServices</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SQLServerDataLayer\SQLServerDataLayer.csproj">
+      <Project>{674585e8-84aa-4111-b675-47f7e13c8cb7}</Project>
+      <Name>SQLServerDataLayer</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

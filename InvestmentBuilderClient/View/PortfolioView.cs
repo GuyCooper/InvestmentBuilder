@@ -59,7 +59,7 @@ namespace InvestmentBuilderClient.View
                 gridPortfolio.Columns["OnDeal"].Index) return;
 
             //todo - edit trade dialog
-            var addView = new AddTradeView(null, _vm.GetTradeItem(e.RowIndex));
+            var addView = new AddTradeView(_dataModel, null, _vm.GetTradeItem(e.RowIndex));
             if (addView.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 _dataModel.UpdateTrade(addView.GetTrade());

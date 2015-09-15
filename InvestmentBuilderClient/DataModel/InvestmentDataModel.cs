@@ -254,6 +254,11 @@ namespace InvestmentBuilderClient.DataModel
                                                            .BuildAssetReport(_Account, dtValuation, true, GetManualPrices());
         }
 
+        public IEnumerable<string> GetAllCompanies()
+        {
+            return _clientData.GetAllCompanies();
+        }
+
         public void Dispose()
         {
             //    _connection.Close();

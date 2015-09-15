@@ -31,7 +31,6 @@
             this.dteTransactionDate = new System.Windows.Forms.DateTimePicker();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.txtName = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.cmboType = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
@@ -53,6 +52,7 @@
             this.chkSellAll = new System.Windows.Forms.CheckBox();
             this.label10 = new System.Windows.Forms.Label();
             this.txtManualPrice = new System.Windows.Forms.TextBox();
+            this.cmboName = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.nmrcNumber)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nmrcScaling)).BeginInit();
             this.SuspendLayout();
@@ -81,13 +81,6 @@
             this.label2.Size = new System.Drawing.Size(90, 13);
             this.label2.TabIndex = 2;
             this.label2.Text = "Investment Name";
-            // 
-            // txtName
-            // 
-            this.txtName.Location = new System.Drawing.Point(176, 61);
-            this.txtName.Name = "txtName";
-            this.txtName.Size = new System.Drawing.Size(200, 20);
-            this.txtName.TabIndex = 3;
             // 
             // label3
             // 
@@ -276,11 +269,21 @@
             this.txtManualPrice.Size = new System.Drawing.Size(100, 20);
             this.txtManualPrice.TabIndex = 24;
             // 
+            // cmboName
+            // 
+            this.cmboName.FormattingEnabled = true;
+            this.cmboName.Location = new System.Drawing.Point(175, 65);
+            this.cmboName.Name = "cmboName";
+            this.cmboName.Size = new System.Drawing.Size(201, 21);
+            this.cmboName.TabIndex = 25;
+            this.cmboName.SelectedIndexChanged += new System.EventHandler(this.cmboName_SelectedIndexChanged);
+            // 
             // AddTradeView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(447, 406);
+            this.Controls.Add(this.cmboName);
             this.Controls.Add(this.txtManualPrice);
             this.Controls.Add(this.label10);
             this.Controls.Add(this.chkSellAll);
@@ -302,7 +305,6 @@
             this.Controls.Add(this.label4);
             this.Controls.Add(this.cmboType);
             this.Controls.Add(this.label3);
-            this.Controls.Add(this.txtName);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.dteTransactionDate);
@@ -324,7 +326,6 @@
         private System.Windows.Forms.DateTimePicker dteTransactionDate;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox txtName;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ComboBox cmboType;
         private System.Windows.Forms.Label label4;
@@ -346,5 +347,6 @@
         private System.Windows.Forms.CheckBox chkSellAll;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.TextBox txtManualPrice;
+        private System.Windows.Forms.ComboBox cmboName;
     }
 }
