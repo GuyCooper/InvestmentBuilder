@@ -124,7 +124,7 @@ namespace SQLServerDataLayer
             return data;
         }
 
-        public IEnumerable<string> GetInvestments(string account, DateTime dtValuation)
+        public IEnumerable<KeyValuePair<string,double>> GetInvestments(string account, DateTime dtValuation)
         {
             using (var command = new SqlCommand("sp_GetUserCompanies", Connection))
             {
@@ -134,7 +134,7 @@ namespace SQLServerDataLayer
                 var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
-                    yield return ((string)reader["Name"]);
+                    yield return new KeyValuePair<string,double>((string)reader["Name"], (double)reader["Price"]);
                 }
                 reader.Close();
             }

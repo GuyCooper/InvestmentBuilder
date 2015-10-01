@@ -12,7 +12,10 @@ namespace InvestmentBuilder
     /// </summary>
     internal interface IInvestment
     {
+        //name of investment
         string Name { get; }
+        //latest price of investment
+        double Price { get; }
         InvestmentInformation CompanyData { get; }
         void UpdateRow(DateTime valuationDate, DateTime previousDate);
         void ChangeShareHolding(DateTime valuationDate, int quantity);
@@ -26,25 +29,18 @@ namespace InvestmentBuilder
     {
         private string _account;
         private IInvestmentRecordInterface _investmentRecordData;
-        public InvestmentData(string account, string name, IInvestmentRecordInterface investmentRecordData)
+        public InvestmentData(string account, string name, double price, IInvestmentRecordInterface investmentRecordData)
         {
             Name = name;
+            Price = price;
             _account = account;
             _investmentRecordData = investmentRecordData;
             CompanyData = _investmentRecordData.GetInvestmentDetails(Name);
         }
 
-        public string Name
-        {
-            get;
-            private set;
-        }
-
-        public InvestmentInformation CompanyData
-        {
-            get;
-            private set;
-        }
+        public string Name { get; private set; }
+        public InvestmentInformation CompanyData { get; private set; }
+        public double Price { get; private set; }
 
         public void UpdateRow(DateTime valuationDate, DateTime previousDate)
         {

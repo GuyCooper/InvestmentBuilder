@@ -27,7 +27,7 @@ namespace InvestmentBuilder
         private IEnumerable<IInvestment> _GetInvestments(string account, DateTime dtValuationDate)
         {
             var companies = _investmentRecordData.GetInvestments(account, dtValuationDate).ToList(); 
-            return companies.Select(c => new InvestmentData(account, c, _investmentRecordData));
+            return companies.Select(c => new InvestmentData(account, c.Key, c.Value, _investmentRecordData));
         }
 
         private void _CreateNewInvestment(string account, Stock newTrade, DateTime valuationDate, double dClosing)
@@ -82,90 +82,6 @@ namespace InvestmentBuilder
             _investmentRecordData.DeactivateInvestment(account, investment);
         }
 
-        /// <summary>
-        /// update all current investments with the latest prices, update / add any new trades. Returns the previous
-        /// valuation date. updates to the persistence layer.
-        /// </summary>
-        /// <param name="trades"></param>
-        /// <param name="cashData"></param>
-        /// <param name="valuationDate"></param>
-        //public void UpdateInvestmentRecordsOld(UserAccountData account, Trades trades, CashAccountData cashData, DateTime valuationDate, DateTime? previousValuation)
-        //{
-        //    Log.Log(LogLevel.Info, "building investment records...");
-        //    //Console.WriteLine("building investment records...");
-
-        //    var aggregatedBuys = trades.Buys.AggregateStocks().ToList();
-        //    var aggregatedSells = trades.Sells.AggregateStocks().ToList();
-
-        //    var enInvestments = _GetInvestments(account.Name, previousValuation.HasValue ? previousValuation.Value : valuationDate).ToList();
-        //    foreach(var investment in enInvestments)
-        //    {
-        //        if(previousValuation.HasValue == false)
-        //        {
-        //            throw new ApplicationException(string.Format("BuildInvestmentRecords: no previous valuation date for {0}. please investigate!!!", account));
-        //        }
-
-        //        var company = investment.Name;
-        //        //Console.WriteLine("updating company {0}", company);
-        //        //now copy the last row into a new row and update
-        //        investment.UpdateRow(valuationDate, previousValuation.Value);
-        //        var sellTrade = aggregatedSells.FirstOrDefault(x => company.Equals(x.Name, StringComparison.CurrentCultureIgnoreCase));
-        //        if(sellTrade != null)
-        //        {
-        //            //trade sold, set to inactive. todo do this properly
-        //            Log.Log(LogLevel.Info, string.Format("company {0} sold {1} shares", company, sellTrade.Quantity));
-        //            //Console.WriteLine("company {0} sold", company);
-        //            //investment.DeactivateInvestment();
-        //            investment.SellShares(valuationDate, sellTrade);
-        //        }                 
-  
-        //        //update share number if it has changed
-        //        var trade = trades.Changed != null ? trades.Changed.FirstOrDefault(x => company.Equals(x.Name, StringComparison.CurrentCultureIgnoreCase)) : null;
-        //        if(trade != null)
-        //        {
-        //            Log.Log(LogLevel.Info, string.Format("company share number changed {0}", company));
-        //            //Console.WriteLine("company share number changed {0}", company);
-        //            investment.ChangeShareHolding(valuationDate, trade.Quantity);
-        //        }
-
-        //        //now update this stock if more shres have been brought
-        //        trade = aggregatedBuys.FirstOrDefault(x => company.Equals(x.Name, StringComparison.CurrentCultureIgnoreCase));
-        //        if(trade != null)
-        //        {
-        //            investment.AddNewShares(valuationDate, trade);
-        //            //remove the trade from the trade buys
-        //            aggregatedBuys = aggregatedBuys.Where(x => x != trade).ToList();
-        //        }
-
-        //        //update any dividend 
-        //        double dDividend;
-        //        if (cashData.Dividends.TryGetValue(company, out dDividend))
-        //        {
-        //            investment.UpdateDividend(valuationDate, dDividend);
-        //        }
-        //        //ifwe have the correct comapy data then calculate the closing price forthis company
-        //        if (investment.CompanyData != null)
-        //        {
-        //            var companyData = investment.CompanyData;
-        //            double dClosing;
-        //            if (_marketDataService.TryGetClosingPrice(companyData.Symbol, companyData.Exchange, investment.Name, companyData.Currency, account.Currency, companyData.ScalingFactor, out dClosing))
-        //            {
-        //                investment.UpdateClosingPrice(valuationDate, dClosing);       
-        //            }
-        //        }
-        //    }
-
-        //    foreach(var newTrade in aggregatedBuys)
-        //    {
-        //        Log.Log(LogLevel.Info, string.Format("adding new trade {0}", newTrade.Name));
-        //        //Console.WriteLine("adding new trade {0}", newTrade.Name);
-        //        //new trade to add to investment record
-        //        double dClosing;
-        //        _marketDataService.TryGetClosingPrice(newTrade.Symbol, newTrade.Exchange, newTrade.Name, newTrade.Currency, account.Currency, newTrade.ScalingFactor, out dClosing);
-        //        _CreateNewInvestment(account.Name, newTrade, valuationDate, dClosing);               
-        //    }
-        //}
-
         private bool _tryGetClosingPrice(string symbol, string exchange, string name, string currency, string accountCurrency,double scalingFactor, ManualPrices manualPrices, out double dPrice)
         {
             double? dManualPrice = null;
@@ -184,7 +100,7 @@ namespace InvestmentBuilder
         /// <param name="cashData"></param>
         /// <param name="valuationDate"></param>
         /// <param name="previousValuation"></param>
-        public void UpdateInvestmentRecords(UserAccountData account, Trades trades, CashAccountData cashData, DateTime valuationDate, ManualPrices manualPrices)
+        public bool UpdateInvestmentRecords(UserAccountData account, Trades trades, CashAccountData cashData, DateTime valuationDate, ManualPrices manualPrices)
         {
             Log.Log(LogLevel.Info, "building investment records...");
             //Console.WriteLine("building investment records...");
@@ -195,6 +111,31 @@ namespace InvestmentBuilder
             var previousValuation = _investmentRecordData.GetLatestRecordInvestmentValuationDate(account.Name);
             //
             var enInvestments = _GetInvestments(account.Name, previousValuation.HasValue ? previousValuation.Value : valuationDate).ToList();
+
+            bool bValidationFailed = false;
+            //validate each investment before we proceed with updating
+            foreach (var investment in enInvestments)
+            {
+                double dPrice = 0d;
+                var companyInfo = investment.CompanyData;
+                if (companyInfo != null && _tryGetClosingPrice(companyInfo.Symbol, companyInfo.Exchange, investment.Name, companyInfo.Currency, account.Currency, companyInfo.ScalingFactor, manualPrices, out dPrice))
+                {
+                    //validation, compare price with last known price for this investment, if price change> 50%
+                    //flag this as an error
+                    if(Math.Abs(investment.Price - dPrice) > (investment.Price / 2))
+                    {
+                        Log.Error("invalid price for {0}. excessive price movement. price = {1}: previous = {2}",
+                                    investment.Name, dPrice, investment.Price);
+                        bValidationFailed = true;
+                    }
+                }   
+            }
+
+            if (bValidationFailed == true)
+            {
+                return false;
+            }
+
             foreach (var investment in enInvestments)
             {
                 if (previousValuation.HasValue == false)
@@ -267,6 +208,8 @@ namespace InvestmentBuilder
                 //_marketDataService.TryGetClosingPrice(newTrade.Symbol, newTrade.Exchange, newTrade.Name, newTrade.Currency, account.Currency, newTrade.ScalingFactor, out dClosing);
                 _CreateNewInvestment(account.Name, newTrade, valuationDate, dClosing);
             }
+
+            return true;
         }
 
         private IEnumerable<CompanyData> GetInvestmentRecordsImpl(UserAccountData account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate, bool bSnapshot, ManualPrices manualPrices)

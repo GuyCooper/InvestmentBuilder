@@ -81,7 +81,12 @@ namespace InvestmentBuilder
                     Sells = Enumerable.Empty<Stock>().ToArray(),
                     Changed = Enumerable.Empty<Stock>().ToArray()
                 };
-                recordBuilder.UpdateInvestmentRecords(accountData, emptyTrades/*trades*/, cashAccountData, dtTradeValuationDate, manualPrices);
+
+                if(recordBuilder.UpdateInvestmentRecords(accountData, emptyTrades/*trades*/, cashAccountData, dtTradeValuationDate, manualPrices) == false)
+                {
+                    //failed to update investments, return null report
+                    return assetReport;
+                }
             }
             else
             {
@@ -150,7 +155,7 @@ namespace InvestmentBuilder
         /// will retrieve the new trades
         /// </summary>
         /// <param name="trades"></param>
-        public void UpdateTrades(string accountName, Trades trades, ManualPrices manualPrices)
+        public bool UpdateTrades(string accountName, Trades trades, ManualPrices manualPrices)
         {
             var recordBuilder = new InvestmentRecordBuilder(_marketDataService, _dataLayer.InvestmentRecordData);
 
@@ -162,7 +167,7 @@ namespace InvestmentBuilder
                 logger.Log(LogLevel.Error, "invalid username {0}", accountName);
             }
 
-            recordBuilder.UpdateInvestmentRecords(accountData, trades, null, DateTime.Now, manualPrices);
+            return recordBuilder.UpdateInvestmentRecords(accountData, trades, null, DateTime.Now, manualPrices);
         }
 
         private AssetReport _BuildAssetReport(DateTime dtValuationDate,

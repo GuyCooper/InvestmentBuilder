@@ -19,7 +19,8 @@ CREATE PROCEDURE [dbo].[sp_GetUserCompanies](@ValuationDate as DATETIME, @Accoun
 BEGIN
 
 SELECT 
-	C.Name as Name
+	C.Name as Name,
+	IR.Selling_Price as Price
 FROM 
 	InvestmentRecord IR
 INNER JOIN

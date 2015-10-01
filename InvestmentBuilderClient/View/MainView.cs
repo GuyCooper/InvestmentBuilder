@@ -256,18 +256,22 @@ namespace InvestmentBuilderClient.View
 
         private void DisplayAssetReport(AssetReport report)
         {
-            if (report != null)
+            //now marshall back onto main thread to display report
+            if (_displayContext != null)
             {
-                //now marshall back onto main thread to display report
-                if (_displayContext != null)
+                _displayContext.Post(o =>
                 {
-                    _displayContext.Post(o =>
+                    if (o != null)
                     {
                         var reportView = new AssetReportView((AssetReport)o);
                         reportView.TopLevel = true;
                         reportView.Show();
-                    }, report);
-                }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Error Generating Report,please view log", "Asset Report");
+                    }
+                }, report);
             }
         }
 

@@ -18,6 +18,9 @@ namespace InvestmentBuilderCore
         void ConnectNewDatasource(string datasource);
     }
 
+    /// <summary>
+    /// client interface to datalayer contains client specific methods
+    /// </summary>
     public interface IClientDataInterface
     {
         //client interface
@@ -42,6 +45,7 @@ namespace InvestmentBuilderCore
     public interface IInvestmentRecordInterface
     {
         //investment record interface
+        //roll (copy) an investment from dtPrevious to dtValuation
         void RollInvestment(string account, string investment, DateTime dtValuation, DateTime dtPreviousValaution);
         void UpdateInvestmentQuantity(string account, string investment, DateTime dtValuation, int quantity);
         void AddNewShares(string account, string investment, int quantity, DateTime dtValaution, double dTotalCost);
@@ -49,7 +53,7 @@ namespace InvestmentBuilderCore
         void UpdateClosingPrice(string account, string investment, DateTime dtValuation, double price);
         void UpdateDividend(string account, string investment, DateTime dtValuation, double dividend);
         InvestmentInformation GetInvestmentDetails(string investment);
-        IEnumerable<string> GetInvestments(string account, DateTime dtValuation);
+        IEnumerable<KeyValuePair<string,double>> GetInvestments(string account, DateTime dtValuation);
         void CreateNewInvestment(string account, string investment, string symbol, string currency,
                                  int quantity, double scalingFactor, double totalCost, double price,
                                  string exchange, DateTime dtValuation);
