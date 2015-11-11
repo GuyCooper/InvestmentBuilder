@@ -3,11 +3,16 @@ using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.Configuration;
 using InvestmentBuilderWeb.Services;
 using Microsoft.AspNet.Identity;
-using InvestmentBuilderWeb.Storage;
 using InvestmentBuilderWeb.Models;
 using Microsoft.Owin.Security;
 using System.Web;
 using Microsoft.AspNet.Identity.EntityFramework;
+using InvestmentBuilderCore;
+using InvestmentBuilder;
+using SQLServerDataLayer;
+using MarketDataServices;
+using PerformanceBuilderLib;
+using System.IO;
 
 namespace InvestmentBuilderWeb.App_Start
 {
@@ -55,11 +60,21 @@ namespace InvestmentBuilderWeb.App_Start
 
             container.RegisterType<IUserStore<ApplicationUser>, UserStore<ApplicationUser>>(
             new InjectionConstructor(typeof(ApplicationDbContext)));
-                                     
-            //container.RegisterType<IUserStore<ApplicationUser>, UserStore<ApplicationUser>>(
-            //                                    new HierarchicalLifetimeManager());
-            //container.RegisterType<AccountController>(
-            //                                     new InjectionConstructor());
+
+            //we only want single instances of the investmenrecord app specific classes generated
+            container.RegisterType<IAuthorizationManager, SQLAuthorizationManager>(new ContainerControlledLifetimeManager());
+            container.RegisterType<IMarketDataSource, AggregatedMarketDataSource>(new ContainerControlledLifetimeManager());
+            container.RegisterType<IMarketDataService, MarketDataService>(new ContainerControlledLifetimeManager());
+            //container.RegisterType<IMarketDataSource, TestFileMarketDataSource>("testMarketData.txt");
+
+            //%userprofile%\documents\iisexpress\config\applicationhost.config
+
+            string configFile= Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),"InvestmentRecordBuilder", "InvestmentBuilderWebConfig.xml");
+            container.RegisterType<IConfigurationSettings, ConfigurationSettings>(new ContainerControlledLifetimeManager(), new InjectionConstructor(configFile));
+            //todo,use servicelocator
+            container.RegisterType<IDataLayer, SQLServerDataLayer.SQLServerDataLayer>(new ContainerControlledLifetimeManager());
+            container.RegisterType<InvestmentBuilder.InvestmentBuilder>(new ContainerControlledLifetimeManager());
+            container.RegisterType<PerformanceBuilder>(new ContainerControlledLifetimeManager());
         }
     }
 }

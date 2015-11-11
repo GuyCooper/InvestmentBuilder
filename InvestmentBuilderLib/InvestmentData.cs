@@ -27,13 +27,13 @@ namespace InvestmentBuilder
 
     internal class InvestmentData : IInvestment
     {
-        private string _account;
+        private UserAccountToken _userToken;
         private IInvestmentRecordInterface _investmentRecordData;
-        public InvestmentData(string account, string name, double price, IInvestmentRecordInterface investmentRecordData)
+        public InvestmentData(UserAccountToken userToken, string name, double price, IInvestmentRecordInterface investmentRecordData)
         {
             Name = name;
             Price = price;
-            _account = account;
+            _userToken = userToken;
             _investmentRecordData = investmentRecordData;
             CompanyData = _investmentRecordData.GetInvestmentDetails(Name);
         }
@@ -44,32 +44,32 @@ namespace InvestmentBuilder
 
         public void UpdateRow(DateTime valuationDate, DateTime previousDate)
         {
-            _investmentRecordData.RollInvestment(_account, Name, valuationDate, previousDate);
+            _investmentRecordData.RollInvestment(_userToken, Name, valuationDate, previousDate);
         }
 
         public void ChangeShareHolding(DateTime valuationDate, int quantity)
         {
-            _investmentRecordData.UpdateInvestmentQuantity(_account, Name, valuationDate, quantity);
+            _investmentRecordData.UpdateInvestmentQuantity(_userToken, Name, valuationDate, quantity);
         }
 
         public void AddNewShares(DateTime valuationDate, Stock stock)
         {
-            _investmentRecordData.AddNewShares(_account, Name, stock.Quantity, valuationDate, stock.TotalCost);
+            _investmentRecordData.AddNewShares(_userToken, Name, stock.Quantity, valuationDate, stock.TotalCost);
         }
 
         public void UpdateClosingPrice(DateTime valuationDate, double dClosing)
         {
-            _investmentRecordData.UpdateClosingPrice(_account, Name, valuationDate, dClosing);
+            _investmentRecordData.UpdateClosingPrice(_userToken, Name, valuationDate, dClosing);
         }
 
         public void UpdateDividend(DateTime valuationDate, double dDividend)
         {
-            _investmentRecordData.UpdateDividend(_account, Name, valuationDate, dDividend);
+            _investmentRecordData.UpdateDividend(_userToken, Name, valuationDate, dDividend);
         }
 
         public void SellShares(DateTime valuationDate, Stock stock)
         {
-            _investmentRecordData.SellShares(_account, Name, stock.Quantity, valuationDate);
+            _investmentRecordData.SellShares(_userToken, Name, stock.Quantity, valuationDate);
         }
     }
 

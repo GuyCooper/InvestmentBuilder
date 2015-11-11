@@ -1,0 +1,13 @@
+﻿@model IEnumerable<string>
+ 
+<ul class="nav navbar-nav navbar-right">
+    <li><label>account</label></li>
+    <li>
+        <select>
+            @foreach(var account in Model)
+            { 
+                <option>@account</option>
+            }
+        </select>
+    </li>
+</ul>           

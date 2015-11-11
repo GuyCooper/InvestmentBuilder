@@ -18,8 +18,14 @@ namespace InvestmentBuilderTests
         private bool m_bOk = false;
 
         private static string _TestAccount = "Guy SIPP";
+        private static string _TestUser = "TestUser";
         private static string _NewTestTradeName = "Acme Plc";
         private static double _NewTradeTotalCost = 1284.45;
+
+        private UserAccountToken _userToken = new UserAccountToken(
+                                                    _TestUser,
+                                                    _TestAccount,
+                                                    AuthorizationLevel.ADMINISTRATOR);
 
         private Stock _TestNewTrade = new Stock
             {
@@ -35,6 +41,10 @@ namespace InvestmentBuilderTests
 
         private static string _NewTestAccount = "TestAcc";
         private static string _NewTestUser = "bobby bob";
+
+        private UserAccountToken _newTestToken = new UserAccountToken(
+            _NewTestUser, _NewTestAccount, AuthorizationLevel.ADMINISTRATOR);
+
         private static DateTime _TransactionDate = DateTime.Parse("03/09/2015");
         private static DateTime _ValuationDate = DateTime.Parse("11/09/2015");
 
@@ -88,6 +98,8 @@ namespace InvestmentBuilderTests
             //todo,use servicelocator
             ContainerManager.RegisterType(typeof(IDataLayer), typeof(SQLServerDataLayer.SQLServerDataLayer), false);
             ContainerManager.RegisterType(typeof(InvestmentBuilder.InvestmentBuilder), typeof(InvestmentBuilder.InvestmentBuilder), false);
+
+            ContainerManager.RegisterType(typeof(IAuthorizationManager), typeof(SQLAuthorizationManager), false);
         }
 
         [Test]
@@ -97,7 +109,7 @@ namespace InvestmentBuilderTests
 
             if (m_bOk == true)
             {
-                var results = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().GetCurrentInvestments(_TestAccount, null);
+                var results = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().GetCurrentInvestments(_userToken, null);
                 VerifyCompanyDataResults(results.ToList(), @"TestFiles\TestResultData.txt", 22);
             }
         }
@@ -116,7 +128,7 @@ namespace InvestmentBuilderTests
                     {testCompany, dTestValue }
                 };
 
-                var results = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().GetCurrentInvestments(_TestAccount, prices);
+                var results = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().GetCurrentInvestments(_userToken, prices);
                 var resultData = results.First(x => string.Equals(x.Name, testCompany));
                 Assert.IsNotNull(resultData);
                 if(resultData != null)
@@ -126,6 +138,16 @@ namespace InvestmentBuilderTests
                     MatchDoubleVal(resultData.ProfitLoss, "1398.2918");
                 }
             }
+        }
+
+        [Test]
+        public void When_Authorizing_Windows_User()
+        {
+            var manager = ContainerManager.ResolveValue<IAuthorizationManager>();
+            var user = string.Format(@"{0}\{1}",Environment.UserDomainName, Environment.UserName);
+            manager.SetUserAccountToken(user, _TestAccount);
+            var token = manager.GetCurrentTokenForUser(user);
+            token.AuthorizeUser(AuthorizationLevel.ADMINISTRATOR);
         }
 
         [Test]
@@ -145,39 +167,39 @@ namespace InvestmentBuilderTests
 
             if (m_bOk == true)
             {
-                When_adding_a_new_account(_NewTestAccount);
-                When_adding_a_new_trade(_NewTestAccount);
-                When_building_asset_report(_NewTestAccount, _NewTestUser, _TransactionDate, _ValuationDate);
-                When_building_asset_report_next_month(_NewTestAccount, _NewTestUser, _TransactionDateNextMonth, _ValuationDateNextMonth);
+                When_adding_a_new_account(_newTestToken);
+                When_adding_a_new_trade(_newTestToken);
+                When_building_asset_report(_newTestToken, _TransactionDate, _ValuationDate);
+                When_building_asset_report_next_month(_newTestToken, _TransactionDateNextMonth, _ValuationDateNextMonth);
             }
         }
 
-        private void When_adding_a_new_account(string accName)
+        private void When_adding_a_new_account(UserAccountToken userToken)
         {
             Console.WriteLine("adding a new account...");
 
             var account = new AccountModel
             {
-                Name = accName,
+                Name = userToken.Account,
                 Description = "Unit Test Account",
                 Enabled = true,
                 ReportingCurrency = "GBP",
                 Type = "Personal",
                 Password = "psst"
             };
-            ContainerManager.ResolveValue<SQLServerDataLayer.SQLServerDataLayer>().ClientData.CreateAccount(account);
+            ContainerManager.ResolveValue<SQLServerDataLayer.SQLServerDataLayer>().ClientData.CreateAccount(userToken, account);
 
-            ContainerManager.ResolveValue<SQLServerDataLayer.SQLServerDataLayer>().ClientData.UpdateMemberForAccount(accName,
-                                                                                         _NewTestUser, true);
+            ContainerManager.ResolveValue<SQLServerDataLayer.SQLServerDataLayer>().ClientData.UpdateMemberForAccount(userToken,
+                                                                                         userToken.User, AuthorizationLevel.UPDATE, true);
                                                                                          
-            var result = ContainerManager.ResolveValue<SQLServerDataLayer.SQLServerDataLayer>().ClientData.GetAccount(accName);
+            var result = ContainerManager.ResolveValue<SQLServerDataLayer.SQLServerDataLayer>().ClientData.GetAccount(userToken);
 
             Assert.IsNotNull(result);
 
             Assert.AreEqual("Personal", result.Type);
         }
         
-        private void When_adding_a_new_trade(string accName)
+        private void When_adding_a_new_trade(UserAccountToken userToken)
         {
             Console.WriteLine("adding a new trade...");
 
@@ -187,10 +209,10 @@ namespace InvestmentBuilderTests
                 Changed = Enumerable.Empty<Stock>().ToArray(),
                 Buys = new List<Stock> { _TestNewTrade}.ToArray()
             };
-            ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().UpdateTrades(accName,
+            ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().UpdateTrades(userToken,
                                                                                               trades, null);
 
-            var results = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().GetCurrentInvestments(accName, null).ToList();
+            var results = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().GetCurrentInvestments(userToken, null).ToList();
             Assert.AreEqual(1, results.Count);
 
             var companyData = results.First();
@@ -201,25 +223,25 @@ namespace InvestmentBuilderTests
             MatchDoubleVal(companyData.MonthChangeRatio, "0.0");
         }
 
-        private void When_building_asset_report(string account, string user, DateTime dtTransactionDate, DateTime dtValuationDate)
+        private void When_building_asset_report(UserAccountToken userToken, DateTime dtTransactionDate, DateTime dtValuationDate)
         {
             Console.WriteLine("building full asset report...");
             ContainerManager.ResolveValue<SQLServerDataLayer.SQLServerDataLayer>().ClientData.AddCashAccountData(
-                account, dtValuationDate, dtTransactionDate, "BalanceInHand", "BalanceInHand", 2000);
+                userToken, dtValuationDate, dtTransactionDate, "BalanceInHand", "BalanceInHand", 2000);
 
             ContainerManager.ResolveValue<SQLServerDataLayer.SQLServerDataLayer>().ClientData.AddCashAccountData(
-                account, dtValuationDate, dtTransactionDate, "Subscription", user, 200.0);
+                userToken, dtValuationDate, dtTransactionDate, "Subscription", userToken.User, 200.0);
 
             ContainerManager.ResolveValue<SQLServerDataLayer.SQLServerDataLayer>().ClientData.AddCashAccountData(
-               account, dtValuationDate, dtTransactionDate, "Purchase", _NewTestTradeName, _NewTradeTotalCost);
+               userToken, dtValuationDate, dtTransactionDate, "Purchase", _NewTestTradeName, _NewTradeTotalCost);
 
             ContainerManager.ResolveValue<SQLServerDataLayer.SQLServerDataLayer>().ClientData.AddCashAccountData(
-                 account, dtValuationDate, dtTransactionDate, "BalanceInHandCF", "BalanceInHandCF", 913.05);
+                 userToken, dtValuationDate, dtTransactionDate, "BalanceInHandCF", "BalanceInHandCF", 913.05);
 
             ContainerManager.ResolveValue<SQLServerDataLayer.SQLServerDataLayer>().ClientData.AddCashAccountData(
-                 account, dtValuationDate, dtTransactionDate, "Admin Fee", "Admin Fee", 2.50);
+                 userToken, dtValuationDate, dtTransactionDate, "Admin Fee", "Admin Fee", 2.50);
 
-            var report = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().BuildAssetReport(account,
+            var report = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().BuildAssetReport(userToken,
                                                                                                   dtValuationDate,
                                                                                                   true,
                                                                                                   null);
@@ -241,31 +263,31 @@ namespace InvestmentBuilderTests
             MatchDoubleVal(report.YearToDatePerformance, "0.0");
         }
 
-        private void When_building_asset_report_next_month(string account, string user, DateTime dtTransactionDate, DateTime dtValuationDate)
+        private void When_building_asset_report_next_month(UserAccountToken userToken, DateTime dtTransactionDate, DateTime dtValuationDate)
         {
             Console.WriteLine("building full asset report next month...");
 
             ContainerManager.ResolveValue<SQLServerDataLayer.SQLServerDataLayer>().ClientData.AddCashAccountData(
-                account, dtValuationDate, dtTransactionDate, "BalanceInHand", "BalanceInHand", 913.05);
+                userToken, dtValuationDate, dtTransactionDate, "BalanceInHand", "BalanceInHand", 913.05);
 
             ContainerManager.ResolveValue<SQLServerDataLayer.SQLServerDataLayer>().ClientData.AddCashAccountData(
-                account, dtValuationDate, dtTransactionDate, "Subscription", user, 200.0);
+                userToken, dtValuationDate, dtTransactionDate, "Subscription", userToken.User, 200.0);
 
             ContainerManager.ResolveValue<SQLServerDataLayer.SQLServerDataLayer>().ClientData.AddCashAccountData(
-                account, dtValuationDate, dtTransactionDate, "Interest", user, 0.08);
+                userToken, dtValuationDate, dtTransactionDate, "Interest", userToken.User, 0.08);
 
             ContainerManager.ResolveValue<SQLServerDataLayer.SQLServerDataLayer>().ClientData.AddCashAccountData(
-                account, dtValuationDate, dtTransactionDate, "Admin Fee", "Admin Fee", 2.50);
+                userToken, dtValuationDate, dtTransactionDate, "Admin Fee", "Admin Fee", 2.50);
 
             ContainerManager.ResolveValue<SQLServerDataLayer.SQLServerDataLayer>().ClientData.AddCashAccountData(
-                account, dtValuationDate, dtTransactionDate, "BalanceInHandCF", "BalanceInHandCF", 1110.63);
+                userToken, dtValuationDate, dtTransactionDate, "BalanceInHandCF", "BalanceInHandCF", 1110.63);
 
             var manualPrices = new ManualPrices
             {
                 {_TestNewTrade.Name, 49.86}
             };
 
-            var report = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().BuildAssetReport(account,
+            var report = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().BuildAssetReport(userToken,
                                                                                       dtValuationDate,
                                                                                       true,
                                                                                       manualPrices);

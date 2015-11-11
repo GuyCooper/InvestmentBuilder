@@ -30,7 +30,6 @@
         {
             this.label1 = new System.Windows.Forms.Label();
             this.txtAccountName = new System.Windows.Forms.TextBox();
-            this.listMembers = new System.Windows.Forms.ListBox();
             this.label2 = new System.Windows.Forms.Label();
             this.chkEnableAccount = new System.Windows.Forms.CheckBox();
             this.btnAddAccount = new System.Windows.Forms.Button();
@@ -44,6 +43,10 @@
             this.txtCurrency = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
             this.cmboType = new System.Windows.Forms.ComboBox();
+            this.lstVwMembers = new System.Windows.Forms.ListView();
+            this.colName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.colRole = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.btnEdit = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -62,14 +65,6 @@
             this.txtAccountName.Size = new System.Drawing.Size(244, 20);
             this.txtAccountName.TabIndex = 1;
             this.txtAccountName.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtAccountName_KeyPress);
-            // 
-            // listMembers
-            // 
-            this.listMembers.FormattingEnabled = true;
-            this.listMembers.Location = new System.Drawing.Point(126, 277);
-            this.listMembers.Name = "listMembers";
-            this.listMembers.Size = new System.Drawing.Size(244, 121);
-            this.listMembers.TabIndex = 2;
             // 
             // label2
             // 
@@ -105,7 +100,7 @@
             // btnAddMember
             // 
             this.btnAddMember.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-            this.btnAddMember.Location = new System.Drawing.Point(25, 307);
+            this.btnAddMember.Location = new System.Drawing.Point(28, 303);
             this.btnAddMember.Name = "btnAddMember";
             this.btnAddMember.Size = new System.Drawing.Size(75, 23);
             this.btnAddMember.TabIndex = 6;
@@ -115,7 +110,7 @@
             // 
             // btnRemove
             // 
-            this.btnRemove.Location = new System.Drawing.Point(25, 346);
+            this.btnRemove.Location = new System.Drawing.Point(28, 332);
             this.btnRemove.Name = "btnRemove";
             this.btnRemove.Size = new System.Drawing.Size(75, 23);
             this.btnRemove.TabIndex = 7;
@@ -189,11 +184,43 @@
             this.cmboType.Size = new System.Drawing.Size(121, 21);
             this.cmboType.TabIndex = 15;
             // 
+            // lstVwMembers
+            // 
+            this.lstVwMembers.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.colName,
+            this.colRole});
+            this.lstVwMembers.Location = new System.Drawing.Point(129, 277);
+            this.lstVwMembers.Name = "lstVwMembers";
+            this.lstVwMembers.Size = new System.Drawing.Size(244, 132);
+            this.lstVwMembers.TabIndex = 16;
+            this.lstVwMembers.UseCompatibleStateImageBehavior = false;
+            this.lstVwMembers.View = System.Windows.Forms.View.Details;
+            // 
+            // colName
+            // 
+            this.colName.Text = "Name";
+            // 
+            // colRole
+            // 
+            this.colRole.Text = "Role";
+            // 
+            // btnEdit
+            // 
+            this.btnEdit.Location = new System.Drawing.Point(28, 361);
+            this.btnEdit.Name = "btnEdit";
+            this.btnEdit.Size = new System.Drawing.Size(75, 23);
+            this.btnEdit.TabIndex = 17;
+            this.btnEdit.Text = "Edit";
+            this.btnEdit.UseVisualStyleBackColor = true;
+            this.btnEdit.Click += new System.EventHandler(this.btnEdit_Click);
+            // 
             // ManageUserView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(382, 470);
+            this.Controls.Add(this.btnEdit);
+            this.Controls.Add(this.lstVwMembers);
             this.Controls.Add(this.cmboType);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.txtCurrency);
@@ -207,7 +234,6 @@
             this.Controls.Add(this.btnAddAccount);
             this.Controls.Add(this.chkEnableAccount);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.listMembers);
             this.Controls.Add(this.txtAccountName);
             this.Controls.Add(this.label1);
             this.MaximizeBox = false;
@@ -225,7 +251,6 @@
 
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox txtAccountName;
-        private System.Windows.Forms.ListBox listMembers;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.CheckBox chkEnableAccount;
         private System.Windows.Forms.Button btnAddAccount;
@@ -239,5 +264,9 @@
         private System.Windows.Forms.TextBox txtCurrency;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.ComboBox cmboType;
+        private System.Windows.Forms.ListView lstVwMembers;
+        private System.Windows.Forms.ColumnHeader colName;
+        private System.Windows.Forms.ColumnHeader colRole;
+        private System.Windows.Forms.Button btnEdit;
     }
 }

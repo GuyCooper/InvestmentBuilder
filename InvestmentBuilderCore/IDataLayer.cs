@@ -24,20 +24,21 @@ namespace InvestmentBuilderCore
     public interface IClientDataInterface
     {
         //client interface
-        IEnumerable<DateTime> GetRecentValuationDates(string account);
+        IEnumerable<DateTime> GetRecentValuationDates(UserAccountToken userToken);
         IEnumerable<string> GetTransactionTypes(string side);
-        IEnumerable<string> GetActiveCompanies(string account, DateTime valuationDate);
-        IEnumerable<string> GetAccountMembers(string account, DateTime valuationDate);
-        void GetCashAccountData(string account, string side, DateTime valuationDate, Action<IDataReader> fnAddTransaction);
-        DateTime? GetLatestValuationDate(string account);
-        double GetBalanceInHand(string account, DateTime valuationDate);
-        void AddCashAccountData(string account, DateTime valuationDate, DateTime transactionDate,
+        IEnumerable<string> GetActiveCompanies(UserAccountToken userToken, DateTime valuationDate);
+        IEnumerable<string> GetAccountMembers(UserAccountToken userToken, DateTime valuationDate);
+        IEnumerable<KeyValuePair<string, AuthorizationLevel>> GetAccountMemberDetails(UserAccountToken userToken, DateTime valuationDate);
+        void GetCashAccountData(UserAccountToken userToken, string side, DateTime valuationDate, Action<IDataReader> fnAddTransaction);
+        DateTime? GetLatestValuationDate(UserAccountToken userToken);
+        double GetBalanceInHand(UserAccountToken userToken, DateTime valuationDate);
+        void AddCashAccountData(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate,
                                 string type, string parameter, double amount);
-        IEnumerable<string> GetAccountNames();
-        bool IsExistingValuationDate(string account, DateTime valuationDate);
-        void UpdateMemberForAccount(string account, string member, bool add);
-        void CreateAccount(AccountModel account);
-        AccountModel GetAccount(string account);
+        IEnumerable<string> GetAccountNames(string user);
+        bool IsExistingValuationDate(UserAccountToken userToken, DateTime valuationDate);
+        void UpdateMemberForAccount(UserAccountToken userToken, string member, AuthorizationLevel level, bool add);
+        void CreateAccount(UserAccountToken userToken, AccountModel account);
+        AccountModel GetAccount(UserAccountToken userToken);
         IEnumerable<string> GetAccountTypes();
         IEnumerable<string> GetAllCompanies();
     }
@@ -46,45 +47,45 @@ namespace InvestmentBuilderCore
     {
         //investment record interface
         //roll (copy) an investment from dtPrevious to dtValuation
-        void RollInvestment(string account, string investment, DateTime dtValuation, DateTime dtPreviousValaution);
-        void UpdateInvestmentQuantity(string account, string investment, DateTime dtValuation, int quantity);
-        void AddNewShares(string account, string investment, int quantity, DateTime dtValaution, double dTotalCost);
-        void SellShares(string account, string investment, int quantity, DateTime dtValuation);
-        void UpdateClosingPrice(string account, string investment, DateTime dtValuation, double price);
-        void UpdateDividend(string account, string investment, DateTime dtValuation, double dividend);
+        void RollInvestment(UserAccountToken userToken, string investment, DateTime dtValuation, DateTime dtPreviousValaution);
+        void UpdateInvestmentQuantity(UserAccountToken userToken, string investment, DateTime dtValuation, int quantity);
+        void AddNewShares(UserAccountToken userToken, string investment, int quantity, DateTime dtValaution, double dTotalCost);
+        void SellShares(UserAccountToken userToken, string investment, int quantity, DateTime dtValuation);
+        void UpdateClosingPrice(UserAccountToken userToken, string investment, DateTime dtValuation, double price);
+        void UpdateDividend(UserAccountToken userToken, string investment, DateTime dtValuation, double dividend);
         InvestmentInformation GetInvestmentDetails(string investment);
-        IEnumerable<KeyValuePair<string,double>> GetInvestments(string account, DateTime dtValuation);
-        void CreateNewInvestment(string account, string investment, string symbol, string currency,
+        IEnumerable<KeyValuePair<string, double>> GetInvestments(UserAccountToken userToken, DateTime dtValuation);
+        void CreateNewInvestment(UserAccountToken userToken, string investment, string symbol, string currency,
                                  int quantity, double scalingFactor, double totalCost, double price,
                                  string exchange, DateTime dtValuation);
-        IEnumerable<CompanyData> GetInvestmentRecordData(string account, DateTime dtValuation);
-        void DeactivateInvestment(string account, string investment);
-        DateTime? GetLatestRecordInvestmentValuationDate(string account);
-        DateTime? GetPreviousRecordInvestmentValuationDate(string account, DateTime dtValuation);
+        IEnumerable<CompanyData> GetInvestmentRecordData(UserAccountToken userToken, DateTime dtValuation);
+        void DeactivateInvestment(UserAccountToken userToken, string investment);
+        DateTime? GetLatestRecordInvestmentValuationDate(UserAccountToken userToken);
+        DateTime? GetPreviousRecordInvestmentValuationDate(UserAccountToken userToken, DateTime dtValuation);
     }
 
     public interface ICashAccountInterface
     {
-        CashAccountData GetCashAccountData(string account, DateTime valuationDate);
+        CashAccountData GetCashAccountData(UserAccountToken userToken, DateTime valuationDate);
     }
 
     public interface IUserAccountInterface
     {
        //user account interface
-        void RollbackValuationDate(string account, DateTime dtValuation);
-        void UpdateMemberAccount(string account, DateTime dtValuation, string member, double dAmount);
-        double GetMemberSubscription(string account, DateTime dtValuation, string member);
-        IEnumerable<KeyValuePair<string, double>> GetMemberAccountData(string account, DateTime dtValuation);
-        double GetPreviousUnitValuation(string account, DateTime dtValuation, DateTime? previousDate);
-        void SaveNewUnitValue(string account, DateTime dtValuation, double dUnitValue);
-        double GetIssuedUnits(string account, DateTime dtValuation);
-        DateTime? GetPreviousAccountValuationDate(string account, DateTime dtValuation);
-        IEnumerable<string> GetAccountMembers(string account);
-        UserAccountData GetUserAccountData(string account);
+        void RollbackValuationDate(UserAccountToken userToken, DateTime dtValuation);
+        void UpdateMemberAccount(UserAccountToken userToken, DateTime dtValuation, string member, double dAmount);
+        double GetMemberSubscription(UserAccountToken userToken, DateTime dtValuation, string member);
+        IEnumerable<KeyValuePair<string, double>> GetMemberAccountData(UserAccountToken userToken, DateTime dtValuation);
+        double GetPreviousUnitValuation(UserAccountToken userToken, DateTime dtValuation, DateTime? previousDate);
+        void SaveNewUnitValue(UserAccountToken userToken, DateTime dtValuation, double dUnitValue);
+        double GetIssuedUnits(UserAccountToken userToken, DateTime dtValuation);
+        DateTime? GetPreviousAccountValuationDate(UserAccountToken userToken, DateTime dtValuation);
+        IEnumerable<string> GetAccountMembers(UserAccountToken userToken);
+        UserAccountData GetUserAccountData(UserAccountToken userToken);
     }
 
     public interface IHistoricalDataReader
     {
-        IEnumerable<HistoricalData> GetHistoricalAccountData(string account);
+        IEnumerable<HistoricalData> GetHistoricalAccountData(UserAccountToken userToken);
     }
 }

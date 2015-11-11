@@ -31,3 +31,9 @@ overflow: auto;
 background-color: whitesmoke;
 padding: 1.5em;
 }
+
+.createNew {
+position: fixed;
+top: 5em;
+right: 1em;
+}

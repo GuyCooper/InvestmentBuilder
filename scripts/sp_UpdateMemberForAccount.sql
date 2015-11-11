@@ -11,7 +11,7 @@ END
 
 GO
 
-CREATE PROCEDURE sp_UpdateMemberForAccount(@Account AS VARCHAR(30), @Member AS VARCHAR(50), @Add as TINYINT) AS
+CREATE PROCEDURE sp_UpdateMemberForAccount(@Account AS VARCHAR(30), @Member AS VARCHAR(50), @Level as INT, @Add as TINYINT) AS
 BEGIN
 
 	--if user does not exist in database then add them  
@@ -28,20 +28,22 @@ BEGIN
 					 U.Name = @Account
 				  	 )
 	BEGIN
-		INSERT INTO MEMBERS(Name, account_id)
+		INSERT INTO MEMBERS(Name, account_id, [Authorization])
 		SELECT 
 			@Member,
-			[User_Id]
+			[User_Id],
+			@Level
 		FROM
 			Users
 		WHERE
 			Name = @Account		 
 	END
 
-	--now set the enabled flag
+	--now set the enabled flag and user level
 	UPDATE M
  	SET	   
-		   [Enabled] = @Add
+		   [Enabled] = @Add,
+		   [Authorization] = @Level
 	FROM
 		Members M
 	INNER JOIN

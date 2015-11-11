@@ -24,15 +24,15 @@ namespace InvestmentBuilder
             Log = LogManager.GetLogger(GetType().FullName);
         }
 
-        private IEnumerable<IInvestment> _GetInvestments(string account, DateTime dtValuationDate)
+        private IEnumerable<IInvestment> _GetInvestments(UserAccountToken userToken, DateTime dtValuationDate)
         {
-            var companies = _investmentRecordData.GetInvestments(account, dtValuationDate).ToList(); 
-            return companies.Select(c => new InvestmentData(account, c.Key, c.Value, _investmentRecordData));
+            var companies = _investmentRecordData.GetInvestments(userToken, dtValuationDate).ToList(); 
+            return companies.Select(c => new InvestmentData(userToken, c.Key, c.Value, _investmentRecordData));
         }
 
-        private void _CreateNewInvestment(string account, Stock newTrade, DateTime valuationDate, double dClosing)
+        private void _CreateNewInvestment(UserAccountToken userToken, Stock newTrade, DateTime valuationDate, double dClosing)
         {
-            _investmentRecordData.CreateNewInvestment(account, newTrade.Name, newTrade.Symbol, newTrade.Currency,
+            _investmentRecordData.CreateNewInvestment(userToken, newTrade.Name, newTrade.Symbol, newTrade.Currency,
                                                       newTrade.Quantity, newTrade.ScalingFactor, newTrade.TotalCost, dClosing, newTrade.Exchange,
                                                       valuationDate);
         }
@@ -45,9 +45,9 @@ namespace InvestmentBuilder
             return dGrossValue - 7.5d;
         }
 
-        private IEnumerable<CompanyData> _GetCompanyDataImpl(UserAccountData account, DateTime dtValuationDate, bool bUpdatePrice, ManualPrices manualPrices )
+        private IEnumerable<CompanyData> _GetCompanyDataImpl(UserAccountToken userToken, UserAccountData account, DateTime dtValuationDate, bool bUpdatePrice, ManualPrices manualPrices )
         {
-            var investments = _investmentRecordData.GetInvestmentRecordData(account.Name, dtValuationDate).ToList();
+            var investments = _investmentRecordData.GetInvestmentRecordData(userToken, dtValuationDate).ToList();
             foreach (var investment in investments)
             {
                 if (bUpdatePrice == true)
@@ -77,9 +77,9 @@ namespace InvestmentBuilder
             currentData.MonthChangeRatio = currentData.MonthChange / previousData.NetSellingValue * 100;
         }
 
-        private void _DeactivateInvestment(string investment, string account)
+        private void _DeactivateInvestment(string investment, UserAccountToken userToken)
         {
-            _investmentRecordData.DeactivateInvestment(account, investment);
+            _investmentRecordData.DeactivateInvestment(userToken, investment);
         }
 
         private bool _tryGetClosingPrice(string symbol, string exchange, string name, string currency, string accountCurrency,double scalingFactor, ManualPrices manualPrices, out double dPrice)
@@ -100,7 +100,7 @@ namespace InvestmentBuilder
         /// <param name="cashData"></param>
         /// <param name="valuationDate"></param>
         /// <param name="previousValuation"></param>
-        public bool UpdateInvestmentRecords(UserAccountData account, Trades trades, CashAccountData cashData, DateTime valuationDate, ManualPrices manualPrices)
+        public bool UpdateInvestmentRecords(UserAccountToken userToken, UserAccountData account, Trades trades, CashAccountData cashData, DateTime valuationDate, ManualPrices manualPrices)
         {
             Log.Log(LogLevel.Info, "building investment records...");
             //Console.WriteLine("building investment records...");
@@ -108,9 +108,9 @@ namespace InvestmentBuilder
             var aggregatedBuys = trades.Buys.AggregateStocks().ToList();
             var aggregatedSells = trades.Sells.AggregateStocks().ToList();
 
-            var previousValuation = _investmentRecordData.GetLatestRecordInvestmentValuationDate(account.Name);
+            var previousValuation = _investmentRecordData.GetLatestRecordInvestmentValuationDate(userToken);
             //
-            var enInvestments = _GetInvestments(account.Name, previousValuation.HasValue ? previousValuation.Value : valuationDate).ToList();
+            var enInvestments = _GetInvestments(userToken, previousValuation.HasValue ? previousValuation.Value : valuationDate).ToList();
 
             bool bValidationFailed = false;
             //validate each investment before we proceed with updating
@@ -206,16 +206,16 @@ namespace InvestmentBuilder
                                     out dClosing);
 
                 //_marketDataService.TryGetClosingPrice(newTrade.Symbol, newTrade.Exchange, newTrade.Name, newTrade.Currency, account.Currency, newTrade.ScalingFactor, out dClosing);
-                _CreateNewInvestment(account.Name, newTrade, valuationDate, dClosing);
+                _CreateNewInvestment(userToken, newTrade, valuationDate, dClosing);
             }
 
             return true;
         }
 
-        private IEnumerable<CompanyData> GetInvestmentRecordsImpl(UserAccountData account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate, bool bSnapshot, ManualPrices manualPrices)
+        private IEnumerable<CompanyData> GetInvestmentRecordsImpl(UserAccountToken userToken, UserAccountData account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate, bool bSnapshot, ManualPrices manualPrices)
         {
-            var lstCurrentData = _GetCompanyDataImpl(account, dtValuationDate, bSnapshot, manualPrices).ToList();
-            var lstPreviousData = dtPreviousValuationDate.HasValue ? _GetCompanyDataImpl(account, dtPreviousValuationDate.Value, false, null).ToList() : new List<CompanyData>();
+            var lstCurrentData = _GetCompanyDataImpl(userToken, account, dtValuationDate, bSnapshot, manualPrices).ToList();
+            var lstPreviousData = dtPreviousValuationDate.HasValue ? _GetCompanyDataImpl(userToken, account, dtPreviousValuationDate.Value, false, null).ToList() : new List<CompanyData>();
             foreach (var company in lstCurrentData)
             {
                 var previousData = lstPreviousData.Find(c => c.Name == company.Name);
@@ -226,7 +226,7 @@ namespace InvestmentBuilder
                 company.ProfitLoss = company.NetSellingValue - company.TotalCost;
                 if (bSnapshot == false && company.Quantity == 0)
                 {
-                    _DeactivateInvestment(company.Name, account.Name);
+                    _DeactivateInvestment(company.Name, userToken);
                 }
             }
             return lstCurrentData;
@@ -238,12 +238,12 @@ namespace InvestmentBuilder
         /// <param name="dtValuationDate"></param>
         /// <param name="dtPreviousValuationDate"></param>
         /// <returns></returns>
-        public IEnumerable<CompanyData> GetInvestmentRecords(UserAccountData account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate)
+        public IEnumerable<CompanyData> GetInvestmentRecords(UserAccountToken userToken, UserAccountData account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate)
         {
             //dtPreviousValuationDate parameteris the previous valuation date.we need to extract the previous record
             //valuation date from this to retrieve the correct previous record data from the database
-            DateTime? dtPreviousRecordValuationDate = dtPreviousValuationDate.HasValue ? _investmentRecordData.GetPreviousRecordInvestmentValuationDate(account.Name, dtPreviousValuationDate.Value) : null;
-            return GetInvestmentRecordsImpl(account, dtValuationDate, dtPreviousRecordValuationDate, false, null);
+            DateTime? dtPreviousRecordValuationDate = dtPreviousValuationDate.HasValue ? _investmentRecordData.GetPreviousRecordInvestmentValuationDate(userToken, dtPreviousValuationDate.Value) : null;
+            return GetInvestmentRecordsImpl(userToken, account, dtValuationDate, dtPreviousRecordValuationDate, false, null);
         }
 
         /// <summary>
@@ -255,19 +255,19 @@ namespace InvestmentBuilder
         /// <param name="dtValuationDate"></param>
         /// <param name="dtPreviousValuationDate"></param>
         /// <returns></returns>
-        public IEnumerable<CompanyData> GetInvestmentRecordSnapshot(UserAccountData account, ManualPrices manualPrices)
+        public IEnumerable<CompanyData> GetInvestmentRecordSnapshot(UserAccountToken userToken, UserAccountData account, ManualPrices manualPrices)
         {
-            DateTime? dtPreviousValuationDate = _investmentRecordData.GetLatestRecordInvestmentValuationDate(account.Name);
+            DateTime? dtPreviousValuationDate = _investmentRecordData.GetLatestRecordInvestmentValuationDate(userToken);
             if (dtPreviousValuationDate.HasValue) //
-                return GetInvestmentRecordsImpl(account, dtPreviousValuationDate.Value, dtPreviousValuationDate, true, manualPrices);
+                return GetInvestmentRecordsImpl(userToken, account, dtPreviousValuationDate.Value, dtPreviousValuationDate, true, manualPrices);
 
             //if there is no last known valuation date for this account then just return an empty report
             return new List<CompanyData>(); 
         }
-    
-        public DateTime? GetLatestRecordValuationDate(string account)
+
+        public DateTime? GetLatestRecordValuationDate(UserAccountToken userToken)
         {
-            return _investmentRecordData.GetLatestRecordInvestmentValuationDate(account);
+            return _investmentRecordData.GetLatestRecordInvestmentValuationDate(userToken);
         }
     }
 }

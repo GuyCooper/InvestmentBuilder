@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccountModel.cs" />
+    <Compile Include="AuthorizationManager.cs" />
     <Compile Include="ConfigurationSettings.cs" />
     <Compile Include="ContainerManager.cs" />
     <Compile Include="IDataLayer.cs" />

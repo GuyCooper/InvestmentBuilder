@@ -9,6 +9,16 @@
     });
 
     $(document).ready(function () {
+
+        $.ajax({
+            url: '/InvestmentRecord/GetAccounts',
+            type: 'GET',
+            dataType: 'html',
+            success: function (result) {
+                $("#accountsList").append(result)
+            }
+        });
+
         $.ajax({
             url: '/Itinerary/GetAdParts',
             dataType: "json",
@@ -25,6 +35,7 @@
                 $("#ads").append(content);
             }
         });
+
 
         $("#helpTrigger").click(getHelp);
     });

@@ -3,5 +3,44 @@
     ViewBag.Title = "CashFlow";
 }
 
-<h2>CashFlow</h2>
+<ul class="nav nav-tabs nav-justified">
+    <li><a href="@Url.Action("index")">Portfolio</a></li>
+    <li><a href="@Url.Action("CashFlow")">CashFlow</a></li>
+    <li><a href="@Url.Action("Performance")">Performance</a></li>
+</ul>
+
+
+<div class="panel panel-default"> 
+    <div class="panel-heading">
+        <h3 class="panel-title">Panel title</h3>
+    </div>
+    <div class="panel-body">
+        Receipts 
+    </div> 
+    <table class="table table-condensed">
+        <th>Product</th><th>Price </th>
+        <tr>
+           <td>Product A</td>
+           <td>200</td>
+        </tr>
+        <tr>
+           <td>Product B</td>
+           <td>400</td>
+        </tr>
+    </table>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">Panel Heading</div>
+    <table class="table table-condensed">
+        <th>Product</th><th>Price </th>
+        <tr>
+           <td>Product A</td>
+           <td>200</td></tr>
+        <tr>
+           <td>Product B</td>
+           <td>400</td>
+        </tr>
+    </table>
+</div>
+
 

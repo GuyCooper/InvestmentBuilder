@@ -30,6 +30,8 @@ namespace InvestmentBuilderTestRunner
             var fullTest = new FullInvestmentBuilderTests();
             fullTest.Setup();
 
+            fullTest.When_Authorizing_Windows_User();
+
             fullTest.When_getting_current_investments();
 
             fullTest.When_getting_current_investments_with_price_overrides();

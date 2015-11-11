@@ -16,8 +16,10 @@ namespace SQLServerDataLayer
             Connection = connection;
         }
 
-        public CashAccountData GetCashAccountData(string account, DateTime valuationDate)
+        public CashAccountData GetCashAccountData(UserAccountToken userToken, DateTime valuationDate)
         {
+            userToken.AuthorizeUser(AuthorizationLevel.READ);
+
             var cashData = new CashAccountData();
 
             //retrieve the current bank balance
@@ -25,7 +27,7 @@ namespace SQLServerDataLayer
             {
                 cmdBankBalance.CommandType = System.Data.CommandType.StoredProcedure;
                 cmdBankBalance.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
-                cmdBankBalance.Parameters.Add(new SqlParameter("@Account", account));
+                cmdBankBalance.Parameters.Add(new SqlParameter("@Account", userToken.Account));
 
                 //var balanceParam = new SqlParameter("@balance", System.Data.SqlDbType.Float);
                 //balanceParam.Direction = System.Data.ParameterDirection.Output;
@@ -43,7 +45,7 @@ namespace SQLServerDataLayer
                 {
                     cmdDividends.CommandType = System.Data.CommandType.StoredProcedure;
                     cmdDividends.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
-                    cmdDividends.Parameters.Add(new SqlParameter("@Account", account));
+                    cmdDividends.Parameters.Add(new SqlParameter("@Account", userToken.Account));
                     using (SqlDataReader reader = cmdDividends.ExecuteReader())
                     {
                         while (reader.Read())

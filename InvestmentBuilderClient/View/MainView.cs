@@ -162,7 +162,7 @@ namespace InvestmentBuilderClient.View
             if (MessageBox.Show("Are You Sure?", "Run Accounts Builder", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes)
             {
                 DateTime dtValuation = _GetSelectedValuationDate();
-                string selectedAccount = (string)cmboAccountName.SelectedItem;
+                //string selectedAccount = (string)cmboAccountName.SelectedItem;
 
                 Task.Factory.StartNew(() =>
                     {
@@ -204,10 +204,10 @@ namespace InvestmentBuilderClient.View
             if (MessageBox.Show("Are You Sure?", "Build Charts", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes)
             {
                 DateTime dtValuation = _GetSelectedValuationDate();
-                string account = (string)cmboAccountName.SelectedItem;
+                //string account = (string)cmboAccountName.SelectedItem;
                 Task.Factory.StartNew(() =>
                     {
-                        var performanceData = ContainerManager.ResolveValue<PerformanceBuilder>().Run(account, dtValuation);
+                        var performanceData = ContainerManager.ResolveValue<PerformanceBuilder>().Run(_dataModel.GetUserToken(), dtValuation);
                         if(performanceData != null && _displayContext != null)
                         {
                             _displayContext.Post(o =>
@@ -236,7 +236,7 @@ namespace InvestmentBuilderClient.View
         private void btnViewReport_Click(object sender, EventArgs e)
         {
             DateTime dtValuation = _GetSelectedValuationDate();
-            string selectedAccount = (string)cmboAccountName.SelectedItem;
+            //string selectedAccount = (string)cmboAccountName.SelectedItem;
 
             if(_dataModel.IsExistingValuationDate(dtValuation))
             {
@@ -244,7 +244,7 @@ namespace InvestmentBuilderClient.View
                 Task.Factory.StartNew(() =>
                     {
                         var report = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>()
-                                         .BuildAssetReport(selectedAccount, dtValuation, false, null);
+                                         .BuildAssetReport(_dataModel.GetUserToken(), dtValuation, false, null);
                         DisplayAssetReport(report);
                     });
             }
