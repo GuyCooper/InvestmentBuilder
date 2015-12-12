@@ -12,6 +12,7 @@ using InvestmentBuilder;
 using SQLServerDataLayer;
 using MarketDataServices;
 using PerformanceBuilderLib;
+using InvestmentBuilderWeb.Interfaces;
 using System.IO;
 
 namespace InvestmentBuilderWeb.App_Start
@@ -48,9 +49,6 @@ namespace InvestmentBuilderWeb.App_Start
             // container.LoadConfiguration();
 
             // TODO: Register your types here
-            // container.RegisterType<IProductRepository, ProductRepository>();
-            container.RegisterInstance(new InvestmentRecordBuilderService());
-            //container.RegisterType(typeof(IUserStore<ApplicationUser>), typeof(InvestmentBuilderUserStore));
 
             container.RegisterType<ApplicationDbContext>();
             container.RegisterType<ApplicationSignInManager>();
@@ -63,11 +61,13 @@ namespace InvestmentBuilderWeb.App_Start
 
             //we only want single instances of the investmenrecord app specific classes generated
             container.RegisterType<IAuthorizationManager, SQLAuthorizationManager>(new ContainerControlledLifetimeManager());
-            container.RegisterType<IMarketDataSource, AggregatedMarketDataSource>(new ContainerControlledLifetimeManager());
+            //container.RegisterType<IMarketDataSource, AggregatedMarketDataSource>(new ContainerControlledLifetimeManager());
             container.RegisterType<IMarketDataService, MarketDataService>(new ContainerControlledLifetimeManager());
-            //container.RegisterType<IMarketDataSource, TestFileMarketDataSource>("testMarketData.txt");
 
-            //%userprofile%\documents\iisexpress\config\applicationhost.config
+            string testDataFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "InvestmentRecordBuilder", "testMarketData.txt");
+            container.RegisterType<IMarketDataSource, TestFileMarketDataSource>(new ContainerControlledLifetimeManager(), new InjectionConstructor(testDataFile));
+
+            //%userprofile%\documents\iisexpress\config\applcicationhost.config
 
             string configFile= Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),"InvestmentRecordBuilder", "InvestmentBuilderWebConfig.xml");
             container.RegisterType<IConfigurationSettings, ConfigurationSettings>(new ContainerControlledLifetimeManager(), new InjectionConstructor(configFile));
@@ -75,6 +75,8 @@ namespace InvestmentBuilderWeb.App_Start
             container.RegisterType<IDataLayer, SQLServerDataLayer.SQLServerDataLayer>(new ContainerControlledLifetimeManager());
             container.RegisterType<InvestmentBuilder.InvestmentBuilder>(new ContainerControlledLifetimeManager());
             container.RegisterType<PerformanceBuilder>(new ContainerControlledLifetimeManager());
+
+            container.RegisterType<IApplicationSessionService, InvestmentRecordSessionService>(new ContainerControlledLifetimeManager());
         }
     }
 }

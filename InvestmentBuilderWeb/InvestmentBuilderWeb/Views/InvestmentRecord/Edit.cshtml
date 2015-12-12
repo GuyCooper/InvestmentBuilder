@@ -1,0 +1,41 @@
+﻿@model InvestmentBuilderWeb.Models.TradeItemModel
+@{
+    ViewBag.Title = "EditTrade";
+}
+
+<h2>Edit Trade</h2>
+
+<div class="editor">
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        @Html.ValidationSummary(true)
+
+        //<form role="form">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(m => m.Name)
+            @Html.DisplayFor(m => m.Name)
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(m => m.Quantity)
+            @Html.EditorFor(m => m.Quantity, new { @class = "form-control" })
+        </div>
+        <div class="form-group">
+            @Html.DropDownList("Action",(IEnumerable<SelectListItem>) ViewBag.Actions, new { @class = "form-control" })
+        </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.TotalCost)
+        @Html.EditorFor(m => m.TotalCost, new { @class = "form-control" })
+    </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.ManualPrice)
+            @Html.EditorFor(m => m.ManualPrice, new { @class = "form-control" })
+        </div>       
+        <div class="form-group">
+            <input type="submit" value="Save" class="form-control" />
+        </div>
+        }
+    </div>

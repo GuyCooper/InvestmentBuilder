@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace InvestmentBuilder
+namespace InvestmentBuilderCore
 {
-    internal static class InvestmentUtils
+    public static class InvestmentUtils
     {
         /// <summary>
         /// method agggregates a list of stocks into distinct aggregated stocks (i.e. if there are

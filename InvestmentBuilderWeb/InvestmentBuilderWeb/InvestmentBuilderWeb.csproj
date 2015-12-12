@@ -206,16 +206,21 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Interfaces\IApplicationSessionManager.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\CompanyDataModel.cs" />
     <Compile Include="Models\GreetingModel.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\InvestmentRecordModel.cs" />
     <Compile Include="Models\ItineraryItem.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
+    <Compile Include="Models\TradeItemModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Samples\SpecifyingViews\SampleController.cs" />
     <Compile Include="Services\InvestmentRecordBuilderService.cs" />
+    <Compile Include="Services\InvestmentRecordSessionService.cs" />
     <Compile Include="Startup.cs" />
+    <Compile Include="Translators\Translator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.css" />
@@ -253,6 +258,7 @@
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\_references.js" />
+    <Content Include="TestMarketData.txt" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -304,6 +310,7 @@
     <Content Include="Views\Sample\Index.cshtml" />
     <Content Include="Views\Example\Index.cshtml" />
     <Content Include="Views\Shared\AccountPartial.cshtml" />
+    <Content Include="Views\InvestmentRecord\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -347,7 +354,8 @@
   </ProjectExtensions>
   <PropertyGroup>
     <PostBuildEvent>mkdir %25APPDATA%25\InvestmentRecordBuilder
-copy $(ProjectDir)InvestmentBuilderWebConfig.xml %25APPDATA%25\InvestmentRecordBuilder</PostBuildEvent>
+copy $(ProjectDir)InvestmentBuilderWebConfig.xml %25APPDATA%25\InvestmentRecordBuilder
+copy $(ProjectDir)TestMarketData.txt %25APPDATA%25\InvestmentRecordBuilder</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

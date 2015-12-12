@@ -288,5 +288,37 @@ namespace SQLServerDataLayer
                 }
             }
         }
+
+        public Stock GetTradeItem(UserAccountToken userToken, string name)
+        {
+            userToken.AuthorizeUser(AuthorizationLevel.READ);
+            using (var sqlCommand = new SqlCommand("sp_GetTradeItem", Connection))
+            {
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                sqlCommand.Parameters.Add(new SqlParameter("@Company", name));
+                sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                using (var reader = sqlCommand.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        //var obj = reader["Enabled"];
+                        int quantity = (int)reader["Shares_Bought"] - (int)reader["Shares_Sold"];
+                        var dtBoughtDate = (DateTime)reader["LastBoughtDate"];
+                        return new Stock
+                        {
+                            Name = (string)reader["Name"],
+                            TransactionDate = dtBoughtDate.ToShortDateString(),
+                            Symbol = (string)reader["Symbol"],
+                            Exchange = (string)reader["Exchange"],
+                            Currency = (string)reader["Currency"],
+                            Quantity = quantity,
+                            TotalCost = (double)reader["Total_Cost"],
+                            ScalingFactor = (double)reader["ScalingFactor"]
+                        };
+                    }
+                }
+            }
+            return null;
+        }
     }
 }

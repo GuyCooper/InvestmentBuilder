@@ -8,6 +8,8 @@ using InvestmentBuilderWeb.Services;
 using Microsoft.AspNet.Identity;
 using InvestmentBuilder;
 using InvestmentBuilderCore;
+using InvestmentBuilderWeb.Translators;
+using InvestmentBuilderWeb.Interfaces;
 
 namespace InvestmentBuilderWeb.Controllers
 {
@@ -19,19 +21,24 @@ namespace InvestmentBuilderWeb.Controllers
         private InvestmentBuilder.InvestmentBuilder _investmentBuilder;
         private IClientDataInterface _clientInterface;
         private IAuthorizationManager _authorizationManager;
-        private Services.InvestmentRecordBuilderService _service;
+        private InvestmentRecordSessionService _sessionService;
+        private string _sessionId;
 
         public InvestmentRecordController(InvestmentBuilder.InvestmentBuilder investmentBuilder, IDataLayer dataLayer, IAuthorizationManager authorizationManager,
-                                          Services.InvestmentRecordBuilderService service)  
+                                          IApplicationSessionService sessionService)  
         {
             _investmentBuilder = investmentBuilder;
             _clientInterface = dataLayer.ClientData;
             _authorizationManager = authorizationManager;
-            _service = service;
+            _sessionService = sessionService as InvestmentRecordSessionService;
+            _sessionId = System.Web.HttpContext.Current.Session.SessionID;
         }
 
-        private void SetupAccounts(string selectedAccount)
+        //setup the user account accounttoken and populate accounts list for user. if selectedAccount is null then just uses
+        //first account for user if no usertoken setup for user otherwise just uses existing token 
+        private UserAccountToken _SetupAccounts(string selectedAccount)
         {
+            UserAccountToken token = null;
             if (User != null && User.Identity != null)
             {
                 var username = User.Identity.GetUserName();
@@ -46,7 +53,7 @@ namespace InvestmentBuilderWeb.Controllers
                     _authorizationManager.SetUserAccountToken(username, selectedAccount);
                 }
 
-                UserAccountToken token = _authorizationManager.GetCurrentTokenForUser(username);
+                token = _authorizationManager.GetCurrentTokenForUser(username);
                 ViewBag.accountId = accounts.Select(x =>
                    new SelectListItem
                    {
@@ -55,6 +62,12 @@ namespace InvestmentBuilderWeb.Controllers
                        Selected = token.Account == x
                    });
             }
+            return token;
+        }
+
+        private IEnumerable<CompanyDataModel> _GetCurrentInvestments(UserAccountToken token)
+        {
+            return _investmentBuilder.GetCurrentInvestments(token, _sessionService.GetManualPrices(_sessionId)).Select(x => x.ToCompanyDataModel());
         }
 
         // GET: InvestmentRecord
@@ -62,25 +75,23 @@ namespace InvestmentBuilderWeb.Controllers
         [Route("index")]
         public ActionResult Index()
         {
-            SetupAccounts(null);
-            return View(_service.GetRecords());
+            return View(_GetCurrentInvestments(_SetupAccounts(null)));
         }
 
         [HttpGet]
         public ActionResult Create()
         {
-            SetupAccounts(null);
+            _SetupAccounts(null);
             return View();
         }
 
         [HttpPost]
-        public ActionResult Create(InvestmentRecordModel data)
+        public ActionResult Create(Stock data)
         {
-            SetupAccounts(null);
-
+            var token = _SetupAccounts(null);
             if (this.ModelState.IsValid)
             {
-                _service.AddRecord(data);
+                _investmentBuilder.UpdateTrades(token, data.ToTrades(TransactionType.BUY), null);   
             }
             else
             {
@@ -88,44 +99,74 @@ namespace InvestmentBuilderWeb.Controllers
                 return View();
             }
 
-            return View("Index", _service.GetRecords());
+            return View("Index", _GetCurrentInvestments(token));
         }
 
         [HttpGet]
         public ActionResult CashFlow()
         {
-            SetupAccounts(null);
+            _SetupAccounts(null);
             return View();
         }
 
         [HttpGet]
-        public ActionResult Edit(InvestmentRecordModel data)
+        public ActionResult Edit(string name)
         {
-            SetupAccounts(null);
-            return View();
+            var token =_SetupAccounts(null);
+            var tradeItem = _clientInterface.GetTradeItem(token, name);
+            if(tradeItem != null)
+            {
+                var model = tradeItem.ToTradeItemModel();
+
+                ViewBag.Actions = Enum.GetNames(typeof(TransactionType)).Select(x =>
+                   new SelectListItem
+                   {
+                       Text = x,
+                       Value = x,
+                       Selected = x == model.Action.ToString()
+                   });
+                return View(model);
+            }
+            return null;
         }
 
-        [HttpGet]
-        public ActionResult Details(InvestmentRecordModel data)
+        [HttpPost]
+        public ActionResult Edit(TradeItemModel tradeItem)
         {
-            SetupAccounts(null);
-            return View();
+            var token = _SetupAccounts(null);
+            _investmentBuilder.UpdateTrades(token, tradeItem.ToTrades(tradeItem.Action), tradeItem.GetManualPrices());
+            return View("Index", _GetCurrentInvestments(token));
         }
 
         [HttpGet]
         [Route("Delete")]
-        public ActionResult Delete(InvestmentRecordModel data)
+        public ActionResult Delete(string name)
         {
-            SetupAccounts(null);
-            _service.DeleteRecord(data);
-            return View("Index", _service.GetRecords());
+            //_service.DeleteRecord(data);
+            var token = _SetupAccounts(null);
+            var tradeItem = _clientInterface.GetTradeItem(token, name);
+            if (tradeItem != null)
+            {
+                _investmentBuilder.UpdateTrades(token, tradeItem.ToTrades(TransactionType.SELL), null);
+                return View("Index", _GetCurrentInvestments(token));
+            }
+            return null;
         }
 
         [HttpGet]
         public ActionResult UpdateAccount(string accountId)
         {
-            SetupAccounts(accountId);
-            return View("Index", _service.GetRecords());
+            var token = _SetupAccounts(accountId);
+            return View("Index", _GetCurrentInvestments(token));
+        }
+
+        [HttpGet]
+        public ActionResult UpdatePrice(string investment, double share_price)
+        {
+            var token = _SetupAccounts(null);
+
+            _sessionService.AddManualPrice(_sessionId, investment, share_price);
+            return View("Index", _GetCurrentInvestments(token));
         }
     }
 }

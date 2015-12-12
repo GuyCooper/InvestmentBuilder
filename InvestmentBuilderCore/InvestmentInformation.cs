@@ -27,7 +27,7 @@ namespace InvestmentBuilderCore
     public class CompanyData
     {
         public string Name { get; set; }
-        public DateTime? LastBrought {get;set;}
+        public DateTime LastBrought {get;set;}
         public int Quantity {get;set;}
         public double AveragePricePaid { get; set; }
         public double TotalCost { get; set; }
@@ -55,5 +55,6 @@ namespace InvestmentBuilderCore
 
     public class ManualPrices : Dictionary<string, double>
     {
+        public ManualPrices() : base(StringComparer.InvariantCultureIgnoreCase) { }
     }
 }

@@ -80,7 +80,7 @@ namespace InvestmentBuilderClient.View
                 col = 1;
                 row++;
                 gridAssetReport.Rows[row].Cells[col++].Value = asset.Name;
-                gridAssetReport.Rows[row].Cells[col++].Value = asset.LastBrought.Value.ToShortDateString();
+                gridAssetReport.Rows[row].Cells[col++].Value = asset.LastBrought.ToShortDateString();
                 gridAssetReport.Rows[row].Cells[col++].Value = asset.Quantity;
                 gridAssetReport.Rows[row].Cells[col++].Value = asset.AveragePricePaid;
                 gridAssetReport.Rows[row].Cells[col++].Value = asset.TotalCost;

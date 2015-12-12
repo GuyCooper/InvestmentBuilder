@@ -102,7 +102,7 @@ namespace InvestmentBuilder
             }
 
             //now extract the latest data from the investment record
-            var lstData = recordBuilder.GetInvestmentRecords(userToken, accountData, dtTradeValuationDate, dtPreviousValuation).ToList();
+            var lstData = recordBuilder.GetInvestmentRecords(userToken, accountData, dtTradeValuationDate, dtPreviousValuation, null,false).ToList();
             foreach (var val in lstData)
             {
                 logger.Log(LogLevel.Info, string.Format("{0} : {1} : {2} : {3} : {4}", val.Name, val.SharePrice, val.NetSellingValue, val.MonthChange, val.MonthChangeRatio));
@@ -156,7 +156,15 @@ namespace InvestmentBuilder
                 return Enumerable.Empty<CompanyData>();
             }
 
-            return recordBuilder.GetInvestmentRecordSnapshot(userToken, accountData, manualPrices);
+            var dtPreviousValuation = _userAccountData.GetPreviousAccountValuationDate(userToken, DateTime.Now);
+            var dtLatestUpdate = recordBuilder.GetLatestRecordValuationDate(userToken);
+            if (dtLatestUpdate.HasValue)
+            {
+                return recordBuilder.GetInvestmentRecords(userToken, accountData, dtLatestUpdate.Value, dtPreviousValuation, manualPrices, true);
+            }
+
+            return Enumerable.Empty<CompanyData>();
+            //return recordBuilder.GetInvestmentRecordSnapshot(userToken, accountData, manualPrices);
 
         }
 

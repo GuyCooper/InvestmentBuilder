@@ -127,6 +127,7 @@ namespace InvestmentBuilder
                         Log.Error("invalid price for {0}. excessive price movement. price = {1}: previous = {2}",
                                     investment.Name, dPrice, investment.Price);
                         bValidationFailed = true;
+                        break;
                     }
                 }   
             }
@@ -238,12 +239,12 @@ namespace InvestmentBuilder
         /// <param name="dtValuationDate"></param>
         /// <param name="dtPreviousValuationDate"></param>
         /// <returns></returns>
-        public IEnumerable<CompanyData> GetInvestmentRecords(UserAccountToken userToken, UserAccountData account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate)
+        public IEnumerable<CompanyData> GetInvestmentRecords(UserAccountToken userToken, UserAccountData account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate, ManualPrices manualPrices, bool bSnapshot)
         {
             //dtPreviousValuationDate parameteris the previous valuation date.we need to extract the previous record
             //valuation date from this to retrieve the correct previous record data from the database
             DateTime? dtPreviousRecordValuationDate = dtPreviousValuationDate.HasValue ? _investmentRecordData.GetPreviousRecordInvestmentValuationDate(userToken, dtPreviousValuationDate.Value) : null;
-            return GetInvestmentRecordsImpl(userToken, account, dtValuationDate, dtPreviousRecordValuationDate, false, null);
+            return GetInvestmentRecordsImpl(userToken, account, dtValuationDate, dtPreviousRecordValuationDate, bSnapshot, manualPrices);
         }
 
         /// <summary>

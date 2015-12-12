@@ -103,7 +103,7 @@ namespace InvestmentBuilder
                 //Console.WriteLine("Adding {0} to asset sheet", company.sName);
 
                 newSheet.get_Range("B" + count).Value = company.Name;
-                newSheet.get_Range("C" + count).Value = company.LastBrought.Value;
+                newSheet.get_Range("C" + count).Value = company.LastBrought;
                 newSheet.get_Range("D" + count).Value = company.Quantity;
                 newSheet.get_Range("E" + count).Value = company.AveragePricePaid;
                 newSheet.get_Range("F" + count).Value = company.TotalCost;

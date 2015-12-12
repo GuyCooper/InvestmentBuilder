@@ -41,6 +41,7 @@ namespace InvestmentBuilderCore
         AccountModel GetAccount(UserAccountToken userToken);
         IEnumerable<string> GetAccountTypes();
         IEnumerable<string> GetAllCompanies();
+        Stock GetTradeItem(UserAccountToken userToken, string name);
     }
 
     public interface IInvestmentRecordInterface

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <configuration>
-  <dataSource>Data Source=TRAVELPC\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest2;Integrated Security=True</dataSource>
+  <dataSource>Data Source=TRAVELPC\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest99;Integrated Security=True</dataSource>
   <outputFolder>C:\Users\Guy\Documents\Guy\AccountData</outputFolder>
   <indexes>
     <index>
