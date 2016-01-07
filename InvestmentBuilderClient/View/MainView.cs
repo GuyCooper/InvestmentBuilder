@@ -244,7 +244,7 @@ namespace InvestmentBuilderClient.View
                 Task.Factory.StartNew(() =>
                     {
                         var report = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>()
-                                         .BuildAssetReport(_dataModel.GetUserToken(), dtValuation, false, null);
+                                         .BuildAssetReport(_dataModel.GetUserToken(), dtValuation, DateTime.Now, false, null);
                         DisplayAssetReport(report);
                     });
             }

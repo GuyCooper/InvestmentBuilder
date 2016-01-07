@@ -304,12 +304,13 @@ namespace SQLServerDataLayer
                         //var obj = reader["Enabled"];
                         int quantity = (int)reader["Shares_Bought"] - (int)reader["Shares_Sold"];
                         var dtBoughtDate = (DateTime)reader["LastBoughtDate"];
+                        var exchange = reader["Exchange"];
                         return new Stock
                         {
                             Name = (string)reader["Name"],
                             TransactionDate = dtBoughtDate.ToShortDateString(),
                             Symbol = (string)reader["Symbol"],
-                            Exchange = (string)reader["Exchange"],
+                            Exchange = exchange.GetType() != typeof(System.DBNull) ? (string)exchange : null,
                             Currency = (string)reader["Currency"],
                             Quantity = quantity,
                             TotalCost = (double)reader["Total_Cost"],

@@ -67,7 +67,9 @@ namespace InvestmentBuilderWeb.Controllers
 
         private IEnumerable<CompanyDataModel> _GetCurrentInvestments(UserAccountToken token)
         {
-            return _investmentBuilder.GetCurrentInvestments(token, _sessionService.GetManualPrices(_sessionId)).Select(x => x.ToCompanyDataModel());
+            return _investmentBuilder.GetCurrentInvestments(token, _sessionService.GetManualPrices(_sessionId))
+                .OrderBy(x => x.Name)
+                .Select(x => x.ToCompanyDataModel());
         }
 
         // GET: InvestmentRecord
@@ -82,21 +84,22 @@ namespace InvestmentBuilderWeb.Controllers
         public ActionResult Create()
         {
             _SetupAccounts(null);
-            return View();
+            ViewBag.Title = "Add New Trade";
+            return View("Edit");
         }
 
         [HttpPost]
-        public ActionResult Create(Stock data)
+        public ActionResult Create(TradeItemModel tradeItem)
         {
             var token = _SetupAccounts(null);
             if (this.ModelState.IsValid)
             {
-                _investmentBuilder.UpdateTrades(token, data.ToTrades(TransactionType.BUY), null);   
+                _investmentBuilder.UpdateTrades(token, tradeItem.ToTrades(TransactionType.BUY), null);   
             }
             else
             {
                 this.ModelState.AddModelError("", "Invalid data enterted");
-                return View();
+                return View("Edit");
             }
 
             return View("Index", _GetCurrentInvestments(token));
@@ -125,6 +128,8 @@ namespace InvestmentBuilderWeb.Controllers
                        Value = x,
                        Selected = x == model.Action.ToString()
                    });
+
+                ViewBag.Title = "Edit Trade";
                 return View(model);
             }
             return null;
@@ -134,7 +139,15 @@ namespace InvestmentBuilderWeb.Controllers
         public ActionResult Edit(TradeItemModel tradeItem)
         {
             var token = _SetupAccounts(null);
-            _investmentBuilder.UpdateTrades(token, tradeItem.ToTrades(tradeItem.Action), tradeItem.GetManualPrices());
+            if (this.ModelState.IsValid)
+            {
+                _investmentBuilder.UpdateTrades(token, tradeItem.ToTrades(tradeItem.Action), tradeItem.GetManualPrices());
+            }
+            else
+            {
+                this.ModelState.AddModelError("", "Invalid data enterted");
+                return View("Edit");
+            }
             return View("Index", _GetCurrentInvestments(token));
         }
 

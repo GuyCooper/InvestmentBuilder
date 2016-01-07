@@ -32,10 +32,15 @@ namespace InvestmentBuilder
         /// generate asset report
         /// </summary>
         /// <param name="accountName">club /account name</param>
-        /// <param name="valuationDate">valuation date</param>
-        /// <param name="bUpdate">flag to save report to db and spreadsheet</param>
+        /// <param name="valuationDate">valuation date.date for this asset report</param>
+        /// /// <param name="snapshotDate">date to report in investmentrecord table. should be same day as
+        /// valuation date but a later time
+        /// </param>
+        /// <param name="bUpdate">flag to save report to db and spreadsheet.if this flag is false then this
+        /// method just returns the asset report forthe specified valuation date
+        /// </param>
         /// <returns></returns>
-        public AssetReport BuildAssetReport(UserAccountToken userToken, DateTime valuationDate, bool bUpdate, ManualPrices manualPrices)
+        public AssetReport BuildAssetReport(UserAccountToken userToken, DateTime valuationDate, DateTime snapshotDate, bool bUpdate, ManualPrices manualPrices)
         {
             logger.Log(LogLevel.Info, string.Format("Begin BuildAssetSheet"));
             //logger.Log(LogLevel.Info,string.Format("trade file: {0}", _settings.GetTradeFile(accountName)));
@@ -65,19 +70,25 @@ namespace InvestmentBuilder
             }
 
             //rollback any previous updates made for this valuation date
-            if (bUpdate)
-            {
-                _userAccountData.RollbackValuationDate(userToken, valuationDate);
-            }
+            //if (bUpdate)
+            //{
+            //    _userAccountData.RollbackValuationDate(userToken, valuationDate);
+            //}
 
             var dtPreviousValuation = _userAccountData.GetPreviousAccountValuationDate(userToken, valuationDate);
             //first extract the cash account data
             var cashAccountData = _cashAccountData.GetCashAccountData(userToken, valuationDate);
             //parse the trade file for any trades for this month and update the investment record
             //var trades = TradeLoader.GetTrades(tradeFile);
-            var dtTradeValuationDate = DateTime.Now;
+            var dtTradeValuationDate = snapshotDate;
+            var currentRecordData = recordBuilder.GetLatestRecordValuationDate(userToken);
             if (bUpdate)
             {
+                if (currentRecordData.HasValue && (snapshotDate < currentRecordData))
+                {
+                    logger.Log(LogLevel.Error, "record date must be later than the previous record valution date");
+                    return assetReport;
+                }
                 //trades now added seperately
                 var emptyTrades = new Trades
                 {
@@ -94,7 +105,6 @@ namespace InvestmentBuilder
             }
             else
             {
-                var currentRecordData = recordBuilder.GetLatestRecordValuationDate(userToken);
                 if(currentRecordData.HasValue)
                 {
                     dtTradeValuationDate = currentRecordData.Value;
@@ -174,7 +184,7 @@ namespace InvestmentBuilder
         /// will retrieve the new trades
         /// </summary>
         /// <param name="trades"></param>
-        public bool UpdateTrades(UserAccountToken userToken, Trades trades, ManualPrices manualPrices)
+        public bool UpdateTrades(UserAccountToken userToken, Trades trades, ManualPrices manualPrices, DateTime? valuationDate = null)
         {
             if (userToken == null)
             {
@@ -191,7 +201,7 @@ namespace InvestmentBuilder
                 logger.Log(LogLevel.Error, "invalid account {0}", userToken.Account);
             }
 
-            return recordBuilder.UpdateInvestmentRecords(userToken, accountData, trades, null, DateTime.Now, manualPrices);
+            return recordBuilder.UpdateInvestmentRecords(userToken, accountData, trades, null, valuationDate ?? DateTime.Now, manualPrices);
         }
 
         private AssetReport _BuildAssetReport(

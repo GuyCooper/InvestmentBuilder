@@ -27,10 +27,15 @@ namespace InvestmentBuilderTests
                                                     _TestAccount,
                                                     AuthorizationLevel.ADMINISTRATOR);
 
+        private static string _strValuationDate = "11/09/2015";
+        private static DateTime _TradeValuationDate = DateTime.Parse("03/09/2015 13:54:23");
+        private static DateTime _TransactionDate = DateTime.Parse("03/09/2015");
+        private static DateTime _ValuationDate = DateTime.Parse(_strValuationDate);
+
         private Stock _TestNewTrade = new Stock
             {
                 Name = _NewTestTradeName,
-                TransactionDate = "11/09/2015",
+                TransactionDate = "01/09/2015",
                 Symbol = "ACME.L",
                 Exchange = "LSE",
                 Currency = "GBP",
@@ -45,11 +50,9 @@ namespace InvestmentBuilderTests
         private UserAccountToken _newTestToken = new UserAccountToken(
             _NewTestUser, _NewTestAccount, AuthorizationLevel.ADMINISTRATOR);
 
-        private static DateTime _TransactionDate = DateTime.Parse("03/09/2015");
-        private static DateTime _ValuationDate = DateTime.Parse("11/09/2015");
-
         private static DateTime _TransactionDateNextMonth = DateTime.Parse("05/10/2015");
         private static DateTime _ValuationDateNextMonth = DateTime.Parse("15/10/2015");
+        private static DateTime _TradeValuationDateNextMonth = DateTime.Parse("05/10/2015 18:43:45");
 
         [TestFixtureSetUp]
         public void Setup()
@@ -171,6 +174,7 @@ namespace InvestmentBuilderTests
                 When_adding_a_new_trade(_newTestToken);
                 When_building_asset_report(_newTestToken, _TransactionDate, _ValuationDate);
                 When_building_asset_report_next_month(_newTestToken, _TransactionDateNextMonth, _ValuationDateNextMonth);
+                When_building_asset_report_next_month_repeat(_newTestToken, _TransactionDateNextMonth, _ValuationDateNextMonth);
             }
         }
 
@@ -210,7 +214,7 @@ namespace InvestmentBuilderTests
                 Buys = new List<Stock> { _TestNewTrade}.ToArray()
             };
             ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().UpdateTrades(userToken,
-                                                                                              trades, null);
+                                                                                              trades, null, _TradeValuationDate);
 
             var results = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().GetCurrentInvestments(userToken, null).ToList();
             Assert.AreEqual(1, results.Count);
@@ -243,6 +247,7 @@ namespace InvestmentBuilderTests
 
             var report = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().BuildAssetReport(userToken,
                                                                                                   dtValuationDate,
+                                                                                                  dtValuationDate.AddHours(14),
                                                                                                   true,
                                                                                                   null);
             Assert.IsNotNull(report);
@@ -267,6 +272,22 @@ namespace InvestmentBuilderTests
         {
             Console.WriteLine("building full asset report next month...");
 
+            const double dUpdateTradeCost = 261.32d;
+
+            //first update the new trade to test month change value is correct
+            _TestNewTrade.TransactionDate = "21/09/2015";
+            _TestNewTrade.Quantity = 500;
+            _TestNewTrade.TotalCost = dUpdateTradeCost;
+            var trades = new Trades
+            {
+                Sells = Enumerable.Empty<Stock>().ToArray(),
+                Changed = Enumerable.Empty<Stock>().ToArray(),
+                Buys = new List<Stock> { _TestNewTrade }.ToArray()
+            };
+
+            ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().UpdateTrades(userToken,
+                                                                                              trades, null, _TradeValuationDateNextMonth);
+
             ContainerManager.ResolveValue<SQLServerDataLayer.SQLServerDataLayer>().ClientData.AddCashAccountData(
                 userToken, dtValuationDate, dtTransactionDate, "BalanceInHand", "BalanceInHand", 913.05);
 
@@ -280,7 +301,10 @@ namespace InvestmentBuilderTests
                 userToken, dtValuationDate, dtTransactionDate, "Admin Fee", "Admin Fee", 2.50);
 
             ContainerManager.ResolveValue<SQLServerDataLayer.SQLServerDataLayer>().ClientData.AddCashAccountData(
-                userToken, dtValuationDate, dtTransactionDate, "BalanceInHandCF", "BalanceInHandCF", 1110.63);
+               userToken, dtValuationDate, dtTransactionDate, "Purchase", _NewTestTradeName, dUpdateTradeCost);
+
+            ContainerManager.ResolveValue<SQLServerDataLayer.SQLServerDataLayer>().ClientData.AddCashAccountData(
+                userToken, dtValuationDate, dtTransactionDate, "BalanceInHandCF", "BalanceInHandCF", 849.31);
 
             var manualPrices = new ManualPrices
             {
@@ -289,6 +313,7 @@ namespace InvestmentBuilderTests
 
             var report = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().BuildAssetReport(userToken,
                                                                                       dtValuationDate,
+                                                                                      dtValuationDate.AddHours(13),
                                                                                       true,
                                                                                       manualPrices);
             Assert.IsNotNull(report);
@@ -297,17 +322,50 @@ namespace InvestmentBuilderTests
             Assert.IsNotNull(companyData);
 
             Assert.AreEqual(_TestNewTrade.Name, companyData.Name);
-            MatchDoubleVal(companyData.MonthChange, "-63.6075");
-            MatchDoubleVal(companyData.MonthChangeRatio, "-4.9017738");
-            MatchDoubleVal(companyData.ProfitLoss, "-50.415");
-            MatchDoubleVal(companyData.NetSellingValue, "1234.035");
+            MatchDoubleVal(companyData.MonthChange, "-78.1204");
+            MatchDoubleVal(companyData.MonthChangeRatio, "-6.020");
+            MatchDoubleVal(companyData.ProfitLoss, "-64.9280");
+            MatchDoubleVal(companyData.NetSellingValue, "1480.8420");
 
-            MatchDoubleVal(report.BankBalance, "1110.63");
+            MatchDoubleVal(report.BankBalance, "849.31");
             MatchDoubleVal(report.IssuedUnits, "2410.6925");
-            MatchDoubleVal(report.MonthlyPnL, "-63.6075");
-            MatchDoubleVal(report.NetAssets, "2344.665");
-            MatchDoubleVal(report.TotalAssetValue, "1234.035");
-            MatchDoubleVal(report.ValuePerUnit, "0.9726");
+            MatchDoubleVal(report.MonthlyPnL, "-78.120");
+            MatchDoubleVal(report.NetAssets, "2330.152");
+            MatchDoubleVal(report.TotalAssetValue, "1480.842");
+            MatchDoubleVal(report.ValuePerUnit, "0.966");
+        }
+
+        private void When_building_asset_report_next_month_repeat(UserAccountToken userToken, DateTime dtTransactionDate, DateTime dtValuationDate)
+        {
+            Console.WriteLine("building full asset report next month repeat...");
+
+            var manualPrices = new ManualPrices
+            {
+                {_TestNewTrade.Name, 49.86}
+            };
+
+            var report = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().BuildAssetReport(userToken,
+                                                                                      dtValuationDate,
+                                                                                      dtValuationDate.AddHours(16),
+                                                                                      true,
+                                                                                      manualPrices);
+            Assert.IsNotNull(report);
+
+            var companyData = report.Assets.FirstOrDefault();
+            Assert.IsNotNull(companyData);
+
+            Assert.AreEqual(_TestNewTrade.Name, companyData.Name);
+            MatchDoubleVal(companyData.MonthChange, "-78.1204");
+            MatchDoubleVal(companyData.MonthChangeRatio, "-6.020");
+            MatchDoubleVal(companyData.ProfitLoss, "-64.9280");
+            MatchDoubleVal(companyData.NetSellingValue, "1480.8420");
+
+            MatchDoubleVal(report.BankBalance, "849.31");
+            MatchDoubleVal(report.IssuedUnits, "2410.6925");
+            MatchDoubleVal(report.MonthlyPnL, "-78.120");
+            MatchDoubleVal(report.NetAssets, "2330.152");
+            MatchDoubleVal(report.TotalAssetValue, "1480.842");
+            MatchDoubleVal(report.ValuePerUnit, "0.966");
         }
 
         private void VerifyCompanyDataResults(IList<CompanyData> results, string resultFile, int count )

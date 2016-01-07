@@ -17,7 +17,7 @@ BEGIN
 UPDATE 
 	IR
 SET
-	IR.is_active = false
+	IR.is_active = 0
 FROM 
 	investmentRecord AS IR
 INNER JOIN 

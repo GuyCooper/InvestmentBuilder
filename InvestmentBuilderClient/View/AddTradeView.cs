@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using InvestmentBuilderClient.ViewModel;
 using MarketDataServices;
 using InvestmentBuilderClient.DataModel;
+using InvestmentBuilderCore;
 
 namespace InvestmentBuilderClient.View
 {

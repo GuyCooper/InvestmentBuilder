@@ -238,5 +238,84 @@ namespace SQLServerDataLayer
             }
         }
 
+        public void AddTradeTransactions(IEnumerable<Stock> trades, TradeType action, UserAccountToken userToken, DateTime dtValuation)
+        {
+            /*
+            CREATE PROCEDURE sp_AddTransactionHistory(@transactionDate AS datetime, @company as varchar(50), 
+										  @action as varchar(10), @quantity as int,
+										  @total_cost as float, @account as varchar(30), @user as varchar(50)) AS
+
+             */
+            userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
+            foreach (var trade in trades)
+            {
+                var dtTransaction = DateTime.Parse(trade.TransactionDate);
+                using (var command = new SqlCommand("sp_AddTransactionHistory", Connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
+                    command.Parameters.Add(new SqlParameter("@transactionDate", dtTransaction));
+                    command.Parameters.Add(new SqlParameter("@company", trade.Name));
+                    command.Parameters.Add(new SqlParameter("@action", action.ToString()));
+                    command.Parameters.Add(new SqlParameter("@quantity", trade.Quantity));
+                    command.Parameters.Add(new SqlParameter("@total_cost", trade.TotalCost));
+                    command.Parameters.Add(new SqlParameter("@account", userToken.Account));
+                    command.Parameters.Add(new SqlParameter("@user", userToken.User));
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public Trades GetHistoricalTransactions(DateTime dtFrom, DateTime dtTo, UserAccountToken userToken)
+        {
+            //CREATE PROCEDURE sp_GetTransactionHistory(@dateFrom AS datetime, @dateTo AS datetime, @account as varchar(30)) AS
+            //BEGIN
+            // C.[Name], T.[trade_action], T.[quantity], T.[total_cost]
+            List<Stock> buys = new List<Stock>();
+            List<Stock> sells = new List<Stock>();
+            List<Stock> changed = new List<Stock>();
+          
+            userToken.AuthorizeUser(AuthorizationLevel.READ);
+            using (var command = new SqlCommand("sp_GetTransactionHistory", Connection))
+            {
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+                command.Parameters.Add(new SqlParameter("@dateFrom", dtFrom));
+                command.Parameters.Add(new SqlParameter("@dateTo", dtTo));
+                command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var action = (TradeType)Enum.Parse(typeof(TradeType), (string)reader["trade_action"]);
+                    var trade = new Stock
+                    {
+                        Name = (string)reader["Name"],
+                        Quantity = (int)reader["quantity"],
+                        TotalCost = (double)reader["total_cost"]
+                    };
+                    switch (action)
+                    {
+                        case TradeType.BUY:
+                            buys.Add(trade);
+                            break;
+                        case TradeType.SELL:
+                            sells.Add(trade);
+                            break;
+                        case TradeType.MODIFY:
+                            changed.Add(trade);
+                            break;
+                    }
+                }
+                reader.Close();
+
+            }
+
+            return new Trades
+            {
+                Buys = buys.ToArray(),
+                Sells = sells.ToArray(),
+                Changed = changed.ToArray()
+            };
+
+        }
     }
 }

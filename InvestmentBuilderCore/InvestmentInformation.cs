@@ -57,4 +57,12 @@ namespace InvestmentBuilderCore
     {
         public ManualPrices() : base(StringComparer.InvariantCultureIgnoreCase) { }
     }
+
+    public enum TradeType
+    {
+        BUY,
+        SELL,
+        MODIFY
+    } 
+
 }

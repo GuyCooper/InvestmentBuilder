@@ -9,13 +9,6 @@ using InvestmentBuilder;
 
 namespace InvestmentBuilderClient.DataModel
 {
-    enum TradeType
-    {
-        BUY,
-        SELL,
-        MODIFY
-    } 
-
     //ObservableCollection
     //BindingList
     internal class TradeDetails : Stock
@@ -242,7 +235,7 @@ namespace InvestmentBuilderClient.DataModel
                 tradesList.Sells = trade.Action == TradeType.SELL ? new[] { trade } : Enumerable.Empty<Stock>().ToArray();
                 tradesList.Changed = trade.Action == TradeType.MODIFY ? new[] { trade } : Enumerable.Empty<Stock>().ToArray();
 
-                var manualPrices = new ManualPrices();
+                var manualPrices = GetManualPrices();
                 if(trade.ManualPrice.HasValue)
                 {
                     manualPrices.Add(trade.Name, trade.ManualPrice.Value);
@@ -259,7 +252,7 @@ namespace InvestmentBuilderClient.DataModel
         public AssetReport BuildAssetReport(DateTime dtValuation)
         {
             return ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>()
-                                                           .BuildAssetReport(_userToken, dtValuation, true, GetManualPrices());
+                                                           .BuildAssetReport(_userToken, dtValuation, DateTime.Now, true, GetManualPrices());
         }
 
         public IEnumerable<string> GetAllCompanies()

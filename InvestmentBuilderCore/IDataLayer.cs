@@ -63,6 +63,8 @@ namespace InvestmentBuilderCore
         void DeactivateInvestment(UserAccountToken userToken, string investment);
         DateTime? GetLatestRecordInvestmentValuationDate(UserAccountToken userToken);
         DateTime? GetPreviousRecordInvestmentValuationDate(UserAccountToken userToken, DateTime dtValuation);
+        void AddTradeTransactions(IEnumerable<Stock> trades, TradeType action, UserAccountToken userToken, DateTime dtValuation);
+        Trades GetHistoricalTransactions(DateTime dtFrom, DateTime dtTo, UserAccountToken userToken);
     }
 
     public interface ICashAccountInterface

@@ -71,9 +71,18 @@ namespace InvestmentBuilder
             return investments;
         }
 
-        private void _updateMonthlyData(CompanyData currentData, CompanyData previousData)
+        private void _updateMonthlyData(CompanyData currentData, CompanyData previousData, Trades trades)
         {
-            currentData.MonthChange = currentData.NetSellingValue - previousData.NetSellingValue;
+            //difference between current selling value and previous selling value, must also
+            //include any transactions that have been completed this month
+            double dMonthChange = currentData.NetSellingValue;
+            if (trades != null)
+            {
+                dMonthChange -= trades.Buys.Where(x => x.Name == currentData.Name).Sum(x => x.TotalCost);
+                dMonthChange += trades.Sells.Where(x => x.Name == currentData.Name).Sum(x => x.TotalCost);
+            }
+            dMonthChange -= previousData.NetSellingValue;
+            currentData.MonthChange = dMonthChange;
             currentData.MonthChangeRatio = currentData.MonthChange / previousData.NetSellingValue * 100;
         }
 
@@ -210,6 +219,11 @@ namespace InvestmentBuilder
                 _CreateNewInvestment(userToken, newTrade, valuationDate, dClosing);
             }
 
+            //add any transactions to the transaction history table
+            _investmentRecordData.AddTradeTransactions(trades.Buys, TradeType.BUY, userToken, valuationDate);
+            _investmentRecordData.AddTradeTransactions(trades.Sells, TradeType.BUY, userToken, valuationDate);
+            _investmentRecordData.AddTradeTransactions(trades.Changed, TradeType.MODIFY, userToken, valuationDate);
+
             return true;
         }
 
@@ -217,12 +231,15 @@ namespace InvestmentBuilder
         {
             var lstCurrentData = _GetCompanyDataImpl(userToken, account, dtValuationDate, bSnapshot, manualPrices).ToList();
             var lstPreviousData = dtPreviousValuationDate.HasValue ? _GetCompanyDataImpl(userToken, account, dtPreviousValuationDate.Value, false, null).ToList() : new List<CompanyData>();
+            //get the list of all trade transactions between these two dates as this affects the monthly change  
+            var trades = dtPreviousValuationDate.HasValue ? _investmentRecordData.GetHistoricalTransactions(dtPreviousValuationDate.Value, dtValuationDate, userToken) : null;
+            
             foreach (var company in lstCurrentData)
             {
                 var previousData = lstPreviousData.Find(c => c.Name == company.Name);
                 if (previousData != null)
                 {
-                    _updateMonthlyData(company, previousData);
+                    _updateMonthlyData(company, previousData, trades);
                 }
                 company.ProfitLoss = company.NetSellingValue - company.TotalCost;
                 if (bSnapshot == false && company.Quantity == 0)
