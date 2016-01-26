@@ -21,6 +21,8 @@ namespace InvestmentBuilderClient.View
             InitializeComponent();
             //chkEnableAccount.Checked = true;
             cmboType.Items.AddRange(_dataModel.GetAccountTypes().ToArray<object>());
+            cmboBroker.Items.AddRange(_dataModel.GetBrokers().ToArray<object>());
+            cmboBroker.Items.Add("other");
             InitialiseFromData(_dataModel.GetAccountData(account));
         }
 
@@ -66,6 +68,11 @@ namespace InvestmentBuilderClient.View
         public string GetCurrency()
         {
             return txtCurrency.Text;
+        }
+
+        public string GetBroker()
+        {
+            return cmboBroker.SelectedItem as string;
         }
 
         private void btnAddMember_Click(object sender, EventArgs e)

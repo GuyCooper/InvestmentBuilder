@@ -20,6 +20,7 @@ SELECT
 	U.[Description],
 	U.Currency,
 	U.[Enabled],
+	U.[Broker],
 	T.[Type]
 FROM
 	Users U

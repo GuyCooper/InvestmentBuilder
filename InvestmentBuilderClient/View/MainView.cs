@@ -288,6 +288,7 @@ namespace InvestmentBuilderClient.View
                     Type = view.GetAccountType(),
                     Enabled = view.GetIsEnabled(),
                     Members = view.GetMembers(),
+                    Broker = view.GetBroker(),
                     ReportingCurrency = view.GetCurrency()
                 };
 
@@ -339,6 +340,11 @@ namespace InvestmentBuilderClient.View
         {
             //force the data to be reloaded by setting the account name
             UpdateAccountName();
+        }
+
+        private void btnUndo_Click(object sender, EventArgs e)
+        {
+            _dataModel.UndoLastTransaction();
         }
     }
 }

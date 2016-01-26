@@ -16,7 +16,7 @@ CREATE PROCEDURE [dbo].sp_GetUserData(@Name as varchar(30)) AS
 BEGIN
 
 SELECT 
-	 Currency, [Description] 
+	 Currency, [Description] , [Broker]
 FROM
 	Users
 WHERE

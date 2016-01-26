@@ -24,6 +24,8 @@ namespace InvestmentBuilderClient.DataModel
         private IClientDataInterface _clientData;
         private IInvestmentRecordInterface _recordData;
         private IAuthorizationManager _authorizationManager;
+        private BrokerManager _brokerManager;
+
         private UserAccountToken _userToken; //cache user token
 
         public DateTime? LatestValuationDate { get; set; }
@@ -31,6 +33,8 @@ namespace InvestmentBuilderClient.DataModel
         private DateTime LatestRecordValuationDate { get; set; }
 
         public List<CompanyData> PortfolioItemsList { get; set; }
+
+        //public bool TradeUpdated { get; private set; }
 
         private string _userName = string.Format(@"{0}\{1}", Environment.UserDomainName, Environment.UserName).ToUpper();
 
@@ -40,12 +44,13 @@ namespace InvestmentBuilderClient.DataModel
             {"Subscription", "GetAccountMembers"}
         };
 
-        public InvestmentDataModel(IDataLayer dataLayer, IAuthorizationManager authorizationManager) 
+        public InvestmentDataModel(IDataLayer dataLayer, IAuthorizationManager authorizationManager, BrokerManager brokerManager) 
         {
             _dataLayer = dataLayer;
             _clientData = dataLayer.ClientData;
             _recordData = dataLayer.InvestmentRecordData;
             _authorizationManager = authorizationManager;
+            _brokerManager = brokerManager;
             //var connectstr = @"Data Source=TRAVELPC\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest;Integrated Security=True";
             // _connection = new SqlConnection(dataSource);
             // _connection.Open();
@@ -148,6 +153,7 @@ namespace InvestmentBuilderClient.DataModel
             logger.Log(LogLevel.Info, "Reporting Currency {0}", account.ReportingCurrency);
             logger.Log(LogLevel.Info, "Account Type {0}", account.Type);
             logger.Log(LogLevel.Info, "Enabled {0}", account.Enabled);
+            logger.Log(LogLevel.Info, "Broker {0}", account.Broker);
 
             var tmpToken = _authorizationManager.GetUserAccountToken(_userName, account.Name);
 
@@ -194,6 +200,7 @@ namespace InvestmentBuilderClient.DataModel
             logger.Log(LogLevel.Info, "updating to account {0} ", account);
             _userToken = _authorizationManager.GetUserAccountToken(_userName, account);
             SetLatestValuationDate();
+            TradeUpdated = false;
         }
 
         public InvestmentInformation GetInvestmentDetails(string name)
@@ -246,6 +253,7 @@ namespace InvestmentBuilderClient.DataModel
                                                                 manualPrices);
 
                 //PortfolioItemsList =  ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().GetCurrentInvestments(_userToken, manualPrices).ToList();
+                TradeUpdated = true;
             }
         }
 
@@ -263,6 +271,16 @@ namespace InvestmentBuilderClient.DataModel
         public UserAccountToken GetUserToken()
         {
             return _userToken;
+        }
+
+        public IEnumerable<string> GetBrokers()
+        {
+            return _brokerManager.GetBrokers();
+        }
+
+        public void UndoLastTransaction()
+        {
+            _clientData.UndoLastTransaction(_userToken);
         }
 
         public void Dispose()

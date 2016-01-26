@@ -33,17 +33,17 @@ namespace MarketDataServices
             _container.ComposeParts(this);
         }
 
-        public bool TryGetMarketData(string symbol, string exchange, out double dData)
+        public bool TryGetMarketData(string symbol, string exchange, out MarketDataPrice marketData)
         {
             foreach(var source in Sources)
             {
-                if(source.TryGetMarketData(symbol, exchange, out dData))
+                if(source.TryGetMarketData(symbol, exchange, out marketData))
                 {
                     return true;
                 }
             }
 
-            dData = 0d;
+            marketData = null;
             return false;
         }
 

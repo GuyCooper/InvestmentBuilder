@@ -13,7 +13,8 @@ GO
 
 CREATE PROCEDURE sp_CreateAccount(@Name AS VARCHAR(30), @Password AS VARCHAR(1024),
 								  @Description AS VARCHAR(1024), @Currency AS CHAR(3), 
-								  @AccountType AS VARCHAR(50), @Enabled AS TINYINT ) AS
+								  @AccountType AS VARCHAR(50), @Enabled AS TINYINT,
+								  @Broker AS VARCHAR(30) ) AS
 BEGIN
 
 IF NOT EXISTS (SELECT 1 FROM Users WHERE Name = @Name)
@@ -24,7 +25,8 @@ BEGIN
 		   @Description,
 		   @Currency,
 		   [Type_Id],
-		   0
+		   0,
+		   @Broker
 	FROM
 		   dbo.UserTypes
 	WHERE
@@ -36,7 +38,8 @@ END
 		[Password] = @Password,
 		[Description] = @Description,
 		[Currency] = @Currency,
-		[Enabled] = @Enabled
+		[Enabled] = @Enabled,
+		[Broker]  = @Broker
 	WHERE  Name = @Name
 	 
 END

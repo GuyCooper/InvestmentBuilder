@@ -45,6 +45,7 @@
             this.btnOpenOutputFolder = new System.Windows.Forms.ToolStripButton();
             this.btnAddTrade = new System.Windows.Forms.ToolStripButton();
             this.btnRefresh = new System.Windows.Forms.ToolStripButton();
+            this.btnUndo = new System.Windows.Forms.ToolStripButton();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -66,7 +67,8 @@
             this.btnManageUsers,
             this.btnOpenOutputFolder,
             this.btnAddTrade,
-            this.btnRefresh});
+            this.btnRefresh,
+            this.btnUndo});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(994, 39);
@@ -227,6 +229,19 @@
             this.btnRefresh.ToolTipText = "refresh";
             this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
             // 
+            // btnUndo
+            // 
+            this.btnUndo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnUndo.Enabled = false;
+            this.btnUndo.Image = ((System.Drawing.Image)(resources.GetObject("btnUndo.Image")));
+            this.btnUndo.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.btnUndo.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnUndo.Name = "btnUndo";
+            this.btnUndo.Size = new System.Drawing.Size(36, 36);
+            this.btnUndo.Text = "toolStripButton1";
+            this.btnUndo.ToolTipText = "undo previous transaction";
+            this.btnUndo.Click += new System.EventHandler(this.btnUndo_Click);
+            // 
             // MainView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -262,6 +277,7 @@
         private System.Windows.Forms.ToolStripButton btnOpenOutputFolder;
         private System.Windows.Forms.ToolStripButton btnAddTrade;
         private System.Windows.Forms.ToolStripButton btnRefresh;
+        private System.Windows.Forms.ToolStripButton btnUndo;
 
 
 

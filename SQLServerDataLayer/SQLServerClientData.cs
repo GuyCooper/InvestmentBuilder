@@ -229,6 +229,7 @@ namespace SQLServerDataLayer
                 sqlCommand.Parameters.Add(new SqlParameter("@Currency", account.ReportingCurrency));
                 sqlCommand.Parameters.Add(new SqlParameter("@AccountType", account.Type));
                 sqlCommand.Parameters.Add(new SqlParameter("@Enabled", account.Enabled));
+                sqlCommand.Parameters.Add(new SqlParameter("@Broker", account.Broker));
                 sqlCommand.ExecuteNonQuery();
             }
         }
@@ -252,6 +253,7 @@ namespace SQLServerDataLayer
                             Description = (string)reader["Description"],
                             ReportingCurrency = (string)reader["Currency"],
                             Enabled = (byte)reader["Enabled"] != 0 ? true : false,
+                            Broker = (string)reader["Broker"],
                             Type = (string)reader["Type"]
                         };
                     }
@@ -308,7 +310,7 @@ namespace SQLServerDataLayer
                         return new Stock
                         {
                             Name = (string)reader["Name"],
-                            TransactionDate = dtBoughtDate.ToShortDateString(),
+                            TransactionDate = dtBoughtDate,
                             Symbol = (string)reader["Symbol"],
                             Exchange = exchange.GetType() != typeof(System.DBNull) ? (string)exchange : null,
                             Currency = (string)reader["Currency"],
@@ -320,6 +322,17 @@ namespace SQLServerDataLayer
                 }
             }
             return null;
+        }
+
+        public void UndoLastTransaction(UserAccountToken userToken)
+        {
+            userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
+            using (var sqlCommand = new SqlCommand("sp_UndoLastTransaction", Connection))
+            {
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                sqlCommand.Parameters.Add(new SqlParameter("@account", userToken.Account));
+                int rowsUpdated = sqlCommand.ExecuteNonQuery();
+            }
         }
     }
 }

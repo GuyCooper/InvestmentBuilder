@@ -21,6 +21,10 @@
             }
         </div>
         <div class="form-group">
+            @Html.LabelFor(m => m.TransactionDate)
+            @Html.EditorFor(m => m.TransactionDate, new { @class = "form-control" })
+        </div>
+        <div class="form-group">
             @Html.LabelFor(m => m.Quantity)
             @Html.EditorFor(m => m.Quantity, new { @class = "form-control" })
         </div>

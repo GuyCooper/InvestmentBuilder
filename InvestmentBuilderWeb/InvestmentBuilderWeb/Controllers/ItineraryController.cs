@@ -48,6 +48,7 @@ namespace InvestmentBuilderWeb.Controllers
         // GET: Itinerary
         public ActionResult Index()
         {
+            ViewBag.accountId = new List<SelectListItem> { new SelectListItem { Text = "test", Value = "test", Selected = true } };
             return View();
         }
 
@@ -60,6 +61,7 @@ namespace InvestmentBuilderWeb.Controllers
             //    Duration = "one week"
             //};
 
+            ViewBag.accountId = new List<SelectListItem> { new SelectListItem { Text = "test", Value = "test", Selected = true } };
             return View();
         }
 
@@ -75,6 +77,7 @@ namespace InvestmentBuilderWeb.Controllers
                 this.ModelState.AddModelError("", "Invalid data enterted");
             }
 
+            ViewBag.accountId = new List<SelectListItem> { new SelectListItem { Text = "test", Value = "test", Selected = true } };
             return View();
         }
 

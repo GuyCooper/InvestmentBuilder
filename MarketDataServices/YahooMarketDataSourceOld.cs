@@ -14,16 +14,11 @@ namespace MarketDataServices
     /// <summary>
     /// class gets market data from yahoo
     /// </summary>
-    [Export(typeof(IMarketDataSource))]
-    public class YahooMarketDataSource : IMarketDataSource
+    //[Export(typeof(IMarketDataSource))]
+    public class YahooMarketDataSourceOld : IMarketDataSource
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
         private Dictionary<string, double> _fxLookup = new Dictionary<string, double>();
-
-        private static Dictionary<string, string> _currencyMapper = new Dictionary<string, string>()
-            {
-                {"NYQ", "USD"}
-            };
 
         private static Dictionary<string, string> _exchangeMapper = new Dictionary<string, string>()
         {
@@ -43,47 +38,25 @@ namespace MarketDataServices
                 symbol = string.Format("{0}.{1}", symbol, _exchangeMapper[exchange]);
             }
 
-            string url = String.Format("http://finance.yahoo.com/d/quotes.csv?s={0}&f=pnxc4", symbol);
+            string url = String.Format("http://finance.yahoo.com/d/quotes.csv?s={0}&f=pnx", symbol);
             try
             {
                 string result = WebDataHandler.GetData(url).ToList().First();
-                string[] arr = result.Split(',');
-
                 marketData = new MarketDataPrice();
-                marketData.Price = double.Parse(arr[0]);
-                marketData.Name = arr[1].Trim('"');
-                marketData.Exchange = arr[2].Trim('"');
-                marketData.Currency = arr[3].Trim('"');
-
-                //yahoo convention, if currency is GBp then price is in pence so must convert to pounds
-                if (marketData.Currency[marketData.Currency.Length -1] == 'p')
-                {
-                    marketData.Price = marketData.Price / 100d;
-                    marketData.Currency = marketData.Currency.ToUpper();
-                }
+                marketData.Price = _GetDoubleFromResult(result, 0);
                 return true;
             }
             catch(Exception e)
             {
                 logger.Log(LogLevel.Error, "unable to retrieve {0} from yahoo: {1}", symbol, e.Message);
             }
-
             marketData = null;
             return false;
         }
 
-        private string _mapCurrency(string ccy)
-        {
-            if(_currencyMapper.ContainsKey(ccy) == true)
-            {
-                return _currencyMapper[ccy];
-            }
-            return ccy;
-        }
-
         public bool TryGetFxRate(string baseCurrency, string contraCurrency, out double dFxRate)
         {
-            var ccypair = _mapCurrency(baseCurrency) + _mapCurrency(contraCurrency);
+            var ccypair = baseCurrency + contraCurrency;
             if (_fxLookup.ContainsKey(ccypair))
             {
                 dFxRate = _fxLookup[ccypair];

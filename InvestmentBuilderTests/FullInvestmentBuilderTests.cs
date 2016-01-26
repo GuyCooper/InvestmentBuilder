@@ -35,7 +35,7 @@ namespace InvestmentBuilderTests
         private Stock _TestNewTrade = new Stock
             {
                 Name = _NewTestTradeName,
-                TransactionDate = "01/09/2015",
+                TransactionDate = DateTime.Parse("01/09/2015"),
                 Symbol = "ACME.L",
                 Exchange = "LSE",
                 Currency = "GBP",
@@ -103,6 +103,15 @@ namespace InvestmentBuilderTests
             ContainerManager.RegisterType(typeof(InvestmentBuilder.InvestmentBuilder), typeof(InvestmentBuilder.InvestmentBuilder), false);
 
             ContainerManager.RegisterType(typeof(IAuthorizationManager), typeof(SQLAuthorizationManager), false);
+
+            ContainerManager.RegisterType(typeof(InvestmentBuilder.BrokerManager), typeof(InvestmentBuilder.BrokerManager), false);
+        }
+
+        [Test]
+        public void When_Getting_All_Brokers()
+        {
+            var brokers = ContainerManager.ResolveValue<InvestmentBuilder.BrokerManager>().GetBrokers().ToList();
+            Assert.AreEqual(3, brokers.Count);
         }
 
         [Test]
@@ -125,7 +134,7 @@ namespace InvestmentBuilderTests
             if (m_bOk == true)
             {
                 var testCompany = "British Land Plc";
-                double dTestValue = 894.6; 
+                double dTestValue = 8.946; 
                 var prices = new ManualPrices()
                 {
                     {testCompany, dTestValue }
@@ -136,7 +145,7 @@ namespace InvestmentBuilderTests
                 Assert.IsNotNull(resultData);
                 if(resultData != null)
                 {
-                    MatchDoubleVal(resultData.SharePrice, (dTestValue/100).ToString());
+                    MatchDoubleVal(resultData.SharePrice, (dTestValue).ToString());
                     MatchDoubleVal(resultData.NetSellingValue, "6394.42188");
                     MatchDoubleVal(resultData.ProfitLoss, "1398.2918");
                 }
@@ -172,6 +181,7 @@ namespace InvestmentBuilderTests
             {
                 When_adding_a_new_account(_newTestToken);
                 When_adding_a_new_trade(_newTestToken);
+                When_undoing_last_transaction(_newTestToken);
                 When_building_asset_report(_newTestToken, _TransactionDate, _ValuationDate);
                 When_building_asset_report_next_month(_newTestToken, _TransactionDateNextMonth, _ValuationDateNextMonth);
                 When_building_asset_report_next_month_repeat(_newTestToken, _TransactionDateNextMonth, _ValuationDateNextMonth);
@@ -189,7 +199,8 @@ namespace InvestmentBuilderTests
                 Enabled = true,
                 ReportingCurrency = "GBP",
                 Type = "Personal",
-                Password = "psst"
+                Password = "psst",
+                Broker = "ShareCentre"
             };
             ContainerManager.ResolveValue<SQLServerDataLayer.SQLServerDataLayer>().ClientData.CreateAccount(userToken, account);
 
@@ -201,21 +212,22 @@ namespace InvestmentBuilderTests
             Assert.IsNotNull(result);
 
             Assert.AreEqual("Personal", result.Type);
+            Assert.AreEqual("ShareCentre", result.Broker);
         }
-        
-        private void When_adding_a_new_trade(UserAccountToken userToken)
+ 
+        private Trades toTradeBuys(Stock stock)
         {
-            Console.WriteLine("adding a new trade...");
-
-            var trades = new Trades
+            return new Trades
             {
                 Sells = Enumerable.Empty<Stock>().ToArray(),
                 Changed = Enumerable.Empty<Stock>().ToArray(),
-                Buys = new List<Stock> { _TestNewTrade}.ToArray()
+                Buys = new List<Stock> { stock }.ToArray()
             };
-            ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().UpdateTrades(userToken,
-                                                                                              trades, null, _TradeValuationDate);
+  
+        }
 
+        private void VerifyTradeTransactionResults(UserAccountToken userToken)
+        {
             var results = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().GetCurrentInvestments(userToken, null).ToList();
             Assert.AreEqual(1, results.Count);
 
@@ -225,6 +237,38 @@ namespace InvestmentBuilderTests
             MatchDoubleVal(companyData.ProfitLoss, "13.192");
             MatchDoubleVal(companyData.MonthChange, "0.0");
             MatchDoubleVal(companyData.MonthChangeRatio, "0.0");
+        }
+
+        private void When_adding_a_new_trade(UserAccountToken userToken)
+        {
+            Console.WriteLine("adding a new trade...");
+
+            var trades = toTradeBuys(_TestNewTrade);
+
+            ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().UpdateTrades(userToken,
+                                                                                              trades, null, _TradeValuationDate);
+            VerifyTradeTransactionResults(userToken);
+        }
+
+        private void When_undoing_last_transaction(UserAccountToken userToken)
+        {
+            Console.WriteLine("undoing last transaction...");
+
+            _TestNewTrade.Quantity = 500;
+            _TestNewTrade.TotalCost = 234.43d;
+            var trades = toTradeBuys(_TestNewTrade);
+            ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().UpdateTrades(userToken,
+                                                            trades, null, _TradeValuationDate.AddSeconds(120));
+
+            var results = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().GetCurrentInvestments(userToken, null).ToList();
+            Assert.AreEqual(1, results.Count);
+            var companyData = results.First();
+            Assert.AreEqual(3000, companyData.Quantity);
+
+            var dataLayer = ContainerManager.ResolveValue<IDataLayer>();
+            dataLayer.ClientData.UndoLastTransaction(userToken);
+
+            VerifyTradeTransactionResults(userToken);
         }
 
         private void When_building_asset_report(UserAccountToken userToken, DateTime dtTransactionDate, DateTime dtValuationDate)
@@ -275,7 +319,7 @@ namespace InvestmentBuilderTests
             const double dUpdateTradeCost = 261.32d;
 
             //first update the new trade to test month change value is correct
-            _TestNewTrade.TransactionDate = "21/09/2015";
+            _TestNewTrade.TransactionDate = DateTime.Parse("21/09/2015");
             _TestNewTrade.Quantity = 500;
             _TestNewTrade.TotalCost = dUpdateTradeCost;
             var trades = new Trades
@@ -308,7 +352,7 @@ namespace InvestmentBuilderTests
 
             var manualPrices = new ManualPrices
             {
-                {_TestNewTrade.Name, 49.86}
+                {_TestNewTrade.Name, 0.4986}
             };
 
             var report = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().BuildAssetReport(userToken,
@@ -341,7 +385,7 @@ namespace InvestmentBuilderTests
 
             var manualPrices = new ManualPrices
             {
-                {_TestNewTrade.Name, 49.86}
+                {_TestNewTrade.Name, 0.4986}
             };
 
             var report = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().BuildAssetReport(userToken,

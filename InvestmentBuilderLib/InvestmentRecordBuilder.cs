@@ -16,11 +16,13 @@ namespace InvestmentBuilder
         protected Logger Log { get; private set; }
         private IMarketDataService _marketDataService;
         private IInvestmentRecordInterface _investmentRecordData;
+        private BrokerManager _brokerManager;
 
-        public InvestmentRecordBuilder(IMarketDataService marketDataService, IInvestmentRecordInterface investmentRecordData)
+        public InvestmentRecordBuilder(IMarketDataService marketDataService, IInvestmentRecordInterface investmentRecordData, BrokerManager brokerManager)
         {
             _investmentRecordData = investmentRecordData;
             _marketDataService = marketDataService;
+            _brokerManager = brokerManager;
             Log = LogManager.GetLogger(GetType().FullName);
         }
 
@@ -35,14 +37,6 @@ namespace InvestmentBuilder
             _investmentRecordData.CreateNewInvestment(userToken, newTrade.Name, newTrade.Symbol, newTrade.Currency,
                                                       newTrade.Quantity, newTrade.ScalingFactor, newTrade.TotalCost, dClosing, newTrade.Exchange,
                                                       valuationDate);
-        }
-
-        private double _GetNetSellingValue(double dSharesHeld, double dPrice)
-        {
-            double dGrossValue = dSharesHeld * dPrice;
-            if (dGrossValue > 750d)
-                return dGrossValue - (dGrossValue * 0.01);
-            return dGrossValue - 7.5d;
         }
 
         private IEnumerable<CompanyData> _GetCompanyDataImpl(UserAccountToken userToken, UserAccountData account, DateTime dtValuationDate, bool bUpdatePrice, ManualPrices manualPrices )
@@ -66,7 +60,8 @@ namespace InvestmentBuilder
                         investment.SharePrice = dClosing;
                     }
                 }
-                investment.NetSellingValue = _GetNetSellingValue(investment.Quantity, investment.SharePrice);
+
+                investment.NetSellingValue = _brokerManager.GetNetSellingValue(account.Broker, investment.Quantity, investment.SharePrice);
             }
             return investments;
         }
@@ -98,7 +93,7 @@ namespace InvestmentBuilder
             {
                 dManualPrice = manualPrices[name];
             }
-            return _marketDataService.TryGetClosingPrice(symbol, exchange, name, currency, accountCurrency, scalingFactor, dManualPrice, out dPrice);
+            return _marketDataService.TryGetClosingPrice(symbol, exchange, name, currency, accountCurrency, dManualPrice, out dPrice);
         }
 
         /// <summary>

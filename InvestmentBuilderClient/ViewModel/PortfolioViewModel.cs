@@ -60,7 +60,7 @@ namespace InvestmentBuilderClient.ViewModel
                     Symbol = itemDetails.Symbol,
                     TotalCost = item.TotalCost,
                     //TransactionDate = item.LastBrought.HasValue ? item.LastBrought.Value.ToShortDateString() : DateTime.Now.ToShortDateString()
-                    TransactionDate = item.LastBrought.ToShortDateString()
+                    TransactionDate = item.LastBrought
                 };
             }
             return null;

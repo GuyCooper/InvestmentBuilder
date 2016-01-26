@@ -33,7 +33,8 @@ namespace InvestmentBuilderCore
         [XmlElement("name")]
         public string Name { get; set; }
         [XmlElement("date")]
-        public string TransactionDate { get; set; }
+        //public string TransactionDate { get; set; }
+        public DateTime? TransactionDate { get; set; }
         [XmlElement("symbol")]
         public string Symbol { get; set; }
         [XmlElement("exchange")]

@@ -18,14 +18,16 @@ namespace InvestmentBuilder
         private IMarketDataService _marketDataService;
         private IUserAccountInterface _userAccountData;
         private ICashAccountInterface _cashAccountData;
+        private BrokerManager _brokerManager;
 
-        public InvestmentBuilder(IConfigurationSettings settings, IDataLayer dataLayer, IMarketDataService marketDataService)
+        public InvestmentBuilder(IConfigurationSettings settings, IDataLayer dataLayer, IMarketDataService marketDataService, BrokerManager brokerManager)
         {
             _settings = settings;
             _dataLayer = dataLayer;
             _userAccountData = _dataLayer.UserAccountData;
             _marketDataService = marketDataService;
             _cashAccountData = _dataLayer.CashAccountData;
+            _brokerManager = brokerManager;
         }
   
         /// <summary>
@@ -58,7 +60,7 @@ namespace InvestmentBuilder
             AssetReport assetReport = null;
             //    var trades = TradeLoader.GetTrades(_settings.GetTradeFile(accountName));
 
-            var recordBuilder = new InvestmentRecordBuilder(_marketDataService, _dataLayer.InvestmentRecordData);
+            var recordBuilder = new InvestmentRecordBuilder(_marketDataService, _dataLayer.InvestmentRecordData, _brokerManager);
             //var dataReader = new CompanyDataReader(_dataLayer.InvestmentRecordData);
 
             var accountData = _userAccountData.GetUserAccountData(userToken);
@@ -127,16 +129,14 @@ namespace InvestmentBuilder
                                             lstData,
                                             cashAccountData.BankBalance,
                                             bUpdate);
+            //get the start of year price
+
             //finally, build the asset statement
-            //assetWriter.WrC:\Projects\InvestmentBuilder\InvestmentBuilderLib\AssetSheetBuilder.csiteAssetStatement(lstData, cashAccountData, dtPreviousValuation, valuationDate);
-            //if(bUpdate)
-            //{
-                using(var assetWriter = new AssetReportWriterExcel(_settings.GetOutputPath(accountData.Name),
-                                                                   _settings.GetTemplatePath()))
-                {
-                    assetWriter.WriteAssetReport(assetReport);
-                }
-            //}
+            using(var assetWriter = new AssetReportWriterExcel(_settings.GetOutputPath(accountData.Name),
+                                                                _settings.GetTemplatePath()))
+            {
+                assetWriter.WriteAssetReport(assetReport, _userAccountData.GetStartOfYearValuation(userToken, valuationDate));
+            }
 
             logger.Log(LogLevel.Info, "Report Generated, Account Builder Complete");
             return assetReport;
@@ -156,7 +156,7 @@ namespace InvestmentBuilder
                 throw new ArgumentNullException("invalid user token");
             }
 
-            var recordBuilder = new InvestmentRecordBuilder(_marketDataService, _dataLayer.InvestmentRecordData);
+            var recordBuilder = new InvestmentRecordBuilder(_marketDataService, _dataLayer.InvestmentRecordData, _brokerManager);
             var accountData = _userAccountData.GetUserAccountData(userToken);
 
             //check this is a valid account
@@ -191,7 +191,7 @@ namespace InvestmentBuilder
                 throw new ArgumentNullException("invalid user token");
             }
 
-            var recordBuilder = new InvestmentRecordBuilder(_marketDataService, _dataLayer.InvestmentRecordData);
+            var recordBuilder = new InvestmentRecordBuilder(_marketDataService, _dataLayer.InvestmentRecordData, _brokerManager);
 
             var accountData = _userAccountData.GetUserAccountData(userToken);
 
@@ -270,7 +270,7 @@ namespace InvestmentBuilder
             double dResult = default(double);
             if (dtPreviousValution.HasValue)
             {
-                var dPreviousUnitValue = _userAccountData.GetPreviousUnitValuation(userToken, dtValuationDate, dtPreviousValution);
+                var dPreviousUnitValue = _userAccountData.GetPreviousUnitValuation(userToken, dtPreviousValution);
                 var memberAccountData = _userAccountData.GetMemberAccountData(userToken, dtPreviousValution ?? dtValuationDate).ToList();
                 foreach (var member in memberAccountData)
                 {

@@ -17,9 +17,10 @@ namespace InvestmentBuilderTests
 
         public string Name { get { return "TestDatasource"; } }
 
-        public bool TryGetMarketData(string symbol, string exchange, out double dData)
+        public bool TryGetMarketData(string symbol, string exchange, out MarketDataPrice marketData)
         {
-            dData = TestPrice;
+            marketData = new MarketDataPrice();
+            marketData.Price = TestPrice;
             return true;
         }
 

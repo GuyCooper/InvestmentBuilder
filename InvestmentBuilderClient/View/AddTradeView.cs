@@ -31,7 +31,7 @@ namespace InvestmentBuilderClient.View
             if(trade != null)
             {
                 this.Text = "Edit Trade";
-                dteTransactionDate.Value = DateTime.Parse(trade.TransactionDate);
+                dteTransactionDate.Value = trade.TransactionDate ?? DateTime.Now;
                 cmboName.SelectedText = trade.Name;
                 cmboName.Text = trade.Name;
                 nmrcNumber.Value = trade.Quantity;
@@ -67,9 +67,9 @@ namespace InvestmentBuilderClient.View
             };
         }
 
-        public string GetTransactionDate()
+        public DateTime GetTransactionDate()
         {
-            return dteTransactionDate.Value.ToShortDateString();   
+            return dteTransactionDate.Value;   
         }
 
         public string GetName()
@@ -131,8 +131,8 @@ namespace InvestmentBuilderClient.View
         }
         private void btnCheck_Click(object sender, EventArgs e)
         {
-            double dPrice;
-            if(_marketDataSource.TryGetMarketData(GetSymbol(), GetExchange(), out dPrice))
+            MarketDataPrice marketData;
+            if(_marketDataSource.TryGetMarketData(GetSymbol(), GetExchange(), out marketData))
             {
                 lblCheckResult.Text = "Success. Valid Symbol!";
             }

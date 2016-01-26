@@ -42,6 +42,7 @@ namespace InvestmentBuilderCore
         IEnumerable<string> GetAccountTypes();
         IEnumerable<string> GetAllCompanies();
         Stock GetTradeItem(UserAccountToken userToken, string name);
+        void UndoLastTransaction(UserAccountToken userToken);
     }
 
     public interface IInvestmentRecordInterface
@@ -79,12 +80,13 @@ namespace InvestmentBuilderCore
         void UpdateMemberAccount(UserAccountToken userToken, DateTime dtValuation, string member, double dAmount);
         double GetMemberSubscription(UserAccountToken userToken, DateTime dtValuation, string member);
         IEnumerable<KeyValuePair<string, double>> GetMemberAccountData(UserAccountToken userToken, DateTime dtValuation);
-        double GetPreviousUnitValuation(UserAccountToken userToken, DateTime dtValuation, DateTime? previousDate);
+        double GetPreviousUnitValuation(UserAccountToken userToken, DateTime? previousDate);
         void SaveNewUnitValue(UserAccountToken userToken, DateTime dtValuation, double dUnitValue);
         double GetIssuedUnits(UserAccountToken userToken, DateTime dtValuation);
         DateTime? GetPreviousAccountValuationDate(UserAccountToken userToken, DateTime dtValuation);
         IEnumerable<string> GetAccountMembers(UserAccountToken userToken);
         UserAccountData GetUserAccountData(UserAccountToken userToken);
+        double GetStartOfYearValuation(UserAccountToken userToken, DateTime valuationDate);
     }
 
     public interface IHistoricalDataReader

@@ -33,12 +33,12 @@ BEGIN
 END
 
 SELECT 
-	C.Name,
-	C.Symbol,
-	C.Currency,
-	C.Exchange,
-	C.LastBoughtDate,
-	C.ScalingFactor,
+	C.Name as Name,
+	C.Symbol as Symbol,
+	C.Currency as Currency,
+	C.Exchange as Exchange ,
+	C.LastBoughtDate as LastBoughtDate,
+	C.ScalingFactor as ScalingFactor,
 	IR.Shares_Bought,
 	IR.Shares_Sold,
 	IR.Total_Cost	

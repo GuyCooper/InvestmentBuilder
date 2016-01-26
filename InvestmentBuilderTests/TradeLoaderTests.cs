@@ -24,7 +24,7 @@ namespace InvestmentBuilderTests
         private const double _TestCost = 3932.87d;
         private const string _TestSymbol = "ACM.CA";
         private const double _TestScalingFactor = 1;
-        private const string _TestDate =   "30/03/2015";
+        private static DateTime _TestDate =   DateTime.Parse("30/03/2015");
 
         private const string _TestCompany = "iShares FTSE100 ETF";
 

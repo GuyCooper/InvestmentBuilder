@@ -91,7 +91,7 @@ namespace SQLServerDataLayer
             }
         }
 
-        public double GetPreviousUnitValuation(UserAccountToken userToken, DateTime dtValuation, DateTime? previousDate)
+        public double GetPreviousUnitValuation(UserAccountToken userToken, DateTime? previousDate)
         {
             userToken.AuthorizeUser(AuthorizationLevel.READ);
             if (previousDate.HasValue == false)
@@ -189,12 +189,35 @@ namespace SQLServerDataLayer
                         {
                             Name = userToken.Account,
                             Currency = (string)reader["Currency"],
-                            Description = (string)reader["Description"]
+                            Description = (string)reader["Description"],
+                            Broker = (string)reader["Broker"]
                         };
                     }
                 }
             }
             return null;
+        }
+
+        public double GetStartOfYearValuation(UserAccountToken userToken, DateTime valuationDate)
+        {
+            userToken.AuthorizeUser(AuthorizationLevel.READ);
+
+            DateTime dtStartOfYear = valuationDate.Month > 1 ? valuationDate.AddMonths(1 - valuationDate.Month) : valuationDate;
+            if (dtStartOfYear.Day > 1)
+                dtStartOfYear = dtStartOfYear.AddDays(1 - dtStartOfYear.Day);
+
+            using (var command = new SqlCommand("sp_GetStartOfYearValuation", Connection))
+            {
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+                command.Parameters.Add(new SqlParameter("@valuationDate", dtStartOfYear));
+                command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                var objResult = command.ExecuteScalar();
+                if (objResult != null)
+                {
+                    return (double)command.ExecuteScalar();
+                }
+            }
+            return 1d;
         }
     }
 }

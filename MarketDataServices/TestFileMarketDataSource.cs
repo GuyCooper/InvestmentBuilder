@@ -20,16 +20,30 @@ namespace MarketDataServices
     public class TestFileMarketDataSource : IMarketDataSource
     {
    
-        private Dictionary<string, double> _marketDataLookup = new Dictionary<string, double>();
+        private Dictionary<string, MarketDataPrice> _marketDataLookup = new Dictionary<string, MarketDataPrice>();
         private Dictionary<string, double> _fxDataLookup = new Dictionary<string, double>();
 
         //private const string _testDataPath = @"C:\Projects\TestData\InvestmentBuilder";
         //private const string _testDataFile = "testMarketData.txt";
 
-        private void _addDataToLookup(string name, string strValue, Dictionary<string, double> lookup)
+        private void _addMarketDataToLookup(string name, string strPrice, string strCurrency, Dictionary<string, MarketDataPrice> lookup)
+        {
+            double dPrice;
+            if (double.TryParse(strPrice, out dPrice))
+            {
+                lookup.Add(name, new MarketDataPrice
+                {
+                    Name = name,
+                    Price = dPrice,
+                    Currency = strCurrency
+                });
+            }
+        }
+
+        private void _addDataToLookup(string name, string strPrice, Dictionary<string, double> lookup)
         {
             double dRate;
-            if (double.TryParse(strValue, out dRate))
+            if (double.TryParse(strPrice, out dRate))
             {
                 lookup.Add(name, dRate);
             }
@@ -44,13 +58,16 @@ namespace MarketDataServices
                 while((line = reader.ReadLine()) != null)
                 {
                     var elems = line.Split(',');
-                    if(elems.Length == 3)
+                    if(elems.Length > 2)
                     {
                         if (string.Compare(elems[0], "M", true) == 0)
                         {
-                            _addDataToLookup(elems[1], elems[2], _marketDataLookup);
+                            if (elems.Length > 3)
+                            {
+                                _addMarketDataToLookup(elems[1], elems[2], elems[3], _marketDataLookup);
+                            }
                         }
-                        if (string.Compare(elems[0], "F", true) == 0)
+                        else if (string.Compare(elems[0], "F", true) == 0)
                         {
                             _addDataToLookup(elems[1], elems[2], _fxDataLookup);
                         }
@@ -59,9 +76,18 @@ namespace MarketDataServices
             }
         }
 
-        public bool TryGetMarketData(string symbol, string exchange, out double dData)
+        public bool TryGetMarketData(string symbol, string exchange, out MarketDataPrice marketData)
         {
-            return _marketDataLookup.TryGetValue(symbol, out dData);
+            if(_marketDataLookup.TryGetValue(symbol, out marketData))
+            {
+                if (marketData.Currency[marketData.Currency.Length - 1] == 'p')
+                {
+                    marketData.Price = marketData.Price / 100d;
+                    marketData.Currency = marketData.Currency.ToUpper();
+                }
+                return true;
+            }
+            return false;
         }
 
         public bool TryGetFxRate(string baseCurrency, string contraCurrency, out double dFxRate)

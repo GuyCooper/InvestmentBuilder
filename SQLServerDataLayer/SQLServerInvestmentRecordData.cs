@@ -249,7 +249,7 @@ namespace SQLServerDataLayer
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
             foreach (var trade in trades)
             {
-                var dtTransaction = DateTime.Parse(trade.TransactionDate);
+                var dtTransaction = trade.TransactionDate ?? DateTime.Today;
                 using (var command = new SqlCommand("sp_AddTransactionHistory", Connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;

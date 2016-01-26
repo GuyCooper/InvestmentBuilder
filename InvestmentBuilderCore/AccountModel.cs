@@ -14,6 +14,7 @@ namespace InvestmentBuilderCore
         public string ReportingCurrency { get; set; }
         public string Type { get; set; }
         public bool Enabled { get; set; }
+        public string Broker { get; set; }
         public IList<KeyValuePair<string, AuthorizationLevel>> Members { get; set; }
     }
 }

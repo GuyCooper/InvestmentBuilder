@@ -12,7 +12,7 @@ namespace InvestmentBuilder
     //class persists the asset report to a file
     interface IAssetReportWriter
     {
-        void WriteAssetReport(AssetReport report);
+        void WriteAssetReport(AssetReport report, double startOfYear);
     }
 
     //persist asset report to excel 
@@ -59,7 +59,7 @@ namespace InvestmentBuilder
             return false;
         }
 
-        public void WriteAssetReport(AssetReport report)
+        public void WriteAssetReport(AssetReport report, double startOfYear)
         {
             logger.Log(LogLevel.Info, "persisting asset report to excel spreadsheet");
 
@@ -122,7 +122,9 @@ namespace InvestmentBuilder
             count++;
             newSheet.get_Range("H" + count++).Value = report.BankBalance;
             count += 2;
+            newSheet.get_Range("C" + count).Value = startOfYear;
             newSheet.get_Range("H" + count++).Value = report.TotalAssets;
+           
             newSheet.get_Range("H" + count++).Value = report.TotalLiabilities;
             count++;
             newSheet.get_Range("H" + count++).Value = report.NetAssets;

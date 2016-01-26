@@ -50,6 +50,7 @@
       <HintPath>..\ThirdParty\nLog\4.5\NLog.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -60,6 +61,7 @@
   <ItemGroup>
     <Compile Include="AssetReport.cs" />
     <Compile Include="AssetReportWriter.cs" />
+    <Compile Include="BrokerManager.cs" />
     <Compile Include="InvestmentBuilder.cs" />
     <Compile Include="InvestmentData.cs" />
     <Compile Include="InvestmentRecordBuilder.cs" />
