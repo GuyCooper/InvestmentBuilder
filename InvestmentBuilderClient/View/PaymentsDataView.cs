@@ -5,24 +5,38 @@ using System.Text;
 using System.Threading.Tasks;
 using InvestmentBuilderClient.DataModel;
 using InvestmentBuilderClient.ViewModel;
+using InvestmentBuilder;
+using System.ComponentModel;
+using System.Windows.Forms;
 
 namespace InvestmentBuilderClient.View
 {
     internal class PaymentsDataView : CashAccountView
     {
+        private BindingList<PaymentTransaction> _payments;
+
         public PaymentsDataView(InvestmentDataModel dataModel) :
             base(dataModel)
         {
             this.Text = "Payments Cash Account";
         }
 
-        protected override string TransactionMnenomic { get { return "P"; } }
-
-        protected override CashAccountViewModel SetupDataSource(InvestmentDataModel dataModel)
+        protected override void SetupDatasource(BindingSource source)
         {
-            var vm = new PaymentsDataViewModel(dataModel);
-            cashAccountBindingSource.DataSource = vm.Payments;
-            return vm;
+            _payments = new BindingList<PaymentTransaction>();
+            source.DataSource = _payments;
+        }
+
+        protected override double GetCashAccountDataImpl(InvestmentDataModel dataModel, DateTime dtValuationDate)
+        {
+            _payments.Clear();
+            double dTotal;
+            var transactions = dataModel.GetPaymentTransactions(dtValuationDate, out dTotal);
+            foreach (var payment in transactions)
+            {
+                _payments.Add(payment);
+            }
+            return dTotal;
         }
 
         protected override void SetupGrid()
@@ -33,6 +47,11 @@ namespace InvestmentBuilderClient.View
             AddColumn(cashAccountGrid, "Withdrawls", "Withdrawls");
             AddColumn(cashAccountGrid, "Purchases", "Purchases");
             AddColumn(cashAccountGrid, "Other Payments", "Other");
+        }
+
+        protected override string GetMnenomic(InvestmentDataModel dataModel)
+        {
+            return dataModel.GetPaymentMnenomic();
         }
     }
 }

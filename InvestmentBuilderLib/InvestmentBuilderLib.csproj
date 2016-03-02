@@ -62,6 +62,7 @@
     <Compile Include="AssetReport.cs" />
     <Compile Include="AssetReportWriter.cs" />
     <Compile Include="BrokerManager.cs" />
+    <Compile Include="CashAccountTransactionManager.cs" />
     <Compile Include="InvestmentBuilder.cs" />
     <Compile Include="InvestmentData.cs" />
     <Compile Include="InvestmentRecordBuilder.cs" />

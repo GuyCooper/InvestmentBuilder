@@ -25,8 +25,11 @@ namespace InvestmentBuilderClient.DataModel
         private IInvestmentRecordInterface _recordData;
         private IAuthorizationManager _authorizationManager;
         private BrokerManager _brokerManager;
+        private CashAccountTransactionManager _cashAccountManager;
+        private InvestmentBuilder.InvestmentBuilder _investmentBuilder;
 
         private UserAccountToken _userToken; //cache user token
+        private int _TradeUpdateCount;
 
         public DateTime? LatestValuationDate { get; set; }
 
@@ -34,7 +37,7 @@ namespace InvestmentBuilderClient.DataModel
 
         public List<CompanyData> PortfolioItemsList { get; set; }
 
-        //public bool TradeUpdated { get; private set; }
+        public event Func<bool, bool> TradeUpdateEvent; 
 
         private string _userName = string.Format(@"{0}\{1}", Environment.UserDomainName, Environment.UserName).ToUpper();
 
@@ -44,17 +47,30 @@ namespace InvestmentBuilderClient.DataModel
             {"Subscription", "GetAccountMembers"}
         };
 
-        public InvestmentDataModel(IDataLayer dataLayer, IAuthorizationManager authorizationManager, BrokerManager brokerManager) 
+        public InvestmentDataModel(IDataLayer dataLayer, 
+                                   InvestmentBuilder.InvestmentBuilder investmentBuilder,
+                                   IAuthorizationManager authorizationManager,
+                                   BrokerManager brokerManager,
+                                   CashAccountTransactionManager cashAccountManager) 
         {
             _dataLayer = dataLayer;
             _clientData = dataLayer.ClientData;
             _recordData = dataLayer.InvestmentRecordData;
             _authorizationManager = authorizationManager;
             _brokerManager = brokerManager;
+            _cashAccountManager = cashAccountManager;
+            _investmentBuilder = investmentBuilder;
             //var connectstr = @"Data Source=TRAVELPC\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest;Integrated Security=True";
             // _connection = new SqlConnection(dataSource);
-            // _connection.Open();
             // logger.Log(LogLevel.Info, "connected to datasource {0}", dataSource);
+        }
+
+        private void UpdateTradeUpdateEvent()
+        {
+            if(TradeUpdateEvent != null)
+            {
+                TradeUpdateEvent(_TradeUpdateCount > 0);
+            }
         }
 
         public IEnumerable<DateTime> GetValuationDates()
@@ -79,11 +95,10 @@ namespace InvestmentBuilderClient.DataModel
 
         public IEnumerable<string> GetsTransactionTypes(string side)
         {
-            return _clientData.GetTransactionTypes(side);
+            return _clientData.GetTransactionTypes(side).Where(x => string.Equals(x, "Redemption") == false);
         }
 
-        public IEnumerable<string> GetParametersForType(string type)
-        {
+        public IEnumerable<string> GetParametersForType(string type)        {
             if(_typeProcedureLookup.ContainsKey(type))
             {
                 var methodInfo = _clientData.GetType().GetMethod(_typeProcedureLookup[type]);
@@ -95,28 +110,10 @@ namespace InvestmentBuilderClient.DataModel
             return Enumerable.Empty<string>();
         }
 
-       // public void GetCashAccountData(DateTime dtValuationDate, string side, Action<SqlDataReader> fnAddTransaction)
-        public void GetCashAccountData(DateTime dtValuationDate, string side, Action<IDataReader> fnAddTransaction)
-        {
-            _clientData.GetCashAccountData(_userToken, side, dtValuationDate, fnAddTransaction);
-        }
-
         private void SetLatestValuationDate()
         {
             LatestValuationDate = _clientData.GetLatestValuationDate(_userToken);
             LatestRecordValuationDate = _recordData.GetLatestRecordInvestmentValuationDate(_userToken) ?? DateTime.Today;
-        }
-
-        public double GetBalanceInHand(DateTime dtValuation)
-        {
-            return _clientData.GetBalanceInHand(_userToken, dtValuation);
-        }
-
-        public void SaveCashAccountData(DateTime dtValuationDate, DateTime dtTransactionDate,
-                                    string type, string parameter, double amount)
-        {
-            _clientData.AddCashAccountData(_userToken, dtValuationDate, dtTransactionDate, type,
-                                                parameter, amount);
         }
 
         public void ReloadData(string dataSource)
@@ -137,14 +134,13 @@ namespace InvestmentBuilderClient.DataModel
 
         public IEnumerable<KeyValuePair<string, AuthorizationLevel>> GetAccountMembers(UserAccountToken token)
         {
-            return _clientData.GetAccountMemberDetails(token, DateTime.Today);
+            return _clientData.GetAccountMemberDetails(token, LatestValuationDate ?? DateTime.Today);
         }
 
         private void _UpdateMemberForAccount(UserAccountToken token, string member, AuthorizationLevel level, bool bAdd)
         {
             _clientData.UpdateMemberForAccount(token, member, level,  bAdd);
-        }
-
+        } 
         public void UpdateUserAccount(AccountModel account)
         {
             logger.Log(LogLevel.Info, "creating/modifying account {0}", account.Name);
@@ -158,7 +154,7 @@ namespace InvestmentBuilderClient.DataModel
             var tmpToken = _authorizationManager.GetUserAccountToken(_userName, account.Name);
 
             _clientData.CreateAccount(tmpToken, account);
-            var existingMembers = _clientData.GetAccountMembers(tmpToken, DateTime.Today); 
+            var existingMembers = _clientData.GetAccountMembers(tmpToken, LatestValuationDate ?? DateTime.Today); 
                 //GetAccountMembers(tmpToken).ToList();
             foreach(var member in existingMembers)
             {
@@ -200,7 +196,8 @@ namespace InvestmentBuilderClient.DataModel
             logger.Log(LogLevel.Info, "updating to account {0} ", account);
             _userToken = _authorizationManager.GetUserAccountToken(_userName, account);
             SetLatestValuationDate();
-            TradeUpdated = false;
+            _TradeUpdateCount = 0;
+            UpdateTradeUpdateEvent();
         }
 
         public InvestmentInformation GetInvestmentDetails(string name)
@@ -228,7 +225,7 @@ namespace InvestmentBuilderClient.DataModel
         public void LoadPortfolioItems()
         {
             ManualPrices manualPrices = GetManualPrices();
-            PortfolioItemsList =  ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().GetCurrentInvestments(_userToken, manualPrices).ToList();
+            PortfolioItemsList = _investmentBuilder.GetCurrentInvestments(_userToken, manualPrices).ToList();
             logger.Log(LogLevel.Info, "loaded {0} items from database for account {1}", PortfolioItemsList.Count, _userToken.Account);
         }
 
@@ -247,20 +244,20 @@ namespace InvestmentBuilderClient.DataModel
                 {
                     manualPrices.Add(trade.Name, trade.ManualPrice.Value);
                 }
-                ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().UpdateTrades(
-                                                                _userToken,
-                                                                tradesList,
-                                                                manualPrices);
+                _investmentBuilder.UpdateTrades(
+                                                _userToken,
+                                                tradesList,
+                                                manualPrices);
 
                 //PortfolioItemsList =  ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().GetCurrentInvestments(_userToken, manualPrices).ToList();
-                TradeUpdated = true;
+                _TradeUpdateCount++;
+                UpdateTradeUpdateEvent();
             }
         }
 
         public AssetReport BuildAssetReport(DateTime dtValuation)
         {
-            return ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>()
-                                                           .BuildAssetReport(_userToken, dtValuation, DateTime.Now, true, GetManualPrices());
+            return _investmentBuilder.BuildAssetReport(_userToken, dtValuation, DateTime.Now, true, GetManualPrices());
         }
 
         public IEnumerable<string> GetAllCompanies()
@@ -280,7 +277,56 @@ namespace InvestmentBuilderClient.DataModel
 
         public void UndoLastTransaction()
         {
-            _clientData.UndoLastTransaction(_userToken);
+            if (_TradeUpdateCount > 0)
+            {
+                --_TradeUpdateCount;
+                _clientData.UndoLastTransaction(_userToken);
+                UpdateTradeUpdateEvent();
+            }
+        }
+
+        public IEnumerable<Redemption> GetRedemptions(DateTime dtValuation)
+        {
+            return _investmentBuilder.GetRedemptions(_userToken, dtValuation);
+        }
+
+        public bool RequestRedemption(string user, double amount, DateTime dtValuation )
+        {
+            return _investmentBuilder.RequestRedemption(_userToken, user, amount, dtValuation);
+        }
+
+        public IList<PaymentTransaction> GetPaymentTransactions(DateTime dtValuationDate, out double dTotal)
+        {
+            return _cashAccountManager.GetPaymentTransactions(_userToken, dtValuationDate, out dTotal);
+        }
+
+        public IList<ReceiptTransaction> GetReceiptTransactions(DateTime dtValuationDate, out double dTotal)
+        {
+            var dtPrevious = _clientData.GetPreviousAccountValuationDate(_userToken, dtValuationDate);
+            return _cashAccountManager.GetReceiptTransactions(_userToken, dtValuationDate, dtPrevious , out dTotal);
+        }
+
+        public void AddCashTransaction(DateTime dtValuation, DateTime dtTransactionDate,
+                                   string type, string parameter, double amount)
+        {
+            _cashAccountManager.AddTransaction(_userToken, dtValuation, dtTransactionDate,
+                                                type, parameter, amount);
+        }
+
+        public void RemoveCashTransaction(DateTime dtValuationDate, DateTime dtTransactionDate,
+                                        string type, string parameter)
+        {
+            _cashAccountManager.RemoveTransaction(_userToken, dtValuationDate, dtTransactionDate, type, parameter);
+        }
+
+        public string GetPaymentMnenomic()
+        {
+            return _cashAccountManager.PaymentMnemomic;
+        }
+
+        public string GetReceiptMnenomic()
+        {
+            return _cashAccountManager.ReceiptMnemomic;
         }
 
         public void Dispose()

@@ -1,4 +1,4 @@
-﻿
+﻿@model InvestmentBuilderWeb.Models.CashFlowModel
 @{
     ViewBag.Title = "CashFlow";
 }
@@ -12,34 +12,85 @@
 
 <div class="panel panel-default"> 
     <div class="panel-heading">
-        <div class="container">
-            <div class="row">
-                <h4>Receipts</h4>
-                <a class="btn btn-default pull-right">Add Receipt</a>
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Receipts</a> 
             </div>
-        </div>
-                </div>
+            <button type="button" class="btn btn-default navbar-btn navbar-right">
+                 Add Receipt
+            </button>
+    </div>
     <table class="table table-condensed">
-        <tr>
-           <td>Product A</td>
-           <td>200</td>
-        </tr>
-        <tr>
-           <td>Product B</td>
-           <td>400</td>
-        </tr>
+        <thead>
+            <tr>
+                <th>Transaction Date</th>
+                <th>Parameter</th>
+                <th>Subscription</th>
+                <th>Sale</th>
+                <th>Dividend</th>
+                <th>Other Receipts</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model.Receipts)
+        { 
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TransactionDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Parameter)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Subscription)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Sale)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Dividend)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Other)
+                </td>
+            </tr>
+        }
+        </tbody>
     </table>
 </div>
 <div class="panel panel-default">
     <div class="panel-heading">Payments</div>
     <table class="table table-condensed">
-        <tr>
-           <td>Product A</td>
-           <td>200</td></tr>
-        <tr>
-           <td>Product B</td>
-           <td>400</td>
-        </tr>
+        <thead>
+            <tr>
+                <th>Transaction Date</th>
+                <th>Parameter</th>
+                <th>Withdrawls</th>
+                <th>Purchases</th>
+                <th>Other Payments</th>
+            </tr>
+        </thead>
+       <tbody>
+        @foreach (var item in Model.Payments)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TransactionDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Parameter)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Withdrawls)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Purchases)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Other)
+                </td>
+            </tr>
+        }
+       </tbody>
     </table>
 </div>
 

@@ -10,6 +10,5 @@ namespace InvestmentBuilderClient.View
     {
         void UpdateValuationDate(DateTime dtValuation);
         void UpdateAccountName(string account);
-        void CommitData(DateTime dtValuation);
     }
 }

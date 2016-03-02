@@ -138,42 +138,6 @@ namespace SQLServerDataLayer
             return 0d;
         }
 
-        public DateTime? GetPreviousAccountValuationDate(UserAccountToken userToken, DateTime dtValuation)
-        {
-            userToken.AuthorizeUser(AuthorizationLevel.READ);
-            DateTime? dtPrevious = null;
-            using (var command = new SqlCommand("sp_GetPreviousValuationDate", Connection))
-            {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
-                command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
-                var result = command.ExecuteScalar();
-                if (result != null)
-                {
-                    dtPrevious = (DateTime)result;
-                }
-            }
-            return dtPrevious;
-        }
-
-        public IEnumerable<string> GetAccountMembers(UserAccountToken userToken)
-        {
-            userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
-            using (var sqlCommand = new SqlCommand("sp_GetAccountMembers", Connection))
-            {
-                sqlCommand.CommandType = System.Data.CommandType.StoredProcedure;
-                sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account));
-                sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", DateTime.Today));
-                using (var reader = sqlCommand.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        yield return (string)reader["Name"];
-                    }
-                }
-            }
-        }
-
         public UserAccountData GetUserAccountData(UserAccountToken userToken)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
@@ -218,6 +182,64 @@ namespace SQLServerDataLayer
                 }
             }
             return 1d;
+        }
+
+        public IEnumerable<Redemption> GetRedemptions(UserAccountToken userToken, DateTime valuationDate)
+        {
+            using (var sqlCommand = new SqlCommand("sp_GetRedemptions", Connection))
+            {
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                sqlCommand.Parameters.Add(new SqlParameter("@TransactionDate", valuationDate));
+                using (var reader = sqlCommand.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        yield return new Redemption
+                        {
+                            User = (string)reader["Name"],
+                            Amount = (double)reader["amount"],
+                            TransactionDate = (DateTime)reader["transaction_date"],
+                            Status = (RedemptionStatus)Enum.Parse(typeof(RedemptionStatus), (string)reader["status"])
+                        };
+                    }
+                }
+            }
+        }
+ 
+        public void AddRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount)
+        {
+            userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
+
+            using (var command = new SqlCommand("sp_AddRedemption", Connection))
+            {
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+                command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                command.Parameters.Add(new SqlParameter("@User", user));
+                command.Parameters.Add(new SqlParameter("@TransactionDate", transactionDate));
+                command.Parameters.Add(new SqlParameter("@Amount", amount));
+                command.Parameters.Add(new SqlParameter("@Status", RedemptionStatus.Pending.ToString()));
+                
+                command.ExecuteScalar();
+            }
+        }
+
+        public void UpdateRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount, double units)
+        {
+            userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
+
+            using (var command = new SqlCommand("sp_UpdateRedemption", Connection))
+            {
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+                command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                command.Parameters.Add(new SqlParameter("@User", user));
+                command.Parameters.Add(new SqlParameter("@TransactionDate", transactionDate));
+                command.Parameters.Add(new SqlParameter("@Amount", amount));
+                command.Parameters.Add(new SqlParameter("@UnitsRedeemed", units));
+                command.Parameters.Add(new SqlParameter("@Status", RedemptionStatus.Complete.ToString()));
+
+                command.ExecuteScalar();
+            }
         }
     }
 }

@@ -65,5 +65,15 @@ namespace InvestmentBuilderWeb.Translators
         {
             return _CloneObject<TradeItemModel>(trade.GetType(), trade, () => new TradeItemModel());
         }
+
+        public static ReceiptCashFlowModel ToReceiptCashFlowModel(this ReceiptTransaction receipt)
+        {
+            return _CloneObject<ReceiptCashFlowModel>(receipt.GetType(), receipt, () => new ReceiptCashFlowModel());
+        }
+
+        public static PaymentCashFlowModel ToPaymentCashFlowModel(this PaymentTransaction payment)
+        {
+            return _CloneObject<PaymentCashFlowModel>(payment.GetType(), payment, () => new PaymentCashFlowModel());
+        }
     }
 }

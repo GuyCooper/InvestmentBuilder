@@ -208,6 +208,7 @@
     </Compile>
     <Compile Include="Interfaces\IApplicationSessionManager.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\CashFlowModel.cs" />
     <Compile Include="Models\CompanyDataModel.cs" />
     <Compile Include="Models\GreetingModel.cs" />
     <Compile Include="Models\IdentityModels.cs" />

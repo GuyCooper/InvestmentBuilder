@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using InvestmentBuilderClient.ViewModel;
 using InvestmentBuilderClient.DataModel;
+using InvestmentBuilder;
 using NLog;
 
 namespace InvestmentBuilderClient.View
@@ -16,28 +17,23 @@ namespace InvestmentBuilderClient.View
     internal abstract partial class CashAccountView : Form, IInvestmentBuilderView
     {
         private InvestmentDataModel _dataModel;
-        private CashAccountViewModel _vm;
 
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
-        bool _bInitialised = false;
+        private bool _bInitialised = false;
+        private DateTime? _valuationDate;
 
         public CashAccountView(InvestmentDataModel dataModel)
         {
             InitializeComponent();
             SetupGrid();
-            _vm = SetupDataSource(dataModel);
-            cashAccountGrid.DataSource = cashAccountBindingSource;
             _dataModel = dataModel;
-            //_GetCashAccountData();            
+            SetupDatasource(cashAccountBindingSource);
+            cashAccountGrid.DataSource = cashAccountBindingSource;
             _bInitialised = true;
         }
 
-        protected abstract CashAccountViewModel SetupDataSource(InvestmentDataModel dataModel);
-
-        protected abstract string TransactionMnenomic { get; }
-
-        protected void AddColumn(DataGridView gridView, string name, string propertyName)
+       protected void AddColumn(DataGridView gridView, string name, string propertyName)
         {
             gridView.Columns.Add(new DataGridViewColumn
                 {
@@ -63,44 +59,39 @@ namespace InvestmentBuilderClient.View
 
         private void _GetCashAccountData(DateTime dtValuation)
         {
-            var total = GetCashAccountDataImpl(dtValuation);
+            var total = GetCashAccountDataImpl(_dataModel, dtValuation);
             txtTotal.Text = total.ToString();
             AddGridStyling();
         }
 
-        private double GetCashAccountDataImpl(DateTime dtValuationDate)
-        {
-            return _vm.GetTransactionData(dtValuationDate, TransactionMnenomic);
-        }
-        
+        protected abstract void SetupDatasource(BindingSource source);
+
+        protected abstract double GetCashAccountDataImpl(InvestmentDataModel dataModel, DateTime dtValuationDate);
+
+        protected abstract string GetMnenomic(InvestmentDataModel dataModel);
+
         private void btnAddTransaction_Click(object sender, EventArgs e)
         {
-            var view = new AddTransactionView(_dataModel, TransactionMnenomic);
+            var view = new AddTransactionView(_dataModel, GetMnenomic(_dataModel));
             if(view.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 if (view.ValidateTransaction())
                 {
-                    double total = 0d;
+                    var valuationDate = _valuationDate.HasValue ? _valuationDate.Value : DateTime.Today;
                     var transactionParams = view.GetParameter().ToList();
                     foreach (var param in transactionParams)
                     {
-                        total = AddTransactionImpl(view.GetTransactionDate(), view.GetTransactionType(),
+                        _dataModel.AddCashTransaction(valuationDate, view.GetTransactionDate(), view.GetTransactionType(),
                                   param, view.GetAmount());
                     }
-                    
-                    txtTotal.Text = total.ToString();
-                    AddGridStyling();
+
+                    _GetCashAccountData(valuationDate);
                 }
                 else
                 {
                     logger.Log(LogLevel.Error, "transaction validation failed!");
                 }
             }
-        }
-
-        private double AddTransactionImpl(DateTime dtTransactionDate, string type, string parameter, double dAmount)
-        {
-            return _vm.AddTransaction(dtTransactionDate, type, parameter, dAmount);
         }
 
         private void btnDeleteTransaction_Click(object sender, EventArgs e)
@@ -114,9 +105,11 @@ namespace InvestmentBuilderClient.View
                 }
                 else
                 {
-                    var total = _vm.DeleteTransaction(transaction);
-                    txtTotal.Text = total.ToString();
-                    AddGridStyling();
+                    _dataModel.RemoveCashTransaction(transaction.ValuationDate,
+                                                     transaction.TransactionDate,
+                                                     transaction.TransactionType,
+                                                     transaction.Parameter);
+                    _GetCashAccountData(transaction.ValuationDate);
                 }
             }
         }
@@ -130,13 +123,9 @@ namespace InvestmentBuilderClient.View
         {
             if (_bInitialised)
             {
+                _valuationDate = dtValuation;
                 _GetCashAccountData(dtValuation);
             }
-        }
-
-        public void CommitData(DateTime dtValuation)
-        {
-            _vm.CommitData(dtValuation);
         }
 
         public double GetTotal()

@@ -1,3 +1,7 @@
+USE [InvestmentBuilderTest2]
+GO
+
+/****** Object:  StoredProcedure [dbo].[sp_AddCashAccountData]    Script Date: 04/02/2016 17:50:42 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -11,7 +15,7 @@ END
 
 GO
 
-CREATE PROCEDURE sp_AddCashAccountData(@ValuationDate as DateTime, @TransactionDate as DateTime, @TransactionType as varchar(20),
+CREATE PROCEDURE [dbo].[sp_AddCashAccountData](@ValuationDate as DateTime, @TransactionDate as DateTime, @TransactionType as varchar(20),
 									@Parameter as varchar(50), @Amount as float, @Account as varchar(30)) AS
 BEGIN
 
@@ -33,3 +37,5 @@ AND
 
 
 END
+GO
+

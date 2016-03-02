@@ -39,6 +39,9 @@ namespace InvestmentBuilderClient.View
             _views = new List<IInvestmentBuilderView>();
             _settings = settings;
 
+            btnUndo.Enabled = false;
+            _dataModel.TradeUpdateEvent += (enabled) => btnUndo.Enabled = enabled;
+              
             _displayContext = SynchronizationContext.Current;
         }
 
@@ -136,25 +139,6 @@ namespace InvestmentBuilderClient.View
             _dataModel.UpdateAccountName(cmboAccountName.SelectedItem as string);
 
             //PopulateValuationDates();        
-        }
-
-        private void btnCommitData_Click(object sender, EventArgs e)
-        {
-            if (MessageBox.Show("Are You Sure?", "Commit Data", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes)
-            {
-                if(Validator.Validate(_views) == false)
-                {
-                    MessageBox.Show("data validation failure,please check all your values");
-                }
-                else
-                {
-                    DateTime dtValuation = _GetSelectedValuationDate();
-                    foreach (var view in _views)
-                    {
-                        view.CommitData(dtValuation);
-                    }
-                }
-            }
         }
 
         private void btnRunBuilder_Click(object sender, EventArgs e)
@@ -345,6 +329,11 @@ namespace InvestmentBuilderClient.View
         private void btnUndo_Click(object sender, EventArgs e)
         {
             _dataModel.UndoLastTransaction();
+        }
+
+        private void btnRedemption_Click(object sender, EventArgs e)
+        {
+            _AddView(new RedemptionsView(_dataModel, _GetSelectedValuationDate()));
         }
     }
 }

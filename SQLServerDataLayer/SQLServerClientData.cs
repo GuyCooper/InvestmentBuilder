@@ -96,30 +96,6 @@ namespace SQLServerDataLayer
             }
         }
 
-        public void GetCashAccountData(UserAccountToken userToken, string side, DateTime valuationDate, Action<System.Data.IDataReader> fnAddTransaction)
-        {
-            userToken.AuthorizeUser(AuthorizationLevel.READ);
-            if (fnAddTransaction == null)
-            {
-                return;
-            }
-
-            using (var sqlCommand = new SqlCommand("sp_GetCashAccountData", Connection))
-            {
-                sqlCommand.CommandType = CommandType.StoredProcedure;
-                sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
-                sqlCommand.Parameters.Add(new SqlParameter("@Side", side));
-                sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account));
-                using (var reader = sqlCommand.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        fnAddTransaction(reader);
-                    }
-                }
-            }
-        }
-
         public DateTime? GetLatestValuationDate(UserAccountToken userToken)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
@@ -136,40 +112,6 @@ namespace SQLServerDataLayer
                 }
             }
             return null;
-        }
-
-        public double GetBalanceInHand(UserAccountToken userToken, DateTime valuationDate)
-        {
-            userToken.AuthorizeUser(AuthorizationLevel.READ);
-            using (var sqlCommand = new SqlCommand("sp_GetBalanceInHand", Connection))
-            {
-                sqlCommand.CommandType = CommandType.StoredProcedure;
-                sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
-                sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account));
-                var result = sqlCommand.ExecuteScalar();
-                if (result is double)
-                {
-                    return (double)result;
-                }
-            }
-            return 0d;
-
-        }
-
-        public void AddCashAccountData(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate, string type, string parameter, double amount)
-        {
-            userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
-            using (var sqlCommand = new SqlCommand("sp_AddCashAccountData", Connection))
-            {
-                sqlCommand.CommandType = CommandType.StoredProcedure;
-                sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
-                sqlCommand.Parameters.Add(new SqlParameter("@TransactionDate", transactionDate));
-                sqlCommand.Parameters.Add(new SqlParameter("@TransactionType", type));
-                sqlCommand.Parameters.Add(new SqlParameter("@Parameter", parameter));
-                sqlCommand.Parameters.Add(new SqlParameter("@Amount", amount));
-                sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account));
-                sqlCommand.ExecuteNonQuery();
-            }
         }
 
         public IEnumerable<string> GetAccountNames(string user)
@@ -334,5 +276,24 @@ namespace SQLServerDataLayer
                 int rowsUpdated = sqlCommand.ExecuteNonQuery();
             }
         }
+
+        public DateTime? GetPreviousAccountValuationDate(UserAccountToken userToken, DateTime dtValuation)
+        {
+            userToken.AuthorizeUser(AuthorizationLevel.READ);
+            DateTime? dtPrevious = null;
+            using (var command = new SqlCommand("sp_GetPreviousValuationDate", Connection))
+            {
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+                command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
+                command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                var result = command.ExecuteScalar();
+                if (result != null)
+                {
+                    dtPrevious = (DateTime)result;
+                }
+            }
+            return dtPrevious;
+        }
+
     }
 }

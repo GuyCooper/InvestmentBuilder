@@ -19,19 +19,24 @@ namespace InvestmentBuilderWeb.Controllers
     public class InvestmentRecordController : Controller
     {
         private InvestmentBuilder.InvestmentBuilder _investmentBuilder;
-        private IClientDataInterface _clientInterface;
+        private IClientDataInterface _clientData;
         private IAuthorizationManager _authorizationManager;
         private InvestmentRecordSessionService _sessionService;
+        private CashAccountTransactionManager _cashTransactionManager;
         private string _sessionId;
 
-        public InvestmentRecordController(InvestmentBuilder.InvestmentBuilder investmentBuilder, IDataLayer dataLayer, IAuthorizationManager authorizationManager,
-                                          IApplicationSessionService sessionService)  
+        public InvestmentRecordController(InvestmentBuilder.InvestmentBuilder investmentBuilder
+                                        , IDataLayer dataLayer
+                                        , IAuthorizationManager authorizationManager
+                                        , IApplicationSessionService sessionService
+                                        , CashAccountTransactionManager cashTransactionManager)  
         {
             _investmentBuilder = investmentBuilder;
-            _clientInterface = dataLayer.ClientData;
+            _clientData = dataLayer.ClientData;
             _authorizationManager = authorizationManager;
             _sessionService = sessionService as InvestmentRecordSessionService;
             _sessionId = System.Web.HttpContext.Current.Session.SessionID;
+            _cashTransactionManager = cashTransactionManager;
         }
 
         //setup the user account accounttoken and populate accounts list for user. if selectedAccount is null then just uses
@@ -42,7 +47,7 @@ namespace InvestmentBuilderWeb.Controllers
             if (User != null && User.Identity != null)
             {
                 var username = User.Identity.GetUserName();
-                var accounts = _clientInterface.GetAccountNames(User.Identity.GetUserName()).ToList();
+                var accounts = _clientData.GetAccountNames(User.Identity.GetUserName()).ToList();
                 if (_authorizationManager.GetCurrentTokenForUser(username) == null)
                 {
                     _authorizationManager.SetUserAccountToken(username, accounts.FirstOrDefault());
@@ -104,19 +109,32 @@ namespace InvestmentBuilderWeb.Controllers
 
             return View("Index", _GetCurrentInvestments(token));
         }
+         
+        private CashFlowModel _GetCashFlowModel()
+        {
+            var token = _SetupAccounts(null);
+            var dtValuation = _sessionService.GetValuationDate(_sessionId);
+            var dtPrevious = _clientData.GetPreviousAccountValuationDate(token, dtValuation);
+            double dReceiptTotal, dPaymentTotal;
+            var cashFlowModel = new CashFlowModel();
+            cashFlowModel.Receipts = _cashTransactionManager.GetReceiptTransactions(token, dtValuation, dtPrevious, out dReceiptTotal).Select(x => x.ToReceiptCashFlowModel()); ;
+            cashFlowModel.Payments = _cashTransactionManager.GetPaymentTransactions(token, dtValuation, out dPaymentTotal).Select(x => x.ToPaymentCashFlowModel());
+            cashFlowModel.ReceiptsTotal = dReceiptTotal;
+            cashFlowModel.PaymentsTotal = dPaymentTotal;
+            return cashFlowModel;
+        }
 
         [HttpGet]
         public ActionResult CashFlow()
         {
-            _SetupAccounts(null);
-            return View();
+            return View("CashFlow", _GetCashFlowModel());
         }
 
         [HttpGet]
         public ActionResult Edit(string name)
         {
             var token =_SetupAccounts(null);
-            var tradeItem = _clientInterface.GetTradeItem(token, name);
+            var tradeItem = _clientData.GetTradeItem(token, name);
             if(tradeItem != null)
             {
                 var model = tradeItem.ToTradeItemModel();
@@ -157,7 +175,7 @@ namespace InvestmentBuilderWeb.Controllers
         {
             //_service.DeleteRecord(data);
             var token = _SetupAccounts(null);
-            var tradeItem = _clientInterface.GetTradeItem(token, name);
+            var tradeItem = _clientData.GetTradeItem(token, name);
             if (tradeItem != null)
             {
                 _investmentBuilder.UpdateTrades(token, tradeItem.ToTrades(TransactionType.SELL), null);
@@ -170,6 +188,7 @@ namespace InvestmentBuilderWeb.Controllers
         public ActionResult UpdateAccount(string accountId)
         {
             var token = _SetupAccounts(accountId);
+            _sessionService.ResetValuationDate(_sessionId);
             return View("Index", _GetCurrentInvestments(token));
         }
 
@@ -180,6 +199,13 @@ namespace InvestmentBuilderWeb.Controllers
 
             _sessionService.AddManualPrice(_sessionId, investment, share_price);
             return View("Index", _GetCurrentInvestments(token));
+        }
+
+        [HttpGet]
+        public ActionResult UpdateValuationDate(DateTime dtValaution)
+        {
+            _sessionService.SetValuationDate(_sessionId, dtValaution);
+            return View("CashFlow", _GetCashFlowModel());
         }
     }
 }

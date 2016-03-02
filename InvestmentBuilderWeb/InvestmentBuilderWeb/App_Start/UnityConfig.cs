@@ -75,7 +75,7 @@ namespace InvestmentBuilderWeb.App_Start
             container.RegisterType<IDataLayer, SQLServerDataLayer.SQLServerDataLayer>(new ContainerControlledLifetimeManager());
             container.RegisterType<InvestmentBuilder.InvestmentBuilder>(new ContainerControlledLifetimeManager());
             container.RegisterType<PerformanceBuilder>(new ContainerControlledLifetimeManager());
-
+            container.RegisterType<InvestmentBuilder.CashAccountTransactionManager>(new ContainerControlledLifetimeManager());
             container.RegisterType<IApplicationSessionService, InvestmentRecordSessionService>(new ContainerControlledLifetimeManager());
         }
     }

@@ -66,4 +66,18 @@ namespace InvestmentBuilderCore
         MODIFY
     } 
 
+    public enum RedemptionStatus
+    {
+        Pending,
+        Complete,
+        Failed
+    }
+
+    public class Redemption
+    {
+        public string User { get; set; }
+        public double Amount { get; set; }
+        public DateTime TransactionDate { get; set; }
+        public RedemptionStatus Status { get; set; }
+    }
 }

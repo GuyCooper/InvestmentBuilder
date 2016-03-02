@@ -57,5 +57,81 @@ namespace SQLServerDataLayer
             }
             return cashData;
         }
+
+        public void RemoveCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate,
+                    string type, string parameter)
+        {
+            userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
+            using (var sqlCommand = new SqlCommand("sp_RemoveCashAccountData", Connection))
+            {
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
+                sqlCommand.Parameters.Add(new SqlParameter("@TransactionDate", transactionDate));
+                sqlCommand.Parameters.Add(new SqlParameter("@TransactionType", type));
+                sqlCommand.Parameters.Add(new SqlParameter("@Parameter", parameter));
+                sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                sqlCommand.ExecuteNonQuery();
+            }
+ 
+        }
+
+        public void GetCashAccountTransactions(UserAccountToken userToken, string side, DateTime valuationDate, Action<System.Data.IDataReader> fnAddTransaction)
+        {
+            userToken.AuthorizeUser(AuthorizationLevel.READ);
+            if (fnAddTransaction == null)
+            {
+                return;
+            }
+
+            using (var sqlCommand = new SqlCommand("sp_GetCashAccountData", Connection))
+            {
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
+                sqlCommand.Parameters.Add(new SqlParameter("@Side", side));
+                sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                using (var reader = sqlCommand.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        fnAddTransaction(reader);
+                    }
+                }
+            }
+        }
+
+        public double GetBalanceInHand(UserAccountToken userToken, DateTime valuationDate)
+        {
+            userToken.AuthorizeUser(AuthorizationLevel.READ);
+            using (var sqlCommand = new SqlCommand("sp_GetBalanceInHand", Connection))
+            {
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
+                sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                var result = sqlCommand.ExecuteScalar();
+                if (result is double)
+                {
+                    return (double)result;
+                }
+            }
+            return 0d;
+
+        }
+
+        public void AddCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate, string type, string parameter, double amount)
+        {
+            userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
+            using (var sqlCommand = new SqlCommand("sp_AddCashAccountData", Connection))
+            {
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
+                sqlCommand.Parameters.Add(new SqlParameter("@TransactionDate", transactionDate));
+                sqlCommand.Parameters.Add(new SqlParameter("@TransactionType", type));
+                sqlCommand.Parameters.Add(new SqlParameter("@Parameter", parameter));
+                sqlCommand.Parameters.Add(new SqlParameter("@Amount", amount));
+                sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                sqlCommand.ExecuteNonQuery();
+            }
+        }
+
     }
 }

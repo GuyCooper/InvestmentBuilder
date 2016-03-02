@@ -29,11 +29,8 @@ namespace InvestmentBuilderCore
         IEnumerable<string> GetActiveCompanies(UserAccountToken userToken, DateTime valuationDate);
         IEnumerable<string> GetAccountMembers(UserAccountToken userToken, DateTime valuationDate);
         IEnumerable<KeyValuePair<string, AuthorizationLevel>> GetAccountMemberDetails(UserAccountToken userToken, DateTime valuationDate);
-        void GetCashAccountData(UserAccountToken userToken, string side, DateTime valuationDate, Action<IDataReader> fnAddTransaction);
         DateTime? GetLatestValuationDate(UserAccountToken userToken);
-        double GetBalanceInHand(UserAccountToken userToken, DateTime valuationDate);
-        void AddCashAccountData(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate,
-                                string type, string parameter, double amount);
+        DateTime? GetPreviousAccountValuationDate(UserAccountToken userToken, DateTime dtValuation);
         IEnumerable<string> GetAccountNames(string user);
         bool IsExistingValuationDate(UserAccountToken userToken, DateTime valuationDate);
         void UpdateMemberForAccount(UserAccountToken userToken, string member, AuthorizationLevel level, bool add);
@@ -71,6 +68,13 @@ namespace InvestmentBuilderCore
     public interface ICashAccountInterface
     {
         CashAccountData GetCashAccountData(UserAccountToken userToken, DateTime valuationDate);
+        void AddCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate,
+                                string type, string parameter, double amount);
+
+        void RemoveCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate,
+                        string type, string parameter);
+        void GetCashAccountTransactions(UserAccountToken userToken, string side, DateTime valuationDate, Action<System.Data.IDataReader> fnAddTransaction);
+        double GetBalanceInHand(UserAccountToken userToken, DateTime valuationDate);
     }
 
     public interface IUserAccountInterface
@@ -83,10 +87,11 @@ namespace InvestmentBuilderCore
         double GetPreviousUnitValuation(UserAccountToken userToken, DateTime? previousDate);
         void SaveNewUnitValue(UserAccountToken userToken, DateTime dtValuation, double dUnitValue);
         double GetIssuedUnits(UserAccountToken userToken, DateTime dtValuation);
-        DateTime? GetPreviousAccountValuationDate(UserAccountToken userToken, DateTime dtValuation);
-        IEnumerable<string> GetAccountMembers(UserAccountToken userToken);
         UserAccountData GetUserAccountData(UserAccountToken userToken);
         double GetStartOfYearValuation(UserAccountToken userToken, DateTime valuationDate);
+        IEnumerable<Redemption> GetRedemptions(UserAccountToken userToken, DateTime valuationDate);
+        void AddRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount);
+        void UpdateRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount, double units);
     }
 
     public interface IHistoricalDataReader

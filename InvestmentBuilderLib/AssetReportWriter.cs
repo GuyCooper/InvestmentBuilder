@@ -85,6 +85,25 @@ namespace InvestmentBuilder
 
             newSheet.get_Range("B16").Value = report.ReportingCurrency;
 
+            //add in redemptions
+            if(report.Redemptions != null)
+            {
+                newSheet.get_Range("B18").Font.Bold = true;
+                newSheet.get_Range("B18").Value = "Redemptions";
+                newSheet.get_Range("B19").Value = "Date";
+                newSheet.get_Range("C19").Value = "User";
+                newSheet.get_Range("D19").Value = "Amount";
+
+                int redemptionRow = 20;
+                foreach(var redemption in report.Redemptions)
+                {
+                    newSheet.get_Range("B" + redemptionRow).Value = redemption.TransactionDate;
+                    newSheet.get_Range("C" + redemptionRow).Value = redemption.User;
+                    newSheet.get_Range("D" + redemptionRow).Value = redemption.Amount;
+                    redemptionRow++;
+                }
+            }
+
             //add in the new rows
             var lstCompanyData = report.Assets.ToList();
             for (int row = 1; row < lstCompanyData.Count; ++row)
