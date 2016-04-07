@@ -9,11 +9,11 @@
     <li><a href="@Url.Action("Performance")">Performance</a></li>
 </ul>
 
-<div class="navbar navbar-default">
-    <ul class="nav navbar navbar-right">
-        <li><a href="@Url.Action("BuildReport", "InvestmentRecord", new {target="_blank"})" class="btn btn-primary">Build Report </a></li>
-    </ul>
-</div>
+<ul class="nav nav-tabs navbar navbar-right">
+    <li><a href="@Url.Action("BuildReport")" class="btn btn-primary">Build Report </a></li>
+</ul>
+
+<p />
 
 <div class="navbar navbar-default">
     <div class="container">
@@ -27,7 +27,6 @@
         </ul>
     </div>
 </div>
-
 <div class="panel panel-default"> 
     <table class="table table-condensed">
         <thead>
@@ -77,19 +76,19 @@
                     @Html.DisplayFor(modelItem => item.TransactionDate)
                 </td>
                 <td>
-                    <strong>@Html.DisplayFor(modelItem => item.Parameter)</strong>
+                    @Html.DisplayFor(modelItem => item.Parameter)
                 </td>
                 <td>
-                    <strong>@Html.DisplayFor(modelItem => item.Subscription)</strong>
+                    @Html.DisplayFor(modelItem => item.Subscription)
                 </td>
                 <td>
-                    <strong>@Html.DisplayFor(modelItem => item.Sale)</strong>
+                    @Html.DisplayFor(modelItem => item.Sale)
                 </td>
                 <td>
-                    <strong>@Html.DisplayFor(modelItem => item.Dividend)</strong>
+                    @Html.DisplayFor(modelItem => item.Dividend)
                 </td>
                 <td>
-                    <strong>@Html.DisplayFor(modelItem => item.Other)</strong>
+                    @Html.DisplayFor(modelItem => item.Other)
                 </td>
             </tr>
         }
@@ -156,16 +155,16 @@
                     @Html.DisplayFor(modelItem => item.TransactionDate)
                 </td>
                 <td>
-                    <strong>@Html.DisplayFor(modelItem => item.Parameter)</strong>
+                    @Html.DisplayFor(modelItem => item.Parameter)
                 </td>
                 <td>
-                    <strong>@Html.DisplayFor(modelItem => item.Withdrawls)</strong>
+                    @Html.DisplayFor(modelItem => item.Withdrawls)
                 </td>
                 <td>
-                    <strong>@Html.DisplayFor(modelItem => item.Purchases)</strong>
+                    @Html.DisplayFor(modelItem => item.Purchases)
                 </td>
                 <td>
-                    <strong>@Html.DisplayFor(modelItem => item.Other)</strong>
+                    @Html.DisplayFor(modelItem => item.Other)
                 </td>
             </tr>
         }

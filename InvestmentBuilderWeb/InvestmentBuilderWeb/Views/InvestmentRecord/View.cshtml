@@ -1,0 +1,50 @@
+﻿<html>
+
+<body>
+    <h2><label>Test View</label></h2>
+
+    @using (Ajax.BeginForm("GetParametersForTransaction", "InvestmentRecord",
+            new AjaxOptions
+            {
+                InsertionMode = InsertionMode.Replace,
+                HttpMethod = "GET",
+                OnFailure = "loadParametersFailed", 
+                UpdateTargetId = "parameters",
+            }, new { id = "parameterSelect" }))
+    {
+        <input type="text" name="q" />
+        <input type="submit" value="search" />
+        @*<div class="form-group">
+                @Html.DropDownList("ParameterType", null, new { @class = "form-control" ,
+                                  onchange = "javascript:document.getElementById('parameterSelect').submit()" })
+            </div>*@
+    }
+
+    <div id="parameters">
+        <label>Parameter</label>
+        @Html.DropDownList("DummyParameters")
+    </div>
+
+</body>
+
+@*//Change your search button like this
+<input type="button" value="Search" onclick="ajaxCall()" />
+//in javascript
+function ajaxCall()
+{
+ $.ajax({
+  url: "ActionURL",
+  type:"get", //send it through get method
+  data:{}
+  success: function(response) {
+    //response is your partialview html
+  },
+  error: function(xhr) {
+    //Do Something to handle error
+  }
+});
+
+}*@
+</html>
+
+

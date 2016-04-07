@@ -10,14 +10,14 @@
 
     $(document).ready(function () {
 
-        $.ajax({
-            url: '/InvestmentRecord/GetAccounts',
-            type: 'GET',
-            dataType: 'html',
-            success: function (result) {
-                $("#accountsList").append(result)
-            }
-        });
+        //$.ajax({
+        //    url: '/InvestmentRecord/GetAccounts',
+        //    type: 'GET',
+        //    dataType: 'html',
+        //    success: function (result) {
+        //        $("#accountsList").append(result)
+        //    }
+        //});
 
         $.ajax({
             url: '/Itinerary/GetAdParts',
@@ -64,3 +64,27 @@
         $("#helpTrigger").unbind();
         $("#helpTrigger").click(getHelp);
     }
+
+    function asyncGetParameters() {
+        var parameter = $("#ParameterType").val();
+        $.ajax({
+            type: "GET",
+            url: 'GetParametersForTransaction',
+            data: { ParameterType: parameter},//$.param('ParameterType', 'Subscription'), //$("#ParameterType").val()),
+            dataType: "json",
+            success: function (result, status, sender) {
+                var content = "<div id=\"parameters\"><select name=\"Parameter\" class=\"form-control\">";
+                $.each(result, function (key, value) {
+                    content += "<option value=\"" + value + "\">" + value + "</option>"
+                });
+                content += "</select></div>";
+                $("#parameters").replaceWith(content);
+            },
+            error: function OnGetParametersError(sender, status, error) {
+                alert("error:" + error.toString())
+            }
+        });
+    }
+
+    
+            

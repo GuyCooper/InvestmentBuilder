@@ -216,6 +216,7 @@
     <Compile Include="Models\ItineraryItem.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\TradeItemModel.cs" />
+    <Compile Include="Models\TransactionModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Samples\SpecifyingViews\SampleController.cs" />
     <Compile Include="Services\InvestmentRecordBuilderService.cs" />
@@ -242,6 +243,9 @@
     <Content Include="InvestmentBuilderWebConfig.xml" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Scripts\d3\d3.js" />
+    <Content Include="Scripts\d3\d3.min.js" />
+    <Content Include="Scripts\d3\LICENSE" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\jquery.unobtrusive-ajax.js" />
     <Content Include="Scripts\jquery.unobtrusive-ajax.min.js" />
@@ -312,6 +316,9 @@
     <Content Include="Views\Example\Index.cshtml" />
     <Content Include="Views\Shared\AccountPartial.cshtml" />
     <Content Include="Views\InvestmentRecord\Edit.cshtml" />
+    <Content Include="Views\InvestmentRecord\AddTransaction.cshtml" />
+    <Content Include="Views\InvestmentRecord\Parameters.cshtml" />
+    <Content Include="Views\InvestmentRecord\View.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

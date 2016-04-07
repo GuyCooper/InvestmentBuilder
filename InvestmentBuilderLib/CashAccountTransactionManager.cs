@@ -44,26 +44,43 @@ namespace InvestmentBuilder
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
         //this structure maps a transaction type onto its transaction property
-        private Dictionary<string, string> _TransactionLookup =
+        private Dictionary<string, string> _receiptTransactionLookup =
                 new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase) {
                 {"Subscription", "Subscription"}, 
                 {"BalanceInHand", "Subscription"},
                 {"Sale", "Sale"},
                 {"Dividend", "Dividend"},
-                {"Interest", "Other"},
+                {"Interest", "Other"}
+            };
+
+        private Dictionary<string, string> _paymentTransactionLookup =
+                new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase) {
                 {"Admin Fee", "Other"},
                 {"Purchase", "Purchases"},
                 {"Redemption", "Withdrawls"},
                 {"BalanceInHandCF", "Other"}
             };
 
-        public CashAccountTransactionManager(IDataLayer dataLayer)
-        {
-            _cashAccountData = dataLayer.CashAccountData;
-        }
+        private Dictionary<string, Dictionary<string, string>> _transactionLookup;
 
         public string PaymentMnemomic { get { return "P"; } }
         public string ReceiptMnemomic { get { return "R"; } }
+
+        public CashAccountTransactionManager(IDataLayer dataLayer)
+        {
+            _cashAccountData = dataLayer.CashAccountData;
+
+            _transactionLookup = new Dictionary<string, Dictionary<string, string>>
+            {
+                {ReceiptMnemomic, _receiptTransactionLookup},
+                {PaymentMnemomic, _paymentTransactionLookup}
+            };
+        }
+
+        public IEnumerable<string> GetTransactionTypes(string mnenomic)
+        {
+            return _transactionLookup[mnenomic].Keys;
+        }
 
         public IList<PaymentTransaction> GetPaymentTransactions(UserAccountToken userToken, DateTime dtValuationDate, out double dTotal)
         {
@@ -83,7 +100,8 @@ namespace InvestmentBuilder
             //add the balance in handfrom the previous monthif it is not already there
             if (dtPreviousValuationDate.HasValue && dtValuationDate > dtPreviousValuationDate)
             {
-                if (transactions.FirstOrDefault(r => r.TransactionType == "BalanceInHand") == null)
+                var balanceInHand = transactions.FirstOrDefault(r => r.TransactionType == "BalanceInHand");
+                if (balanceInHand == null)
                 {
                     var dAmount = _cashAccountData.GetBalanceInHand(userToken, dtPreviousValuationDate.Value);
                     
@@ -96,11 +114,16 @@ namespace InvestmentBuilder
                         Subscription = dAmount,
                         Amount = dAmount
                     };
-                    transactions.Add(transaction);
                     //we also need to add the balance in hand transaction to the database
                     //so the validation will work
                     AddTransaction(userToken, dtValuationDate, dtValuationDate, transaction.TransactionType,
                         transaction.Parameter, transaction.Subscription);
+                }
+                else
+                {
+                    //move the balance in hand transaction to the top of the list
+                    transactions.Remove(balanceInHand);
+                    transactions.Insert(0, balanceInHand);
                 }
             }
             dTotal = _AddTotalRow<ReceiptTransaction>(dtValuationDate, transactions);
@@ -122,7 +145,7 @@ namespace InvestmentBuilder
                 transaction.Amount = amount;
 
                 string transactionProperty;
-                if (_TransactionLookup.TryGetValue(transaction.TransactionType, out transactionProperty))
+                if (_transactionLookup[mnenomic].TryGetValue(transaction.TransactionType, out transactionProperty))
                 {
                     //map the transaction type to the transaction property
                     var propInfo = transaction.GetType().GetProperty(transactionProperty);

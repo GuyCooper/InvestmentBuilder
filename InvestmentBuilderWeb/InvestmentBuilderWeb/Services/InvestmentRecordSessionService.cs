@@ -61,7 +61,7 @@ namespace InvestmentBuilderWeb.Services
                     return dt.Value;
                 }
             }
-            return DateTime.Now;
+            return DateTime.Today;
         }
 
         public void SetValuationDate(string sessionId, DateTime dtValuation)

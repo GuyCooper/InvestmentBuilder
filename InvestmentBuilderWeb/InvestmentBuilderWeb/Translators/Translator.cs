@@ -41,7 +41,7 @@ namespace InvestmentBuilderWeb.Translators
 
         private static T _CloneObject<T>(Type objType, object objFrom, Func<T> creator ) where T : class
         {
-            var props = objType.GetProperties(BindingFlags.DeclaredOnly |
+            var props = objType.GetProperties(/*BindingFlags.DeclaredOnly |*/
                                                             BindingFlags.Instance |
                                                             BindingFlags.Public);
             T objTo = creator();

@@ -23,6 +23,12 @@ namespace InvestmentBuilder
         private BrokerManager _brokerManager;
         private CashAccountTransactionManager _cashAccountManager;
 
+        private Dictionary<string, string> _typeProcedureLookup = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase)
+        {
+            {"Dividend", "GetActiveCompanies"},
+            {"Subscription", "GetAccountMembers"}
+        };
+
         public InvestmentBuilder(IConfigurationSettings settings, IDataLayer dataLayer, IMarketDataService marketDataService, BrokerManager brokerManager,
                                  CashAccountTransactionManager cashAccountManager)
         {
@@ -301,6 +307,20 @@ namespace InvestmentBuilder
                 return _userAccountData.GetRedemptions(userToken, dtPreviousValuation.Value).ToList();
             }
             return null;
+        }
+
+        public IEnumerable<string> GetParametersForTransactionType(UserAccountToken userToken, DateTime valuationDate, string transactionType)
+        {
+            if (_typeProcedureLookup.ContainsKey(transactionType))
+            {
+                var methodInfo = _clientData.GetType().GetMethod(_typeProcedureLookup[transactionType]);
+                if (methodInfo != null)
+                {
+                    return methodInfo.Invoke(_clientData, new object[] { userToken, valuationDate }) as IEnumerable<string>;
+                }
+            }
+            return Enumerable.Empty<string>();
+
         }
 
         private AssetReport _BuildAssetReport(

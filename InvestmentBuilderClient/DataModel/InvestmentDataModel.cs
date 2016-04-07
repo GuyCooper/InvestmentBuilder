@@ -41,12 +41,6 @@ namespace InvestmentBuilderClient.DataModel
 
         private string _userName = string.Format(@"{0}\{1}", Environment.UserDomainName, Environment.UserName).ToUpper();
 
-        private Dictionary<string, string> _typeProcedureLookup = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase)
-        {
-            {"Dividend", "GetActiveCompanies"},
-            {"Subscription", "GetAccountMembers"}
-        };
-
         public InvestmentDataModel(IDataLayer dataLayer, 
                                    InvestmentBuilder.InvestmentBuilder investmentBuilder,
                                    IAuthorizationManager authorizationManager,
@@ -95,19 +89,12 @@ namespace InvestmentBuilderClient.DataModel
 
         public IEnumerable<string> GetsTransactionTypes(string side)
         {
-            return _clientData.GetTransactionTypes(side).Where(x => string.Equals(x, "Redemption") == false);
+            return _cashAccountManager.GetTransactionTypes(side).Where(x => string.Equals(x, "Redemption") == false);
         }
 
-        public IEnumerable<string> GetParametersForType(string type)        {
-            if(_typeProcedureLookup.ContainsKey(type))
-            {
-                var methodInfo = _clientData.GetType().GetMethod(_typeProcedureLookup[type]);
-                if(methodInfo != null)
-                {
-                    return methodInfo.Invoke(_clientData, new object[] { _userToken, LatestRecordValuationDate }) as IEnumerable<string>;
-                }
-            }
-            return Enumerable.Empty<string>();
+        public IEnumerable<string> GetParametersForType(string type)    
+        {
+            return _investmentBuilder.GetParametersForTransactionType(_userToken, LatestRecordValuationDate, type);
         }
 
         private void SetLatestValuationDate()

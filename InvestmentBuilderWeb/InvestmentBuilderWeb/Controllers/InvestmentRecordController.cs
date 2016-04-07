@@ -20,10 +20,13 @@ namespace InvestmentBuilderWeb.Controllers
     {
         private InvestmentBuilder.InvestmentBuilder _investmentBuilder;
         private IClientDataInterface _clientData;
+        private IInvestmentRecordInterface _recordData;
         private IAuthorizationManager _authorizationManager;
         private InvestmentRecordSessionService _sessionService;
         private CashAccountTransactionManager _cashTransactionManager;
         private string _sessionId;
+
+        private const string ALL = "All";
 
         public InvestmentRecordController(InvestmentBuilder.InvestmentBuilder investmentBuilder
                                         , IDataLayer dataLayer
@@ -33,6 +36,7 @@ namespace InvestmentBuilderWeb.Controllers
         {
             _investmentBuilder = investmentBuilder;
             _clientData = dataLayer.ClientData;
+            _recordData = dataLayer.InvestmentRecordData;
             _authorizationManager = authorizationManager;
             _sessionService = sessionService as InvestmentRecordSessionService;
             _sessionId = System.Web.HttpContext.Current.Session.SessionID;
@@ -47,7 +51,7 @@ namespace InvestmentBuilderWeb.Controllers
             if (User != null && User.Identity != null)
             {
                 var username = User.Identity.GetUserName();
-                var accounts = _clientData.GetAccountNames(User.Identity.GetUserName()).ToList();
+                var accounts = _clientData.GetAccountNames(username).ToList();
                 if (_authorizationManager.GetCurrentTokenForUser(username) == null)
                 {
                     _authorizationManager.SetUserAccountToken(username, accounts.FirstOrDefault());
@@ -117,10 +121,11 @@ namespace InvestmentBuilderWeb.Controllers
             var dtPrevious = _clientData.GetPreviousAccountValuationDate(token, dtValuation);
             double dReceiptTotal, dPaymentTotal;
             var cashFlowModel = new CashFlowModel();
-            cashFlowModel.Receipts = _cashTransactionManager.GetReceiptTransactions(token, dtValuation, dtPrevious, out dReceiptTotal).Select(x => x.ToReceiptCashFlowModel()); ;
-            cashFlowModel.Payments = _cashTransactionManager.GetPaymentTransactions(token, dtValuation, out dPaymentTotal).Select(x => x.ToPaymentCashFlowModel());
+            cashFlowModel.Receipts = _cashTransactionManager.GetReceiptTransactions(token, dtValuation, dtPrevious, out dReceiptTotal).Select(x => x.ToReceiptCashFlowModel()).ToList();
+            cashFlowModel.Payments = _cashTransactionManager.GetPaymentTransactions(token, dtValuation, out dPaymentTotal).Select(x => x.ToPaymentCashFlowModel()).ToList();
             cashFlowModel.ReceiptsTotal = dReceiptTotal;
             cashFlowModel.PaymentsTotal = dPaymentTotal;
+            cashFlowModel.ValuationDate = dtValuation.ToShortDateString();
             return cashFlowModel;
         }
 
@@ -207,5 +212,139 @@ namespace InvestmentBuilderWeb.Controllers
             _sessionService.SetValuationDate(_sessionId, dtValaution);
             return View("CashFlow", _GetCashFlowModel());
         }
+
+        private ActionResult _AddTransactionView(string title, string transactionType)
+        {
+           _SetupAccounts(null);
+            ViewBag.Title = title;
+
+            ViewBag.ParameterType = _cashTransactionManager.GetTransactionTypes(transactionType)
+                .Select(x =>
+            new SelectListItem
+            {
+                Text = x,
+                Value = x,
+                Selected = false
+            }).ToList();
+
+            //insert an empty row at the beginning to be the default
+            ViewBag.ParameterType.Insert(0, new SelectListItem { Text = "", Value = "" });
+
+            ViewBag.DummyParameters = new List<SelectListItem> {
+                new SelectListItem
+                {
+                     Text = "Please select a parameter type"
+                }
+            };
+ 
+            return View("AddTransaction");
+        }
+
+        private void _ProcessCashTransaction(UserAccountToken token, DateTime transactionDate, string transactionType, string parameter, double amount)
+        {
+            _cashTransactionManager.AddTransaction(token, _sessionService.GetValuationDate(_sessionId),
+                                    transactionDate,
+                                    transactionType, 
+                                    parameter,
+                                    amount);
+        }
+
+        private ActionResult _ProcessTransaction(TransactionModel transaction, string transactionType)
+        {
+            var token = _SetupAccounts(null);
+            if (this.ModelState.IsValid && transaction.TransactionDate != null)
+            {
+                if (transaction.Parameter == ALL)
+                {
+                    var latestRecordDate = _recordData.GetLatestRecordInvestmentValuationDate(token) ?? DateTime.Today;
+                    var parameters = _investmentBuilder.GetParametersForTransactionType(token, latestRecordDate, transaction.ParameterType).ToList();
+                    foreach (var parameter in parameters)
+                    {
+                        _ProcessCashTransaction(token, transaction.TransactionDate.Value, transaction.ParameterType,
+                            parameter, transaction.Amount);   
+                    }
+                }
+                else
+                {
+                    _ProcessCashTransaction(token, transaction.TransactionDate.Value, transaction.ParameterType,
+                                        transaction.Parameter, transaction.Amount);   
+                }
+            }
+            else
+            {
+                this.ModelState.AddModelError("", "Invalid data enterted");
+                return AddReceiptTransaction();
+            }
+
+            return View("CashFlow", _GetCashFlowModel());
+        }
+
+        [HttpGet]
+        public ActionResult AddReceiptTransaction()
+        {
+            return _AddTransactionView("Add Receipt", _cashTransactionManager.ReceiptMnemomic);
+        }
+
+        [HttpGet]
+        public ActionResult AddPaymentTransaction()
+        {
+            return _AddTransactionView("Add Payment", _cashTransactionManager.PaymentMnemomic);
+        }
+
+        [HttpPost]
+        public ActionResult AddReceiptTransaction(TransactionModel transaction)
+        {
+            return _ProcessTransaction(transaction, _cashTransactionManager.ReceiptMnemomic);
+        }
+
+        [HttpPost]
+        public ActionResult AddPaymentTransaction(TransactionModel transaction)
+        {
+            return _ProcessTransaction(transaction, _cashTransactionManager.PaymentMnemomic);
+        }
+
+        [HttpGet]
+        public string GetParametersForTransaction(string ParameterType)
+        {
+            var token = _SetupAccounts(null);
+            var latestRecordDate = _recordData.GetLatestRecordInvestmentValuationDate(token) ?? DateTime.Today;
+            var parameters = _investmentBuilder.
+                GetParametersForTransactionType(token,
+                                                latestRecordDate,
+                                                ParameterType).Select(x => string.Format("\"{0}\"", x)).ToList();
+
+            if (parameters.Count > 0)
+            {
+                parameters.Add(string.Format("\"{0}\"", ALL));
+                return string.Format("[{0}]", string.Join(",", parameters));
+            }
+
+            return string.Format("[\"{0}\"]", ParameterType);
+        }
+
+        private ActionResult _RemoveCashTransaction(Transaction transaction)
+        {
+            var token = _SetupAccounts(null);
+            _cashTransactionManager.RemoveTransaction(token, transaction.ValuationDate, transaction.TransactionDate, transaction.TransactionType, transaction.Parameter);
+            return View("CashFlow", _GetCashFlowModel());
+        }
+
+        [HttpGet]
+        public ActionResult RemoveReceiptTransaction(ReceiptCashFlowModel item)
+        {
+            return _RemoveCashTransaction(item);
+        }
+
+        [HttpGet]
+        public ActionResult RemovePaymentTransaction(PaymentCashFlowModel item)
+        {
+            return _RemoveCashTransaction(item);
+        }
+
+        //[HttpGet]
+        //public ActionResult BuildReport()
+        //{
+
+        //}
     }
 }
