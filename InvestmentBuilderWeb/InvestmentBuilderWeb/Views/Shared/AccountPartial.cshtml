@@ -1,0 +1,13 @@
+﻿ 
+@using (Html.BeginForm("UpdateAccount", "InvestmentRecord", FormMethod.Get, new { id = "accountsList", @class = "navbar-right" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <ul class="nav navbar-nav navbar-right">
+            <li>
+                @Html.DropDownList("accountId", null, new {
+                       onchange = "javascript:document.getElementById('accountsList').submit()"
+                    })       
+            </li>
+        </ul>
+    }

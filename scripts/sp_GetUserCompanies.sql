@@ -1,4 +1,4 @@
-USE [InvestmentBuilderTest2]
+
 GO
 
 /****** Object:  StoredProcedure [dbo].[sp_GetUserCompanies]    Script Date: 19/03/2015 19:49:12 ******/

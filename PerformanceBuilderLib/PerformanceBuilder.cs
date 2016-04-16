@@ -89,13 +89,13 @@ namespace PerformanceBuilderLib
             return result;
         }
 
-        public IList<IndexedRangeData> Run(string account, DateTime dtValuation)
+        public IList<IndexedRangeData> Run(UserAccountToken userToken, DateTime dtValuation)
         {
             logger.Log(LogLevel.Info, "starting performance builder...");
-            logger.Log(LogLevel.Info, "output path: {0}", _settings.GetOutputPath(account));
+            logger.Log(LogLevel.Info, "output path: {0}", _settings.GetOutputPath(userToken.Account));
             logger.Log(LogLevel.Info, "valuation date {0}", dtValuation);
 
-            var historicalData = _historicalDataReader.GetHistoricalAccountData(account);
+            var historicalData = _historicalDataReader.GetHistoricalAccountData(userToken);
 
             //Console.WriteLine("starting performance builder...");
             //compre performance to FTSE100 and S&p 500
@@ -110,7 +110,7 @@ namespace PerformanceBuilderLib
                 logger.Log(LogLevel.Info, "building data ladder for {0}", point.Item2);
 
                 //Console.WriteLine("building data ladder for {0}", perfPoint.Item2);
-                var indexladder = _BuildIndexLadders(point.Item1, historicalData, account);
+                var indexladder = _BuildIndexLadders(point.Item1, historicalData, userToken.Account);
                 allLadders.Add(new IndexedRangeData
                     {
                         Name = point.Item2,
@@ -121,7 +121,7 @@ namespace PerformanceBuilderLib
             logger.Log(LogLevel.Info, "data ladders complete...");
 
             //now persist it to the spreadsheet
-            using(var dataWriter = new PerformanceExcelSheetWriter(_settings.GetOutputPath(account), dtValuation))
+            using(var dataWriter = new PerformanceExcelSheetWriter(_settings.GetOutputPath(userToken.Account), dtValuation))
             {
                 dataWriter.WritePerformanceData(allLadders);
             }

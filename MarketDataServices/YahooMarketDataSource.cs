@@ -20,6 +20,11 @@ namespace MarketDataServices
         private static Logger logger = LogManager.GetCurrentClassLogger();
         private Dictionary<string, double> _fxLookup = new Dictionary<string, double>();
 
+        private static Dictionary<string, string> _currencyMapper = new Dictionary<string, string>()
+            {
+                {"NYQ", "USD"}
+            };
+
         private static Dictionary<string, string> _exchangeMapper = new Dictionary<string, string>()
         {
             {"LSE","L"},
@@ -29,7 +34,7 @@ namespace MarketDataServices
 
         public string Name { get { return "Yahoo"; } }
 
-        public bool TryGetMarketData(string symbol, string exchange, out double dData)
+        public bool TryGetMarketData(string symbol, string exchange, out MarketDataPrice marketData)
         { 
             if(string.IsNullOrEmpty(exchange) == false &&
                symbol.Contains('.') == false && 
@@ -38,24 +43,47 @@ namespace MarketDataServices
                 symbol = string.Format("{0}.{1}", symbol, _exchangeMapper[exchange]);
             }
 
-            string url = String.Format("http://finance.yahoo.com/d/quotes.csv?s={0}&f=pnx", symbol);
+            string url = String.Format("http://finance.yahoo.com/d/quotes.csv?s={0}&f=pnxc4", symbol);
             try
             {
                 string result = WebDataHandler.GetData(url).ToList().First();
-                dData = _GetDoubleFromResult(result, 0);
+                string[] arr = result.Split(',');
+
+                marketData = new MarketDataPrice();
+                marketData.Price = double.Parse(arr[0]);
+                marketData.Name = arr[1].Trim('"');
+                marketData.Exchange = arr[2].Trim('"');
+                marketData.Currency = arr[3].Trim('"');
+
+                //yahoo convention, if currency is GBp then price is in pence so must convert to pounds
+                if (marketData.Currency[marketData.Currency.Length -1] == 'p')
+                {
+                    marketData.Price = marketData.Price / 100d;
+                    marketData.Currency = marketData.Currency.ToUpper();
+                }
                 return true;
             }
             catch(Exception e)
             {
                 logger.Log(LogLevel.Error, "unable to retrieve {0} from yahoo: {1}", symbol, e.Message);
             }
-            dData = 0d;
+
+            marketData = null;
             return false;
+        }
+
+        private string _mapCurrency(string ccy)
+        {
+            if(_currencyMapper.ContainsKey(ccy) == true)
+            {
+                return _currencyMapper[ccy];
+            }
+            return ccy;
         }
 
         public bool TryGetFxRate(string baseCurrency, string contraCurrency, out double dFxRate)
         {
-            var ccypair = baseCurrency + contraCurrency;
+            var ccypair = _mapCurrency(baseCurrency) + _mapCurrency(contraCurrency);
             if (_fxLookup.ContainsKey(ccypair))
             {
                 dFxRate = _fxLookup[ccypair];

@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+  <dataSource>Data Source=TRAVELPC\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest99;Integrated Security=True</dataSource>
+  <outputFolder>C:\Users\Guy\Documents\Guy\AccountData</outputFolder>
+  <indexes>
+    <index>
+      <name>FTSE 100</name>
+      <symbol>^FTSE</symbol>
+    </index>
+    <index>
+      <name>S and P 500 </name>
+      <symbol>^GSPC</symbol>
+    </index>
+  </indexes>
+</configuration>

@@ -13,11 +13,38 @@ GO
 
 CREATE PROCEDURE [dbo].[sp_UpdateMembersCapitalAccount](@ValuationDate as DATETIME, @Member as varchar(50), @Units as float, @Account as VARCHAR(30)) AS
 BEGIN
-	INSERT INTO MembersCapitalAccount 
-	SELECT @ValuationDate, M.Member_Id, @Units
-	FROM Members M
-	INNER JOIN Users U
-	ON M.account_id = U.[User_Id]
-	WHERE M.Name = @Member AND
-	U.Name = @Account
+	DECLARE @AccountID INT
+	DECLARE @MemberID INT
+
+	SELECT
+		 @AccountID = [User_Id]
+	FROM 
+		Users
+	WHERE
+		Name = @Account
+	
+	SELECT
+		 @MemberID = [Member_Id]
+	FROM 
+		Members
+	WHERE
+		Name = @Member
+		AND 
+		account_id = @AccountID
+
+	if EXISTS(SELECT [Units] FROM MembersCapitalAccount 
+			  WHERE [Member_Id] = @MemberID
+				AND [Valuation_Date] = @ValuationDate)
+	BEGIN
+		UPDATE MembersCapitalAccount 
+		SET [Units] = @Units
+		WHERE
+			[Member_Id] = @MemberID
+			AND [Valuation_Date] = @ValuationDate
+	END
+	ELSE
+	BEGIN
+		INSERT INTO MembersCapitalAccount ([Valuation_Date], [Member_Id], [Units])
+		VALUES (@ValuationDate, @MemberID, @Units)
+	END
 END

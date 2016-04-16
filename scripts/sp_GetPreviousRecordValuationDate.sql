@@ -31,8 +31,8 @@ WHERE
 AND
 	IR.is_active = 1
 AND
-	IR.Valuation_Date > @ValuationDate
+	convert(date,IR.Valuation_Date)  = convert(date, @ValuationDate)
 ORDER BY
-	 Valuation_Date asc
+	 Valuation_Date desc
 
 END

@@ -16,7 +16,7 @@ namespace InvestmentBuilder
 {
     interface ICompanyDataReader
     {
-        IEnumerable<CompanyData> GetCompanyData(string account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate);
+        IEnumerable<CompanyData> GetCompanyData(UserAccountToken usertoken, DateTime dtValuationDate, DateTime? dtPreviousValuationDate);
     }
 
     /// <summary>

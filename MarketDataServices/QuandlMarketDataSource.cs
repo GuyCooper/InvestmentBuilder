@@ -21,7 +21,7 @@ namespace MarketDataServices
 
         public string Name { get { return "Quandl"; } }
 
-        public bool TryGetMarketData(string symbol, string exchange, out double dData)
+        public bool TryGetMarketData(string symbol, string exchange, out MarketDataPrice marketData)
         {
             //still work to do this 
             if (string.IsNullOrEmpty(exchange))
@@ -33,13 +33,13 @@ namespace MarketDataServices
             try
             {
                 var data = WebDataHandler.GetData(url);
-                return _TryParseResult(data, out dData);
+                return _TryParseResult(data, out marketData);
             }
             catch (Exception e)
             {
                 logger.Log(LogLevel.Error, "unable to retrieve {0} from quandl: {1}", symbol, e.Message);
             }
-            dData = 0d;
+            marketData = null;
             return false;
             
         }
@@ -55,9 +55,9 @@ namespace MarketDataServices
             return null;
         }
 
-        private bool _TryParseResult(IEnumerable<string> data, out double dResult)
+        private bool _TryParseResult(IEnumerable<string> data, out MarketDataPrice marketData)
         {
-            dResult = 0d;
+            marketData = null;
             return false;
         }
     }

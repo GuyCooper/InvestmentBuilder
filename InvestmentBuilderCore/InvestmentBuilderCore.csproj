@@ -52,11 +52,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccountModel.cs" />
+    <Compile Include="AuthorizationManager.cs" />
     <Compile Include="ConfigurationSettings.cs" />
     <Compile Include="ContainerManager.cs" />
     <Compile Include="IDataLayer.cs" />
     <Compile Include="InvestmentInformation.cs" />
+    <Compile Include="InvestmentUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TradeLoader.cs" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

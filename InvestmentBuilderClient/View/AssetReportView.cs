@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using InvestmentBuilder;
+using InvestmentBuilderCore;
 
 namespace InvestmentBuilderClient.View
 {
@@ -41,6 +42,7 @@ namespace InvestmentBuilderClient.View
         private void AssetReportView_Load(object sender, EventArgs e)
         {
             var assets  = _report.Assets.ToList();
+            var redemptions = _report.Redemptions != null ? _report.Redemptions.ToList() : new List<Redemption>();
 
             for (int i = 0; i < 12; i++)
             {
@@ -50,7 +52,13 @@ namespace InvestmentBuilderClient.View
                 });
             }
 
-            for (int i = 0; i < assets.Count + 20; i++ )
+            var totalRowCount = assets.Count + redemptions.Count + 20;
+            if(redemptions.Count > 0)
+            {
+                totalRowCount += 4;
+            }
+
+            for (int i = 0; i < totalRowCount; i++)
             {
                 gridAssetReport.Rows.Add();
             }
@@ -60,6 +68,23 @@ namespace InvestmentBuilderClient.View
             AddTagValue("Reporting Currency", _report.ReportingCurrency, row++, 1, true);
             AddTagValue("Valuation Date", _report.ValuationDate.ToShortDateString(), row++, 1, true);
             row++;
+
+            //add redemptions
+            if(redemptions.Count > 0)
+            {
+                gridAssetReport.Rows[row].DefaultCellStyle = _bold;
+                gridAssetReport.Rows[row++].Cells[1].Value = "Redemptions";
+                gridAssetReport.Rows[row].Cells[1].Value = "User";
+                gridAssetReport.Rows[row].Cells[2].Value = "Transaction Date";
+                gridAssetReport.Rows[row++].Cells[3].Value = "Amount";
+                foreach(var redemption in redemptions)
+                {
+                    gridAssetReport.Rows[row].Cells[1].Value = redemption.User;
+                    gridAssetReport.Rows[row].Cells[2].Value = redemption.TransactionDate;
+                    gridAssetReport.Rows[row++].Cells[3].Value = redemption.Amount;
+                }
+                row++;
+            }
             //add asset headers
             var col = 1;
             gridAssetReport.Rows[row].DefaultCellStyle = _bold;
@@ -80,7 +105,7 @@ namespace InvestmentBuilderClient.View
                 col = 1;
                 row++;
                 gridAssetReport.Rows[row].Cells[col++].Value = asset.Name;
-                gridAssetReport.Rows[row].Cells[col++].Value = asset.LastBrought.Value.ToShortDateString();
+                gridAssetReport.Rows[row].Cells[col++].Value = asset.LastBrought.ToShortDateString();
                 gridAssetReport.Rows[row].Cells[col++].Value = asset.Quantity;
                 gridAssetReport.Rows[row].Cells[col++].Value = asset.AveragePricePaid;
                 gridAssetReport.Rows[row].Cells[col++].Value = asset.TotalCost;

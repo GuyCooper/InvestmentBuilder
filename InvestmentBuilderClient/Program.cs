@@ -20,6 +20,7 @@ namespace InvestmentBuilderClient
         static void Main()
         {
             //registerunity dependencies.
+            ContainerManager.RegisterType(typeof(IAuthorizationManager), typeof(SQLAuthorizationManager), false);
             //ContainerManager.RegisterType(typeof(IMarketDataSource), typeof(AggregatedMarketDataSource), false);
             ContainerManager.RegisterType(typeof(IMarketDataSource), typeof(TestFileMarketDataSource), false, "testMarketData.txt");
             ContainerManager.RegisterType(typeof(IMarketDataService), typeof(MarketDataService), false);
@@ -30,19 +31,14 @@ namespace InvestmentBuilderClient
             ContainerManager.RegisterType(typeof(PerformanceBuilder), typeof(PerformanceBuilder), false);
             ContainerManager.RegisterType(typeof(DataModel.InvestmentDataModel), typeof(DataModel.InvestmentDataModel), false);
             ContainerManager.RegisterType(typeof(View.MainView), typeof(View.MainView), false);
-            
+            ContainerManager.RegisterType(typeof(InvestmentBuilder.BrokerManager), typeof(InvestmentBuilder.BrokerManager), false);
+            ContainerManager.RegisterType(typeof(InvestmentBuilder.CashAccountTransactionManager), typeof(InvestmentBuilder.CashAccountTransactionManager), false);
             //var connectstr = @"Data Source=TRAVELPC\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest;Integrated Security=True";
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            //settings.DatasourceString
-            //var settings = ContainerManager.ResolveValue<IConfigurationSettings>();
 
             Application.Run(ContainerManager.ResolveValue<View.MainView>());
-            //using (var dataModel = new DataModel.InvestmentDataModel(ContainerManager.ResolveValue<IDataLayer>()))
-            //{
-            //    var mainView = new View.MainView(dataModel, settings);
-            //    Application.Run(mainView);
-            //}
+ 
         }
     }
 }

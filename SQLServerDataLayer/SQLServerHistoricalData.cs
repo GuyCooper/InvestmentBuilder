@@ -15,12 +15,13 @@ namespace SQLServerDataLayer
             Connection = connection;
         }
 
-        public IEnumerable<HistoricalData> GetHistoricalAccountData(string account)
+        public IEnumerable<HistoricalData> GetHistoricalAccountData(UserAccountToken userToken)
         {
+            userToken.AuthorizeUser(AuthorizationLevel.READ);
             using (var command = new SqlCommand("sp_GetUnitPriceData", Connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@Account", account));
+                command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())

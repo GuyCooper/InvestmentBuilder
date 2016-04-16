@@ -15,7 +15,7 @@ CREATE PROCEDURE sp_GetAccountMembers(@Account as VARCHAR(30), @ValuationDate as
 BEGIN
 
 SELECT
-	 M.NAME 
+	 M.Name, M.[Authorization]
 FROM 
 	Members M
 INNER JOIN

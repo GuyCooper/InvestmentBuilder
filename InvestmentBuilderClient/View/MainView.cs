@@ -39,6 +39,9 @@ namespace InvestmentBuilderClient.View
             _views = new List<IInvestmentBuilderView>();
             _settings = settings;
 
+            btnUndo.Enabled = false;
+            _dataModel.TradeUpdateEvent += (enabled) => btnUndo.Enabled = enabled;
+              
             _displayContext = SynchronizationContext.Current;
         }
 
@@ -138,31 +141,12 @@ namespace InvestmentBuilderClient.View
             //PopulateValuationDates();        
         }
 
-        private void btnCommitData_Click(object sender, EventArgs e)
-        {
-            if (MessageBox.Show("Are You Sure?", "Commit Data", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes)
-            {
-                if(Validator.Validate(_views) == false)
-                {
-                    MessageBox.Show("data validation failure,please check all your values");
-                }
-                else
-                {
-                    DateTime dtValuation = _GetSelectedValuationDate();
-                    foreach (var view in _views)
-                    {
-                        view.CommitData(dtValuation);
-                    }
-                }
-            }
-        }
-
         private void btnRunBuilder_Click(object sender, EventArgs e)
         {
             if (MessageBox.Show("Are You Sure?", "Run Accounts Builder", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes)
             {
                 DateTime dtValuation = _GetSelectedValuationDate();
-                string selectedAccount = (string)cmboAccountName.SelectedItem;
+                //string selectedAccount = (string)cmboAccountName.SelectedItem;
 
                 Task.Factory.StartNew(() =>
                     {
@@ -204,10 +188,10 @@ namespace InvestmentBuilderClient.View
             if (MessageBox.Show("Are You Sure?", "Build Charts", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes)
             {
                 DateTime dtValuation = _GetSelectedValuationDate();
-                string account = (string)cmboAccountName.SelectedItem;
+                //string account = (string)cmboAccountName.SelectedItem;
                 Task.Factory.StartNew(() =>
                     {
-                        var performanceData = ContainerManager.ResolveValue<PerformanceBuilder>().Run(account, dtValuation);
+                        var performanceData = ContainerManager.ResolveValue<PerformanceBuilder>().Run(_dataModel.GetUserToken(), dtValuation);
                         if(performanceData != null && _displayContext != null)
                         {
                             _displayContext.Post(o =>
@@ -236,7 +220,7 @@ namespace InvestmentBuilderClient.View
         private void btnViewReport_Click(object sender, EventArgs e)
         {
             DateTime dtValuation = _GetSelectedValuationDate();
-            string selectedAccount = (string)cmboAccountName.SelectedItem;
+            //string selectedAccount = (string)cmboAccountName.SelectedItem;
 
             if(_dataModel.IsExistingValuationDate(dtValuation))
             {
@@ -244,7 +228,7 @@ namespace InvestmentBuilderClient.View
                 Task.Factory.StartNew(() =>
                     {
                         var report = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>()
-                                         .BuildAssetReport(selectedAccount, dtValuation, false, null);
+                                         .BuildAssetReport(_dataModel.GetUserToken(), dtValuation, DateTime.Now, false, null);
                         DisplayAssetReport(report);
                     });
             }
@@ -288,6 +272,7 @@ namespace InvestmentBuilderClient.View
                     Type = view.GetAccountType(),
                     Enabled = view.GetIsEnabled(),
                     Members = view.GetMembers(),
+                    Broker = view.GetBroker(),
                     ReportingCurrency = view.GetCurrency()
                 };
 
@@ -339,6 +324,16 @@ namespace InvestmentBuilderClient.View
         {
             //force the data to be reloaded by setting the account name
             UpdateAccountName();
+        }
+
+        private void btnUndo_Click(object sender, EventArgs e)
+        {
+            _dataModel.UndoLastTransaction();
+        }
+
+        private void btnRedemption_Click(object sender, EventArgs e)
+        {
+            _AddView(new RedemptionsView(_dataModel, _GetSelectedValuationDate()));
         }
     }
 }

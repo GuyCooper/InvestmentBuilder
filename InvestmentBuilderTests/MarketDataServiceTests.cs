@@ -38,7 +38,6 @@ namespace InvestmentBuilderTests
                                     "Bank Of America",
                                     "USD",
                                     "GBP",
-                                    1,
                                     null,
                                     out dResult);
 
@@ -52,7 +51,7 @@ namespace InvestmentBuilderTests
         {
             using (var container = new UnityContainer())
             {
-                container.RegisterType<IMarketDataSource, YahooMarketDataSource>();
+                container.RegisterType<IMarketDataSource, YahooMarketDataSourceOld>();
                 container.RegisterType<IMarketDataService, MarketDataService>();
 
                 double dResult;
@@ -62,7 +61,6 @@ namespace InvestmentBuilderTests
                                     "Vodaphone",
                                     "GBP",
                                     "GBP",
-                                    1,
                                     null,
                                     out dResult);
 
@@ -76,7 +74,7 @@ namespace InvestmentBuilderTests
         {
             using (var container = new UnityContainer())
             {
-                container.RegisterType<IMarketDataSource, YahooMarketDataSource>();
+                container.RegisterType<IMarketDataSource, YahooMarketDataSourceOld>();
                 container.RegisterType<IMarketDataService, MarketDataService>();
 
                 double dResult;
@@ -86,7 +84,6 @@ namespace InvestmentBuilderTests
                                     "Bank Of America",
                                     "USD",
                                     "GBP",
-                                    1,
                                     null,
                                     out dResult);
 
@@ -111,7 +108,6 @@ namespace InvestmentBuilderTests
                                     "Bank Of America",
                                     "USD",
                                     "GBP",
-                                    1,
                                     null,
                                     out dResult);
 

@@ -37,7 +37,6 @@
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.btnConfig = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-            this.btnCommitData = new System.Windows.Forms.ToolStripButton();
             this.btnRunBuilder = new System.Windows.Forms.ToolStripButton();
             this.btnPerformance = new System.Windows.Forms.ToolStripButton();
             this.btnViewReport = new System.Windows.Forms.ToolStripButton();
@@ -45,6 +44,8 @@
             this.btnOpenOutputFolder = new System.Windows.Forms.ToolStripButton();
             this.btnAddTrade = new System.Windows.Forms.ToolStripButton();
             this.btnRefresh = new System.Windows.Forms.ToolStripButton();
+            this.btnUndo = new System.Windows.Forms.ToolStripButton();
+            this.btnRedemption = new System.Windows.Forms.ToolStripButton();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -59,17 +60,18 @@
             this.toolStripSeparator1,
             this.btnConfig,
             this.toolStripSeparator2,
-            this.btnCommitData,
             this.btnRunBuilder,
             this.btnPerformance,
             this.btnViewReport,
             this.btnManageUsers,
             this.btnOpenOutputFolder,
             this.btnAddTrade,
-            this.btnRefresh});
+            this.btnRefresh,
+            this.btnUndo,
+            this.btnRedemption});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(994, 39);
+            this.toolStrip1.Size = new System.Drawing.Size(1039, 39);
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -125,19 +127,6 @@
             this.toolStripSeparator2.Margin = new System.Windows.Forms.Padding(5, 1, 5, 2);
             this.toolStripSeparator2.Name = "toolStripSeparator2";
             this.toolStripSeparator2.Size = new System.Drawing.Size(6, 36);
-            // 
-            // btnCommitData
-            // 
-            this.btnCommitData.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.btnCommitData.Image = ((System.Drawing.Image)(resources.GetObject("btnCommitData.Image")));
-            this.btnCommitData.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.btnCommitData.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnCommitData.Margin = new System.Windows.Forms.Padding(5, 1, 5, 2);
-            this.btnCommitData.Name = "btnCommitData";
-            this.btnCommitData.Size = new System.Drawing.Size(36, 36);
-            this.btnCommitData.Text = "toolStripButton1";
-            this.btnCommitData.ToolTipText = "Commit Data";
-            this.btnCommitData.Click += new System.EventHandler(this.btnCommitData_Click);
             // 
             // btnRunBuilder
             // 
@@ -227,11 +216,36 @@
             this.btnRefresh.ToolTipText = "refresh";
             this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
             // 
+            // btnUndo
+            // 
+            this.btnUndo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnUndo.Enabled = false;
+            this.btnUndo.Image = ((System.Drawing.Image)(resources.GetObject("btnUndo.Image")));
+            this.btnUndo.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.btnUndo.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnUndo.Name = "btnUndo";
+            this.btnUndo.Size = new System.Drawing.Size(36, 36);
+            this.btnUndo.Text = "toolStripButton1";
+            this.btnUndo.ToolTipText = "undo previous transaction";
+            this.btnUndo.Click += new System.EventHandler(this.btnUndo_Click);
+            // 
+            // btnRedemption
+            // 
+            this.btnRedemption.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnRedemption.Image = ((System.Drawing.Image)(resources.GetObject("btnRedemption.Image")));
+            this.btnRedemption.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.btnRedemption.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnRedemption.Name = "btnRedemption";
+            this.btnRedemption.Size = new System.Drawing.Size(36, 36);
+            this.btnRedemption.Text = "Redemptions";
+            this.btnRedemption.ToolTipText = "Redemptions";
+            this.btnRedemption.Click += new System.EventHandler(this.btnRedemption_Click);
+            // 
             // MainView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(994, 350);
+            this.ClientSize = new System.Drawing.Size(1039, 350);
             this.Controls.Add(this.toolStrip1);
             this.IsMdiContainer = true;
             this.Name = "MainView";
@@ -250,7 +264,6 @@
         private System.Windows.Forms.ToolStripLabel toolStripLabel1;
         private System.Windows.Forms.ToolStripComboBox cmboValuationDate;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-        private System.Windows.Forms.ToolStripButton btnCommitData;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripButton btnRunBuilder;
         private System.Windows.Forms.ToolStripButton btnConfig;
@@ -262,6 +275,8 @@
         private System.Windows.Forms.ToolStripButton btnOpenOutputFolder;
         private System.Windows.Forms.ToolStripButton btnAddTrade;
         private System.Windows.Forms.ToolStripButton btnRefresh;
+        private System.Windows.Forms.ToolStripButton btnUndo;
+        private System.Windows.Forms.ToolStripButton btnRedemption;
 
 
 

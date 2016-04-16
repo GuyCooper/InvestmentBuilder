@@ -7,6 +7,14 @@ using InvestmentBuilderCore;
 
 namespace MarketDataServices
 {
+    public class MarketDataPrice
+    {
+        public string Name { get; set; }
+        public double Price { get; set; }
+        public string Currency { get; set; }
+        public string Exchange { get; set; }
+    }
+
     public interface IMarketDataSource
     {
         /// <summary>
@@ -15,7 +23,7 @@ namespace MarketDataServices
         /// <param name="symbol">name of instrument</param>
         /// <param name="dData">price</param>
         /// <returns>true success, false fail</returns>
-        bool TryGetMarketData(string symbol, string exchange, out double dData);
+        bool TryGetMarketData(string symbol, string exchange, out MarketDataPrice marketData);
         /// <summary>
         /// try to fx rate for ccy pair, return true for success, false for fail 
         /// </summary>

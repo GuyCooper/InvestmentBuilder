@@ -1,0 +1,19 @@
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+IF EXISTS (SELECT 1 FROM sys.procedures WHERE Name = 'sp_IsAdministrator')
+BEGIN
+	DROP PROCEDURE sp_IsAdministrator
+END
+
+GO
+
+CREATE PROCEDURE sp_IsAdministrator(@User AS VARCHAR(50)) AS						 
+BEGIN
+
+SELECT [NAME] FROM ADMINISTRATORS WHERE [NAME] = @User
+
+END

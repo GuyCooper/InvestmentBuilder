@@ -74,6 +74,7 @@ namespace InvestmentBuilderClient.View
                     AutoSizeMode = DataGridViewAutoSizeColumnMode.NotSet,
                     Frozen = bFrozen,
                 });
+
         }
 
         public void UpdateValuationDate(DateTime dtValuation)

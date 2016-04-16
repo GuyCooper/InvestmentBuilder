@@ -5,24 +5,38 @@ using System.Text;
 using System.Threading.Tasks;
 using InvestmentBuilderClient.DataModel;
 using InvestmentBuilderClient.ViewModel;
+using InvestmentBuilder;
+using System.ComponentModel;
+using System.Windows.Forms;
 
 namespace InvestmentBuilderClient.View
 {
     internal class ReceiptDataView: CashAccountView
     {
+        private BindingList<ReceiptTransaction> _receipts;
+
         public ReceiptDataView(InvestmentDataModel dataModel) :
             base(dataModel)
         {
             this.Text = "Receipt Cash Account";
         }
 
-        protected override string TransactionMnenomic { get { return "R"; } }
-
-        protected override CashAccountViewModel SetupDataSource(InvestmentDataModel dataModel)
+        protected override void SetupDatasource(BindingSource source)
         {
-            var vm = new ReceiptDataViewModel(dataModel);
-            cashAccountBindingSource.DataSource = vm.Receipts;
-            return vm;
+            _receipts = new BindingList<ReceiptTransaction>();
+            source.DataSource = _receipts;
+        }
+
+        protected override double GetCashAccountDataImpl(InvestmentDataModel dataModel, DateTime dtValuationDate)
+        {
+            _receipts.Clear();
+            double dTotal;
+            var transactions = dataModel.GetReceiptTransactions(dtValuationDate, out dTotal);
+            foreach (var transaction in transactions)
+            {
+                _receipts.Add(transaction);
+            }
+            return dTotal;
         }
 
         protected override void SetupGrid()
@@ -34,6 +48,11 @@ namespace InvestmentBuilderClient.View
             AddColumn(cashAccountGrid, "Sale", "Sale");
             AddColumn(cashAccountGrid, "Dividend", "Dividend");
             AddColumn(cashAccountGrid, "Other Receipts", "Other");
+        }
+
+        protected override string GetMnenomic(InvestmentDataModel dataModel)
+        {
+            return dataModel.GetReceiptMnenomic();
         }
     }
 }

@@ -12,7 +12,7 @@ namespace InvestmentBuilder
     //class persists the asset report to a file
     interface IAssetReportWriter
     {
-        void WriteAssetReport(AssetReport report);
+        void WriteAssetReport(AssetReport report, double startOfYear);
     }
 
     //persist asset report to excel 
@@ -59,7 +59,7 @@ namespace InvestmentBuilder
             return false;
         }
 
-        public void WriteAssetReport(AssetReport report)
+        public void WriteAssetReport(AssetReport report, double startOfYear)
         {
             logger.Log(LogLevel.Info, "persisting asset report to excel spreadsheet");
 
@@ -85,6 +85,25 @@ namespace InvestmentBuilder
 
             newSheet.get_Range("B16").Value = report.ReportingCurrency;
 
+            //add in redemptions
+            if(report.Redemptions != null)
+            {
+                newSheet.get_Range("B18").Font.Bold = true;
+                newSheet.get_Range("B18").Value = "Redemptions";
+                newSheet.get_Range("B19").Value = "Date";
+                newSheet.get_Range("C19").Value = "User";
+                newSheet.get_Range("D19").Value = "Amount";
+
+                int redemptionRow = 20;
+                foreach(var redemption in report.Redemptions)
+                {
+                    newSheet.get_Range("B" + redemptionRow).Value = redemption.TransactionDate;
+                    newSheet.get_Range("C" + redemptionRow).Value = redemption.User;
+                    newSheet.get_Range("D" + redemptionRow).Value = redemption.Amount;
+                    redemptionRow++;
+                }
+            }
+
             //add in the new rows
             var lstCompanyData = report.Assets.ToList();
             for (int row = 1; row < lstCompanyData.Count; ++row)
@@ -103,7 +122,7 @@ namespace InvestmentBuilder
                 //Console.WriteLine("Adding {0} to asset sheet", company.sName);
 
                 newSheet.get_Range("B" + count).Value = company.Name;
-                newSheet.get_Range("C" + count).Value = company.LastBrought.Value;
+                newSheet.get_Range("C" + count).Value = company.LastBrought;
                 newSheet.get_Range("D" + count).Value = company.Quantity;
                 newSheet.get_Range("E" + count).Value = company.AveragePricePaid;
                 newSheet.get_Range("F" + count).Value = company.TotalCost;
@@ -122,7 +141,9 @@ namespace InvestmentBuilder
             count++;
             newSheet.get_Range("H" + count++).Value = report.BankBalance;
             count += 2;
+            newSheet.get_Range("C" + count).Value = startOfYear;
             newSheet.get_Range("H" + count++).Value = report.TotalAssets;
+           
             newSheet.get_Range("H" + count++).Value = report.TotalLiabilities;
             count++;
             newSheet.get_Range("H" + count++).Value = report.NetAssets;
