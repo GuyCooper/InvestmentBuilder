@@ -12,7 +12,7 @@ namespace InvestmentBuilderTests
     [TestFixture]
     public class MarketDataServiceTests
     {
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void Setup()
         {
             

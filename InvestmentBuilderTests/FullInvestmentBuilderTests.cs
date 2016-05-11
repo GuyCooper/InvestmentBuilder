@@ -54,7 +54,7 @@ namespace InvestmentBuilderTests
         private static DateTime _ValuationDateNextMonth = DateTime.Parse("15/10/2015");
         private static DateTime _TradeValuationDateNextMonth = DateTime.Parse("05/10/2015 18:43:45");
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void Setup()
         { 
             //first drop the unit testdatabase andrefresh it from the unit testbackup

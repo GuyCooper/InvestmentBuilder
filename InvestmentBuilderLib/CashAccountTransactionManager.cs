@@ -114,6 +114,8 @@ namespace InvestmentBuilder
                         Subscription = dAmount,
                         Amount = dAmount
                     };
+
+                    transactions.Add(transaction);                    
                     //we also need to add the balance in hand transaction to the database
                     //so the validation will work
                     AddTransaction(userToken, dtValuationDate, dtValuationDate, transaction.TransactionType,

@@ -57,7 +57,7 @@ namespace SQLServerDataLayer
                 command.Parameters.Add(new SqlParameter("@account", userToken.Account));
                 command.ExecuteNonQuery();
             }
- 
+
         }
 
         public void SellShares(UserAccountToken userToken, string investment, int quantity, DateTime dtValuation)
@@ -141,7 +141,7 @@ namespace SQLServerDataLayer
                 var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
-                    yield return new KeyValuePair<string,double>((string)reader["Name"], (double)reader["Price"]);
+                    yield return new KeyValuePair<string, double>((string)reader["Name"], (double)reader["Price"]);
                 }
                 reader.Close();
             }
@@ -173,7 +173,7 @@ namespace SQLServerDataLayer
             userToken.AuthorizeUser(AuthorizationLevel.READ);
             using (var command = new SqlCommand("sp_GetLatestInvestmentRecords", Connection))
             {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
+                command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
                 command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
                 var reader = command.ExecuteReader();
@@ -188,6 +188,7 @@ namespace SQLServerDataLayer
                     yield return new CompanyData
                     {
                         Name = (string)reader["Name"],
+                        ValuationDate = dtValuation,
                         LastBrought = (DateTime)reader["LastBoughtDate"],
                         Quantity = dSharesHeld,
                         AveragePricePaid = dAveragePrice,
@@ -274,7 +275,7 @@ namespace SQLServerDataLayer
             List<Stock> buys = new List<Stock>();
             List<Stock> sells = new List<Stock>();
             List<Stock> changed = new List<Stock>();
-          
+
             userToken.AuthorizeUser(AuthorizationLevel.READ);
             using (var command = new SqlCommand("sp_GetTransactionHistory", Connection))
             {
@@ -316,6 +317,44 @@ namespace SQLServerDataLayer
                 Changed = changed.ToArray()
             };
 
+        }
+
+        //public IEnumerable<CompanyData> GetCompanyRecordData(UserAccountToken userToken, string company)
+        //{
+        //    userToken.AuthorizeUser(AuthorizationLevel.READ);
+        //    using (var command = new SqlCommand("sp_GetCompanyInvestmentRecords", Connection))
+        //    {
+        //        command.CommandType = CommandType.StoredProcedure;
+        //        command.Parameters.Add(new SqlParameter("@Company", company));
+        //        command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+        //        var reader = command.ExecuteReader();
+        //        while (reader.Read())
+        //        {
+        //            double dTotalCost = (double)reader["TotalCost"];
+        //            int dSharesHeld = (int)reader["Bought"] + (int)reader["Bonus"] - (int)reader["Sold"];
+        //            double dAveragePrice = dTotalCost / dSharesHeld;
+        //            double dSharePrice = (double)reader["Price"];
+        //            double dDividend = (double)reader["Dividends"];
+
+        //            yield return new CompanyData
+        //            {
+        //                Name = (string)reader["Name"],
+        //                ValuationDate = (DateTime)reader["ValuationDate"],
+        //                LastBrought = (DateTime)reader["LastBoughtDate"],
+        //                Quantity = dSharesHeld,
+        //                AveragePricePaid = dAveragePrice,
+        //                TotalCost = dTotalCost,
+        //                SharePrice = dSharePrice,
+        //                //dNetSellingValue = _GetNetSellingValue(dSharesHeld, dSharePrice),
+        //                Dividend = dDividend
+        //            };
+        //        }
+        //        reader.Close();
+        //    }
+        //}
+        public IEnumerable<CompanyData> GetFullInvestmentRecordData(UserAccountToken userToken)
+        {
+            return null;
         }
     }
 }

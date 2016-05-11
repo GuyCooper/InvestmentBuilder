@@ -63,6 +63,10 @@ namespace InvestmentBuilderCore
         DateTime? GetPreviousRecordInvestmentValuationDate(UserAccountToken userToken, DateTime dtValuation);
         void AddTradeTransactions(IEnumerable<Stock> trades, TradeType action, UserAccountToken userToken, DateTime dtValuation);
         Trades GetHistoricalTransactions(DateTime dtFrom, DateTime dtTo, UserAccountToken userToken);
+        //IEnumerable<CompanyData> GetCompanyRecordData(UserAccountToken userToken, string company);
+        //returns the full investment record data set for this account
+        IEnumerable<CompanyData> GetFullInvestmentRecordData(UserAccountToken userToken);
+
     }
 
     public interface ICashAccountInterface

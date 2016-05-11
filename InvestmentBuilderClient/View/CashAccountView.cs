@@ -99,18 +99,18 @@ namespace InvestmentBuilderClient.View
             foreach(DataGridViewRow row in cashAccountGrid.SelectedRows)
             {
                 var transaction = row.DataBoundItem as Transaction;
-                if(!transaction.Added)
-                {
-                    MessageBox.Show("Can only delete transactions that have not been comitted");
-                }
-                else
-                {
+                //if(!transaction.Added)
+                //{
+                //    MessageBox.Show("Can only delete transactions that have not been comitted");
+                //}
+                //else
+                //{
                     _dataModel.RemoveCashTransaction(transaction.ValuationDate,
                                                      transaction.TransactionDate,
                                                      transaction.TransactionType,
                                                      transaction.Parameter);
                     _GetCashAccountData(transaction.ValuationDate);
-                }
+                //}
             }
         }
 

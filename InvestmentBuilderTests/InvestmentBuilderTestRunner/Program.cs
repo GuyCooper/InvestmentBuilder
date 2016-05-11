@@ -9,8 +9,21 @@ namespace InvestmentBuilderTestRunner
 {
     class Program
     {
+        static void PerformanceTests()
+        {
+            var performanceTests = new PerformanceLibraryTests();
+            performanceTests.Setup();
+
+            performanceTests.When_Creating_Total_Performance_Ladders();
+            performanceTests.When_Creating_Company_Performance_Ladders();
+
+        }
         static void Main(string[] args)
         {
+            PerformanceTests();
+
+            return;
+
             MarketDataServiceTests msTests = new MarketDataServiceTests();
             msTests.Setup();
             msTests.When_getting_a_closing_price();

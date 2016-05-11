@@ -216,7 +216,7 @@ namespace InvestmentBuilder
 
             //add any transactions to the transaction history table
             _investmentRecordData.AddTradeTransactions(trades.Buys, TradeType.BUY, userToken, valuationDate);
-            _investmentRecordData.AddTradeTransactions(trades.Sells, TradeType.BUY, userToken, valuationDate);
+            _investmentRecordData.AddTradeTransactions(trades.Sells, TradeType.SELL, userToken, valuationDate);
             _investmentRecordData.AddTradeTransactions(trades.Changed, TradeType.MODIFY, userToken, valuationDate);
 
             return true;

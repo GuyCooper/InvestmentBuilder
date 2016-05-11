@@ -3,12 +3,12 @@
 
 
 RESTORE DATABASE InvestmentBuilderTest2
-   FROM DISK = 'C:\Data\backups\InvestmentBuilderTest.bak'
+   FROM DISK = 'C:\Data\SQLServer\backups\InvestmentBuilderTest.bak'
    WITH NORECOVERY, 
       MOVE 'InvestmentBuilderTest' TO 
-'C:\Data\SQLEXPRESS\InvestmentBuilder\InvestmentBuilderTest2.mdf', 
+'C:\Data\SQLServer\MSSQL12.SQLEXPRESS\MSSQL\InvestmentBuilder\InvestmentBuilderTest2.mdf', 
       MOVE 'InvestmentBuilderTest_log' 
-TO 'C:\Data\SQLEXPRESS\InvestmentBuilder\InvestmentBuilderTest_log2.ldf';
+TO 'C:\Data\SQLServer\MSSQL12.SQLEXPRESS\MSSQL\InvestmentBuilder\InvestmentBuilderTest2_log.ldf';
 RESTORE LOG InvestmentBuilderTest2
-   FROM DISK = 'C:\Data\backups\InvestmentBuilderTest.bak'
+   FROM DISK = 'C:\Data\SQLServer\backups\InvestmentBuilderTest.bak'
    WITH RECOVERY;

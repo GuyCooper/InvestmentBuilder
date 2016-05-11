@@ -50,7 +50,16 @@ namespace SQLServerDataLayer
                     {
                         while (reader.Read())
                         {
-                            cashData.Dividends.Add((string)reader["Company"], (double)reader["Dividend"]);
+                            var company = (string)reader["Company"];
+                            var dividend = (double)reader["Dividend"];
+                            if(cashData.Dividends.ContainsKey(company) == true)
+                            {
+                                cashData.Dividends[company] += dividend; 
+                            }
+                            else {
+                                cashData.Dividends.Add(company, dividend );
+                            }
+                            
                         }
                     }
                 }
