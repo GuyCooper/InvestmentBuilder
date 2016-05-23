@@ -55,6 +55,10 @@ namespace InvestmentBuilderClient.View
                     {
                         var kv = (KeyValuePair<string, string>)o;
                         logView.LogMessage(kv.Key, kv.Value);
+                        if(string.Equals(kv.Key, "Error", StringComparison.CurrentCultureIgnoreCase) == true)
+                        {
+                            MessageBox.Show(kv.Value, kv.Key);
+                        }
                     }
                 }, new KeyValuePair<string, string>(level,message));
             }

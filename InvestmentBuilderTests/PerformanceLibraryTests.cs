@@ -175,7 +175,7 @@ namespace InvestmentBuilderTests
             var ladderBuilder = new PerformanceLaddersBuilder(new PerfLibConfigurationTest(),
                                                                _dataLayer,
                                                                new PerfLibMarketDataSourceTest());
-            var result = ladderBuilder.BuildCompanyPerformanceLadders(_userToken, _valuationDate);
+            var result = ladderBuilder.BuildCompanyPerformanceLadders(_userToken);
 
             Assert.AreEqual("Companies", result.Name);
             Assert.AreEqual(2, result.Data.Count);
@@ -201,7 +201,7 @@ namespace InvestmentBuilderTests
             var ladderBuilder = new PerformanceLaddersBuilder(new PerfLibConfigurationTest(),
                                                                            _dataLayer,
                                                                            new PerfLibMarketDataSourceTest());
-            var result = ladderBuilder.BuildAccountDividendPerformanceLadder(_userToken, _valuationDate);
+            var result = ladderBuilder.BuildAccountDividendPerformanceLadder(_userToken);
 
             Assert.IsNotNull(result);
 

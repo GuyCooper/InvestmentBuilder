@@ -27,21 +27,62 @@ namespace PerformanceBuilderLib
             _performanceBook.SaveAs(performanceBookName);
         }
 
+        private string _GetCurrentColumnString(char col1, char? col2)
+        {
+            return col2.HasValue ? string.Format("{0}{1}", col1, col2) : col1.ToString();
+        }
+
+        private string _GetNextColumnString(ref char col1, ref char? col2)
+        {
+            var strNextCol = _GetCurrentColumnString(col1, col2);
+            if (col1 == 'Z')
+            {
+                if(col2.HasValue == false)
+                {
+                    col1 = 'A';
+                    col2 = 'A';
+                }
+            }
+            else if(col2.HasValue)
+            {
+                if (col2 == 'Z')
+                {
+                    col1++;
+                    col2 = 'A';
+                }
+                else
+                {
+                    col2++;
+                }
+            }
+            else
+            {
+                col1++;
+            }
+            return strNextCol;
+        }
+
         public void WritePerformanceData(IList<IndexedRangeData> data)
         {
             _Worksheet perfsheet = _performanceBook.Worksheets[1];
 
-            char startCol = 'B';
+            char startColA = 'B';
+            char? startColB = null;
+            
             int startRow = 1;
             foreach (var rangeIndex in data)
             {
-                var currentCol = startCol;
+                var currentCol1 = startColA;
+                char? currentCol2 = startColB;
+
                 int currentRow = startRow;
- 
-                perfsheet.get_Range(currentCol++.ToString() + currentRow).Value = "date";
+
+                string keyName = rangeIndex.IsHistorical ? "date" : rangeIndex.KeyName;
+                perfsheet.get_Range(_GetNextColumnString(ref currentCol1, ref currentCol2) + currentRow).Value = keyName;
+
                 foreach (var index in rangeIndex.Data)
                 {
-                    perfsheet.get_Range(currentCol++.ToString() + currentRow).Value = index.Name;
+                    perfsheet.get_Range(_GetNextColumnString(ref currentCol1, ref currentCol2) + currentRow).Value = index.Name;
                 }
 
                 //now add the data
@@ -50,15 +91,30 @@ namespace PerformanceBuilderLib
                 var clubIndex = rangeIndex.Data.First();
                 int totalNodeCount = clubIndex.Data.Count();
                 currentRow++;
+                char previousCol1 = startColA;
+                char? previousCol2 = startColB;
+
                 for (int i = 0; i < totalNodeCount; ++i)
                 {
-                    currentCol = startCol;
-                    //first add the date
-                    perfsheet.get_Range(currentCol++.ToString() + currentRow).Value = clubIndex.Data[i].Date;
+                    currentCol1 = startColA;
+                    currentCol2 = startColB;
+        
+                    //first add the key column (date if historical data)
+                    if (rangeIndex.IsHistorical == true)
+                    {
+                        perfsheet.get_Range(_GetNextColumnString(ref currentCol1, ref currentCol2) + currentRow).Value = clubIndex.Data[i].Date.Value;
+                    }
+                    else
+                    {
+                        perfsheet.get_Range(_GetNextColumnString(ref currentCol1, ref currentCol2) + currentRow).Value = clubIndex.Data[i].Key;
+                    }
+
                     //now add the data for each index (including  cub index)
                     foreach (var index in rangeIndex.Data)
                     {
-                        var nextCell = perfsheet.get_Range(currentCol++.ToString() + currentRow);
+                        previousCol1 = currentCol1;
+                        previousCol2 = currentCol2;
+                        var nextCell = perfsheet.get_Range(_GetNextColumnString(ref currentCol1, ref currentCol2) + currentRow);
                         nextCell.Value = index.Data.Count > i ? index.Data[i].Price : 0d;
                     }
                     currentRow++;
@@ -67,10 +123,11 @@ namespace PerformanceBuilderLib
                 //now generate the chart and pivot table...
                 var lstIndexes = rangeIndex.Data.Select(x => x.Name).ToList();
                 //FirstRow = startRow, LastRow = currentRow - 1, FirstCol = chFirstCol, LastCol = (char)(chCol - 1)
-                BuildPivotTableAndChart(lstIndexes, rangeIndex.Name, startCol, (char)(currentCol - 1),
-                                        startRow, currentRow - 1, perfsheet);
-                startCol = currentCol;
-                startCol++;
+                BuildPivotTableAndChart(lstIndexes, rangeIndex.Name, keyName, _GetCurrentColumnString(startColA, startColB), _GetCurrentColumnString(previousCol1, previousCol2),
+                                        startRow, currentRow - 1, perfsheet, rangeIndex.IsHistorical, rangeIndex.MinValue);
+                startColA = currentCol1;
+                startColB = currentCol2;
+                _GetNextColumnString(ref startColA, ref startColB);
             }
 
             logger.Log(LogLevel.Info, "saving performance chart to sheet {0}",
@@ -82,28 +139,28 @@ namespace PerformanceBuilderLib
         /// <summary>
         /// helper method for building pivot table andchart
         /// </summary>
-        /// <param name="dateRange"></param>
+        /// <param name="key"></param>
         /// <param name="firstCol"></param>
         /// <param name="lastCol"></param>
         /// <param name="firstRow"></param>
         /// <param name="lastRow"></param>
         /// <param name="sourceSheet"></param>
-        private void BuildPivotTableAndChart(IEnumerable<string> enIndexes, string dateRange, char firstCol, char lastCol, 
-                                            int firstRow, int lastRow, _Worksheet sourceSheet)
+        private void BuildPivotTableAndChart(IEnumerable<string> enIndexes, string indexName, string key, string firstCol, string lastCol, 
+                                            int firstRow, int lastRow, _Worksheet sourceSheet, bool IsHistorical, double minValue)
         {
-            logger.Log(LogLevel.Info, "building chart for {0}", dateRange);
+            logger.Log(LogLevel.Info, "building chart for {0}", indexName);
 
             //add a pivot sheet for this date range 
             _performanceBook.Worksheets.Add();
             var pivotSheet = _performanceBook.Worksheets[1];
-            pivotSheet.Name = dateRange;
+            pivotSheet.Name = indexName;
 
-            var firstCell = firstCol.ToString() + firstRow;
-            var lastCell = lastCol.ToString() + lastRow;
+            var firstCell = firstCol + firstRow;
+            var lastCell = lastCol + lastRow;
             var sourceRange = sourceSheet.Range[firstCell, lastCell];
 
             var destinationFirstCell = pivotSheet.Range["B1"];
-            var destinationLastCell = lastCol.ToString() + (1 + (lastRow - firstRow));
+            var destinationLastCell = lastCol + (1 + (lastRow - firstRow));
             var destinationRange = pivotSheet.Range["B1", destinationLastCell];
 
             //Macro for building pivot table and chart
@@ -114,19 +171,36 @@ namespace PerformanceBuilderLib
             var newChart = newShape.Chart;
             newChart.SetSourceData(destinationRange);
 
-            pivotTable.PivotFields("Date").Orientation = XlPivotFieldOrientation.xlRowField;
-            pivotTable.PivotFields("Date").Position = 1;
+            if (IsHistorical == true)
+            {
+                pivotTable.PivotFields("Date").Orientation = XlPivotFieldOrientation.xlRowField;
+                pivotTable.PivotFields("Date").Position = 1;
+            }
+            else
+            {
+                pivotTable.PivotFields(key).Orientation = XlPivotFieldOrientation.xlRowField;
+                pivotTable.PivotFields(key).Position = 1;
+            }
 
             foreach (var index in enIndexes)
             {
                 pivotTable.AddDataField(pivotTable.PivotFields(index), string.Format("Sum Of {0}", index));
             }
 
-            newChart.ChartType = XlChartType.xlLineMarkers;
-            newShape.ScaleWidth(1.8979166667f, Microsoft.Office.Core.MsoTriState.msoFalse);
-            newShape.ScaleHeight(1.5902777778f, Microsoft.Office.Core.MsoTriState.msoFalse);
+            if (IsHistorical == true)
+            {
+                newChart.ChartType = XlChartType.xlLineMarkers;
+                newShape.ScaleWidth(1.2075f, Microsoft.Office.Core.MsoTriState.msoFalse);
+                newShape.ScaleHeight(1.2208333333f, Microsoft.Office.Core.MsoTriState.msoFalse);
+            }
+            else
+            {
+                newShape.ScaleWidth(1.8979166667f, Microsoft.Office.Core.MsoTriState.msoFalse);
+                newShape.ScaleHeight(1.5902777778f, Microsoft.Office.Core.MsoTriState.msoFalse);
+            }
 
-            newChart.Axes(XlAxisType.xlValue).MinimumScale = 0.8;
+            //newChart.ChartTitle.Text = key;
+            newChart.Axes(XlAxisType.xlValue).MinimumScale = minValue;
         }
 
         public void Dispose()

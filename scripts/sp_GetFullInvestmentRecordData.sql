@@ -6,14 +6,14 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-IF EXISTS (SELECT 1 FROM sys.procedures WHERE Name = 'sp_GetCompanyInvestmentRecords')
+IF EXISTS (SELECT 1 FROM sys.procedures WHERE Name = 'sp_GetFullInvestmentRecordData')
 BEGIN
-	DROP PROCEDURE sp_GetCompanyInvestmentRecords
+	DROP PROCEDURE sp_GetFullInvestmentRecordData
 END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_GetCompanyInvestmentRecords](@Company as VARCHAR(50), @Account as VARCHAR(30)) AS
+CREATE PROCEDURE [dbo].[sp_GetFullInvestmentRecordData](@Account as VARCHAR(30)) AS
 BEGIN
 
 SELECT 
@@ -32,9 +32,7 @@ ON IR.Company_id = C.Company_Id
 INNER JOIN Users U
 ON IR.account_id = U.[User_Id]
 WHERE U.[Name] = @Account
-AND C.[Name] = @Company
 AND IR.is_active = 1
-ORDER BY ValuationDate ASC
  
 END
 GO

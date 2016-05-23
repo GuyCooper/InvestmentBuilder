@@ -31,7 +31,7 @@ namespace InvestmentBuilderClient.View
             if(trade != null)
             {
                 this.Text = "Edit Trade";
-                dteTransactionDate.Value = trade.TransactionDate ?? DateTime.Now;
+                dteTransactionDate.Value = DateTime.Now;
                 cmboName.SelectedText = trade.Name;
                 cmboName.Text = trade.Name;
                 nmrcNumber.Value = trade.Quantity;

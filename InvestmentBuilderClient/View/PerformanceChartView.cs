@@ -35,8 +35,10 @@ namespace InvestmentBuilderClient.View
             legend.Alignment = StringAlignment.Center;
             legend.Docking = Docking.Right;
 
-            chartArea.AxisY.Minimum = 0.8;
-            chartArea.AxisX.Title = "Date";
+            string keyName = _rangeData.IsHistorical ? "Date" : _rangeData.KeyName;
+            string xAxisBindKey = _rangeData.IsHistorical ? "Date" : "Key";
+            chartArea.AxisY.Minimum = _rangeData.MinValue;
+            chartArea.AxisX.Title = keyName;
             chartArea.AxisY.Title = "Unit Price";
             chartArea.AxisX.MinorGrid.LineDashStyle = ChartDashStyle.Dash;
             chartArea.AxisX.MinorGrid.Enabled = true;
@@ -59,10 +61,12 @@ namespace InvestmentBuilderClient.View
                 series.ChartArea = chartArea.Name;
                 series.Legend = legend.Name;
                 series.Name = index.Name;
-                series.Points.DataBindXY(index.Data, "Date", index.Data, "Price");
+                series.Points.DataBindXY(index.Data, xAxisBindKey, index.Data, "Price");
                 series.MarkerStyle = MarkerStyle.Square;
                 series.MarkerSize = 2;
-                series.ChartType = SeriesChartType.Line;
+                if (_rangeData.IsHistorical == true)
+                    series.ChartType = SeriesChartType.Line;
+
                 series["PixelPointWidth"] = "20";
                 this.performanceChart.Series.Add(series);
             }

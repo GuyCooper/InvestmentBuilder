@@ -30,14 +30,21 @@ namespace PerformanceBuilderLib
             logger.Log(LogLevel.Info, "output path: {0}", _settings.GetOutputPath(userToken.Account));
             logger.Log(LogLevel.Info, "valuation date {0}", dtValuation);
 
-
             var ladderBuilder = new PerformanceLaddersBuilder(_settings, _dataLayer, _marketDataSource);
             var allLadders = ladderBuilder.BuildPerformanceLadders(userToken, dtValuation);
 
-            logger.Log(LogLevel.Info, "data ladders building complete...");
+            //now build the individual company performance ladders
+            allLadders.Insert(0, ladderBuilder.BuildCompanyPerformanceLadders(userToken));
 
+            //now build the company dividend ladders
+            allLadders.Insert(0, ladderBuilder.BuildAccountDividendPerformanceLadder(userToken));
+           
+            //and finally the company dividend yield ladders
+            allLadders.Insert(0, ladderBuilder.BuildAccountDividendYieldPerformanceLadder(userToken));
+
+            logger.Log(LogLevel.Info, "data ladders building complete...");
             //now persist it to the spreadsheet, TODO, make configurable, allow persist to pdf
-            using(var dataWriter = new PerformanceExcelSheetWriter(_settings.GetOutputPath(userToken.Account), dtValuation))
+            using (var dataWriter = new PerformanceExcelSheetWriter(_settings.GetOutputPath(userToken.Account), dtValuation))
             {
                 dataWriter.WritePerformanceData(allLadders);
             }

@@ -16,7 +16,7 @@ namespace PerformanceBuilderLib
     public class IndexData
     {
         public string Name { get; set; }
-        public DateTime StartDate { get; set; }
+        public DateTime? StartDate { get; set; }
         public IList<HistoricalData> Data { get; set; }
     }
 

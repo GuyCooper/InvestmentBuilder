@@ -49,9 +49,15 @@ namespace InvestmentBuilderCore
         public string Broker { get; set; }
     }
 
+    //this class represents a data point in a performance graph. the
+    //point may represent an historical data point in which case the
+    //date property will be populated or it may just contain a key 
+    //point (i.e. the average yield for a company) in which case the
+    //key property will be populated and the date property will be null
     public class HistoricalData
     {
-        public DateTime Date { get; set; }
+        public DateTime? Date { get; set; }
+        public string Key { get; set; }
         public double Price { get; set; }
     }
 

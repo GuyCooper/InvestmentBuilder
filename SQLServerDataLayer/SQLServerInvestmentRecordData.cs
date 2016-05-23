@@ -354,7 +354,35 @@ namespace SQLServerDataLayer
         //}
         public IEnumerable<CompanyData> GetFullInvestmentRecordData(UserAccountToken userToken)
         {
-            return null;
+            userToken.AuthorizeUser(AuthorizationLevel.READ);
+            using (var command = new SqlCommand("sp_GetFullInvestmentRecordData", Connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    double dTotalCost = (double)reader["TotalCost"];
+                    int dSharesHeld = (int)reader["Bought"] + (int)reader["Bonus"] - (int)reader["Sold"];
+                    double dAveragePrice = dTotalCost / dSharesHeld;
+                    double dSharePrice = (double)reader["Price"];
+                    double dDividend = (double)reader["Dividends"];
+
+                    yield return new CompanyData
+                    {
+                        Name = (string)reader["Name"],
+                        ValuationDate = (DateTime)reader["ValuationDate"],
+                        LastBrought = (DateTime)reader["LastBoughtDate"],
+                        Quantity = dSharesHeld,
+                        AveragePricePaid = dAveragePrice,
+                        TotalCost = dTotalCost,
+                        SharePrice = dSharePrice,
+                        //dNetSellingValue = _GetNetSellingValue(dSharesHeld, dSharePrice),
+                        Dividend = dDividend
+                    };
+                }
+                reader.Close();
+            }
         }
     }
 }

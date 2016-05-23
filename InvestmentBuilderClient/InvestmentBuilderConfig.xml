@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <configuration>
-	<dataSource>Data Source=DESKTOP-JJ9QOJA\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest2;Integrated Security=True</dataSource>
-    <outputFolder>C:\Users\guy\Documents\Guy\InvestmentBuilder</outputFolder>
+	<dataSource>Data Source=DESKTOP-JJ9QOJA\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest99;Integrated Security=True</dataSource>
+    <outputFolder>C:\Users\guy\Documents\Guy\InvestmentBuilderTest</outputFolder>
 	<indexes>
 		<index>
 			<name>FTSE 100</name>
