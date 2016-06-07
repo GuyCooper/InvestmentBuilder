@@ -17,6 +17,7 @@ namespace PerformanceBuilderLib
         public bool IsHistorical { get; set; }  //true if range contains only historical (date based) data. cannot mix historical and non historical. x-axis of chart will be date
         public string Name { get; set; }  //name for range of indexes. this will appear as sheet name
         public string KeyName { get; set; }   //if non historical data then all indexes in range must have a common key name. this forms x-axis of chart
+        public string Title { get; set; } //this will appear as the title of the chart
         public IList<IndexData> Data { get; set; } //the list of indexes in range
     }
 
@@ -122,7 +123,8 @@ namespace PerformanceBuilderLib
                     MinValue = 0.8,
                     IsHistorical = true,
                     Name = point.Item2,
-                    Data = indexladder
+                    Data = indexladder,
+                    Title = "Account Performance (units)"
                 });
             }
 
@@ -149,7 +151,8 @@ namespace PerformanceBuilderLib
                 MinValue = 0.0,
                 IsHistorical = true,
                 Name = "Companies",
-                Data = _BuildCompanyIndexData(userToken, dtValuation.Value)
+                Data = _BuildCompanyIndexData(userToken, dtValuation.Value),
+                Title = "Individual company performance (units)"
             };
         }
 
@@ -167,7 +170,8 @@ namespace PerformanceBuilderLib
                 IsHistorical = false,
                 KeyName = "Company",
                 Name = "Dividends",
-                Data = _BuildAccountDividendIndexData(userToken, dtValuation.Value)
+                Data = _BuildAccountDividendIndexData(userToken, dtValuation.Value),
+                Title = "Individual Company dividends received"
             };
         }
 
@@ -185,7 +189,8 @@ namespace PerformanceBuilderLib
                 IsHistorical = false,
                 KeyName = "Company",
                 Name = "Average Yield",
-                Data = _BuildAccountDividendYieldIndexData(userToken, dtValuation.Value)
+                Data = _BuildAccountDividendYieldIndexData(userToken, dtValuation.Value),
+                Title = "Individual Company average yield (%)"
             };
         }
 
@@ -378,6 +383,17 @@ namespace PerformanceBuilderLib
                     Price = yield
                 });
             }
+
+            //now add the average yield for all current investments
+            // cannot do average yield for whole account because we may not 
+            //have all the information available
+            double average = index.Sum(x => x.Price) / (double)index.Count;
+
+            index.Add(new HistoricalData
+            {
+                Key = userToken.Account,
+                Price = average
+            });
 
             indexes.Add(new IndexData
             {

@@ -123,7 +123,7 @@ namespace PerformanceBuilderLib
                 //now generate the chart and pivot table...
                 var lstIndexes = rangeIndex.Data.Select(x => x.Name).ToList();
                 //FirstRow = startRow, LastRow = currentRow - 1, FirstCol = chFirstCol, LastCol = (char)(chCol - 1)
-                BuildPivotTableAndChart(lstIndexes, rangeIndex.Name, keyName, _GetCurrentColumnString(startColA, startColB), _GetCurrentColumnString(previousCol1, previousCol2),
+                BuildPivotTableAndChart(lstIndexes, rangeIndex, keyName, _GetCurrentColumnString(startColA, startColB), _GetCurrentColumnString(previousCol1, previousCol2),
                                         startRow, currentRow - 1, perfsheet, rangeIndex.IsHistorical, rangeIndex.MinValue);
                 startColA = currentCol1;
                 startColB = currentCol2;
@@ -145,15 +145,15 @@ namespace PerformanceBuilderLib
         /// <param name="firstRow"></param>
         /// <param name="lastRow"></param>
         /// <param name="sourceSheet"></param>
-        private void BuildPivotTableAndChart(IEnumerable<string> enIndexes, string indexName, string key, string firstCol, string lastCol, 
+        private void BuildPivotTableAndChart(IEnumerable<string> enIndexes, IndexedRangeData index, string key, string firstCol, string lastCol, 
                                             int firstRow, int lastRow, _Worksheet sourceSheet, bool IsHistorical, double minValue)
         {
-            logger.Log(LogLevel.Info, "building chart for {0}", indexName);
+            logger.Log(LogLevel.Info, "building chart for {0}", index.Name);
 
             //add a pivot sheet for this date range 
             _performanceBook.Worksheets.Add();
             var pivotSheet = _performanceBook.Worksheets[1];
-            pivotSheet.Name = indexName;
+            pivotSheet.Name = index.Name;
 
             var firstCell = firstCol + firstRow;
             var lastCell = lastCol + lastRow;
@@ -168,7 +168,7 @@ namespace PerformanceBuilderLib
             PivotTable pivotTable = pivotCache.CreatePivotTable(destinationFirstCell, "Club Performance");// true, XlPivotTableVersionList.xlPivotTableVersion14);
 
             var newShape = pivotSheet.Shapes.AddChart(240, XlChartType.xlColumnClustered);
-            var newChart = newShape.Chart;
+            Microsoft.Office.Interop.Excel.Chart newChart = newShape.Chart;
             newChart.SetSourceData(destinationRange);
 
             if (IsHistorical == true)
@@ -182,9 +182,9 @@ namespace PerformanceBuilderLib
                 pivotTable.PivotFields(key).Position = 1;
             }
 
-            foreach (var index in enIndexes)
+            foreach (var subIndex in enIndexes)
             {
-                pivotTable.AddDataField(pivotTable.PivotFields(index), string.Format("Sum Of {0}", index));
+                pivotTable.AddDataField(pivotTable.PivotFields(subIndex), string.Format("Sum Of {0}", subIndex));
             }
 
             if (IsHistorical == true)
@@ -199,6 +199,8 @@ namespace PerformanceBuilderLib
                 newShape.ScaleHeight(1.5902777778f, Microsoft.Office.Core.MsoTriState.msoFalse);
             }
 
+            newChart.HasTitle = true;
+            newChart.ChartTitle.Text = index.Title;
             //newChart.ChartTitle.Text = key;
             newChart.Axes(XlAxisType.xlValue).MinimumScale = minValue;
         }

@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NUnit.Framework;
 using PerformanceBuilderLib;
 using InvestmentBuilderCore;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace InvestmentBuilderTests
+namespace InvestmentBuilderMSTests
 {
     internal static class PerfBuilderConstants
     {
@@ -125,7 +123,7 @@ namespace InvestmentBuilderTests
         }
     }
 
-    [TestFixture]
+    [TestClass]
     public class PerformanceLibraryTests
     {
         private static string _TestAccount = "TestAcc";
@@ -138,7 +136,7 @@ namespace InvestmentBuilderTests
                                                AuthorizationLevel.UPDATE);
 
         private IDataLayer _dataLayer;
-        [OneTimeSetUp]
+        [TestInitialize]
         public void Setup()
         {
             _dataLayer = new DataLayerTest(new PerfLibClientDataInterfaceTest(),
@@ -148,7 +146,7 @@ namespace InvestmentBuilderTests
                          new PerfLibHistoricalData());
         }
 
-        [Test]
+        [TestMethod]
         public void When_Creating_Total_Performance_Ladders()
         {
             var ladderBuilder = new PerformanceLaddersBuilder(new PerfLibConfigurationTest(),
@@ -182,7 +180,7 @@ namespace InvestmentBuilderTests
             Assert.AreEqual("1.0076", testIndexData.Data[1].Price.ToString("#0.0000"));
         }
 
-        [Test]
+        [TestMethod]
         public void When_Creating_Company_Performance_Ladders()
         {
             var ladderBuilder = new PerformanceLaddersBuilder(new PerfLibConfigurationTest(),
@@ -208,7 +206,7 @@ namespace InvestmentBuilderTests
             Assert.AreEqual("1.1319", indexData2.Data[1].Price.ToString("#0.0000"));
         }
 
-        [Test]
+        [TestMethod]
         public void when_creating_account_dividend_performance()
         {
             var ladderBuilder = new PerformanceLaddersBuilder(new PerfLibConfigurationTest(),

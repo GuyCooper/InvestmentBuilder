@@ -109,8 +109,8 @@ namespace InvestmentBuilder
             Log.Log(LogLevel.Info, "building investment records...");
             //Console.WriteLine("building investment records...");
 
-            var aggregatedBuys = trades.Buys.AggregateStocks().ToList();
-            var aggregatedSells = trades.Sells.AggregateStocks().ToList();
+            var aggregatedBuys = trades != null ? trades.Buys.AggregateStocks().ToList() : Enumerable.Empty<Stock>();
+            var aggregatedSells = trades != null ? trades.Sells.AggregateStocks().ToList() : Enumerable.Empty<Stock>();
 
             var previousValuation = _investmentRecordData.GetLatestRecordInvestmentValuationDate(userToken);
             //
@@ -163,7 +163,7 @@ namespace InvestmentBuilder
                 }
 
                 //update share number if it has changed
-                var trade = trades.Changed != null ? trades.Changed.FirstOrDefault(x => company.Equals(x.Name, StringComparison.CurrentCultureIgnoreCase)) : null;
+                var trade = trades != null ? trades.Changed != null ? trades.Changed.FirstOrDefault(x => company.Equals(x.Name, StringComparison.CurrentCultureIgnoreCase)) : null : null;
                 if (trade != null)
                 {
                     Log.Log(LogLevel.Info, string.Format("company share number changed {0}", company));
@@ -215,9 +215,12 @@ namespace InvestmentBuilder
             }
 
             //add any transactions to the transaction history table
-            _investmentRecordData.AddTradeTransactions(trades.Buys, TradeType.BUY, userToken, valuationDate);
-            _investmentRecordData.AddTradeTransactions(trades.Sells, TradeType.SELL, userToken, valuationDate);
-            _investmentRecordData.AddTradeTransactions(trades.Changed, TradeType.MODIFY, userToken, valuationDate);
+            if (trades != null)
+            {
+                _investmentRecordData.AddTradeTransactions(trades.Buys, TradeType.BUY, userToken, valuationDate);
+                _investmentRecordData.AddTradeTransactions(trades.Sells, TradeType.SELL, userToken, valuationDate);
+                _investmentRecordData.AddTradeTransactions(trades.Changed, TradeType.MODIFY, userToken, valuationDate);
+            }
 
             return true;
         }
@@ -227,7 +230,7 @@ namespace InvestmentBuilder
             var lstCurrentData = _GetCompanyDataImpl(userToken, account, dtValuationDate, bSnapshot, manualPrices).ToList();
             var lstPreviousData = dtPreviousValuationDate.HasValue ? _GetCompanyDataImpl(userToken, account, dtPreviousValuationDate.Value, false, null).ToList() : new List<CompanyData>();
             //get the list of all trade transactions between these two dates as this affects the monthly change  
-            var trades = dtPreviousValuationDate.HasValue ? _investmentRecordData.GetHistoricalTransactions(dtPreviousValuationDate.Value, dtValuationDate, userToken) : null;
+            var trades = dtPreviousValuationDate.HasValue ? _investmentRecordData.GetHistoricalTransactions(dtPreviousValuationDate.Value.AddDays(1), dtValuationDate, userToken) : null;
             
             foreach (var company in lstCurrentData)
             {

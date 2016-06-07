@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NUnit.Framework;
 using InvestmentBuilderCore;
 using MarketDataServices;
 using SQLServerDataLayer;
 using System.IO;
 using InvestmentBuilder;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace InvestmentBuilderTests
+namespace InvestmentBuilderMSTests
 {
-    [TestFixture]
+    [TestClass]
     public class FullInvestmentBuilderTests
     {
         private bool m_bOk = false;
@@ -54,7 +52,7 @@ namespace InvestmentBuilderTests
         private static DateTime _ValuationDateNextMonth = DateTime.Parse("15/10/2015");
         private static DateTime _TradeValuationDateNextMonth = DateTime.Parse("05/10/2015 18:43:45");
 
-        //[OneTimeSetUp]
+        [TestInitialize]
         public void Setup()
         { 
             //first drop the unit testdatabase andrefresh it from the unit testbackup
@@ -109,7 +107,7 @@ namespace InvestmentBuilderTests
             ContainerManager.RegisterType(typeof(InvestmentBuilder.CashAccountTransactionManager), typeof(InvestmentBuilder.CashAccountTransactionManager), false);
         }
 
-        //[Test]
+        [TestMethod]
         public void RunFullTests()
         {
             Console.WriteLine("run full tests...");
