@@ -19,6 +19,7 @@ namespace InvestmentBuilderCore
         string GetOutputPath(string account);
         string GetTemplatePath();
         IEnumerable<Index> ComparisonIndexes { get; }
+        IEnumerable<string> ReportFormats { get; }
     }
 
     [XmlType("index")]
@@ -39,6 +40,9 @@ namespace InvestmentBuilderCore
         public string OutputFolder {get;set;}
         [XmlArray("indexes")]
         public Index[] IndexArray{get;set;}
+        [XmlArray("formats")]
+        [XmlArrayItem("format")]
+        public string[] ReportFormats { get; set; }
     }
 
     public class ConfigurationSettings : IConfigurationSettings
@@ -102,5 +106,7 @@ namespace InvestmentBuilderCore
         {
             return Path.Combine(_configuration.OutputFolder, "templates");
         }
+
+        public IEnumerable<string> ReportFormats { get { return _configuration.ReportFormats; } }
     }
 }

@@ -123,7 +123,8 @@ namespace InvestmentBuilderMSTests
                 datalayer,
                 new MarketDataServices.MarketDataService(new TestMarketDataSource()),
                 new BrokerManager(),
-                new CashAccountTransactionManager(datalayer));
+                new CashAccountTransactionManager(datalayer),
+                new InvestmentReportEmptyWriter());
             //public InvestmentBuilder(IConfigurationSettings settings, IDataLayer dataLayer, IMarketDataService marketDataService, BrokerManager brokerManager,
             //                         CashAccountTransactionManager cashAccountManager)
 

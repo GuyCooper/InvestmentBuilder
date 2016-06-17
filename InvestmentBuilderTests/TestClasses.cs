@@ -153,6 +153,11 @@ namespace InvestmentBuilderTests
             }
         }
 
+        public IEnumerable<string> ReportFormats
+        {
+            get { throw new NotImplementedException(); }
+        }       
+
         public virtual string GetOutputPath(string account)
         {
             throw new NotImplementedException();

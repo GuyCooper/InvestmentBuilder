@@ -66,6 +66,27 @@ namespace InvestmentBuilderMSTests
         public virtual void UndoLastTransaction(UserAccountToken userToken) { throw new NotImplementedException(); }
     }
 
+    internal class ClientDataEmptyInterfaceTest : IClientDataInterface
+    {
+        //client interface
+        public virtual IEnumerable<DateTime> GetRecentValuationDates(UserAccountToken userToken) { return null; }
+        public virtual IEnumerable<string> GetTransactionTypes(string side) { return null; }
+        public virtual IEnumerable<string> GetActiveCompanies(UserAccountToken userToken, DateTime valuationDate) { return null; }
+        public virtual IEnumerable<string> GetAccountMembers(UserAccountToken userToken, DateTime valuationDate) { return null; }
+        public virtual IEnumerable<KeyValuePair<string, AuthorizationLevel>> GetAccountMemberDetails(UserAccountToken userToken, DateTime valuationDate) { return null; }
+        public virtual DateTime? GetLatestValuationDate(UserAccountToken userToken) { return null; }
+        public virtual DateTime? GetPreviousAccountValuationDate(UserAccountToken userToken, DateTime dtValuation) { return null; }
+        public virtual IEnumerable<string> GetAccountNames(string user) { return null; }
+        public virtual bool IsExistingValuationDate(UserAccountToken userToken, DateTime valuationDate) { return false; }
+        public virtual void UpdateMemberForAccount(UserAccountToken userToken, string member, AuthorizationLevel level, bool add) { }
+        public virtual void CreateAccount(UserAccountToken userToken, AccountModel account) { }
+        public virtual AccountModel GetAccount(UserAccountToken userToken) { return null; }
+        public virtual IEnumerable<string> GetAccountTypes() { return null; }
+        public virtual IEnumerable<string> GetAllCompanies() { return null; }
+        public virtual Stock GetTradeItem(UserAccountToken userToken, string name) { return null; }
+        public virtual void UndoLastTransaction(UserAccountToken userToken) { }
+    }
+
     internal class InvestmentRecordInterfaceTest : IInvestmentRecordInterface
     {
         //investment record interface
@@ -91,6 +112,31 @@ namespace InvestmentBuilderMSTests
         public virtual IEnumerable<CompanyData> GetFullInvestmentRecordData(UserAccountToken userToken) { throw new NotImplementedException(); }
     }
 
+    internal class InvestmentRecordEmptyInterfaceTest : IInvestmentRecordInterface
+    {
+        //investment record interface
+        //roll (copy) an investment from dtPrevious to dtValuation
+        public virtual void RollInvestment(UserAccountToken userToken, string investment, DateTime dtValuation, DateTime dtPreviousValaution) { }
+        public virtual void UpdateInvestmentQuantity(UserAccountToken userToken, string investment, DateTime dtValuation, int quantity) {  }
+        public virtual void AddNewShares(UserAccountToken userToken, string investment, int quantity, DateTime dtValaution, double dTotalCost) { }
+        public virtual void SellShares(UserAccountToken userToken, string investment, int quantity, DateTime dtValuation) { }
+        public virtual void UpdateClosingPrice(UserAccountToken userToken, string investment, DateTime dtValuation, double price) { }
+        public virtual void UpdateDividend(UserAccountToken userToken, string investment, DateTime dtValuation, double dividend) { }
+        public virtual InvestmentInformation GetInvestmentDetails(string investment) { return null; }
+        public virtual IEnumerable<KeyValuePair<string, double>> GetInvestments(UserAccountToken userToken, DateTime dtValuation) { return null; }
+        public virtual void CreateNewInvestment(UserAccountToken userToken, string investment, string symbol, string currency,
+                                 int quantity, double scalingFactor, double totalCost, double price,
+                                 string exchange, DateTime dtValuation)
+        { }
+        public virtual IEnumerable<CompanyData> GetInvestmentRecordData(UserAccountToken userToken, DateTime dtValuation) { return null; }
+        public virtual void DeactivateInvestment(UserAccountToken userToken, string investment) { }
+        public virtual DateTime? GetLatestRecordInvestmentValuationDate(UserAccountToken userToken) { return null; }
+        public virtual DateTime? GetPreviousRecordInvestmentValuationDate(UserAccountToken userToken, DateTime dtValuation) { return null; }
+        public virtual void AddTradeTransactions(IEnumerable<Stock> trades, TradeType action, UserAccountToken userToken, DateTime dtValuation) {  }
+        public virtual Trades GetHistoricalTransactions(DateTime dtFrom, DateTime dtTo, UserAccountToken userToken) { return null; }
+        public virtual IEnumerable<CompanyData> GetFullInvestmentRecordData(UserAccountToken userToken) { return null; }
+    }
+
     internal class CashAccountInterfaceTest : ICashAccountInterface
     {
         public virtual CashAccountData GetCashAccountData(UserAccountToken userToken, DateTime valuationDate) { throw new NotImplementedException(); }
@@ -103,6 +149,19 @@ namespace InvestmentBuilderMSTests
         { throw new NotImplementedException(); }
         public virtual void GetCashAccountTransactions(UserAccountToken userToken, string side, DateTime valuationDate, Action<System.Data.IDataReader> fnAddTransaction) { throw new NotImplementedException(); }
         public virtual double GetBalanceInHand(UserAccountToken userToken, DateTime valuationDate) { throw new NotImplementedException(); }
+    }
+
+    internal class CashAccountEmptyInterfaceTest : ICashAccountInterface
+    {
+        public virtual CashAccountData GetCashAccountData(UserAccountToken userToken, DateTime valuationDate) { return null; }
+        public virtual void AddCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate,
+                                string type, string parameter, double amount)
+        { }
+        public virtual void RemoveCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate,
+                        string type, string parameter)
+        { }
+        public virtual void GetCashAccountTransactions(UserAccountToken userToken, string side, DateTime valuationDate, Action<System.Data.IDataReader> fnAddTransaction) { }
+        public virtual double GetBalanceInHand(UserAccountToken userToken, DateTime valuationDate) { return 0d; }
     }
 
     internal class UserAccountInterfaceTest : IUserAccountInterface
@@ -120,6 +179,23 @@ namespace InvestmentBuilderMSTests
         public virtual IEnumerable<Redemption> GetRedemptions(UserAccountToken userToken, DateTime valuationDate) { throw new NotImplementedException(); }
         public virtual void AddRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount) { throw new NotImplementedException(); }
         public virtual void UpdateRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount, double units) { throw new NotImplementedException(); }
+    }
+
+    internal class UserAccountEmptyInterfaceTest : IUserAccountInterface
+    {
+        //user account interface
+        public virtual void RollbackValuationDate(UserAccountToken userToken, DateTime dtValuation) { }
+        public virtual void UpdateMemberAccount(UserAccountToken userToken, DateTime dtValuation, string member, double dAmount) { }
+        public virtual double GetMemberSubscription(UserAccountToken userToken, DateTime dtValuation, string member) { return 0d; }
+        public virtual IEnumerable<KeyValuePair<string, double>> GetMemberAccountData(UserAccountToken userToken, DateTime dtValuation) { return null; }
+        public virtual double GetPreviousUnitValuation(UserAccountToken userToken, DateTime? previousDate) { return 0d; }
+        public virtual void SaveNewUnitValue(UserAccountToken userToken, DateTime dtValuation, double dUnitValue) {  }
+        public virtual double GetIssuedUnits(UserAccountToken userToken, DateTime dtValuation) { return 0d; }
+        public virtual UserAccountData GetUserAccountData(UserAccountToken userToken) { return null; }
+        public virtual double GetStartOfYearValuation(UserAccountToken userToken, DateTime valuationDate) { return 0d; }
+        public virtual IEnumerable<Redemption> GetRedemptions(UserAccountToken userToken, DateTime valuationDate) { return null; }
+        public virtual void AddRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount) { }
+        public virtual void UpdateRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount, double units) {  }
     }
 
     internal class HistoricalDataReaderTest : IHistoricalDataReader
@@ -151,6 +227,11 @@ namespace InvestmentBuilderMSTests
             {
                 throw new NotImplementedException();
             }
+        }
+
+        public virtual IEnumerable<string> ReportFormats
+        {
+            get { throw new NotImplementedException(); }
         }
 
         public virtual string GetOutputPath(string account)
@@ -207,6 +288,17 @@ namespace InvestmentBuilderMSTests
         public virtual bool TryGetMarketData(string symbol, string exchange, out MarketDataPrice marketData)
         {
             throw new NotImplementedException();
+        }
+    }
+
+    internal class InvestmentReportEmptyWriter : IInvestmentReportWriter
+    {
+        public void WriteAssetReport(AssetReport report, double startOfYear, string outputPath)
+        {
+        }
+
+        public void WritePerformanceData(IList<IndexedRangeData> data, string path, DateTime dtValuation)
+        {
         }
     }
 }

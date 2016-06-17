@@ -22,6 +22,7 @@ namespace InvestmentBuilder
         private IInvestmentRecordInterface _investmentRecordData;
         private BrokerManager _brokerManager;
         private CashAccountTransactionManager _cashAccountManager;
+        private IInvestmentReportWriter _reportWriter;
 
         private Dictionary<string, string> _typeProcedureLookup = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase)
         {
@@ -30,7 +31,7 @@ namespace InvestmentBuilder
         };
 
         public InvestmentBuilder(IConfigurationSettings settings, IDataLayer dataLayer, IMarketDataService marketDataService, BrokerManager brokerManager,
-                                 CashAccountTransactionManager cashAccountManager)
+                                 CashAccountTransactionManager cashAccountManager, IInvestmentReportWriter reportWriter)
         {
             _settings = settings;
             _dataLayer = dataLayer;
@@ -41,6 +42,7 @@ namespace InvestmentBuilder
             _investmentRecordData = _dataLayer.InvestmentRecordData;
             _brokerManager = brokerManager;
             _cashAccountManager = cashAccountManager;
+            _reportWriter = reportWriter;
         }
   
         /// <summary>
@@ -162,11 +164,7 @@ namespace InvestmentBuilder
             //finally, build the asset statement
             if (bUpdate == true)
             {
-                using (var assetWriter = new AssetReportWriterExcel(_settings.GetOutputPath(accountData.Name),
-                                                                    _settings.GetTemplatePath()))
-                {
-                    assetWriter.WriteAssetReport(updatedReport, _userAccountData.GetStartOfYearValuation(userToken, valuationDate));
-                }
+                _reportWriter.WriteAssetReport(updatedReport, _userAccountData.GetStartOfYearValuation(userToken, valuationDate), _settings.GetOutputPath(accountData.Name));
             }
 
             logger.Log(LogLevel.Info, "Report Generated, Account Builder Complete");

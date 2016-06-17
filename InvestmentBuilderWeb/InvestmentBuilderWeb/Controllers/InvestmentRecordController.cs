@@ -136,6 +136,28 @@ namespace InvestmentBuilderWeb.Controllers
         }
 
         [HttpGet]
+        public ActionResult Performance()
+        {
+            _SetupAccounts(null);
+            var vm = new PerformanceModel
+            {
+                RecentReports = new List<string>
+                {
+                    "12/03/2016",
+                    "19/04/2016",
+                    "14/05/2016"
+                }
+            };
+            return View("Performance", vm);
+        }
+
+        [HttpGet]
+        public ActionResult LoadReport(string ValuationDate)
+        {
+            return View("ValuationReport");
+        }
+
+        [HttpGet]
         public ActionResult Edit(string name)
         {
             var token =_SetupAccounts(null);

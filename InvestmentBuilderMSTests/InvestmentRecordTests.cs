@@ -29,11 +29,21 @@ namespace InvestmentBuilderMSTests
                                                             TestUser,
                                                             TestAccount,
                                                             AuthorizationLevel.ADMINISTRATOR);
+
+        public static readonly Stock BuyTrade = new Stock
+        {
+            Name = Company,
+            Quantity = 50,
+            TotalCost = 1298.45,
+            TransactionDate = dtValuation - TimeSpan.FromDays(3)
+        };
     }
 
     internal class InvestmentRecordTestData : InvestmentRecordInterfaceTest
     {
         private Dictionary<string, double> _investmentPriceList;
+        private int _addedQuantity = 0;
+        private double _addedCost = 0;
 
         public InvestmentRecordTestData()
         {
@@ -100,9 +110,9 @@ namespace InvestmentBuilderMSTests
                     Name = InvestmentRecordStaticTestData.Company,
                     AveragePricePaid = InvestmentRecordStaticTestData.TestPrice,
                     Dividend = InvestmentRecordStaticTestData.Dividends,
-                    Quantity = InvestmentRecordStaticTestData.TestQuantity,
+                    Quantity = InvestmentRecordStaticTestData.TestQuantity + _addedQuantity,
                     SharePrice = InvestmentRecordStaticTestData.TestSharePrice,
-                    TotalCost = InvestmentRecordStaticTestData.TestTotalCost
+                    TotalCost = InvestmentRecordStaticTestData.TestTotalCost + _addedCost
                 }
             };
         }
@@ -123,6 +133,12 @@ namespace InvestmentBuilderMSTests
                 Sells = Enumerable.Empty<Stock>().ToArray(),
                 Changed = Enumerable.Empty<Stock>().ToArray()
             };
+        }
+
+        public override void AddNewShares(UserAccountToken userToken, string investment, int quantity, DateTime dtValaution, double dTotalCost)
+        {
+            _addedQuantity = quantity;
+            _addedCost = dTotalCost;
         }
     }
 
@@ -222,6 +238,36 @@ namespace InvestmentBuilderMSTests
             Assert.AreEqual(data.Quantity, 132);
             Assert.AreEqual(data.SharePrice.ToString("#.###"), "28.373");
             Assert.AreEqual(data.TotalCost, 2676.43);
+        }
+
+        [TestMethod]
+        public void When_updating_investment_records_with_trade1()
+        {
+            var trades = new Trades
+            {
+                Buys = new List<Stock> { InvestmentRecordStaticTestData.BuyTrade }.ToArray()
+            };
+
+            var result = _builder.UpdateInvestmentRecords(InvestmentRecordStaticTestData.UserToken
+                                              , _userData
+                                              , trades
+                                              , _cashData
+                                              , InvestmentRecordStaticTestData.dtValuation
+                                              , null);
+
+            Assert.IsTrue(result);
+
+            var price = _testDataInterface.GetLatestPrice(InvestmentRecordStaticTestData.Company).ToString("#.####");
+
+            var comparePrice = (TestMarketDataSource.TestPrice * TestMarketDataSource.TestFxRate).ToString("#.####");
+            Assert.AreEqual(comparePrice, price);
+
+            var data = _testDataInterface.GetInvestmentRecordData(InvestmentRecordStaticTestData.UserToken, InvestmentRecordStaticTestData.dtValuation).ToList();
+
+            Assert.AreEqual(1, data.Count);
+            Assert.AreEqual(InvestmentRecordStaticTestData.Company, data[0].Name);
+            Assert.AreEqual(InvestmentRecordStaticTestData.TestQuantity + InvestmentRecordStaticTestData.BuyTrade.Quantity, data[0].Quantity);
+            Assert.AreEqual(InvestmentRecordStaticTestData.TestTotalCost + InvestmentRecordStaticTestData.BuyTrade.TotalCost, data[0].TotalCost);
         }
     }
 }

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using PerformanceBuilderLib;
 using System.Windows.Forms.DataVisualization.Charting;
+using InvestmentBuilderCore;
 
 namespace InvestmentBuilderClient.View
 {

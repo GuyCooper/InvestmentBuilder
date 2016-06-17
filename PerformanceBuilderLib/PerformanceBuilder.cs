@@ -16,12 +16,15 @@ namespace PerformanceBuilderLib
         private IConfigurationSettings _settings;
         private IDataLayer _dataLayer;
         private IMarketDataSource _marketDataSource;
+        private IInvestmentReportWriter _reportWriter;
 
-        public PerformanceBuilder(IConfigurationSettings settings, IDataLayer dataLayer, IMarketDataSource marketDataSource)
+        public PerformanceBuilder(IConfigurationSettings settings, IDataLayer dataLayer,
+                                IMarketDataSource marketDataSource, IInvestmentReportWriter reportWriter)
         {
             _dataLayer = dataLayer;
             _marketDataSource = marketDataSource;
             _settings = settings;
+            _reportWriter = reportWriter;
         }
 
         public IList<IndexedRangeData> Run(UserAccountToken userToken, DateTime dtValuation)
@@ -44,10 +47,7 @@ namespace PerformanceBuilderLib
 
             logger.Log(LogLevel.Info, "data ladders building complete...");
             //now persist it to the spreadsheet, TODO, make configurable, allow persist to pdf
-            using (var dataWriter = new PerformanceExcelSheetWriter(_settings.GetOutputPath(userToken.Account), dtValuation))
-            {
-                dataWriter.WritePerformanceData(allLadders);
-            }
+            _reportWriter.WritePerformanceData(allLadders, _settings.GetOutputPath(userToken.Account), dtValuation);
 
             logger.Log(LogLevel.Info, "performance chartbuilder complete");
             return allLadders;

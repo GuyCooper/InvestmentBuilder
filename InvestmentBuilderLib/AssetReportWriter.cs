@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Office.Interop.Excel;
 using System.IO;
 using NLog;
+using InvestmentBuilderCore;
 
 namespace InvestmentBuilder
 {

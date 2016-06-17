@@ -56,10 +56,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccountModel.cs" />
+    <Compile Include="AssetReport.cs" />
     <Compile Include="AuthorizationManager.cs" />
     <Compile Include="ConfigurationSettings.cs" />
     <Compile Include="ContainerManager.cs" />
     <Compile Include="IDataLayer.cs" />
+    <Compile Include="IInvestmentReportWriter.cs" />
+    <Compile Include="IndexData.cs" />
     <Compile Include="InvestmentInformation.cs" />
     <Compile Include="InvestmentUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

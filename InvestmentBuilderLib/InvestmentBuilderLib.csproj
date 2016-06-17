@@ -60,7 +60,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AssetReport.cs" />
     <Compile Include="AssetReportWriter.cs" />
     <Compile Include="BrokerManager.cs" />
     <Compile Include="CashAccountTransactionManager.cs" />

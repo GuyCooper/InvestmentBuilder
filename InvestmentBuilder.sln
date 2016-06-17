@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLServerDataLayer", "SQLSe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestmentBuilderMSTests", "InvestmentBuilderMSTests\InvestmentBuilderMSTests.csproj", "{62C56CF4-BF56-4554-AB1A-F396158AD3CA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestmentReportGenerator", "InvestmentReportGenerator\InvestmentReportGenerator.csproj", "{67E92F66-3A85-4122-8D1E-DCFD499C64BF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,10 @@ Global
 		{62C56CF4-BF56-4554-AB1A-F396158AD3CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{62C56CF4-BF56-4554-AB1A-F396158AD3CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{62C56CF4-BF56-4554-AB1A-F396158AD3CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67E92F66-3A85-4122-8D1E-DCFD499C64BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67E92F66-3A85-4122-8D1E-DCFD499C64BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67E92F66-3A85-4122-8D1E-DCFD499C64BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67E92F66-3A85-4122-8D1E-DCFD499C64BF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

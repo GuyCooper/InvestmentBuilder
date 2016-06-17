@@ -1,0 +1,19 @@
+﻿@model InvestmentBuilderWeb.Models.PerformanceModel
+@{
+    ViewBag.Title = "Performance";
+}
+
+<ul class="nav nav-tabs nav-justified">
+    <li><a href="@Url.Action("index")">Portfolio</a></li>
+    <li><a href="@Url.Action("CashFlow")">CashFlow</a></li>
+    <li><a href="@Url.Action("Performance")">Performance</a></li>
+</ul>
+
+<ul>
+    @foreach (var dt in Model.RecentReports)
+    {
+        <li>
+            @Html.ActionLink( dt, "LoadReport", new { ValuationDate=dt}, new {  target="_blank"})
+        </li>
+    }
+</ul>

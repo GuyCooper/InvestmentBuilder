@@ -10,6 +10,11 @@ using InvestmentBuilderCore;
 
 namespace PerformanceBuilderLib
 {
+    public interface IPerformanceDataWriter
+    {
+        void WritePerformanceData(IList<IndexedRangeData> data);
+    }
+
     class PerformanceExcelSheetWriter : IPerformanceDataWriter, IDisposable
     {
         private Application _app;
