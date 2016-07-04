@@ -9,6 +9,6 @@ namespace InvestmentBuilderCore
     public interface IInvestmentReportWriter
     {
         void WriteAssetReport(AssetReport report, double startOfYear, string outputPath);
-        void WritePerformanceData(IList<IndexedRangeData> data, string path, DateTime dtValuation);
+        void WritePerformanceData(IList<IndexedRangeData> data, string outputPath, DateTime dtValuation);
     }
 }

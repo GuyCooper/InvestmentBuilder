@@ -166,12 +166,12 @@ namespace InvestmentReportGenerator
         /// <param name="data"></param>
         /// <param name="path"></param>
         /// <param name="dtValuation"></param>
-        public void WritePerformanceData(IList<IndexedRangeData> data, string path, DateTime dtValuation)
+        public void WritePerformanceData(IList<IndexedRangeData> data, string outputPath, DateTime dtValuation)
         {
             _Workbook performanceBook = null;
             try
             {
-                var performanceBookName = string.Format(@"{0}\{1}-{2}.xlsx", path, PerformanceChartName, dtValuation.ToString("MMM-yyyy"));
+                var performanceBookName = string.Format(@"{0}\{1}-{2}.xlsx", outputPath, PerformanceChartName, dtValuation.ToString("MMM-yyyy"));
                 File.Delete(performanceBookName);
                 performanceBook = _app.Workbooks.Add();
                 performanceBook.SaveAs(performanceBookName);

@@ -69,7 +69,7 @@ namespace PerformanceBuilderLib
         {
             //historical data must be in ascending chronological order (oldest data first)
             var result = new List<Tuple<DateTime?, string>>();
-            var firstRecord = historicalData.FirstOrDefault();
+            var firstRecord = historicalData != null ? historicalData.FirstOrDefault() : null; 
             if (firstRecord != null && firstRecord.Date.HasValue)
             {
                 //add all time range
@@ -112,7 +112,7 @@ namespace PerformanceBuilderLib
                     IsHistorical = true,
                     Name = point.Item2,
                     Data = indexladder,
-                    Title = "Account Performance (units)"
+                    Title = "Account Performance"
                 });
             }
 

@@ -9,22 +9,22 @@ namespace InvestmentBuilderMSTests
 {
     internal static class PerfBuilderConstants
     {
-        public static DateTime TestDate1 = DateTime.Parse("01/02/2016");
-        public static DateTime TestDate2 = DateTime.Parse("02/03/2016");
-        public static double TestPrice1 = 1.34d;
-        public static double TestPrice2 = 1.36d;
-        public static double TestPrice3 = 1.31d;
-        public static double TestPrice4 = 1.32d;
-        public static string TestCompany1 = "Acme";
-        public static string TestCompany2 = "TheSun";
+        public static readonly  DateTime TestDate1 = DateTime.Parse("01/02/2016");
+        public static readonly  DateTime TestDate2 = DateTime.Parse("02/03/2016");
+        public static readonly  double TestPrice1 = 1.34d;
+        public static readonly  double TestPrice2 = 1.36d;
+        public static readonly  double TestPrice3 = 1.31d;
+        public static readonly  double TestPrice4 = 1.32d;
+        public static readonly  string TestCompany1 = "Acme";
+        public static readonly  string TestCompany2 = "TheSun";
 
-        public static double company1TotalCost = 998.34;
-        public static double company2TotalCost = 734.86;
+        public static readonly  double company1TotalCost = 998.34;
+        public static readonly  double company2TotalCost = 734.86;
 
-        public static double dividend1 = 56.21;
-        public static double dividend2 = 34.21;
+        public static readonly  double dividend1 = 56.21;
+        public static readonly  double dividend2 = 34.21;
 
-        public static IEnumerable<CompanyData> FullRecordInfo = new List<CompanyData>
+        public static readonly  IEnumerable<CompanyData> FullRecordInfo = new List<CompanyData>
         {
             new CompanyData
             {
@@ -54,6 +54,16 @@ namespace InvestmentBuilderMSTests
                 Dividend = dividend2
             }
         };
+
+        public static readonly  string TestAccount = "TestAcc";
+        public static readonly  string TestUser = "TestUser";
+        public static readonly  DateTime ValuationDate = DateTime.Parse("12/04/2016");
+
+        public static readonly UserAccountToken UserToken = new UserAccountToken(
+                                               TestUser,
+                                               TestAccount,
+                                               AuthorizationLevel.UPDATE);
+
     }
 
     internal class PerfLibMarketDataSourceTest : MarketDataSourceTest
@@ -126,15 +136,6 @@ namespace InvestmentBuilderMSTests
     [TestClass]
     public class PerformanceLibraryTests
     {
-        private static string _TestAccount = "TestAcc";
-        private static string _TestUser = "TestUser";
-        private static DateTime _valuationDate = DateTime.Parse("12/04/2016");
-
-        private UserAccountToken _userToken = new UserAccountToken(
-                                               _TestUser,
-                                               _TestAccount,
-                                               AuthorizationLevel.UPDATE);
-
         private IDataLayer _dataLayer;
         [TestInitialize]
         public void Setup()
@@ -153,7 +154,7 @@ namespace InvestmentBuilderMSTests
                                                               _dataLayer,
                                                               new PerfLibMarketDataSourceTest());
 
-            var result = ladderBuilder.BuildPerformanceLadders(_userToken, _valuationDate);
+            var result = ladderBuilder.BuildPerformanceLadders(PerfBuilderConstants.UserToken, PerfBuilderConstants.ValuationDate);
 
             Assert.IsNotNull(result);
             Assert.AreEqual(1, result.Count);
@@ -186,7 +187,7 @@ namespace InvestmentBuilderMSTests
             var ladderBuilder = new PerformanceLaddersBuilder(new PerfLibConfigurationTest(),
                                                                _dataLayer,
                                                                new PerfLibMarketDataSourceTest());
-            var result = ladderBuilder.BuildCompanyPerformanceLadders(_userToken);
+            var result = ladderBuilder.BuildCompanyPerformanceLadders(PerfBuilderConstants.UserToken);
 
             Assert.AreEqual("Companies", result.Name);
             Assert.AreEqual(2, result.Data.Count);
@@ -212,7 +213,7 @@ namespace InvestmentBuilderMSTests
             var ladderBuilder = new PerformanceLaddersBuilder(new PerfLibConfigurationTest(),
                                                                            _dataLayer,
                                                                            new PerfLibMarketDataSourceTest());
-            var result = ladderBuilder.BuildAccountDividendPerformanceLadder(_userToken);
+            var result = ladderBuilder.BuildAccountDividendPerformanceLadder(PerfBuilderConstants.UserToken);
 
             Assert.IsNotNull(result);
 
@@ -226,6 +227,54 @@ namespace InvestmentBuilderMSTests
             Assert.AreEqual(PerfBuilderConstants.dividend1, lstResults[0].Price);
             Assert.AreEqual(PerfBuilderConstants.dividend2, lstResults[1].Price);
 
+        }
+    }
+
+    /// <summary>
+    /// same tests as PerformanceLibraryTests but with empty data
+    /// </summary>
+    [TestClass]
+    public class PerformanceLibraryNoDataTests
+    {
+        private IDataLayer _dataLayer;
+
+        [TestInitialize]
+        public void Setup()
+        {
+            _dataLayer = new EmptyDataLayerTest();
+        }
+
+        [TestMethod]
+        public void When_Creating_Empty_Total_Performance_Ladders()
+        {
+            var ladderBuilder = new PerformanceLaddersBuilder(new PerfLibConfigurationTest(),
+                                                             _dataLayer,
+                                                             new PerfLibMarketDataSourceTest());
+
+            var result = ladderBuilder.BuildPerformanceLadders(PerfBuilderConstants.UserToken, PerfBuilderConstants.ValuationDate).ToList();
+
+            Assert.AreEqual(0, result.Count);
+        }
+
+        [TestMethod]
+        public void When_Creating_Empty_Company_Performance_Ladders()
+        {
+            var ladderBuilder = new PerformanceLaddersBuilder(new PerfLibConfigurationTest(),
+                                                                   _dataLayer,
+                                                                   new PerfLibMarketDataSourceTest());
+            var result = ladderBuilder.BuildCompanyPerformanceLadders(PerfBuilderConstants.UserToken);
+            Assert.IsNull(result);
+        }
+
+        [TestMethod]
+        public void when_creating_empty_account_dividend_performance()
+        {
+            var ladderBuilder = new PerformanceLaddersBuilder(new PerfLibConfigurationTest(),
+                                                                               _dataLayer,
+                                                                               new PerfLibMarketDataSourceTest());
+            var result = ladderBuilder.BuildAccountDividendPerformanceLadder(PerfBuilderConstants.UserToken);
+
+            Assert.IsNull(result);
         }
     }
 }

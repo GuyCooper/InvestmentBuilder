@@ -227,7 +227,7 @@ namespace InvestmentBuilderClient.DataModel
                 tradesList.Changed = trade.Action == TradeType.MODIFY ? new[] { trade } : Enumerable.Empty<Stock>().ToArray();
 
                 var manualPrices = GetManualPrices();
-                if(trade.ManualPrice.HasValue)
+                if(trade.ManualPrice.HasValue && (manualPrices.ContainsKey(trade.Name) == false))
                 {
                     manualPrices.Add(trade.Name, trade.ManualPrice.Value);
                 }
