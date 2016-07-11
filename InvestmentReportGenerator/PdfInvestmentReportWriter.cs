@@ -17,11 +17,18 @@ namespace InvestmentReportGenerator
     public class PdfInvestmentReportWriter : IInvestmentReportWriter, IDisposable
     {
         //private MigraDoc.DocumentObjectModel.Document _document = null;
-        private PdfDocument _pdfDocument;
+        private PdfDocument _pdfDocument = null;
+        private string _reportFileName = null;
+
+
 
         private const double dataCellWidth = 2.1;
+        private const double HeaderRowHeight = 1.3d;
+        private const double RowHeight = 0.45d;
+        private const double DoubleRowHeight = 0.9d;
 
         private const int MaxXLabelCount = 12;
+
 
         private static readonly List<KeyValuePair<string,double>> _headerNames = new List<KeyValuePair<string,double>>
         {
@@ -105,11 +112,11 @@ namespace InvestmentReportGenerator
 
         public void WriteAssetReport(AssetReport report, double startOfYear, string outputPath)
         {
-            var reportFileName = string.Format(@"{0}\ValuationReport-{1}.pdf", outputPath, report.ValuationDate.ToString("MMM-yyyy"));
-            if (File.Exists(reportFileName))
-                File.Delete(reportFileName);
+            _reportFileName = string.Format(@"{0}\ValuationReport-{1}.pdf", outputPath, report.ValuationDate.ToString("MMM-yyyy"));
+            if (File.Exists(_reportFileName))
+                File.Delete(_reportFileName);
 
-            string title = string.Format("Monthly Report For {0} - {1}", report.AccountName, report.ValuationDate.ToShortDateString());
+            string title = string.Format("Valuation Report For {0} - {1}", report.AccountName, report.ValuationDate.ToShortDateString());
             _CreateDocument(title);
 
             var document = new MigraDoc.DocumentObjectModel.Document();
@@ -119,12 +126,14 @@ namespace InvestmentReportGenerator
             section.PageSetup.FooterDistance = Unit.FromCentimeter(0);
             section.PageSetup.BottomMargin = Unit.FromCentimeter(1);
             section.PageSetup.Orientation = Orientation.Landscape;
-            Paragraph paragraph = section.AddParagraph();
-            paragraph.Format.SpaceBefore = Unit.FromCentimeter(1);
-            paragraph.Format.SpaceAfter = Unit.FromCentimeter(1);
-            paragraph.AddFormattedText(report.AccountName, TextFormat.Bold);
-            paragraph.AddLineBreak();
-            paragraph.AddFormattedText(string.Format("Valuation Date: {0}", report.ValuationDate.ToShortDateString()));
+            Paragraph heading = section.AddParagraph();
+            heading.Format.SpaceBefore = Unit.FromCentimeter(1);
+            heading.Format.SpaceAfter = Unit.FromCentimeter(1);
+            heading.AddFormattedText(report.AccountName, TextFormat.Bold);
+            heading.AddLineBreak();
+            heading.AddFormattedText(string.Format("Valuation Date: {0}", report.ValuationDate.ToShortDateString()));
+            heading.AddLineBreak();
+            heading.AddFormattedText(string.Format("Reporting Currency: {0}", report.ReportingCurrency));
 
             Table table = section.AddTable();
             table.Style = "Table";
@@ -155,8 +164,8 @@ namespace InvestmentReportGenerator
             }
 
             //table.SetEdge(0, 0, 6, 2, Edge.Box, BorderStyle.Single, 0.75, Color.Empty);
-
             Row row;
+
             //now populate the rows
             foreach (var asset in report.Assets)
             {
@@ -197,8 +206,15 @@ namespace InvestmentReportGenerator
             _AddAmountRow(amountsTable, "Issued Units", report.IssuedUnits);
             _AddAmountRow(amountsTable, "Value Per Unit", report.ValuePerUnit);
 
-            //_SaveDocument(reportFileName);
+            _RenderAssetTable(document, 
+                              heading,
+                              table,
+                              totalsTable, 
+                              amountsTable,
+                              report.Assets.Select(x => x.Name));
 
+            //_pdfDocument.Save(_reportFileName);
+            //_pdfDocument.Close();
         }
 
         private PdfSharp.Charting.Chart _CreateChart(PdfSharp.Charting.ChartType chartType,
@@ -256,18 +272,60 @@ namespace InvestmentReportGenerator
             return chart;
         }
 
-        private void _RenderAssetTable(PdfDocument document)
+        private Unit _GetAssetTableHeight(IEnumerable<string> assetNames)
         {
-            //// Create a renderer and prepare (=layout) the document
-            //Document doc = new Document();
-            //MigraDoc.Rendering.DocumentRenderer docRenderer = new MigraDoc.Rendering.DocumentRenderer(doc);
-            //docRenderer.PrepareDocument();
+            //start with the header row height
+            Unit height = Unit.FromCentimeter(HeaderRowHeight);
+            foreach(string asset in assetNames)
+            {
+                if(asset.Contains(" ") && asset.Length > 12)
+                {
+                    height += Unit.FromCentimeter(DoubleRowHeight);
+                }
+                else
+                { 
+                    height += Unit.FromCentimeter(RowHeight); 
+                }
+            }
 
-            //PdfPage page = document.AddPage();
-            //page.Size = PageSize.A4;
-            //page.Orientation = PageOrientation.Landscape;
-            //XGraphics gfx = XGraphics.FromPdfPage(page);
-            //docRenderer.RenderObject(gfx, XUnit.FromCentimeter(5), XUnit.FromCentimeter(10), "12cm", para);
+            return height;
+        }
+
+        private void _RenderAssetTable(MigraDoc.DocumentObjectModel.Document document, 
+                                       Paragraph heading,
+                                       Table assetTable,
+                                       Table totalsTable,
+                                       Table summaryTable,
+                                       IEnumerable<string> assetNames
+                                       )
+        {
+            // Create a renderer and prepare (=layout) the document
+            MigraDoc.Rendering.DocumentRenderer docRenderer = new MigraDoc.Rendering.DocumentRenderer(document);
+            docRenderer.PrepareDocument();
+
+            PdfPage page = _pdfDocument.AddPage();
+           
+            page.Size = PageSize.A4;
+            page.Orientation = PageOrientation.Landscape;
+            XGraphics gfx = XGraphics.FromPdfPage(page);
+            gfx.MUH = PdfFontEncoding.Unicode;
+            gfx.MFEH = PdfFontEmbedding.Default;
+
+            var yPos = XUnit.FromCentimeter(1);
+            var xPos = XUnit.FromCentimeter(1);
+            var width = XUnit.FromCentimeter(20);
+            docRenderer.RenderObject(gfx, xPos, yPos, width, heading);
+            yPos += XUnit.FromCentimeter(2);
+            //assetTable.Rows.Height = Unit.FromCentimeter(20);
+     
+            docRenderer.RenderObject(gfx, xPos, yPos, width, assetTable);
+
+            xPos += Unit.FromCentimeter(10d);
+            yPos += _GetAssetTableHeight(assetNames);
+            //yPos += _GetTableHeight(assetTable);
+            docRenderer.RenderObject(gfx, xPos, yPos, width, totalsTable);
+            yPos += Unit.FromCentimeter(0.6d); //_GetTableHeight(totalsTable);
+            docRenderer.RenderObject(gfx, xPos, yPos, width, summaryTable);
         }
 
         //each chart is rendered on a seperate page
@@ -320,14 +378,14 @@ namespace InvestmentReportGenerator
         public void WritePerformanceData(IList<IndexedRangeData> data, string outputPath, DateTime dtValuation)
         {
             string title = string.Format(@"{0}\Performance Report-{1}", outputPath, dtValuation);
-            var reportFileName = string.Format(@"{0}\ValuationReport-{1}.pdf", outputPath, dtValuation.ToString("MMM-yyyy"));
+            if (_reportFileName == null)
+            {
+                _reportFileName = string.Format(@"{0}\ValuationReport-{1}.pdf", outputPath, dtValuation.ToString("MMM-yyyy"));
+            }
 
-            if (File.Exists(reportFileName))
-                File.Delete(reportFileName);
+            _CreateDocument(title);
 
-            PdfDocument document = new PdfDocument(reportFileName);
-
-            foreach (var rangeIndex in data)
+            foreach (var rangeIndex in data.Reverse())
             {
                 if (rangeIndex.Data.Count == 0)
                 {
@@ -355,10 +413,11 @@ namespace InvestmentReportGenerator
                                          rangeIndex.IsHistorical);
 
                 string fullTitle = string.Format("{0} {1}", rangeIndex.Title, rangeIndex.Name);
-                _RenderChart(document, fullTitle, chart);
+                _RenderChart(_pdfDocument, fullTitle, chart);
             }
 
-            document.Close();
+            _pdfDocument.Save(_reportFileName);
+            //_pdfDocument.Close();
         }
     }
 }
