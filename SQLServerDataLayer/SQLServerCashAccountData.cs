@@ -26,7 +26,7 @@ namespace SQLServerDataLayer
             using (SqlCommand cmdBankBalance = new SqlCommand("sp_GetBankBalance", Connection))
             {
                 cmdBankBalance.CommandType = System.Data.CommandType.StoredProcedure;
-                cmdBankBalance.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
+                cmdBankBalance.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate.Date));
                 cmdBankBalance.Parameters.Add(new SqlParameter("@Account", userToken.Account));
 
                 //var balanceParam = new SqlParameter("@balance", System.Data.SqlDbType.Float);
@@ -74,7 +74,7 @@ namespace SQLServerDataLayer
             using (var sqlCommand = new SqlCommand("sp_RemoveCashAccountData", Connection))
             {
                 sqlCommand.CommandType = CommandType.StoredProcedure;
-                sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
+                sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate.Date));
                 sqlCommand.Parameters.Add(new SqlParameter("@TransactionDate", transactionDate));
                 sqlCommand.Parameters.Add(new SqlParameter("@TransactionType", type));
                 sqlCommand.Parameters.Add(new SqlParameter("@Parameter", parameter));
@@ -95,7 +95,7 @@ namespace SQLServerDataLayer
             using (var sqlCommand = new SqlCommand("sp_GetCashAccountData", Connection))
             {
                 sqlCommand.CommandType = CommandType.StoredProcedure;
-                sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
+                sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate.Date));
                 sqlCommand.Parameters.Add(new SqlParameter("@Side", side));
                 sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account));
                 using (var reader = sqlCommand.ExecuteReader())
@@ -114,7 +114,7 @@ namespace SQLServerDataLayer
             using (var sqlCommand = new SqlCommand("sp_GetBalanceInHand", Connection))
             {
                 sqlCommand.CommandType = CommandType.StoredProcedure;
-                sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
+                sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate.Date));
                 sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account));
                 var result = sqlCommand.ExecuteScalar();
                 if (result is double)
@@ -132,7 +132,7 @@ namespace SQLServerDataLayer
             using (var sqlCommand = new SqlCommand("sp_AddCashAccountData", Connection))
             {
                 sqlCommand.CommandType = CommandType.StoredProcedure;
-                sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
+                sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate.Date));
                 sqlCommand.Parameters.Add(new SqlParameter("@TransactionDate", transactionDate));
                 sqlCommand.Parameters.Add(new SqlParameter("@TransactionType", type));
                 sqlCommand.Parameters.Add(new SqlParameter("@Parameter", parameter));

@@ -67,7 +67,7 @@ namespace InvestmentBuilderClient.View
 
         public void UpdateValuationDate(DateTime dtValuation)
         {
-            _dtValuation = dtValuation;
+            _dtValuation = dtValuation.Date;
             gridRedemptions.DataSource = _dataModel.GetRedemptions(_dtValuation);
         }
 

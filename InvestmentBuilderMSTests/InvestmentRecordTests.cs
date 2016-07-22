@@ -140,6 +140,11 @@ namespace InvestmentBuilderMSTests
             _addedQuantity = quantity;
             _addedCost = dTotalCost;
         }
+
+        public override bool IsExistingRecordValuationDate(UserAccountToken userToken, DateTime dtValuation)
+        {
+            return false;
+        }
     }
 
     [TestClass]

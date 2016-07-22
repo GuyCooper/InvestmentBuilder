@@ -17,7 +17,7 @@ namespace MarketDataServices
     /// This class is useful for full application testing when there are no datasources available
     /// 
     /// </summary>
-    public class TestFileMarketDataSource : IMarketDataSource
+    public class TestFileMarketDataSource : IMarketDataSource, IDisposable
     {
    
         private Dictionary<string, MarketDataPrice> _marketDataLookup = new Dictionary<string, MarketDataPrice>();
@@ -126,6 +126,11 @@ namespace MarketDataServices
             }
             
             return _GenerateHistoricalData(dtFrom, 0.006);
+        }
+
+        public void Dispose()
+        {
+            Console.WriteLine("disposing TestDataSource...");
         }
 
         public string Name

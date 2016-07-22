@@ -25,6 +25,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -80,6 +81,10 @@
     <ProjectReference Include="..\InvestmentBuilderLib\InvestmentBuilderLib.csproj">
       <Project>{9fa7e2cc-b5c6-463b-856a-e0e21eff93e4}</Project>
       <Name>InvestmentBuilderLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\InvestmentReportGenerator\InvestmentReportGenerator.csproj">
+      <Project>{67e92f66-3a85-4122-8d1e-dcfd499c64bf}</Project>
+      <Name>InvestmentReportGenerator</Name>
     </ProjectReference>
     <ProjectReference Include="..\MarketDataServices\MarketDataServices.csproj">
       <Project>{13bae8cd-2876-44c4-a39a-74f7313fba80}</Project>

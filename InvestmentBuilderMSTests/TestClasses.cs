@@ -87,6 +87,7 @@ namespace InvestmentBuilderMSTests
         public virtual void AddTradeTransactions(IEnumerable<Stock> trades, TradeType action, UserAccountToken userToken, DateTime dtValuation) { throw new NotImplementedException(); }
         public virtual Trades GetHistoricalTransactions(DateTime dtFrom, DateTime dtTo, UserAccountToken userToken) { throw new NotImplementedException(); }
         public virtual IEnumerable<CompanyData> GetFullInvestmentRecordData(UserAccountToken userToken) { throw new NotImplementedException(); }
+        public virtual bool IsExistingRecordValuationDate(UserAccountToken userToken, DateTime dtValuation) { throw new NotImplementedException(); }
     }
 
     internal class CashAccountInterfaceTest : ICashAccountInterface
@@ -304,6 +305,7 @@ namespace InvestmentBuilderMSTests
         public virtual void AddTradeTransactions(IEnumerable<Stock> trades, TradeType action, UserAccountToken userToken, DateTime dtValuation) { }
         public virtual Trades GetHistoricalTransactions(DateTime dtFrom, DateTime dtTo, UserAccountToken userToken) { return null; }
         public virtual IEnumerable<CompanyData> GetFullInvestmentRecordData(UserAccountToken userToken) { return null; }
+        public virtual bool IsExistingRecordValuationDate(UserAccountToken userToken, DateTime dtValuation) { return true; }
     }
 
     internal class ClientDataEmptyInterfaceTest : IClientDataInterface

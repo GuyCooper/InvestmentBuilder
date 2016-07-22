@@ -8,6 +8,7 @@ using MarketDataServices;
 using InvestmentBuilderCore;
 using SQLServerDataLayer;
 using PerformanceBuilderLib;
+using Microsoft.Practices.Unity;
 
 namespace InvestmentBuilderClient
 {
@@ -20,26 +21,29 @@ namespace InvestmentBuilderClient
         static void Main()
         {
             //registerunity dependencies.
-            ContainerManager.RegisterType(typeof(IAuthorizationManager), typeof(SQLAuthorizationManager), false);
+            ContainerManager.RegisterType(typeof(IAuthorizationManager), typeof(SQLAuthorizationManager), true);
             //ContainerManager.RegisterType(typeof(IMarketDataSource), typeof(AggregatedMarketDataSource), false);
-            ContainerManager.RegisterType(typeof(IMarketDataSource), typeof(TestFileMarketDataSource), false, "testMarketData.txt");
-            ContainerManager.RegisterType(typeof(IMarketDataService), typeof(MarketDataService), false);
-            ContainerManager.RegisterType(typeof(IConfigurationSettings), typeof(ConfigurationSettings), false, "InvestmentBuilderConfig.xml");
+            ContainerManager.RegisterType(typeof(IMarketDataSource), typeof(TestFileMarketDataSource), true, "testMarketData.txt");
+            //ContainerManager.RegisterType(typeof(IMarketDataSource), typeof(CachedMarketDataSource), false, "testMarketData.txt");
+            ContainerManager.RegisterType(typeof(IMarketDataService), typeof(MarketDataService), true);
+            ContainerManager.RegisterType(typeof(IConfigurationSettings), typeof(ConfigurationSettings), true, "InvestmentBuilderConfig.xml");
             //todo,use servicelocator
-            ContainerManager.RegisterType(typeof(IDataLayer), typeof(SQLServerDataLayer.SQLServerDataLayer), false);
-            ContainerManager.RegisterType(typeof(InvestmentBuilder.InvestmentBuilder), typeof(InvestmentBuilder.InvestmentBuilder), false);
-            ContainerManager.RegisterType(typeof(PerformanceBuilder), typeof(PerformanceBuilder), false);
-            ContainerManager.RegisterType(typeof(DataModel.InvestmentDataModel), typeof(DataModel.InvestmentDataModel), false);
-            ContainerManager.RegisterType(typeof(View.MainView), typeof(View.MainView), false);
-            ContainerManager.RegisterType(typeof(InvestmentBuilder.BrokerManager), typeof(InvestmentBuilder.BrokerManager), false);
-            ContainerManager.RegisterType(typeof(InvestmentBuilder.CashAccountTransactionManager), typeof(InvestmentBuilder.CashAccountTransactionManager), false);
-            ContainerManager.RegisterType(typeof(IInvestmentReportWriter), typeof(InvestmentReportGenerator.InvestmentReportWriter), false);
+            ContainerManager.RegisterType(typeof(IDataLayer), typeof(SQLServerDataLayer.SQLServerDataLayer), true);
+            ContainerManager.RegisterType(typeof(InvestmentBuilder.InvestmentBuilder), typeof(InvestmentBuilder.InvestmentBuilder), true);
+            ContainerManager.RegisterType(typeof(PerformanceBuilder), typeof(PerformanceBuilder), true);
+            ContainerManager.RegisterType(typeof(DataModel.InvestmentDataModel), typeof(DataModel.InvestmentDataModel), true);
+            ContainerManager.RegisterType(typeof(View.MainView), typeof(View.MainView), true);
+            ContainerManager.RegisterType(typeof(InvestmentBuilder.BrokerManager), typeof(InvestmentBuilder.BrokerManager), true);
+            ContainerManager.RegisterType(typeof(InvestmentBuilder.CashAccountTransactionManager), typeof(InvestmentBuilder.CashAccountTransactionManager), true);
+            ContainerManager.RegisterType(typeof(IInvestmentReportWriter), typeof(InvestmentReportGenerator.InvestmentReportWriter), true);
             //var connectstr = @"Data Source=TRAVELPC\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest;Integrated Security=True";
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            Application.Run(ContainerManager.ResolveValue<View.MainView>());
- 
+            using (var child = ContainerManager.CreateChildContainer())
+            {
+                Application.Run(ContainerManager.ResolveValueOnContainer<View.MainView>(child));
+            }
         }
     }
 }

@@ -242,7 +242,6 @@ namespace InvestmentBuilderTests
                  userToken, dtValuationDate, dtTransactionDate, "Admin Fee", "Admin Fee", 2.50);
 
             var report = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().BuildAssetReport(userToken,
-                                                                                                  dtValuationDate,
                                                                                                   dtValuationDate.AddHours(14),
                                                                                                   true,
                                                                                                   null);
@@ -357,7 +356,6 @@ namespace InvestmentBuilderTests
             };
 
             var report = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().BuildAssetReport(userToken,
-                                                                                      dtValuationDate,
                                                                                       dtValuationDate.AddHours(13),
                                                                                       true,
                                                                                       manualPrices);
@@ -375,7 +373,6 @@ namespace InvestmentBuilderTests
             };
 
             var report = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().BuildAssetReport(userToken,
-                                                                                      dtValuationDate,
                                                                                       dtValuationDate.AddHours(16),
                                                                                       true,
                                                                                       manualPrices);

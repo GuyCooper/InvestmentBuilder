@@ -66,7 +66,7 @@ namespace InvestmentBuilderCore
         //IEnumerable<CompanyData> GetCompanyRecordData(UserAccountToken userToken, string company);
         //returns the full investment record data set for this account
         IEnumerable<CompanyData> GetFullInvestmentRecordData(UserAccountToken userToken);
-
+        bool IsExistingRecordValuationDate(UserAccountToken userToken, DateTime dtValuation);
     }
 
     public interface ICashAccountInterface

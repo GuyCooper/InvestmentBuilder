@@ -56,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AggregatedMarketDataSource.cs" />
+    <Compile Include="CachedMarketDataSource.cs" />
     <Compile Include="IMarketDataSource.cs" />
     <Compile Include="MarketDataService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

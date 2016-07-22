@@ -284,7 +284,7 @@ namespace SQLServerDataLayer
             using (var command = new SqlCommand("sp_GetPreviousValuationDate", Connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
+                command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation.Date));
                 command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
                 var result = command.ExecuteScalar();
                 if (result != null)

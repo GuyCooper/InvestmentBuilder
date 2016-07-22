@@ -29,14 +29,25 @@ namespace InvestmentBuilderCore
             }
         }
 
-        public static T ResolveValue<T>() where T : class
+        public static T ResolveValueOnContainer<T>(IUnityContainer container) where T : class
         {
-            var result = _container.Resolve<T>();
-            if(result != null)
+            var result = container.Resolve<T>();
+            if (result != null)
             {
                 return result;
             }
             throw new ArgumentException(string.Format("type {0} has not been registered!"));
+
+        }
+
+        public static T ResolveValue<T>() where T : class
+        {
+            return ResolveValueOnContainer<T>(_container);
+        }
+
+        public static IUnityContainer CreateChildContainer()
+        {
+            return _container.CreateChildContainer();
         }
     }
 }

@@ -12,7 +12,7 @@ using InvestmentBuilder;
 using System.Threading;
 using NLog;
 using InvestmentBuilderCore;
-using PerformanceBuilderLib;
+//using PerformanceBuilderLib;
 using MarketDataServices;
 
 namespace InvestmentBuilderClient.View
@@ -40,7 +40,12 @@ namespace InvestmentBuilderClient.View
             _settings = settings;
 
             btnUndo.Enabled = false;
-            _dataModel.TradeUpdateEvent += (enabled) => btnUndo.Enabled = enabled;
+            _dataModel.TradeUpdateEvent += (enabled) =>
+            {
+                btnUndo.Enabled = enabled;
+                PopulateValuationDates();
+                return true;
+            };
               
             _displayContext = SynchronizationContext.Current;
         }
@@ -154,7 +159,7 @@ namespace InvestmentBuilderClient.View
 
                 Task.Factory.StartNew(() =>
                     {
-                        var report = _dataModel.BuildAssetReport(dtValuation);
+                        var report = _dataModel.BuildAssetReport(dtValuation, true);
                         DisplayAssetReport(report);
                     });
             }
@@ -192,10 +197,9 @@ namespace InvestmentBuilderClient.View
             if (MessageBox.Show("Are You Sure?", "Build Charts", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes)
             {
                 DateTime dtValuation = _GetSelectedValuationDate();
-                //string account = (string)cmboAccountName.SelectedItem;
                 Task.Factory.StartNew(() =>
                     {
-                        var performanceData = ContainerManager.ResolveValue<PerformanceBuilder>().Run(_dataModel.GetUserToken(), dtValuation);
+                        var performanceData = _dataModel.GetPerformanceCharts(dtValuation);
                         if(performanceData != null && _displayContext != null)
                         {
                             _displayContext.Post(o =>
@@ -231,8 +235,10 @@ namespace InvestmentBuilderClient.View
                 //marshall view builder onto a seperate thread
                 Task.Factory.StartNew(() =>
                     {
-                        var report = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>()
-                                         .BuildAssetReport(_dataModel.GetUserToken(), dtValuation, DateTime.Now, false, null);
+                        var report = _dataModel.BuildAssetReport(dtValuation, false);
+
+                        //var report = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>()
+                        //                 .BuildAssetReport(_dataModel.GetUserToken(), dtValuation, false, null);
                         DisplayAssetReport(report);
                     });
             }
@@ -254,6 +260,7 @@ namespace InvestmentBuilderClient.View
                         var reportView = new AssetReportView((AssetReport)o);
                         reportView.TopLevel = true;
                         reportView.Show();
+                        PopulateValuationDates();
                     }
                     else
                     {

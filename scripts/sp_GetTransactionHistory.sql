@@ -29,7 +29,7 @@ ON
 WHERE
 	U.[Name] = @account
 AND
-	T.[valuation_date] >= @dateFrom
+	T.[transaction_date] >= @dateFrom
 AND
-	T.[valuation_date] <= @dateTo
+	T.[transaction_date] <= @dateTo
 END

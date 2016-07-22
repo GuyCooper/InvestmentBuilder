@@ -93,6 +93,11 @@ namespace InvestmentBuilderMSTests
         {
             return null;
         }
+
+        public override bool IsExistingRecordValuationDate(UserAccountToken userToken, DateTime dtValuation)
+        {
+            return false;
+        }
     }
 
     [TestClass]

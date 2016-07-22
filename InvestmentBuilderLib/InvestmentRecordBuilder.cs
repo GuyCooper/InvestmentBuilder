@@ -258,8 +258,20 @@ namespace InvestmentBuilder
         {
             //dtPreviousValuationDate parameteris the previous valuation date.we need to extract the previous record
             //valuation date from this to retrieve the correct previous record data from the database
-            DateTime? dtPreviousRecordValuationDate = dtPreviousValuationDate.HasValue ? _investmentRecordData.GetPreviousRecordInvestmentValuationDate(userToken, dtPreviousValuationDate.Value) : null;
-            return GetInvestmentRecordsImpl(userToken, account, dtValuationDate, dtPreviousRecordValuationDate, bSnapshot, manualPrices);
+            DateTime? dtNewPreviousRecordValuationDate  = null;
+            if (dtPreviousValuationDate.HasValue)
+            {
+                if(_investmentRecordData.IsExistingRecordValuationDate(userToken, dtPreviousValuationDate.Value))
+                {
+                    dtNewPreviousRecordValuationDate = dtPreviousValuationDate;
+                }
+                else
+                {
+                    dtNewPreviousRecordValuationDate = _investmentRecordData.GetPreviousRecordInvestmentValuationDate(userToken, dtPreviousValuationDate.Value);
+                }
+            }
+
+            return GetInvestmentRecordsImpl(userToken, account, dtValuationDate, dtNewPreviousRecordValuationDate, bSnapshot, manualPrices);
         }
 
         /// <summary>

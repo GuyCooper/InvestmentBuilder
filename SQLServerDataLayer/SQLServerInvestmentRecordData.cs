@@ -384,5 +384,19 @@ namespace SQLServerDataLayer
                 reader.Close();
             }
         }
+
+        public bool IsExistingRecordValuationDate(UserAccountToken userToken, DateTime dtValuation)
+        {
+            userToken.AuthorizeUser(AuthorizationLevel.READ);
+            using (var sqlCommand = new SqlCommand("sp_IsExistingRecordValuationDate", Connection))
+            {
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
+                sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                var result = sqlCommand.ExecuteScalar();
+                return result != null;
+            }
+
+        }
     }
 }

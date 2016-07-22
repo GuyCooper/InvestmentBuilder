@@ -57,7 +57,7 @@ namespace InvestmentBuilder
         /// method just returns the asset report forthe specified valuation date
         /// </param>
         /// <returns></returns>
-        public AssetReport BuildAssetReport(UserAccountToken userToken, DateTime valuationDate, DateTime snapshotDate, bool bUpdate, ManualPrices manualPrices)
+        public AssetReport BuildAssetReport(UserAccountToken userToken, DateTime valuationDate, bool bUpdate, ManualPrices manualPrices)
         {
             logger.Log(LogLevel.Info, string.Format("Begin BuildAssetSheet"));
             //logger.Log(LogLevel.Info,string.Format("trade file: {0}", _settings.GetTradeFile(accountName)));
@@ -111,15 +111,18 @@ namespace InvestmentBuilder
             var cashAccountData = _cashAccountData.GetCashAccountData(userToken, valuationDate);
             //parse the trade file for any trades for this month and update the investment record
             //var trades = TradeLoader.GetTrades(tradeFile);
-            var dtTradeValuationDate = snapshotDate;
-            var currentRecordData = recordBuilder.GetLatestRecordValuationDate(userToken);
+            var dtTradeValuationDate = valuationDate;
+            var currentRecordDate = recordBuilder.GetLatestRecordValuationDate(userToken);
             if (bUpdate)
             {
-                if (currentRecordData.HasValue && (snapshotDate < currentRecordData))
+                if (currentRecordDate.HasValue)
                 {
-                    logger.Log(LogLevel.Error, "record date must be later than the previous record valution date");
-                    return assetReport;
-                }
+                    if (dtTradeValuationDate <= currentRecordDate)
+                    {
+                        logger.Log(LogLevel.Error, "record date must be later than the previous record valution date");
+                        return assetReport;
+                    }
+                 }
                 //trades now added seperately
                 var emptyTrades = new Trades
                 {
@@ -136,9 +139,9 @@ namespace InvestmentBuilder
             }
             else
             {
-                if(currentRecordData.HasValue)
+                if(currentRecordDate.HasValue)
                 {
-                    dtTradeValuationDate = currentRecordData.Value;
+                    dtTradeValuationDate = currentRecordDate.Value;
                 }
             }
 
@@ -335,7 +338,7 @@ namespace InvestmentBuilder
             {
                 AccountName = userData.Name,
                 ReportingCurrency = userData.Currency,
-                ValuationDate = dtValuationDate,
+                ValuationDate = dtValuationDate.Date,
                 Assets = companyData,
                 BankBalance = dBankBalance
             };

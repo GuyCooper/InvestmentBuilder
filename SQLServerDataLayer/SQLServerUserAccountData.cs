@@ -34,7 +34,7 @@ namespace SQLServerDataLayer
             using (var updateCommand = new SqlCommand("sp_UpdateMembersCapitalAccount", Connection))
             {
                 updateCommand.CommandType = System.Data.CommandType.StoredProcedure;
-                updateCommand.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
+                updateCommand.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation.Date));
                 updateCommand.Parameters.Add(new SqlParameter("@Member", member));
                 updateCommand.Parameters.Add(new SqlParameter("@Units", dAmount));
                 updateCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account));
@@ -50,7 +50,7 @@ namespace SQLServerDataLayer
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 command.Parameters.Add(new SqlParameter("@Member", member));
-                command.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
+                command.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation.Date));
                 command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
                 //var oSubscription = (double)command.ExecuteScalar();
                 //if(oSubscription != null)
@@ -75,7 +75,7 @@ namespace SQLServerDataLayer
             using (var command = new SqlCommand("sp_GetMembersCapitalAccount", Connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
+                command.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation.Date));
                 command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
 
                 using (var reader = command.ExecuteReader())
@@ -126,7 +126,7 @@ namespace SQLServerDataLayer
             using (var command = new SqlCommand("sp_GetIssuedUnits", Connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
+                command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation.Date));
                 command.Parameters.Add(new SqlParameter("@AccountName", userToken.Account));
 
                 var result = command.ExecuteScalar();
@@ -216,7 +216,7 @@ namespace SQLServerDataLayer
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
                 command.Parameters.Add(new SqlParameter("@User", user));
-                command.Parameters.Add(new SqlParameter("@TransactionDate", transactionDate));
+                command.Parameters.Add(new SqlParameter("@TransactionDate", transactionDate.Date));
                 command.Parameters.Add(new SqlParameter("@Amount", amount));
                 command.Parameters.Add(new SqlParameter("@Status", RedemptionStatus.Pending.ToString()));
                 
@@ -233,7 +233,7 @@ namespace SQLServerDataLayer
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
                 command.Parameters.Add(new SqlParameter("@User", user));
-                command.Parameters.Add(new SqlParameter("@TransactionDate", transactionDate));
+                command.Parameters.Add(new SqlParameter("@TransactionDate", transactionDate.Date));
                 command.Parameters.Add(new SqlParameter("@Amount", amount));
                 command.Parameters.Add(new SqlParameter("@UnitsRedeemed", units));
                 command.Parameters.Add(new SqlParameter("@Status", RedemptionStatus.Complete.ToString()));

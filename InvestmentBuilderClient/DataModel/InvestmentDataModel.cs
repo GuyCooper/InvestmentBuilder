@@ -6,6 +6,7 @@ using NLog;
 using InvestmentBuilderCore;
 using System.Data;
 using InvestmentBuilder;
+using PerformanceBuilderLib;
 
 namespace InvestmentBuilderClient.DataModel
 {
@@ -27,6 +28,7 @@ namespace InvestmentBuilderClient.DataModel
         private BrokerManager _brokerManager;
         private CashAccountTransactionManager _cashAccountManager;
         private InvestmentBuilder.InvestmentBuilder _investmentBuilder;
+        private PerformanceBuilder _performanceBuilder;
 
         private UserAccountToken _userToken; //cache user token
         private int _TradeUpdateCount;
@@ -45,7 +47,8 @@ namespace InvestmentBuilderClient.DataModel
                                    InvestmentBuilder.InvestmentBuilder investmentBuilder,
                                    IAuthorizationManager authorizationManager,
                                    BrokerManager brokerManager,
-                                   CashAccountTransactionManager cashAccountManager) 
+                                   CashAccountTransactionManager cashAccountManager,
+                                   PerformanceBuilder performanceBuilder) 
         {
             _dataLayer = dataLayer;
             _clientData = dataLayer.ClientData;
@@ -54,9 +57,8 @@ namespace InvestmentBuilderClient.DataModel
             _brokerManager = brokerManager;
             _cashAccountManager = cashAccountManager;
             _investmentBuilder = investmentBuilder;
-            //var connectstr = @"Data Source=TRAVELPC\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest;Integrated Security=True";
-            // _connection = new SqlConnection(dataSource);
-            // logger.Log(LogLevel.Info, "connected to datasource {0}", dataSource);
+            _performanceBuilder = performanceBuilder;
+
         }
 
         private void UpdateTradeUpdateEvent()
@@ -71,19 +73,22 @@ namespace InvestmentBuilderClient.DataModel
         {
             var dates = _clientData.GetRecentValuationDates(_userToken).ToList();
 
-            if(dates.Count > 0)
-            {
-                if(dates.First().Month != DateTime.Today.Month ||
-                    dates.First().Year != DateTime.Today.Year)
-                {
-                    //nowon a different month so add the current date to the list
-                    dates.Insert(0, DateTime.Today);
-                }
-            }
-            else
-            {
-                dates.Add(DateTime.Today);
-            }
+            //always have the current date time as the first entry in the combo
+            dates.Insert(0, DateTime.Now);
+
+            //if (dates.Count > 0)
+            //{
+            //    if(dates.First().Month != DateTime.Today.Month ||
+            //        dates.First().Year != DateTime.Today.Year)
+            //    {
+            //        //nowon a different month so add the current date to the list
+            //        dates.Insert(0, DateTime.Now);
+            //    }
+            //}
+            //else
+            //{
+            //    dates.Add(DateTime.Today);
+            //}
             return dates;
         }
 
@@ -242,9 +247,9 @@ namespace InvestmentBuilderClient.DataModel
             }
         }
 
-        public AssetReport BuildAssetReport(DateTime dtValuation)
+        public AssetReport BuildAssetReport(DateTime dtValuation, bool update)
         {
-            return _investmentBuilder.BuildAssetReport(_userToken, dtValuation, DateTime.Now, true, GetManualPrices());
+            return _investmentBuilder.BuildAssetReport(_userToken, dtValuation, update, GetManualPrices());
         }
 
         public IEnumerable<string> GetAllCompanies()
@@ -314,6 +319,11 @@ namespace InvestmentBuilderClient.DataModel
         public string GetReceiptMnenomic()
         {
             return _cashAccountManager.ReceiptMnemomic;
+        }
+
+        public IList<IndexedRangeData> GetPerformanceCharts(DateTime dtValaution)
+        {
+            return _performanceBuilder.Run(_userToken, dtValaution);
         }
 
         public void Dispose()
