@@ -22,6 +22,7 @@ namespace MarketDataServices
    
         private Dictionary<string, MarketDataPrice> _marketDataLookup = new Dictionary<string, MarketDataPrice>();
         private Dictionary<string, double> _fxDataLookup = new Dictionary<string, double>();
+        private Dictionary<string, IList<HistoricalData>> _historicalDataLookup = new Dictionary<string, IList<HistoricalData>>();
 
         //private const string _testDataPath = @"C:\Projects\TestData\InvestmentBuilder";
         //private const string _testDataFile = "testMarketData.txt";
@@ -49,6 +50,21 @@ namespace MarketDataServices
             }
         }
 
+        //historical data has format dd/mm/yyyy=value:dd/mm/yyyy=value:etc...
+        private void _AddDataToHistoricalLookup(string name, string data)
+        {
+            _historicalDataLookup.Add(name,
+                data.Split(':').Select(x =>
+                {
+                    int split = x.IndexOf('=');
+                    return new HistoricalData
+                    {
+                        Date = DateTime.Parse(x.Substring(0, split)),
+                        Price = Double.Parse(x.Substring(split + 1))
+                    };
+                }).ToList());
+        }
+
         public TestFileMarketDataSource(string fileName)
         {
             //var fileName = Path.Combine(_testDataPath, _testDataFile);//Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "testMarketData.txt";
@@ -60,16 +76,20 @@ namespace MarketDataServices
                     var elems = line.Split(',');
                     if(elems.Length > 2)
                     {
-                        if (string.Compare(elems[0], "M", true) == 0)
+                        if (elems[0].Equals("M", StringComparison.CurrentCultureIgnoreCase) == true)
                         {
                             if (elems.Length > 3)
                             {
                                 _addMarketDataToLookup(elems[1], elems[2], elems[3], _marketDataLookup);
                             }
                         }
-                        else if (string.Compare(elems[0], "F", true) == 0)
+                        else if (elems[0].Equals("F", StringComparison.CurrentCultureIgnoreCase) == true)
                         {
                             _addDataToLookup(elems[1], elems[2], _fxDataLookup);
+                        }
+                        else if(elems[0].Equals("H", StringComparison.CurrentCultureIgnoreCase) == true)
+                        {
+                            _AddDataToHistoricalLookup(elems[1], elems[2]);
                         }
                     }
                 }
@@ -116,6 +136,19 @@ namespace MarketDataServices
 
         public IEnumerable<HistoricalData> GetHistoricalData(string instrument, DateTime dtFrom)
         {
+            //first check if instrument is in historical data cache
+            IList<HistoricalData> cache;
+            if(_historicalDataLookup.TryGetValue(instrument, out cache) == true)
+            {
+                var result = cache.Where(x => x.Date >= dtFrom).ToList();
+                if(result.Count > 0)
+                {
+                    return result;
+                }
+            }
+
+            //if not in cache then just generate some historical price data
+
             if(instrument.Contains("FTSE"))
             {
                 return _GenerateHistoricalData(dtFrom, 0.008); //ftse

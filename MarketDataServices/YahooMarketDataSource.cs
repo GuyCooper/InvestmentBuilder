@@ -54,6 +54,7 @@ namespace MarketDataServices
                 marketData.Name = arr[1].Trim('"');
                 marketData.Exchange = arr[2].Trim('"');
                 marketData.Currency = arr[3].Trim('"');
+                marketData.Symbol = symbol;
 
                 //yahoo convention, if currency is GBp then price is in pence so must convert to pounds
                 if (marketData.Currency[marketData.Currency.Length -1] == 'p')

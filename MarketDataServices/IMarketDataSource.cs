@@ -10,6 +10,7 @@ namespace MarketDataServices
     public class MarketDataPrice
     {
         public string Name { get; set; }
+        public string Symbol { get; set; }
         public double Price { get; set; }
         public string Currency { get; set; }
         public string Exchange { get; set; }

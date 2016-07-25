@@ -47,16 +47,27 @@ namespace MarketDataServices
             {
                 using (var writer = new StreamWriter(_fileName))
                 {
+                    //dump market data
                     foreach (var marketItem in _marketDataPriceCache)
                     {
-                        writer.WriteLine("M,{0},{1},{2}", marketItem.Value.Name,
+                        writer.WriteLine("M,{0},{1},{2}", marketItem.Value.Symbol,
                                                           marketItem.Value.Price,
                                                           marketItem.Value.Currency);
                     }
 
+                    //dump fx data
                     foreach (var fxItem in _fxPriceCache)
                     {
                         writer.WriteLine("F,{0},{1}", fxItem.Key, fxItem.Value);
+                    }
+
+                    //dump historical data. has format
+                    //instrument,name,date1=val1:date2=val2:etc...
+                    foreach(var historicalData in _historicalDataCache)
+                    {
+                        writer.WriteLine("H,{0},{1}", historicalData.Key,
+                        string.Join(":", historicalData.Value.Select(x =>
+                                        string.Format("{0}={1}", x.Date.Value.ToString("dd/MM,yyyy"), x.Price).ToArray())));
                     }
                 }
             }
