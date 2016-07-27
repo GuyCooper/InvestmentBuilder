@@ -52,8 +52,9 @@ namespace PerformanceBuilderLib
             var dtYear = DateTime.Today.AddYears(years);
             if (dtStartDate < dtYear)
             {
-                //add a one year chart
-                listIndexes.Add(new Tuple<DateTime?, string>(dtYear, description));
+                //add a one year chart. note, we add one month onto the calculated month for the date otherwise
+                //we will display an extra month in the index
+                listIndexes.Add(new Tuple<DateTime?, string>(dtYear.AddMonths(1), description));
                 return true;
             }
             return false;
@@ -76,6 +77,8 @@ namespace PerformanceBuilderLib
                 result.Add(new Tuple<DateTime?, string>(null, "All Time"));
                 int previousYear = -1;
                 string description = "1 year";
+                //other indexes displayed will be for 1, 3 and 5 year, then every 5th
+                //year thereon. (i.e. 10, 15, 20 etc.)
                 while (_GetIndexRangeForYear(firstRecord.Date.Value, previousYear, description, result))
                 {
                     if (previousYear == -1)
@@ -193,15 +196,31 @@ namespace PerformanceBuilderLib
             var tmpList = dtStartDate.HasValue ? dataList.Where(x => x.Date >= dtStartDate).OrderBy(x => x.Date) :
                 dataList.OrderBy(x => x.Date);
             var dFirstPrice = tmpList.First().Price;
-            return tmpList.Select(x =>
+            //scan through the list, removing any duplicate entries for the same month
+            //and rebasing the price
+            DateTime? dtPrevious = null;
+            var resultList = new List<HistoricalData>();
+            foreach (var item in tmpList)
             {
-                return new HistoricalData
+                //where multiple records exist for a single month, just use the the last one
+                if (item.Date.HasValue == true &&
+                    dtPrevious.HasValue == true &&
+                    dtPrevious.Value.Year == item.Date.Value.Year &&
+                    dtPrevious.Value.Month == item.Date.Value.Month)
                 {
-                    Date = x.Date,
-                    Price = 1 + ((x.Price - dFirstPrice) / dFirstPrice)
-                };
-            });
+                    logger.Log(LogLevel.Info, "RebaseDataList: removing duplicate date entry : {0}", dtPrevious.Value.Date.ToShortDateString());
+                    resultList.RemoveAt(resultList.Count - 1);
+                }
 
+                dtPrevious = item.Date;
+                resultList.Add(new HistoricalData
+                {
+                    Date = item.Date,
+                    Price = 1 + ((item.Price - dFirstPrice) / dFirstPrice)
+                });
+            }
+
+            return resultList;
         }
 
         /// <summary>
@@ -230,10 +249,17 @@ namespace PerformanceBuilderLib
                 Data = rebasedClubData
             });
 
+            int clubItemCount = rebasedClubData.Count;
+            if(clubItemCount == 0)
+            {
+                return result;
+            }
+            //all comparison indexes must have the same item count as the club index
             _settings.ComparisonIndexes.ToList().ForEach(index =>
             {
                 var indexedData = _marketDataSource.GetHistoricalData(index.Symbol, dtFirstDate).ToList();
                 var rebasedIndexedData = RebaseDataList(indexedData, null).ToList();
+
                 result.Add(new IndexData
                 {
                     Name = index.Name,
@@ -278,6 +304,7 @@ namespace PerformanceBuilderLib
                     if(dtPrevious.Year == investment.ValuationDate.Year && 
                         dtPrevious.Month == investment.ValuationDate.Month)
                     {
+                        logger.Log(LogLevel.Info, "BuildCompanyIndexData: removing duplicate date entry : {0}", dtPrevious.Date.ToShortDateString());
                         dataList.RemoveAt(dataList.Count - 1);
                     }
 

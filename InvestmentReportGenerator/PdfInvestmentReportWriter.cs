@@ -375,6 +375,31 @@ namespace InvestmentReportGenerator
         }
 
         /// <summary>
+        /// the pdf generator has a bit of a problem just rendering
+        /// a single asset onto a graph so this method ensures at least 3
+        /// curves are rendered (unless there is only a single asset)
+        /// </summary>
+        /// <param name="assetCount"></param>
+        /// <returns></returns>
+        private int _DetermineMaxAssetsPerChart(int assetCount)
+        {
+            if (assetCount <= MaxAssetsPerChart)
+                return MaxAssetsPerChart;
+
+            var maxCalculatedValue = MaxAssetsPerChart;
+            var modVal = assetCount % maxCalculatedValue;
+            if(modVal > 0)
+            {
+                while(modVal < 3)
+                {
+                    maxCalculatedValue--;
+                    modVal = assetCount % maxCalculatedValue;
+                }
+            }
+            return maxCalculatedValue;
+        }
+
+        /// <summary>
         /// this method breaks down the number of individual indexes for each graph
         /// in the performance charts. each index is defined by a single asset. this is done because there is only
         /// a limited number of indexes that can be rendered on each graph
@@ -386,14 +411,16 @@ namespace InvestmentReportGenerator
             var result = new List<IndexedRangeData>();
             var tempRange = rangeData.CreateFromTemplate();
             int count = 0;
+            int maxCount1 = _DetermineMaxAssetsPerChart(rangeData.Data.Count);
             foreach (IndexData index in rangeData.Data)
             {
                 int subCount = 0;
                 var tempSubRange = index.CreateFromTemplate();
+                int maxCount2 = _DetermineMaxAssetsPerChart(index.Data.Count);
                 foreach (var subIndex in index.Data)
                 {
                     tempSubRange.Data.Add(subIndex);
-                    if(++subCount > MaxAssetsPerChart)
+                    if(++subCount > maxCount2)
                     {
                         if (rangeData.IsHistorical == false)
                         {
@@ -410,7 +437,7 @@ namespace InvestmentReportGenerator
                     tempRange.Data.Add(tempSubRange);
                 }
 
-                if (++count > MaxAssetsPerChart)
+                if (++count > maxCount1)
                 {
                     result.Add(tempRange);
                     tempRange = rangeData.CreateFromTemplate();
@@ -465,9 +492,9 @@ namespace InvestmentReportGenerator
                     {
                         increment++;
                         result.Clear();
-                        for (int i = increment; i < index.Data.Count; i += increment)
+                        for (int i = 0; i < index.Data.Count; i += increment)
                         {
-                            result.Add(index.Data[i - 1]);
+                            result.Add(index.Data[i]);
                         }
                     }
                     index.Data = result;

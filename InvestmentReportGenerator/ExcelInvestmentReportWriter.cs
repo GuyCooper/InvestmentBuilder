@@ -227,7 +227,7 @@ namespace InvestmentReportGenerator
                             previousCol1 = currentCol1;
                             previousCol2 = currentCol2;
                             var nextCell = perfsheet.get_Range(_GetNextColumnString(ref currentCol1, ref currentCol2) + currentRow);
-                            nextCell.Value = index.Data.Count > i ? index.Data[i].Price : 0d;
+                            nextCell.Value = index.Data.Count > i ? index.Data[i].Price : index.Data[index.Data.Count - 1].Price;
                         }
                         currentRow++;
                     }

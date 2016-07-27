@@ -112,8 +112,10 @@ namespace MarketDataServices
         {
             logger.Log(LogLevel.Info, "retrieving historical data for {0} from yahoo.", instrument);
 
+            //always take the base date from the first of the month to ensure the price for that month
+            //is always picked up
             string url = string.Format("http://ichart.yahoo.com/table.csv?s={0}&a={1}&b={2}&c={3}&g=m&ignore=.csv",
-                instrument, dtFrom.Month - 1, dtFrom.Day, dtFrom.Year);
+                instrument, dtFrom.Month - 1, 1, dtFrom.Year);
 
             try
             {

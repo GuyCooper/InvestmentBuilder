@@ -65,9 +65,11 @@ namespace MarketDataServices
                     //instrument,name,date1=val1:date2=val2:etc...
                     foreach(var historicalData in _historicalDataCache)
                     {
+                        var prices = historicalData.Value.Select(x =>
+                                        string.Format("{0}={1}", x.Date.Value.ToString("dd/MM/yyyy"), x.Price));
+
                         writer.WriteLine("H,{0},{1}", historicalData.Key,
-                        string.Join(":", historicalData.Value.Select(x =>
-                                        string.Format("{0}={1}", x.Date.Value.ToString("dd/MM,yyyy"), x.Price).ToArray())));
+                        string.Join(":", prices));
                     }
                 }
             }
