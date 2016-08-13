@@ -25,7 +25,6 @@ namespace InvestmentReportGenerator
     {
         //private MigraDoc.DocumentObjectModel.Document _document = null;
         private PdfDocument _pdfDocument = null;
-        private string _reportFileName = null;
         private const double dataCellWidth = 2.1;
         private const double HeaderRowHeight = 1.3d;
         private const double RowHeight = 0.45d;
@@ -54,6 +53,16 @@ namespace InvestmentReportGenerator
         public PdfInvestmentReportWriter()
         {
 
+        }
+
+        public static string GetPdfReportFile(string outputPath, DateTime ValuationDate)
+        {
+            return string.Format(@"{0}\ValuationReport-{1}.pdf", outputPath, ValuationDate.ToString("MMM-yyyy"));
+        }
+
+        public string GetReportFileName(string outputPath, DateTime ValuationDate)
+        {
+            return GetPdfReportFile(outputPath, ValuationDate);
         }
 
         public void Dispose()
@@ -160,9 +169,9 @@ namespace InvestmentReportGenerator
 
         public void WriteAssetReport(AssetReport report, double startOfYear, string outputPath)
         {
-            _reportFileName = string.Format(@"{0}\ValuationReport-{1}.pdf", outputPath, report.ValuationDate.ToString("MMM-yyyy"));
-            if (File.Exists(_reportFileName))
-                File.Delete(_reportFileName);
+            var reportFileName = GetReportFileName(outputPath, report.ValuationDate);
+            if (File.Exists(reportFileName))
+                File.Delete(reportFileName);
 
             string title = string.Format("Valuation Report For {0} - {1}", report.AccountName, report.ValuationDate.ToShortDateString());
             _CreateDocument(title);
@@ -505,11 +514,8 @@ namespace InvestmentReportGenerator
         public void WritePerformanceData(IList<IndexedRangeData> data, string outputPath, DateTime dtValuation)
         {
             string title = string.Format(@"{0}\Performance Report-{1}", outputPath, dtValuation);
-            if (_reportFileName == null)
-            {
-                _reportFileName = string.Format(@"{0}\ValuationReport-{1}.pdf", outputPath, dtValuation.ToString("MMM-yyyy"));
-            }
-
+            var reportFileName = GetReportFileName(outputPath, dtValuation);
+ 
             _CreateDocument(title);
 
             foreach (var rangeIndex in data.Reverse())
@@ -548,7 +554,7 @@ namespace InvestmentReportGenerator
                 }
             }
 
-            _pdfDocument.Save(_reportFileName);
+            _pdfDocument.Save(reportFileName);
             //_pdfDocument.Close();
         }
     }

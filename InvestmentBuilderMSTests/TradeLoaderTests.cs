@@ -26,10 +26,12 @@ namespace InvestmentBuilderMSTests
 
         private const string _TestCompany = "iShares FTSE100 ETF";
 
+        private const string _testfile = @"TestFiles\Trades.xml";
+
         [TestMethod]
-        public void When_loading_Trade_File(string tradeFile)
+        public void When_loading_Trade_File()
         {
-            var trades = TradeLoader.GetTrades(tradeFile);
+            var trades = TradeLoader.GetTrades(_testfile);
             var stock = trades.Buys.FirstOrDefault();
 
             Assert.IsNotNull(stock);

@@ -55,14 +55,17 @@ namespace InvestmentBuilderMSTests
         }
     }
 
-    [TestClass]
-    public class CashAccountTests
+    public class CashAccountTestsBase
     {
-        private static UserAccountToken _usertoken = new UserAccountToken("testUser", "testAccount", AuthorizationLevel.UPDATE);
-        private static DateTime _dtValuation = DateTime.Parse("10/12/2015");
+        protected static readonly UserAccountToken _usertoken = new UserAccountToken("testUser", "testAccount", AuthorizationLevel.UPDATE);
+        protected static readonly DateTime _dtValuation = DateTime.Parse("10/12/2015");
 
-        private CashAccountTransactionManager _manager;
+        protected CashAccountTransactionManager _manager;
+    }
 
+    [TestClass]
+    public class CashAccountTests : CashAccountTestsBase
+    {
         [TestInitialize]
         public void Setup()
         {
@@ -110,6 +113,59 @@ namespace InvestmentBuilderMSTests
         {
             var ret = _manager.ValidateCashAccount(_usertoken, _dtValuation);
             Assert.IsFalse(ret);
+        }
+    }
+
+    [TestClass]
+    public class CashAccountEmptyTests : CashAccountTestsBase
+    {
+        [TestInitialize]
+        public void Setup()
+        {
+            var datalayer = new DataLayerTest(null
+                                                     , null
+                                                     , new CashAccountEmptyInterfaceTest()
+                                                     , null
+                                                     , null);
+
+            _manager = new CashAccountTransactionManager(datalayer);
+        }
+
+        [TestMethod]
+        public void When_getting_empty_payment_transactions()
+        {
+            double dTotal;
+            var transactions = _manager.GetPaymentTransactions(_usertoken, _dtValuation, out dTotal).ToList();
+
+            Assert.AreEqual(1, transactions.Count);
+            Assert.AreEqual(0d, dTotal);
+
+            ValidateTotalTransaction(transactions[0]);
+        }
+
+        [TestMethod]
+        public void When_getting_empty_receipt_transactions()
+        {
+            double dTotal;
+            var transactions = _manager.GetReceiptTransactions(_usertoken, _dtValuation, DateTime.Parse("14/11/2015"), out dTotal).ToList();
+            Assert.AreEqual(2, transactions.Count);
+            Assert.AreEqual(0d, dTotal);
+       
+            var transaction = transactions[0];
+            Assert.AreEqual("BalanceInHand", transaction.Parameter);
+            Assert.AreEqual(_dtValuation, transaction.TransactionDate);
+            Assert.AreEqual(0d, transaction.Amount);
+            Assert.IsFalse(transaction.IsTotal);
+
+            ValidateTotalTransaction(transactions[1]);
+        }
+
+        private void ValidateTotalTransaction(Transaction transaction)
+        {
+            Assert.AreEqual("TOTAL", transaction.Parameter);
+            Assert.AreEqual(_dtValuation, transaction.TransactionDate);
+            Assert.AreEqual(0d, transaction.Amount);
+            Assert.IsTrue(transaction.IsTotal);
         }
     }
 }

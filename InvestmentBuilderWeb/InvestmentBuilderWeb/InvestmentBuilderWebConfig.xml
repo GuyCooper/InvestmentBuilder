@@ -12,4 +12,7 @@
       <symbol>^GSPC</symbol>
     </index>
   </indexes>
+  <formats>
+    <format>PDF</format>
+  </formats>
 </configuration>

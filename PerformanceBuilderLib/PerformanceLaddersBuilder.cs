@@ -257,15 +257,18 @@ namespace PerformanceBuilderLib
             //all comparison indexes must have the same item count as the club index
             _settings.ComparisonIndexes.ToList().ForEach(index =>
             {
-                var indexedData = _marketDataSource.GetHistoricalData(index.Symbol, dtFirstDate).ToList();
-                var rebasedIndexedData = RebaseDataList(indexedData, null).ToList();
-
-                result.Add(new IndexData
+                var indexedData = _marketDataSource.GetHistoricalData(index.Symbol, dtFirstDate);
+                if (indexedData != null)
                 {
-                    Name = index.Name,
-                    StartDate = dtFirstDate,
-                    Data = rebasedIndexedData
-                });
+                    var rebasedIndexedData = RebaseDataList(indexedData, null).ToList();
+
+                    result.Add(new IndexData
+                    {
+                        Name = index.Name,
+                        StartDate = dtFirstDate,
+                        Data = rebasedIndexedData
+                    });
+                }
             });
 
             return result;

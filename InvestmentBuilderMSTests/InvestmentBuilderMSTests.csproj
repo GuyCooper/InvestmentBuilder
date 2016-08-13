@@ -63,6 +63,7 @@
     <Compile Include="CashAccountTests.cs" />
     <Compile Include="CurrentInvestmentTests.cs" />
     <Compile Include="FullInvestmentBuilderTests.cs" />
+    <Compile Include="InvestmentBuilderTests.cs" />
     <Compile Include="InvestmentRecordTests.cs" />
     <Compile Include="MarketDataServiceTests.cs" />
     <Compile Include="PerformanceLibraryTests.cs" />

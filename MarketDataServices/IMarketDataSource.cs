@@ -44,6 +44,11 @@ namespace MarketDataServices
         /// name ofsource
         /// </summary>
         string Name { get; }
+        /// <summary>
+        /// for multiple data sources this value orders them in priority order
+        /// 1 = highest
+        /// </summary>
+        int Priority { get; }
     }
 
 }

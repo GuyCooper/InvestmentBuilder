@@ -12,11 +12,14 @@ namespace MarketDataServices
     /// the retrieval of market data to the aggregated market data
     /// source. Will cache data once retrieved and only request data
     /// from the source if it is not already cached. a timer
-    /// will periodically update the cache
+    /// will periodically update the cache on shutdown the cache is then
+    /// serialised to disk in a format that can be used by the test
+    /// market data source
     /// </summary>
     public class CachedMarketDataSource : IMarketDataSource, IDisposable
     {
         //name of file to persist the cache to on shutdown
+        private static Logger logger = LogManager.GetCurrentClassLogger();
 
         private string _fileName = null;
 
@@ -93,8 +96,13 @@ namespace MarketDataServices
             }
 
             //retrieve the data from the data source and populate it with the cache
-            cache = _sourceMarketData.GetHistoricalData(instrument, dtFrom).ToList();
-            _historicalDataCache.Add(instrument, cache);
+            var enCache = _sourceMarketData.GetHistoricalData(instrument, dtFrom);
+            if(enCache != null)
+            {
+                cache = enCache.ToList();
+                _historicalDataCache.Add(instrument, cache);
+            }
+
             return cache;
         }
 
@@ -126,5 +134,7 @@ namespace MarketDataServices
             return false;
 
         }
+
+        public int Priority { get { return 0; } }
     }
 }

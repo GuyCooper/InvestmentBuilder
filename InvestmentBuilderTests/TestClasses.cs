@@ -48,7 +48,7 @@ namespace InvestmentBuilderTests
     internal class ClientDataInterfaceTest : IClientDataInterface
     {
         //client interface
-        public virtual IEnumerable<DateTime> GetRecentValuationDates(UserAccountToken userToken) { throw new NotImplementedException(); }
+        public virtual IEnumerable<DateTime> GetRecentValuationDates(UserAccountToken userToken, DateTime dtDateFrom) { throw new NotImplementedException(); }
         public virtual IEnumerable<string> GetTransactionTypes(string side) { throw new NotImplementedException(); }
         public virtual IEnumerable<string> GetActiveCompanies(UserAccountToken userToken, DateTime valuationDate) { throw new NotImplementedException(); }
         public virtual IEnumerable<string> GetAccountMembers(UserAccountToken userToken, DateTime valuationDate) { throw new NotImplementedException(); }
@@ -192,6 +192,8 @@ namespace InvestmentBuilderTests
 
     internal class MarketDataSourceTest : IMarketDataSource
     {
+        public int Priority { get { return 0; } }
+
         public virtual string Name
         {
             get

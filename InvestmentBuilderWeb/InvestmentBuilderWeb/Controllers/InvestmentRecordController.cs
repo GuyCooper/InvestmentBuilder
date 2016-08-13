@@ -136,25 +136,25 @@ namespace InvestmentBuilderWeb.Controllers
         }
 
         [HttpGet]
-        public ActionResult Performance()
+        public ActionResult Reports()
         {
-            _SetupAccounts(null);
-            var vm = new PerformanceModel
+            var userToken = _SetupAccounts(null);
+            var vm = new ReportsModel
             {
-                RecentReports = new List<string>
-                {
-                    "12/03/2016",
-                    "19/04/2016",
-                    "14/05/2016"
-                }
+                RecentReports = _clientData.GetRecentValuationDates(userToken, DateTime.Now).Select(x =>
+                                            x.ToShortDateString()).ToList()
             };
-            return View("Performance", vm);
+            return View("Reports", vm);
         }
 
         [HttpGet]
         public ActionResult LoadReport(string ValuationDate)
         {
-            return View("ValuationReport");
+            var token = _SetupAccounts(null);
+            var dtValuation = DateTime.Parse(ValuationDate);
+            var reportFile =_investmentBuilder.GetInvestmentReport(token, dtValuation);
+            
+            return File(reportFile, "application/pdf");
         }
 
         [HttpGet]
@@ -349,6 +349,7 @@ namespace InvestmentBuilderWeb.Controllers
             var token = _SetupAccounts(null);
             _cashTransactionManager.RemoveTransaction(token, transaction.ValuationDate, transaction.TransactionDate, transaction.TransactionType, transaction.Parameter);
             return View("CashFlow", _GetCashFlowModel());
+
         }
 
         [HttpGet]

@@ -35,7 +35,7 @@ namespace MarketDataServices
 
         public bool TryGetMarketData(string symbol, string exchange, out MarketDataPrice marketData)
         {
-            foreach(var source in Sources)
+            foreach(var source in _GetOrderedDataSources())
             {
                 if(source.TryGetMarketData(symbol, exchange, out marketData))
                 {
@@ -49,7 +49,7 @@ namespace MarketDataServices
 
         public bool TryGetFxRate(string baseCurrency, string contraCurrency, out double dFxRate)
         {
-            foreach (var source in Sources)
+            foreach (var source in _GetOrderedDataSources())
             {
                 if (source.TryGetFxRate(baseCurrency, contraCurrency, out dFxRate))
                 {
@@ -63,7 +63,7 @@ namespace MarketDataServices
 
         public IEnumerable<HistoricalData> GetHistoricalData(string instrument, DateTime dtFrom)
         {
-            foreach (var source in Sources)
+            foreach (var source in _GetOrderedDataSources())
             {
                 var result = source.GetHistoricalData(instrument, dtFrom);
                 if(result != null)
@@ -73,5 +73,11 @@ namespace MarketDataServices
             }
             return null;
         }
+
+        private IEnumerable<IMarketDataSource> _GetOrderedDataSources()
+        {
+            return Sources.OrderBy(x => x.Priority);
+        }
+        public int Priority { get { return 0; } }
     }
 }

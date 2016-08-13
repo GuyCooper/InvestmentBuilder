@@ -9,24 +9,32 @@ using InvestmentBuilderCore;
 
 namespace InvestmentBuilder
 {
+    public interface IInvestmentRecordDataManager
+    {
+        bool UpdateInvestmentRecords(UserAccountToken userToken, UserAccountData account, Trades trades, CashAccountData cashData, DateTime valuationDate, ManualPrices manualPrices);
+        IEnumerable<CompanyData> GetInvestmentRecords(UserAccountToken userToken, UserAccountData account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate, ManualPrices manualPrices, bool bSnapshot);
+        IEnumerable<CompanyData> GetInvestmentRecordSnapshot(UserAccountToken userToken, UserAccountData account, ManualPrices manualPrices);
+        DateTime? GetLatestRecordValuationDate(UserAccountToken userToken);
+    }
+        
     //class generates the current investment record for each stock for the current month. sets and sold stocks to inactive
     //and adds any new stocks to a new sheet
-    internal class InvestmentRecordBuilder
+    public class InvestmentRecordBuilder : IInvestmentRecordDataManager
     {        
         protected Logger Log { get; private set; }
-        private IMarketDataService _marketDataService;
-        private IInvestmentRecordInterface _investmentRecordData;
-        private BrokerManager _brokerManager;
+        private readonly IMarketDataService _marketDataService;
+        private readonly IInvestmentRecordInterface _investmentRecordData;
+        private readonly BrokerManager _brokerManager;
 
-        public InvestmentRecordBuilder(IMarketDataService marketDataService, IInvestmentRecordInterface investmentRecordData, BrokerManager brokerManager)
+        public InvestmentRecordBuilder(IMarketDataService marketDataService, IDataLayer datalayer, BrokerManager brokerManager)
         {
-            _investmentRecordData = investmentRecordData;
+            _investmentRecordData = datalayer.InvestmentRecordData;
             _marketDataService = marketDataService;
             _brokerManager = brokerManager;
             Log = LogManager.GetLogger(GetType().FullName);
         }
 
-        private IEnumerable<IInvestment> _GetInvestments(UserAccountToken userToken, DateTime dtValuationDate)
+        private IEnumerable<IInvestmentRecordData> _GetInvestments(UserAccountToken userToken, DateTime dtValuationDate)
         {
             var companies = _investmentRecordData.GetInvestments(userToken, dtValuationDate).ToList(); 
             return companies.Select(c => new InvestmentData(userToken, c.Key, c.Value, _investmentRecordData));
@@ -98,6 +106,8 @@ namespace InvestmentBuilder
 
         /// <summary>
         /// refactored method for updating investment record
+        /// this method rolls all the investments in the investment record
+        /// table and updates the trades
         /// </summary>
         /// <param name="account"></param>
         /// <param name="trades"></param>

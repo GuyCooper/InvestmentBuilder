@@ -10,6 +10,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace InvestmentBuilderMSTests
 {
+    /// <summary>
+    /// This class contains full acceptance tests of InvestmentBuilder
+    /// suite. not unit tests. Requires a db restore
+    /// </summary>
     [TestClass]
     public class FullInvestmentBuilderTests
     {
@@ -52,14 +56,18 @@ namespace InvestmentBuilderMSTests
         private static DateTime _ValuationDateNextMonth = DateTime.Parse("15/10/2015");
         private static DateTime _TradeValuationDateNextMonth = DateTime.Parse("05/10/2015 18:43:45");
 
+        private Microsoft.Practices.Unity.IUnityContainer _childContainer;
+
         [TestInitialize]
         public void Setup()
-        { 
+        {
+            _childContainer = ContainerManager.CreateChildContainer();
+
             //first drop the unit testdatabase andrefresh it from the unit testbackup
 
-            ContainerManager.RegisterType(typeof(IConfigurationSettings), typeof(ConfigurationSettings), false, @"TestFiles\UnitTestBuilderConfig.xml");
+            ContainerManager.RegisterType(typeof(IConfigurationSettings), typeof(ConfigurationSettings), true, @"TestFiles\UnitTestBuilderConfig.xml");
 
-            var dbParams = ContainerManager.ResolveValue<IConfigurationSettings>().DatasourceString.Split(';').Select(x =>
+            var dbParams = ContainerManager.ResolveValueOnContainer<IConfigurationSettings>(_childContainer).DatasourceString.Split(';').Select(x =>
                 {
                     int i = x.IndexOf('=');
                     if(i > -1)
@@ -92,21 +100,30 @@ namespace InvestmentBuilderMSTests
             //todo actupon result;
 
             Console.WriteLine("database refresh succeded...");
+            ContainerManager.RegisterType(typeof(IInvestmentRecordDataManager), typeof(InvestmentRecordBuilder), true);
 
-            ContainerManager.RegisterType(typeof(IMarketDataSource), typeof(TestFileMarketDataSource), false, @"TestFiles\UnitTestMarketData.txt");
-            ContainerManager.RegisterType(typeof(IMarketDataService), typeof(MarketDataService), false);
+            ContainerManager.RegisterType(typeof(InvestmentBuilder.InvestmentBuilder), typeof(InvestmentBuilder.InvestmentBuilder), true);
+
+
+            ContainerManager.RegisterType(typeof(IMarketDataSource), typeof(TestFileMarketDataSource), true, @"TestFiles\UnitTestMarketData.txt");
+            ContainerManager.RegisterType(typeof(IMarketDataService), typeof(MarketDataService), true);
             
             //todo,use servicelocator
-            ContainerManager.RegisterType(typeof(IDataLayer), typeof(SQLServerDataLayer.SQLServerDataLayer), false);
-            ContainerManager.RegisterType(typeof(InvestmentBuilder.InvestmentBuilder), typeof(InvestmentBuilder.InvestmentBuilder), false);
+            ContainerManager.RegisterType(typeof(IDataLayer), typeof(SQLServerDataLayer.SQLServerDataLayer), true);
 
-            ContainerManager.RegisterType(typeof(IAuthorizationManager), typeof(SQLAuthorizationManager), false);
+            ContainerManager.RegisterType(typeof(IAuthorizationManager), typeof(SQLAuthorizationManager), true);
 
-            ContainerManager.RegisterType(typeof(InvestmentBuilder.BrokerManager), typeof(InvestmentBuilder.BrokerManager), false);
+            ContainerManager.RegisterType(typeof(InvestmentBuilder.BrokerManager), typeof(InvestmentBuilder.BrokerManager), true);
 
-            ContainerManager.RegisterType(typeof(InvestmentBuilder.CashAccountTransactionManager), typeof(InvestmentBuilder.CashAccountTransactionManager), false);
+            ContainerManager.RegisterType(typeof(InvestmentBuilder.CashAccountTransactionManager), typeof(InvestmentBuilder.CashAccountTransactionManager), true);
 
-            ContainerManager.RegisterType(typeof(InvestmentBuilderCore.IInvestmentReportWriter), typeof(InvestmentReportGenerator.InvestmentReportWriter), false);
+            ContainerManager.RegisterType(typeof(InvestmentBuilderCore.IInvestmentReportWriter), typeof(InvestmentReportGenerator.InvestmentReportWriter), true);
+        }
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            _childContainer.Dispose(); 
         }
 
         [TestMethod]
@@ -116,7 +133,7 @@ namespace InvestmentBuilderMSTests
 
             //first remove any generated files from previous tests
 
-            var outfolder = ContainerManager.ResolveValue<IConfigurationSettings>().GetOutputPath(_NewTestAccount);
+            var outfolder = ContainerManager.ResolveValueOnContainer<IConfigurationSettings>(_childContainer).GetOutputPath(_NewTestAccount);
 
             var files = Directory.EnumerateFiles(outfolder);
             foreach (var file in files)
@@ -153,12 +170,12 @@ namespace InvestmentBuilderMSTests
                 Password = "psst",
                 Broker = "ShareCentre"
             };
-            ContainerManager.ResolveValue<SQLServerDataLayer.SQLServerDataLayer>().ClientData.CreateAccount(userToken, account);
+            ContainerManager.ResolveValueOnContainer<SQLServerDataLayer.SQLServerDataLayer>(_childContainer).ClientData.CreateAccount(userToken, account);
 
-            ContainerManager.ResolveValue<SQLServerDataLayer.SQLServerDataLayer>().ClientData.UpdateMemberForAccount(userToken,
+            ContainerManager.ResolveValueOnContainer<SQLServerDataLayer.SQLServerDataLayer>(_childContainer).ClientData.UpdateMemberForAccount(userToken,
                                                                                          userToken.User, AuthorizationLevel.UPDATE, true);
                                                                                          
-            var result = ContainerManager.ResolveValue<SQLServerDataLayer.SQLServerDataLayer>().ClientData.GetAccount(userToken);
+            var result = ContainerManager.ResolveValueOnContainer<SQLServerDataLayer.SQLServerDataLayer>(_childContainer).ClientData.GetAccount(userToken);
 
             Assert.IsNotNull(result);
 
@@ -179,7 +196,7 @@ namespace InvestmentBuilderMSTests
 
         private void VerifyTradeTransactionResults(UserAccountToken userToken)
         {
-            var results = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().GetCurrentInvestments(userToken, null).ToList();
+            var results = ContainerManager.ResolveValueOnContainer<InvestmentBuilder.InvestmentBuilder>(_childContainer).GetCurrentInvestments(userToken, null).ToList();
             Assert.AreEqual(1, results.Count);
 
             var companyData = results.First();
@@ -196,7 +213,7 @@ namespace InvestmentBuilderMSTests
 
             var trades = toTradeBuys(_TestNewTrade);
 
-            ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().UpdateTrades(userToken,
+            ContainerManager.ResolveValueOnContainer<InvestmentBuilder.InvestmentBuilder>(_childContainer).UpdateTrades(userToken,
                                                                                               trades, null, _TradeValuationDate);
             VerifyTradeTransactionResults(userToken);
         }
@@ -208,15 +225,15 @@ namespace InvestmentBuilderMSTests
             _TestNewTrade.Quantity = 500;
             _TestNewTrade.TotalCost = 234.43d;
             var trades = toTradeBuys(_TestNewTrade);
-            ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().UpdateTrades(userToken,
+            ContainerManager.ResolveValueOnContainer<InvestmentBuilder.InvestmentBuilder>(_childContainer).UpdateTrades(userToken,
                                                             trades, null, _TradeValuationDate.AddSeconds(120));
 
-            var results = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().GetCurrentInvestments(userToken, null).ToList();
+            var results = ContainerManager.ResolveValueOnContainer<InvestmentBuilder.InvestmentBuilder>(_childContainer).GetCurrentInvestments(userToken, null).ToList();
             Assert.AreEqual(1, results.Count);
             var companyData = results.First();
             Assert.AreEqual(3000, companyData.Quantity);
 
-            var dataLayer = ContainerManager.ResolveValue<IDataLayer>();
+            var dataLayer = ContainerManager.ResolveValueOnContainer<IDataLayer>(_childContainer);
             dataLayer.ClientData.UndoLastTransaction(userToken);
 
             VerifyTradeTransactionResults(userToken);
@@ -225,7 +242,7 @@ namespace InvestmentBuilderMSTests
         private void When_building_asset_report(UserAccountToken userToken, DateTime dtTransactionDate, DateTime dtValuationDate)
         {
             Console.WriteLine("building full asset report...");
-            ICashAccountInterface cashAccountData = ContainerManager.ResolveValue<IDataLayer>().CashAccountData;
+            ICashAccountInterface cashAccountData = ContainerManager.ResolveValueOnContainer<IDataLayer>(_childContainer).CashAccountData;
             cashAccountData.AddCashAccountTransaction(
                 userToken, dtValuationDate, dtTransactionDate, "BalanceInHand", "BalanceInHand", 2000);
 
@@ -241,7 +258,7 @@ namespace InvestmentBuilderMSTests
             cashAccountData.AddCashAccountTransaction(
                  userToken, dtValuationDate, dtTransactionDate, "Admin Fee", "Admin Fee", 2.50);
 
-            var report = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().BuildAssetReport(userToken,
+            var report = ContainerManager.ResolveValueOnContainer<InvestmentBuilder.InvestmentBuilder>(_childContainer).BuildAssetReport(userToken,
                                                                                                   dtValuationDate.AddHours(14),
                                                                                                   true,
                                                                                                   null);
@@ -266,13 +283,13 @@ namespace InvestmentBuilderMSTests
         private void When_ViewingTransactions(UserAccountToken userToken, DateTime dtValuation)
         {
             double total, total1;
-            var payments = ContainerManager.ResolveValue<InvestmentBuilder.CashAccountTransactionManager>().GetPaymentTransactions(
+            var payments = ContainerManager.ResolveValueOnContainer<InvestmentBuilder.CashAccountTransactionManager>(_childContainer).GetPaymentTransactions(
                 userToken, dtValuation, out total);
 
             Assert.AreEqual(total, 1284.45d + 913.05d + 2.5d);
             Assert.AreEqual(4, payments.Count);
 
-            var receipts = ContainerManager.ResolveValue<InvestmentBuilder.CashAccountTransactionManager>().GetReceiptTransactions(
+            var receipts = ContainerManager.ResolveValueOnContainer<InvestmentBuilder.CashAccountTransactionManager>(_childContainer).GetReceiptTransactions(
                 userToken, dtValuation, dtValuation, out total1);
 
             Assert.AreEqual(total, total1);
@@ -282,7 +299,7 @@ namespace InvestmentBuilderMSTests
         private void When_ViewingTransactionsNextMonth(UserAccountToken userToken, DateTime dtValuation, DateTime dtCurrentDate)
         {
             double total;
-            var receipts = ContainerManager.ResolveValue<InvestmentBuilder.CashAccountTransactionManager>().GetReceiptTransactions(
+            var receipts = ContainerManager.ResolveValueOnContainer<InvestmentBuilder.CashAccountTransactionManager>(_childContainer).GetReceiptTransactions(
                 userToken, dtValuation, dtCurrentDate, out total);
 
             Assert.AreEqual(total, 913.05d);
@@ -329,25 +346,25 @@ namespace InvestmentBuilderMSTests
                 Buys = new List<Stock> { _TestNewTrade }.ToArray()
             };
 
-            ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().UpdateTrades(userToken,
+            ContainerManager.ResolveValueOnContainer<InvestmentBuilder.InvestmentBuilder>(_childContainer).UpdateTrades(userToken,
                                                                                               trades, null, _TradeValuationDateNextMonth);
 
             //ContainerManager.ResolveValue<SQLServerDataLayer.SQLServerDataLayer>().ClientData.AddCashAccountData(
             //    userToken, dtValuationDate, dtTransactionDate, "BalanceInHand", "BalanceInHand", 913.05);
 
-            ContainerManager.ResolveValue<CashAccountTransactionManager>().AddTransaction(
+            ContainerManager.ResolveValueOnContainer<CashAccountTransactionManager>(_childContainer).AddTransaction(
                 userToken, dtValuationDate, dtTransactionDate, "Subscription", userToken.User, 200.0);
 
-            ContainerManager.ResolveValue<CashAccountTransactionManager>().AddTransaction(
+            ContainerManager.ResolveValueOnContainer<CashAccountTransactionManager>(_childContainer).AddTransaction(
                 userToken, dtValuationDate, dtTransactionDate, "Interest", userToken.User, 0.08);
 
-            ContainerManager.ResolveValue<CashAccountTransactionManager>().AddTransaction(
+            ContainerManager.ResolveValueOnContainer<CashAccountTransactionManager>(_childContainer).AddTransaction(
                 userToken, dtValuationDate, dtTransactionDate, "Admin Fee", "Admin Fee", 2.50);
 
-            ContainerManager.ResolveValue<CashAccountTransactionManager>().AddTransaction(
+            ContainerManager.ResolveValueOnContainer<CashAccountTransactionManager>(_childContainer).AddTransaction(
                userToken, dtValuationDate, dtTransactionDate, "Purchase", _NewTestTradeName, dUpdateTradeCost);
 
-            ContainerManager.ResolveValue<CashAccountTransactionManager>().AddTransaction(
+            ContainerManager.ResolveValueOnContainer<CashAccountTransactionManager>(_childContainer).AddTransaction(
                 userToken, dtValuationDate, dtTransactionDate, "BalanceInHandCF", "BalanceInHandCF", 849.31);
 
             var manualPrices = new ManualPrices
@@ -355,7 +372,7 @@ namespace InvestmentBuilderMSTests
                 {_TestNewTrade.Name, 0.4986}
             };
 
-            var report = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().BuildAssetReport(userToken,
+            var report = ContainerManager.ResolveValueOnContainer<InvestmentBuilder.InvestmentBuilder>(_childContainer).BuildAssetReport(userToken,
                                                                                       dtValuationDate.AddHours(13),
                                                                                       true,
                                                                                       manualPrices);
@@ -372,7 +389,7 @@ namespace InvestmentBuilderMSTests
                 {_TestNewTrade.Name, 0.4986}
             };
 
-            var report = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().BuildAssetReport(userToken,
+            var report = ContainerManager.ResolveValueOnContainer<InvestmentBuilder.InvestmentBuilder>(_childContainer).BuildAssetReport(userToken,
                                                                                       dtValuationDate.AddHours(16),
                                                                                       true,
                                                                                       manualPrices);
@@ -384,7 +401,7 @@ namespace InvestmentBuilderMSTests
             //sell 1000 units
             Console.WriteLine("When_Redeeming_units_too_much");
 
-            var result = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().RequestRedemption(
+            var result = ContainerManager.ResolveValueOnContainer<InvestmentBuilder.InvestmentBuilder>(_childContainer).RequestRedemption(
                 userToken, user, 1000d, dtValuationDate);
 
             Assert.IsFalse(result);
@@ -394,7 +411,7 @@ namespace InvestmentBuilderMSTests
         {
             //sell 500 units
             Console.WriteLine("When_Redeeming_units");
-            var result = ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().RequestRedemption(
+            var result = ContainerManager.ResolveValueOnContainer<InvestmentBuilder.InvestmentBuilder>(_childContainer).RequestRedemption(
                 userToken, user, 500d, dtValuationDate);
 
             Assert.IsTrue(result);

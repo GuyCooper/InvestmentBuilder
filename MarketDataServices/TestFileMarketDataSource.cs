@@ -170,5 +170,7 @@ namespace MarketDataServices
         {
             get { return "TestFileMarketDataSource"; }
         }
+
+        public int Priority { get { return 1; } }
     }
 }

@@ -32,7 +32,7 @@ namespace MarketDataServices
             string url = string.Format(urlTemplate, exchange, symbol);
             try
             {
-                var data = WebDataHandler.GetData(url);
+                var data = WebDataHandler.GetData(url, SourceDataFormat.CSV);
                 return _TryParseResult(data, out marketData);
             }
             catch (Exception e)
@@ -60,5 +60,6 @@ namespace MarketDataServices
             marketData = null;
             return false;
         }
+        public int Priority { get { return 10; } }
     }
 }

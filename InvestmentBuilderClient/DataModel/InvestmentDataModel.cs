@@ -71,7 +71,7 @@ namespace InvestmentBuilderClient.DataModel
 
         public IEnumerable<DateTime> GetValuationDates()
         {
-            var dates = _clientData.GetRecentValuationDates(_userToken).ToList();
+            var dates = _clientData.GetRecentValuationDates(_userToken, DateTime.Now).ToList();
 
             //always have the current date time as the first entry in the combo
             dates.Insert(0, DateTime.Now);

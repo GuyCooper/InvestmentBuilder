@@ -58,7 +58,7 @@ namespace InvestmentBuilderMSTests
         public override DateTime? GetPreviousRecordInvestmentValuationDate(UserAccountToken userToken, DateTime dtValuation)
         {
             return InvestmentRecordStaticTestData.dtPreviousValuation;
-        } 
+        }
 
         public override IEnumerable<KeyValuePair<string, double>> GetInvestments(UserAccountToken userToken, DateTime dtValuation)
         {
@@ -147,11 +147,9 @@ namespace InvestmentBuilderMSTests
         }
     }
 
-    [TestClass]
-    public class InvestmentRecordTests
+    public class InvestmentRecordTestsBase
     {
-
-        private readonly UserAccountData _userData = new UserAccountData
+        protected readonly UserAccountData _userData = new UserAccountData
         {
             Broker = "ShareCentre",
             Currency = "GBP",
@@ -159,33 +157,43 @@ namespace InvestmentBuilderMSTests
             Name = InvestmentRecordStaticTestData.TestAccount
         };
 
-        private CashAccountData _cashData;
-        private InvestmentRecordBuilder _builder;
+        protected CashAccountData _cashData;
+        protected IMarketDataSource _mdSource;
+        protected IMarketDataService _mdService;
+        protected void CommonSetup()
+        {
+            _mdSource = new TestMarketDataSource();
+            _mdService = new MarketDataService(_mdSource);
+            _cashData = new CashAccountData();
+            _cashData.Dividends.Add(InvestmentRecordStaticTestData.Company, InvestmentRecordStaticTestData.Dividends);
+        }
+    }
 
+    [TestClass]
+    public sealed class InvestmentRecordTests : InvestmentRecordTestsBase
+    {
         private InvestmentRecordTestData _testDataInterface;
+        private InvestmentRecordBuilder _builder;
         [TestInitialize]
         public void Setup()
         {
-            var mdSource = new TestMarketDataSource();
-            var mdService = new MarketDataService(mdSource);
-             _testDataInterface = new InvestmentRecordTestData();
-
-            _builder = new InvestmentRecordBuilder(mdService
-                                                   , _testDataInterface
-                                                   , new BrokerManager());
-            _cashData = new CashAccountData();
-            _cashData.Dividends.Add(InvestmentRecordStaticTestData.Company, InvestmentRecordStaticTestData.Dividends);
+            CommonSetup();
+            _testDataInterface = new InvestmentRecordTestData();
+            var datalayer = new DataLayerTest(null, _testDataInterface, null, null, null);
+            _builder = new InvestmentRecordBuilder(_mdService
+                                       , datalayer
+                                       , new BrokerManager());
         }
 
         [TestMethod]
         public void When_updating_investment_records()
         {
-           var result =  _builder.UpdateInvestmentRecords(InvestmentRecordStaticTestData.UserToken
-                                             , _userData
-                                             , null
-                                             , _cashData
-                                             , InvestmentRecordStaticTestData.dtValuation
-                                             , null);
+            var result = _builder.UpdateInvestmentRecords(InvestmentRecordStaticTestData.UserToken
+                                              , _userData
+                                              , null
+                                              , _cashData
+                                              , InvestmentRecordStaticTestData.dtValuation
+                                              , null);
 
             Assert.IsTrue(result);
 
@@ -216,7 +224,7 @@ namespace InvestmentBuilderMSTests
             Assert.AreEqual(strMonthChange, "-19.07");
             Assert.AreEqual(data.Name, InvestmentRecordStaticTestData.Company);
             Assert.AreEqual(data.NetSellingValue.ToString("#.###"), "3453.872");
-            Assert.AreEqual(data.ProfitLoss.ToString("#.###"),  "777.442");
+            Assert.AreEqual(data.ProfitLoss.ToString("#.###"), "777.442");
             Assert.AreEqual(data.Quantity, 132);
             Assert.AreEqual(data.SharePrice, 26.43);
             Assert.AreEqual(data.TotalCost, 2676.43);
@@ -273,6 +281,46 @@ namespace InvestmentBuilderMSTests
             Assert.AreEqual(InvestmentRecordStaticTestData.Company, data[0].Name);
             Assert.AreEqual(InvestmentRecordStaticTestData.TestQuantity + InvestmentRecordStaticTestData.BuyTrade.Quantity, data[0].Quantity);
             Assert.AreEqual(InvestmentRecordStaticTestData.TestTotalCost + InvestmentRecordStaticTestData.BuyTrade.TotalCost, data[0].TotalCost);
+        }
+    }
+
+    [TestClass]
+    public sealed class EmptyInvestmentRecordTests : InvestmentRecordTestsBase
+    {
+        private InvestmentRecordBuilder _builder;
+        [TestInitialize]
+        public void Setup()
+        {
+            CommonSetup();
+            var datalayer = new DataLayerTest(null, new InvestmentRecordEmptyInterfaceTest(),
+                                              null, null, null);
+
+            _builder = new InvestmentRecordBuilder(_mdService, datalayer, new BrokerManager());
+        }
+
+        [TestMethod]
+        public void When_getting_empty_investment_records()
+        {
+            var result = _builder.GetInvestmentRecords(InvestmentRecordStaticTestData.UserToken,
+                                          _userData,
+                                          InvestmentRecordStaticTestData.dtValuation,
+                                          null,
+                                          null,
+                                          false).ToList();
+
+            Assert.AreEqual(0, result.Count);
+        }
+
+        [TestMethod]
+        public void When_getting_empty_investment_record_snapshot()
+        {
+            var result = _builder.GetInvestmentRecords(InvestmentRecordStaticTestData.UserToken,
+                                                  _userData,
+                                                  InvestmentRecordStaticTestData.dtValuation,
+                                                  null,
+                                                  null,
+                                                  true).ToList();
+            Assert.AreEqual(0, result.Count);
         }
     }
 }

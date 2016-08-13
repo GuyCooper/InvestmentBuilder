@@ -11,7 +11,7 @@ END
 
 GO
 
-CREATE PROCEDURE sp_RecentValuationDates(@Account as VARCHAR(30)) AS
+CREATE PROCEDURE sp_RecentValuationDates(@Account as VARCHAR(30), @DateFrom as DATETIME ) AS
 BEGIN
 
 SELECT
@@ -24,6 +24,8 @@ ON
 	V.[account_id] = U.[User_Id]
 WHERE
 	U.Name = @Account
+AND
+	v.[Valuation_Date] < @DateFrom
 ORDER BY
 	 Valuation_Date DESC
 

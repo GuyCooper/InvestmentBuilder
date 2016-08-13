@@ -39,12 +39,12 @@ namespace InvestmentBuilder
 
     public class CashAccountTransactionManager
     {
-        private ICashAccountInterface _cashAccountData;
+        private readonly ICashAccountInterface _cashAccountData;
 
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
         //this structure maps a transaction type onto its transaction property
-        private Dictionary<string, string> _receiptTransactionLookup =
+        private readonly Dictionary<string, string> _receiptTransactionLookup =
                 new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase) {
                 {"Subscription", "Subscription"}, 
                 {"BalanceInHand", "Subscription"},
@@ -53,7 +53,7 @@ namespace InvestmentBuilder
                 {"Interest", "Other"}
             };
 
-        private Dictionary<string, string> _paymentTransactionLookup =
+        private readonly Dictionary<string, string> _paymentTransactionLookup =
                 new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase) {
                 {"Admin Fee", "Other"},
                 {"Purchase", "Purchases"},

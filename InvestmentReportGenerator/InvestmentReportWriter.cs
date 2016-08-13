@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using InvestmentBuilderCore;
+using System.IO;
 
 namespace InvestmentReportGenerator
 {
@@ -11,7 +12,7 @@ namespace InvestmentReportGenerator
     {
         private ExcelInvestmentReportWriter _excelReport;
         private PdfInvestmentReportWriter _pdfReport;
-        private IConfigurationSettings _settings;
+        private readonly IConfigurationSettings _settings;
 
         public InvestmentReportWriter(IConfigurationSettings settings)
         {
@@ -25,6 +26,15 @@ namespace InvestmentReportGenerator
 
             if(_pdfReport != null)
                 _pdfReport.Dispose();
+        }
+
+        /// <summary>
+        /// get the name of the report file used to generate the report
+        /// if pdf available use that one otherwise use the excel one
+        /// </summary>
+        public string GetReportFileName(string outputPath, DateTime ValuationDate)
+        {
+            return PdfInvestmentReportWriter.GetPdfReportFile(outputPath, ValuationDate);
         }
 
         public void WriteAssetReport(AssetReport report, double startOfYear, string outputPath)

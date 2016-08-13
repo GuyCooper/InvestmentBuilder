@@ -8,9 +8,16 @@ using System.IO;
 
 namespace MarketDataServices
 {
+    internal enum SourceDataFormat
+    {
+        CSV,
+        JSON,
+        XML
+    }
+
     internal static class WebDataHandler
     {
-        public static IEnumerable<string> GetData(string url)
+        public static IEnumerable<string> GetData(string url, SourceDataFormat format)
         {
             HttpWebRequest request = null;
             var result = new List<string>();
@@ -21,9 +28,16 @@ namespace MarketDataServices
             using (StreamReader input = new StreamReader(
                 response.GetResponseStream()))
             {
-                while (input.EndOfStream == false)
+                if (format == SourceDataFormat.CSV)
                 {
-                    result.Add(input.ReadLine());
+                    while (input.EndOfStream == false)
+                    {
+                        result.Add(input.ReadLine());
+                    }
+                }
+                else
+                {
+                    result.Add(input.ReadToEnd());
                 }
             }
             return result;

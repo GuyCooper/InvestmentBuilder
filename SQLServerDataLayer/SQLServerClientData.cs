@@ -19,7 +19,7 @@ namespace SQLServerDataLayer
             Connection = connection;
         }
 
-        public IEnumerable<DateTime> GetRecentValuationDates(UserAccountToken userToken)
+        public IEnumerable<DateTime> GetRecentValuationDates(UserAccountToken userToken, DateTime dtDateFrom)
         {
             userToken.AuthorizeUser(AuthorizationLevel.READ);
 
@@ -27,6 +27,7 @@ namespace SQLServerDataLayer
             {
                 command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                command.Parameters.Add(new SqlParameter("@DateFrom", dtDateFrom));
                 using (SqlDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())

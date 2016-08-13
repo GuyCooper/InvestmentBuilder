@@ -8,12 +8,12 @@ namespace InvestmentBuilderMSTests
     public class UtilityTests
     {
         //private const string _path = @"C:\Projects\TestData\InvestmentBuilder";
-        //private const string _TestTradeFile = "testAggregateTrades.xml";
+        private const string _TestTradeFile = @"TestFiles\testAggregateTrades.xml";
 
         [TestMethod]
-        public void When_AggregatingTradeList(string tradeFile)
+        public void When_AggregatingTradeList()
         {
-            var trades = TradeLoader.GetTrades(tradeFile);
+            var trades = TradeLoader.GetTrades(_TestTradeFile);
             var result = InvestmentUtils.AggregateStocks(trades.Buys).ToList();
             Assert.AreEqual(3, result.Count);
             Assert.AreEqual(result.Select(x => x.Name).Count(), result.Select(x => x.Name).Distinct().Count());

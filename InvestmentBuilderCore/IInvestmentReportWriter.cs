@@ -10,5 +10,7 @@ namespace InvestmentBuilderCore
     {
         void WriteAssetReport(AssetReport report, double startOfYear, string outputPath);
         void WritePerformanceData(IList<IndexedRangeData> data, string outputPath, DateTime dtValuation);
+
+        string GetReportFileName(string outputPath, DateTime dtValuation);
     }
 }

@@ -46,7 +46,7 @@ namespace MarketDataServices
             string url = String.Format("http://finance.yahoo.com/d/quotes.csv?s={0}&f=pnxc4", symbol);
             try
             {
-                string result = WebDataHandler.GetData(url).ToList().First();
+                string result = WebDataHandler.GetData(url, SourceDataFormat.CSV).ToList().First();
                 string[] arr = result.Split(',');
 
                 marketData = new MarketDataPrice();
@@ -94,7 +94,7 @@ namespace MarketDataServices
             try
             {
                 string fxurl = string.Format("http://finance.yahoo.com/d/quotes.csv?s={0}{1}=X&f=sl1", baseCurrency, contraCurrency);
-                var result = WebDataHandler.GetData(fxurl).ToList().First();
+                var result = WebDataHandler.GetData(fxurl, SourceDataFormat.CSV).ToList().First();
                 dFxRate = _GetDoubleFromResult(result, 1);
                 _fxLookup.Add(ccypair, dFxRate);
                 return true;
@@ -119,7 +119,7 @@ namespace MarketDataServices
 
             try
             {
-                var data = WebDataHandler.GetData(url);
+                var data = WebDataHandler.GetData(url, SourceDataFormat.CSV);
 
                 return data.Select(x =>
                 {
@@ -147,6 +147,8 @@ namespace MarketDataServices
             return null;
         }
 
+        public int Priority { get { return 1; } }
+
         /// <summary>
         /// helper method for retrieving data from url. supports multiline responses such as
         /// historical data. If unable to rerieve data, will throw an exception
@@ -171,7 +173,7 @@ namespace MarketDataServices
         //    }
         //    return result;
         //}
- 
+
         /// <summary>
         /// helpermethod parses the result and extracts the price
         /// </summary>

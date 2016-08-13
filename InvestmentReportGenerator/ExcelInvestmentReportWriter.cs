@@ -28,11 +28,18 @@ namespace InvestmentReportGenerator
 
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
+        private string _assetSheetLocation;
+
         public ExcelInvestmentReportWriter(string templateBookLocation)
         {
             _app = new Microsoft.Office.Interop.Excel.Application();
             //open the template book
             _templateFileName = Path.Combine(templateBookLocation, TemplateBookName);
+        }
+
+        public string GetReportFileName(string outputPath, DateTime ValuationDate)
+        {
+            return string.Format(@"{0}\{1}-{2}.xls", outputPath, MonthlyAssetName, ValuationDate.ToString("yyyy"));
         }
 
         /// <summary>
@@ -46,21 +53,21 @@ namespace InvestmentReportGenerator
         {
             logger.Log(LogLevel.Info, "persisting asset report to excel spreadsheet in location {0}", outputPath);
 
-            var assetSheetLocation = string.Format(@"{0}\{1}-{2}.xls", outputPath, MonthlyAssetName, DateTime.Today.ToString("yyyy"));
+            _assetSheetLocation = GetReportFileName(outputPath,  report.ValuationDate);
             //if the asset sheet already exists,just open it,otherwise create a new one
             _Workbook assetBook = null;
             _Workbook templateBook = _app.Workbooks.Open(_templateFileName);
 
             try
             {
-                if (File.Exists(assetSheetLocation))
+                if (File.Exists(_assetSheetLocation))
                 {
-                    assetBook = _app.Workbooks.Open(assetSheetLocation);
+                    assetBook = _app.Workbooks.Open(_assetSheetLocation);
                 }
                 else
                 {
                     assetBook = _app.Workbooks.Add();
-                    assetBook.SaveAs(assetSheetLocation, XlFileFormat.xlWorkbookNormal);
+                    assetBook.SaveAs(_assetSheetLocation, XlFileFormat.xlWorkbookNormal);
                 }
 
                 var newSheetName = report.ValuationDate.ToString("MMMM");

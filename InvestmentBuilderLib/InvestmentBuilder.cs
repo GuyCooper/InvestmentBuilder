@@ -13,36 +13,37 @@ namespace InvestmentBuilder
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
-        private IConfigurationSettings _settings;
-        private IDataLayer _dataLayer;
-        private IMarketDataService _marketDataService;
-        private IUserAccountInterface _userAccountData;
-        private ICashAccountInterface _cashAccountData;
-        private IClientDataInterface _clientData;
-        private IInvestmentRecordInterface _investmentRecordData;
-        private BrokerManager _brokerManager;
-        private CashAccountTransactionManager _cashAccountManager;
-        private IInvestmentReportWriter _reportWriter;
+        private readonly IConfigurationSettings _settings;
+        private readonly IDataLayer _dataLayer;
+        private readonly IUserAccountInterface _userAccountData;
+        private readonly ICashAccountInterface _cashAccountData;
+        private readonly IClientDataInterface _clientData;
+        private readonly IInvestmentRecordInterface _investmentRecordData;
+        private readonly CashAccountTransactionManager _cashAccountManager;
+        private readonly IInvestmentReportWriter _reportWriter;
+        private readonly IInvestmentRecordDataManager _recordBuilder;
 
-        private Dictionary<string, string> _typeProcedureLookup = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase)
+        private readonly Dictionary<string, string> _typeProcedureLookup = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase)
         {
             {"Dividend", "GetActiveCompanies"},
             {"Subscription", "GetAccountMembers"}
         };
 
-        public InvestmentBuilder(IConfigurationSettings settings, IDataLayer dataLayer, IMarketDataService marketDataService, BrokerManager brokerManager,
-                                 CashAccountTransactionManager cashAccountManager, IInvestmentReportWriter reportWriter)
+        public InvestmentBuilder(IConfigurationSettings settings,
+                                 IDataLayer dataLayer,
+                                 CashAccountTransactionManager cashAccountManager, 
+                                 IInvestmentReportWriter reportWriter,
+                                 IInvestmentRecordDataManager recordBuilder)
         {
             _settings = settings;
             _dataLayer = dataLayer;
             _userAccountData = _dataLayer.UserAccountData;
-            _marketDataService = marketDataService;
             _cashAccountData = _dataLayer.CashAccountData;
             _clientData = _dataLayer.ClientData;
             _investmentRecordData = _dataLayer.InvestmentRecordData;
-            _brokerManager = brokerManager;
             _cashAccountManager = cashAccountManager;
             _reportWriter = reportWriter;
+            _recordBuilder = recordBuilder;
         }
   
         /// <summary>
@@ -81,9 +82,6 @@ namespace InvestmentBuilder
                 return assetReport;
             }
 
-            var recordBuilder = new InvestmentRecordBuilder(_marketDataService, _dataLayer.InvestmentRecordData, _brokerManager);
-            //var dataReader = new CompanyDataReader(_dataLayer.InvestmentRecordData);
-
             var accountData = _userAccountData.GetUserAccountData(userToken);
 
             if(accountData == null)
@@ -112,7 +110,7 @@ namespace InvestmentBuilder
             //parse the trade file for any trades for this month and update the investment record
             //var trades = TradeLoader.GetTrades(tradeFile);
             var dtTradeValuationDate = valuationDate;
-            var currentRecordDate = recordBuilder.GetLatestRecordValuationDate(userToken);
+            var currentRecordDate = _recordBuilder.GetLatestRecordValuationDate(userToken);
             if (bUpdate)
             {
                 if (currentRecordDate.HasValue)
@@ -131,7 +129,7 @@ namespace InvestmentBuilder
                     Changed = Enumerable.Empty<Stock>().ToArray()
                 };
 
-                if (recordBuilder.UpdateInvestmentRecords(userToken, accountData, emptyTrades/*trades*/, cashAccountData, dtTradeValuationDate, manualPrices) == false)
+                if (_recordBuilder.UpdateInvestmentRecords(userToken, accountData, emptyTrades/*trades*/, cashAccountData, dtTradeValuationDate, manualPrices) == false)
                 {
                     //failed to update investments, return null report
                     return assetReport;
@@ -146,7 +144,7 @@ namespace InvestmentBuilder
             }
 
             //now extract the latest data from the investment record
-            var lstData = recordBuilder.GetInvestmentRecords(userToken, accountData, dtTradeValuationDate, dtPreviousValuation, null,false).ToList();
+            var lstData = _recordBuilder.GetInvestmentRecords(userToken, accountData, dtTradeValuationDate, dtPreviousValuation, null,false).ToList();
             foreach (var val in lstData)
             {
                 logger.Log(LogLevel.Info, string.Format("{0} : {1} : {2} : {3} : {4}", val.Name, val.SharePrice, val.NetSellingValue, val.MonthChange, val.MonthChangeRatio));
@@ -188,7 +186,6 @@ namespace InvestmentBuilder
                 throw new ArgumentNullException("invalid user token");
             }
 
-            var recordBuilder = new InvestmentRecordBuilder(_marketDataService, _dataLayer.InvestmentRecordData, _brokerManager);
             var accountData = _userAccountData.GetUserAccountData(userToken);
 
             //check this is a valid account
@@ -199,10 +196,10 @@ namespace InvestmentBuilder
             }
 
             var dtPreviousValuation = _clientData.GetPreviousAccountValuationDate(userToken, DateTime.Now);
-            var dtLatestUpdate = recordBuilder.GetLatestRecordValuationDate(userToken);
+            var dtLatestUpdate = _recordBuilder.GetLatestRecordValuationDate(userToken);
             if (dtLatestUpdate.HasValue)
             {
-                return recordBuilder.GetInvestmentRecords(userToken, accountData, dtLatestUpdate.Value, dtPreviousValuation, manualPrices, true);
+                return _recordBuilder.GetInvestmentRecords(userToken, accountData, dtLatestUpdate.Value, dtPreviousValuation, manualPrices, true);
             }
 
             return Enumerable.Empty<CompanyData>();
@@ -223,8 +220,6 @@ namespace InvestmentBuilder
                 throw new ArgumentNullException("invalid user token");
             }
 
-            var recordBuilder = new InvestmentRecordBuilder(_marketDataService, _dataLayer.InvestmentRecordData, _brokerManager);
-
             var accountData = _userAccountData.GetUserAccountData(userToken);
 
             //check this is a valid account
@@ -233,7 +228,7 @@ namespace InvestmentBuilder
                 logger.Log(LogLevel.Error, "invalid account {0}", userToken.Account);
             }
 
-            return recordBuilder.UpdateInvestmentRecords(userToken, accountData, trades, null, valuationDate ?? DateTime.Now, manualPrices);
+            return _recordBuilder.UpdateInvestmentRecords(userToken, accountData, trades, null, valuationDate ?? DateTime.Now, manualPrices);
         }
 
         /// <summary>
@@ -322,6 +317,11 @@ namespace InvestmentBuilder
             }
             return Enumerable.Empty<string>();
 
+        }
+
+        public string GetInvestmentReport(UserAccountToken userToken, DateTime valuationDate)
+        {
+            return _reportWriter.GetReportFileName(_settings.GetOutputPath(userToken.Account), valuationDate);
         }
 
         private AssetReport _BuildAssetReport(

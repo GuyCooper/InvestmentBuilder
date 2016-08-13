@@ -24,7 +24,7 @@ namespace InvestmentBuilderCore
     public interface IClientDataInterface
     {
         //client interface
-        IEnumerable<DateTime> GetRecentValuationDates(UserAccountToken userToken);
+        IEnumerable<DateTime> GetRecentValuationDates(UserAccountToken userToken, DateTime dtDateFrom);
         IEnumerable<string> GetTransactionTypes(string side);
         IEnumerable<string> GetActiveCompanies(UserAccountToken userToken, DateTime valuationDate);
         IEnumerable<string> GetAccountMembers(UserAccountToken userToken, DateTime valuationDate);

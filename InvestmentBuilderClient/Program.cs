@@ -9,6 +9,7 @@ using InvestmentBuilderCore;
 using SQLServerDataLayer;
 using PerformanceBuilderLib;
 using Microsoft.Practices.Unity;
+using InvestmentBuilder;
 
 namespace InvestmentBuilderClient
 {
@@ -36,6 +37,7 @@ namespace InvestmentBuilderClient
             ContainerManager.RegisterType(typeof(InvestmentBuilder.BrokerManager), typeof(InvestmentBuilder.BrokerManager), true);
             ContainerManager.RegisterType(typeof(InvestmentBuilder.CashAccountTransactionManager), typeof(InvestmentBuilder.CashAccountTransactionManager), true);
             ContainerManager.RegisterType(typeof(IInvestmentReportWriter), typeof(InvestmentReportGenerator.InvestmentReportWriter), true);
+            ContainerManager.RegisterType(typeof(IInvestmentRecordDataManager), typeof(InvestmentRecordBuilder), true);
             //var connectstr = @"Data Source=TRAVELPC\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest;Integrated Security=True";
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

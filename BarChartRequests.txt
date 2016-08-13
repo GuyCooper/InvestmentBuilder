@@ -1,0 +1,9 @@
+http://ichart.yahoo.com/table.csv?s=^FTSE&a=3&b=1&c=2015&g=m&ignore=.csv
+
+http://marketdata.websol.barchart.com/getQuote.json?key=791ff2b78eefaceb1acb721c900f2f64&symbol=BP.L
+
+http://marketdata.websol.barchart.com/getHistory.json?key=791ff2b78eefaceb1acb721c900f2f64&symbol=BP&type=monthly&startDate=20100101&exchange=LSE
+
+http://ichart.yahoo.com/table.csv?s=^FTSE&a=1&b=1&c=2010&g=m&ignore=.csv
+
+GET http://ondemand.websol.barchart.com/getInstrumentDefinition.json?key=791ff2b78eefaceb1acb721c900f2f64&exchanges=LSE

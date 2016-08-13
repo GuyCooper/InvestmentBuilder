@@ -9,24 +9,45 @@ namespace InvestmentBuilderMSTests
 {
     internal static class TestDataCache
     {
-        public static string _Name = "TestAccount";
-        public static string _Currency = "GBP";
-        public static string _Description = "Test account";
-        public static string _Broker = "AJBell";
+        public static readonly string _TestAccount = "TestAccount";
+        public static readonly string _Currency = "GBP";
+        public static readonly string _Description = "Test account";
+        public static readonly string _Broker = "AJBell";
 
-        public static DateTime _previousValutionDate = DateTime.Parse("23/10/2015");
-        public static DateTime _currentValuationDate = DateTime.Parse("25/11/2015");
-        public static DateTime _previousRecordValutionDate = DateTime.Parse("23/10/2015 10:32:56");
+        public static readonly string _testUser = "testUser";
+        public static readonly double _testUserValution = 1.24;
+        public static readonly double _testUserSubscription = 1065;
+        public static readonly DateTime _previousValutionDate = DateTime.Parse("23/10/2015");
+        public static readonly DateTime _currentValuationDate = DateTime.Parse("25/11/2015");
+        public static readonly DateTime _previousRecordValutionDate = DateTime.Parse("23/10/2015 10:32:56");
 
-        public static string _TestCompany = "Acme PLC";
-        public static int _TestQuantity = 72;
-        public static double _TestTotalCost = 1082.73;
-        public static double _TestDividend = 95.24;
+        public static readonly string _TestCompany = "Acme PLC";
+        public static readonly int _TestQuantity = 72;
+        public static readonly double _TestTotalCost = 1082.73;
+        public static readonly double _TestDividend = 95.24;
+        public static readonly double _TestNetSellingValue = 1328.42;
 
-        public static string _TestSymbol = "ACME.L";
-        public static string _TestCurrency = "GBP";
-        public static double _TestScalingFactor = 100;
-        public static double _TestSharePrice = 25.98;
+        public static readonly string _TestSymbol = "ACME.L";
+        public static readonly string _TestCurrency = "GBP";
+        public static readonly double _TestScalingFactor = 100;
+        public static readonly double _TestSharePrice = 25.98;
+
+        public static readonly CompanyData TestCompanyData = new CompanyData
+        {
+            Name = _TestCompany,
+            ValuationDate = _currentValuationDate,
+            TotalCost = _TestTotalCost,
+            SharePrice = _TestSharePrice,
+            Quantity = _TestQuantity,
+            Dividend = _TestDividend,
+            NetSellingValue = _TestNetSellingValue
+        };
+
+        public static readonly UserAccountToken _userToken = new UserAccountToken(_testUser,
+                                                                    _TestAccount,
+                                                                    AuthorizationLevel.UPDATE);
+
+
     }
     internal class CurrentInvestmentsUserAccountData : UserAccountInterfaceTest
     {
@@ -34,12 +55,49 @@ namespace InvestmentBuilderMSTests
         {
             return new UserAccountData
             {
-                Name = TestDataCache._Name,
+                Name = TestDataCache._TestAccount,
                 Currency = TestDataCache._Currency,
                 Description = TestDataCache._Description,
                 Broker = TestDataCache._Broker
             };
-       }
+        }
+
+        public override void SaveNewUnitValue(UserAccountToken userToken, DateTime dtValuation, double dUnitValue)
+        {
+        }
+
+        public override double GetStartOfYearValuation(UserAccountToken userToken, DateTime valuationDate)
+        {
+            return 0d;
+        }
+
+        public override IEnumerable<Redemption> GetRedemptions(UserAccountToken userToken, DateTime valuationDate)
+        {
+            return Enumerable.Empty<Redemption>();
+        }
+
+        public override double GetPreviousUnitValuation(UserAccountToken userToken, DateTime? previousDate)
+        {
+            return 1d;
+        }
+
+        public override IEnumerable<KeyValuePair<string, double>> GetMemberAccountData(UserAccountToken userToken, DateTime dtValuation)
+        {
+            return new List<KeyValuePair<string, double>>
+            {
+                new KeyValuePair<string, double>(TestDataCache._testUser,
+                                                TestDataCache._testUserValution)
+            };
+        }
+
+        public override double GetMemberSubscription(UserAccountToken userToken, DateTime dtValuation, string member)
+        {
+            return TestDataCache._testUserSubscription;
+        }
+
+        public override void UpdateMemberAccount(UserAccountToken userToken, DateTime dtValuation, string member, double dAmount)
+        {
+        }
     }
 
     internal class CurrentInvestmentsClientData : ClientDataInterfaceTest
@@ -86,7 +144,7 @@ namespace InvestmentBuilderMSTests
                 Currency = TestDataCache._TestCurrency,
                 Symbol = TestDataCache._TestSymbol,
                 ScalingFactor = TestDataCache._TestScalingFactor
-            };   
+            };
         }
 
         public override Trades GetHistoricalTransactions(DateTime dtFrom, DateTime dtTo, UserAccountToken userToken)
@@ -100,22 +158,24 @@ namespace InvestmentBuilderMSTests
         }
     }
 
-    [TestClass]
-    public class CurrentInvestmentTests
+    public class CurrentInvestmentTestsBase
     {
-        private static string _TestAccount = "Guy SIPP";
-        private static string _TestUser = "TestUser";
+        protected static string _TestAccount = "Guy SIPP";
+        protected static string _TestUser = "TestUser";
 
-        private UserAccountToken _userToken = new UserAccountToken(
+        protected UserAccountToken _userToken = new UserAccountToken(
                                                     _TestUser,
                                                     _TestAccount,
                                                     AuthorizationLevel.ADMINISTRATOR);
 
+        protected InvestmentBuilder.InvestmentBuilder _investmentBuilder;
+    }
 
-        private InvestmentBuilder.InvestmentBuilder _investmentBuilder;
-        
+    [TestClass]
+    public class CurrentInvestmentTests : CurrentInvestmentTestsBase
+    {
         [TestInitialize]
-        public void Setup()
+        public virtual void Setup()
         {
             var datalayer = new DataLayerTest(new CurrentInvestmentsClientData(),
                                               new CurrentInvestmentsRecordData(),
@@ -123,16 +183,15 @@ namespace InvestmentBuilderMSTests
                                               new CurrentInvestmentsUserAccountData(),
                                               null);
 
+            var marketDataServices = new MarketDataServices.MarketDataService(new TestMarketDataSource());
+            var brokerManager = new BrokerManager();
             _investmentBuilder = new InvestmentBuilder.InvestmentBuilder(
                 new ConfigurationSettingsTest(),
                 datalayer,
-                new MarketDataServices.MarketDataService(new TestMarketDataSource()),
-                new BrokerManager(),
                 new CashAccountTransactionManager(datalayer),
-                new InvestmentReportEmptyWriter());
-            //public InvestmentBuilder(IConfigurationSettings settings, IDataLayer dataLayer, IMarketDataService marketDataService, BrokerManager brokerManager,
-            //                         CashAccountTransactionManager cashAccountManager)
-
+                new InvestmentReportEmptyWriter(),
+                new InvestmentRecordBuilder(marketDataServices, datalayer, brokerManager)
+                );
         }
 
         [TestMethod]
@@ -172,6 +231,39 @@ namespace InvestmentBuilderMSTests
             Assert.AreEqual("1971.0500", companyData.NetSellingValue.ToString("#0.0000"));
             Assert.AreEqual("888.3200", companyData.ProfitLoss.ToString("#0.0000"));
             Assert.AreEqual("27.5000", companyData.SharePrice.ToString("#0.0000"));
+        }
+    }
+
+    [TestClass]
+    public class EmptyCurrentInvestmentTests : CurrentInvestmentTestsBase
+    {
+        [TestInitialize]
+        public void Setup()
+        {
+            var datalayer = new DataLayerTest(new ClientDataEmptyInterfaceTest(),
+                                              new InvestmentRecordEmptyInterfaceTest(),
+                                              null,
+                                              new CurrentInvestmentsUserAccountData(),
+                                              null);
+
+            var marketDataServices = new MarketDataServices.MarketDataService(new TestMarketDataSource());
+            var brokerManager = new BrokerManager();
+            _investmentBuilder = new InvestmentBuilder.InvestmentBuilder(
+                new ConfigurationSettingsTest(),
+                datalayer,
+                new CashAccountTransactionManager(datalayer),
+                new InvestmentReportEmptyWriter(),
+                new InvestmentRecordBuilder(marketDataServices, datalayer, brokerManager)
+                );
+        }
+
+        [TestMethod]
+        public void When_getting_empty_current_investments()
+        {
+            Console.WriteLine("When_getting_empty_current_investments test");
+            var results = _investmentBuilder.GetCurrentInvestments(_userToken, null).ToList();
+
+            Assert.AreEqual(0, results.Count);
         }
     }
 }

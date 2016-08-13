@@ -5,7 +5,7 @@ using System.Web;
 
 namespace InvestmentBuilderWeb.Models
 {
-    public class PerformanceModel
+    public class ReportsModel
     {
         public IEnumerable<string> RecentReports { get; set; }
     }

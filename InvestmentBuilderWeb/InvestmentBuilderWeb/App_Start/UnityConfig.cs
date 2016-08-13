@@ -1,6 +1,5 @@
 using System;
 using Microsoft.Practices.Unity;
-using Microsoft.Practices.Unity.Configuration;
 using InvestmentBuilderWeb.Services;
 using Microsoft.AspNet.Identity;
 using InvestmentBuilderWeb.Models;
@@ -9,7 +8,6 @@ using System.Web;
 using Microsoft.AspNet.Identity.EntityFramework;
 using InvestmentBuilderCore;
 using InvestmentBuilder;
-using SQLServerDataLayer;
 using MarketDataServices;
 using PerformanceBuilderLib;
 using InvestmentBuilderWeb.Interfaces;
@@ -60,7 +58,7 @@ namespace InvestmentBuilderWeb.App_Start
             new InjectionConstructor(typeof(ApplicationDbContext)));
 
             //we only want single instances of the investmenrecord app specific classes generated
-            container.RegisterType<IAuthorizationManager, SQLAuthorizationManager>(new ContainerControlledLifetimeManager());
+            container.RegisterType<IAuthorizationManager, SQLServerDataLayer.SQLAuthorizationManager>(new ContainerControlledLifetimeManager());
             //container.RegisterType<IMarketDataSource, AggregatedMarketDataSource>(new ContainerControlledLifetimeManager());
             container.RegisterType<IMarketDataService, MarketDataService>(new ContainerControlledLifetimeManager());
 
@@ -77,6 +75,8 @@ namespace InvestmentBuilderWeb.App_Start
             container.RegisterType<PerformanceBuilder>(new ContainerControlledLifetimeManager());
             container.RegisterType<InvestmentBuilder.CashAccountTransactionManager>(new ContainerControlledLifetimeManager());
             container.RegisterType<IApplicationSessionService, InvestmentRecordSessionService>(new ContainerControlledLifetimeManager());
+            container.RegisterType<IInvestmentRecordDataManager, InvestmentRecordBuilder>(new ContainerControlledLifetimeManager());
+            container.RegisterType<IInvestmentReportWriter, InvestmentReportGenerator.InvestmentReportWriter>(new ContainerControlledLifetimeManager());
         }
     }
 }
