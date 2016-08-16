@@ -96,7 +96,12 @@ namespace MarketDataServices
             }
         }
 
-        public bool TryGetMarketData(string symbol, string exchange, out MarketDataPrice marketData)
+        public IList<string> GetSources()
+        {
+            return new List<string> { Name };
+        }
+
+        public bool TryGetMarketData(string symbol, string exchange,string source,  out MarketDataPrice marketData)
         {
             if(_marketDataLookup.TryGetValue(symbol, out marketData))
             {
@@ -110,7 +115,7 @@ namespace MarketDataServices
             return false;
         }
 
-        public bool TryGetFxRate(string baseCurrency, string contraCurrency, out double dFxRate)
+        public bool TryGetFxRate(string baseCurrency, string contraCurrency, string source, out double dFxRate)
         {
             return _fxDataLookup.TryGetValue(baseCurrency + contraCurrency, out dFxRate);
         }
@@ -134,7 +139,7 @@ namespace MarketDataServices
             }
         }
 
-        public IEnumerable<HistoricalData> GetHistoricalData(string instrument, DateTime dtFrom)
+        public IEnumerable<HistoricalData> GetHistoricalData(string instrument, string exchange, string source, DateTime dtFrom)
         {
             //first check if instrument is in historical data cache
             IList<HistoricalData> cache;

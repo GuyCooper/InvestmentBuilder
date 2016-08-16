@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using InvestmentBuilderCore;
 using NLog;
+using Newtonsoft.Json;
 
 namespace MarketDataServices
 {
@@ -56,15 +57,29 @@ namespace MarketDataServices
             get { return 5; }
         }
 
-        public IEnumerable<HistoricalData> GetHistoricalData(string instrument, DateTime dtFrom)
+        public IList<string> GetSources()
+        {
+            return new List<string> { Name };
+        }
+
+        public IEnumerable<HistoricalData> GetHistoricalData(string instrument, string exchange, string source, DateTime dtFrom)
         {
             var url = string.Format(GetHistoryUrl, AccessKey, instrument, dtFrom.ToString("yyyyMMdd"));
             var data = WebDataHandler.GetData(url, SourceDataFormat.JSON);
             //TODO convert into historical data (use JSON.net)
+            if (data != null)
+            {
+                var result = JsonConvert.DeserializeObject<BarchartHistoricalData>(data.First());
+                return result.results.Select(x => new HistoricalData
+                {
+                     Date = x.timestamp,
+                     Price = x.close
+                });
+            }
             return null;
         }
 
-        public bool TryGetFxRate(string baseCurrency, string contraCurrency, out double dFxRate)
+        public bool TryGetFxRate(string baseCurrency, string contraCurrency, string source, out double dFxRate)
         {
             string quoteSymbol = "^" + baseCurrency + contraCurrency;
             try
@@ -84,7 +99,7 @@ namespace MarketDataServices
             return false;
         }
 
-        public bool TryGetMarketData(string symbol, string exchange, out MarketDataPrice marketData)
+        public bool TryGetMarketData(string symbol, string exchange, string source, out MarketDataPrice marketData)
         {
             string quoteSymbol = symbol + exchange;
             try

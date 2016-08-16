@@ -188,17 +188,22 @@ namespace InvestmentBuilderMSTests
             get { return string.Empty; }
         }
 
-        public virtual IEnumerable<HistoricalData> GetHistoricalData(string instrument, DateTime dtFrom)
+        public virtual IList<string> GetSources()
+        {
+            return new List<string> { Name };
+        }
+
+        public virtual IEnumerable<HistoricalData> GetHistoricalData(string instrument, string exchange, string source, DateTime dtFrom)
         {
             return Enumerable.Empty<HistoricalData>();
         }
 
-        public virtual bool TryGetFxRate(string baseCurrency, string contraCurrency, out double dFxRate)
+        public virtual bool TryGetFxRate(string baseCurrency, string contraCurrency, string source,  out double dFxRate)
         {
             throw new NotImplementedException();
         }
 
-        public virtual bool TryGetMarketData(string symbol, string exchange, out MarketDataPrice marketData)
+        public virtual bool TryGetMarketData(string symbol, string exchange, string source,  out MarketDataPrice marketData)
         {
             throw new NotImplementedException();
         }
@@ -418,18 +423,23 @@ namespace InvestmentBuilderMSTests
             }
         }
 
-        public virtual IEnumerable<HistoricalData> GetHistoricalData(string instrument, DateTime dtFrom)
+        public virtual IList<string> GetSources()
+        {
+            return new List<string> { Name };
+        }
+
+        public virtual IEnumerable<HistoricalData> GetHistoricalData(string instrument, string exchange, string source, DateTime dtFrom)
         {
             return null;
         }
 
-        public virtual bool TryGetFxRate(string baseCurrency, string contraCurrency, out double dFxRate)
+        public virtual bool TryGetFxRate(string baseCurrency, string contraCurrency, string source, out double dFxRate)
         {
             dFxRate = 0d;
             return false;
         }
 
-        public virtual bool TryGetMarketData(string symbol, string exchange, out MarketDataPrice marketData)
+        public virtual bool TryGetMarketData(string symbol, string exchange, string source, out MarketDataPrice marketData)
         {
             marketData = null;
             return false;

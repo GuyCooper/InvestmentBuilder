@@ -60,7 +60,7 @@ namespace InvestmentBuilderTests
 
     internal class PerfLibMarketDataSourceTest : MarketDataSourceTest
     {
-        public override IEnumerable<HistoricalData> GetHistoricalData(string instrument, DateTime dtFrom)
+        public override IEnumerable<HistoricalData> GetHistoricalData(string instrument, string exchange, string source,  DateTime dtFrom)
         {
             return new List<HistoricalData>
             {

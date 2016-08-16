@@ -202,17 +202,22 @@ namespace InvestmentBuilderTests
             }
         }
 
-        public virtual IEnumerable<HistoricalData> GetHistoricalData(string instrument, DateTime dtFrom)
+        public IList<string> GetSources()
+        {
+            return new List<string> { Name };
+        }
+
+        public virtual IEnumerable<HistoricalData> GetHistoricalData(string instrument, string exchange, string source, DateTime dtFrom)
         {
             throw new NotImplementedException();
         }
 
-        public virtual bool TryGetFxRate(string baseCurrency, string contraCurrency, out double dFxRate)
+        public virtual bool TryGetFxRate(string baseCurrency, string contraCurrency, string source,  out double dFxRate)
         {
             throw new NotImplementedException();
         }
 
-        public virtual bool TryGetMarketData(string symbol, string exchange, out MarketDataPrice marketData)
+        public virtual bool TryGetMarketData(string symbol, string exchange, string source,  out MarketDataPrice marketData)
         {
             throw new NotImplementedException();
         }

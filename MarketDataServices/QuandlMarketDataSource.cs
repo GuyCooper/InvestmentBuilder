@@ -21,7 +21,12 @@ namespace MarketDataServices
 
         public string Name { get { return "Quandl"; } }
 
-        public bool TryGetMarketData(string symbol, string exchange, out MarketDataPrice marketData)
+        public IList<string> GetSources()
+        {
+            return new List<string> { Name };
+        }
+
+        public bool TryGetMarketData(string symbol, string exchange, string source, out MarketDataPrice marketData)
         {
             //still work to do this 
             if (string.IsNullOrEmpty(exchange))
@@ -44,13 +49,13 @@ namespace MarketDataServices
             
         }
 
-        public bool TryGetFxRate(string baseCurrency, string contraCurrency, out double dFxRate)
+        public bool TryGetFxRate(string baseCurrency, string contraCurrency, string source, out double dFxRate)
         {
             dFxRate = 0d;
             return false;
         }
 
-        public IEnumerable<HistoricalData> GetHistoricalData(string instrument, DateTime dtFrom)
+        public IEnumerable<HistoricalData> GetHistoricalData(string instrument, string exchange, string source, DateTime dtFrom)
         {
             return null;
         }

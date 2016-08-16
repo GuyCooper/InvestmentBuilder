@@ -132,7 +132,7 @@ namespace InvestmentBuilderClient.View
         private void btnCheck_Click(object sender, EventArgs e)
         {
             MarketDataPrice marketData;
-            if(_marketDataSource.TryGetMarketData(GetSymbol(), GetExchange(), out marketData))
+            if(_marketDataSource.TryGetMarketData(GetSymbol(), GetExchange(), txtSource.Text, out marketData))
             {
                 lblCheckResult.Text = "Success. Valid Symbol!";
             }

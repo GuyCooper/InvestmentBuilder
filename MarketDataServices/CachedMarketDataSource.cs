@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using NLog;
 using InvestmentBuilderCore;
-using System.IO;
 
 namespace MarketDataServices
 {
@@ -21,19 +20,18 @@ namespace MarketDataServices
         //name of file to persist the cache to on shutdown
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
-        private string _fileName = null;
-
         //source of the market data. 
         private IMarketDataSource _sourceMarketData = null;
+        private IMarketDataSerialiser _dataSerialiser;
 
         private Dictionary<string, MarketDataPrice> _marketDataPriceCache;
         private Dictionary<string, double> _fxPriceCache;
         private Dictionary<string, IList<HistoricalData>> _historicalDataCache;
 
-        public CachedMarketDataSource(string fileName)
+        public CachedMarketDataSource(IMarketDataSerialiser dataSerialiser, IMarketSourceLocator sourceLocator)
         {
-            _fileName = fileName;
-            _sourceMarketData = new AggregatedMarketDataSource();
+            _dataSerialiser = dataSerialiser;
+            _sourceMarketData = new AggregatedMarketDataSource(sourceLocator);
             _marketDataPriceCache = new Dictionary<string, MarketDataPrice>();
             _fxPriceCache = new Dictionary<string, double>();
             _historicalDataCache = new Dictionary<string, IList<HistoricalData>>();
@@ -44,41 +42,51 @@ namespace MarketDataServices
             get { return "CachedMarketData"; }
         }
 
+        public IList<string> GetSources()
+        {
+            return _sourceMarketData.GetSources();
+        }
+
         public void Dispose()
         {
-            if(_fileName != null)
+            if(_dataSerialiser != null)
             {
-                using (var writer = new StreamWriter(_fileName))
+                try
                 {
+                    _dataSerialiser.StartSerialiser();
                     //dump market data
                     foreach (var marketItem in _marketDataPriceCache)
                     {
-                        writer.WriteLine("M,{0},{1},{2}", marketItem.Value.Symbol,
-                                                          marketItem.Value.Price,
-                                                          marketItem.Value.Currency);
+                        _dataSerialiser.SerialiseData("M,{0},{1},{2}", marketItem.Value.Symbol,
+                                                            marketItem.Value.Price,
+                                                            marketItem.Value.Currency);
                     }
 
                     //dump fx data
                     foreach (var fxItem in _fxPriceCache)
                     {
-                        writer.WriteLine("F,{0},{1}", fxItem.Key, fxItem.Value);
+                        _dataSerialiser.SerialiseData("F,{0},{1}", fxItem.Key, fxItem.Value);
                     }
 
                     //dump historical data. has format
                     //instrument,name,date1=val1:date2=val2:etc...
-                    foreach(var historicalData in _historicalDataCache)
+                    foreach (var historicalData in _historicalDataCache)
                     {
                         var prices = historicalData.Value.Select(x =>
                                         string.Format("{0}={1}", x.Date.Value.ToString("dd/MM/yyyy"), x.Price));
 
-                        writer.WriteLine("H,{0},{1}", historicalData.Key,
+                        _dataSerialiser.SerialiseData("H,{0},{1}", historicalData.Key,
                         string.Join(":", prices));
                     }
+                }
+                finally
+                {
+                    _dataSerialiser.EndSerialiser();
                 }
             }
         }
 
-        public IEnumerable<HistoricalData> GetHistoricalData(string instrument, DateTime dtFrom)
+        public IEnumerable<HistoricalData> GetHistoricalData(string instrument, string exchange, string source, DateTime dtFrom)
         {
             IList<HistoricalData> cache;
             if (_historicalDataCache.TryGetValue(instrument, out cache) == true)
@@ -90,13 +98,13 @@ namespace MarketDataServices
                 }
                 else
                 {
-                    cache = _sourceMarketData.GetHistoricalData(instrument, dtFrom).ToList();
+                    cache = _sourceMarketData.GetHistoricalData(instrument, exchange, source, dtFrom).ToList();
                     _historicalDataCache[instrument] = cache;
                 }
             }
 
             //retrieve the data from the data source and populate it with the cache
-            var enCache = _sourceMarketData.GetHistoricalData(instrument, dtFrom);
+            var enCache = _sourceMarketData.GetHistoricalData(instrument, exchange, source, dtFrom);
             if(enCache != null)
             {
                 cache = enCache.ToList();
@@ -106,12 +114,12 @@ namespace MarketDataServices
             return cache;
         }
 
-        public bool TryGetFxRate(string baseCurrency, string contraCurrency, out double dFxRate)
+        public bool TryGetFxRate(string baseCurrency, string contraCurrency, string source, out double dFxRate)
         {
             if (_fxPriceCache.TryGetValue(baseCurrency + contraCurrency, out dFxRate) == true)
                 return true;
 
-            if(_sourceMarketData.TryGetFxRate(baseCurrency, contraCurrency, out dFxRate) == true)
+            if(_sourceMarketData.TryGetFxRate(baseCurrency, contraCurrency, source, out dFxRate) == true)
             {
                 _fxPriceCache.Add(baseCurrency + contraCurrency, dFxRate);
                 return true;
@@ -120,12 +128,12 @@ namespace MarketDataServices
             return false;
         }
 
-        public bool TryGetMarketData(string symbol, string exchange, out MarketDataPrice marketData)
+        public bool TryGetMarketData(string symbol, string exchange, string source, out MarketDataPrice marketData)
         {
             if (_marketDataPriceCache.TryGetValue(symbol + exchange, out marketData) == true)
                 return true;
 
-            if (_sourceMarketData.TryGetMarketData(symbol, exchange, out marketData) == true)
+            if (_sourceMarketData.TryGetMarketData(symbol, exchange, source, out marketData) == true)
             {
                 _marketDataPriceCache.Add(symbol + exchange, marketData);
                 return true;

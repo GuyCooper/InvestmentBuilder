@@ -101,7 +101,7 @@ namespace InvestmentBuilder
             {
                 dManualPrice = manualPrices[name];
             }
-            return _marketDataService.TryGetClosingPrice(symbol, exchange, name, currency, accountCurrency, dManualPrice, out dPrice);
+            return _marketDataService.TryGetClosingPrice(symbol, exchange, null, name, currency, accountCurrency, dManualPrice, out dPrice);
         }
 
         /// <summary>

@@ -29,6 +29,10 @@ namespace InvestmentBuilderCore
         public string Name{get;set;}
         [XmlElement("symbol")]
         public string Symbol {get;set;}
+        [XmlElement("exchange")]
+        public string Exchange { get; set; }
+        [XmlElement("source")]
+        public string Source { get; set; }
     }
 
     [XmlRoot(ElementName="configuration")]

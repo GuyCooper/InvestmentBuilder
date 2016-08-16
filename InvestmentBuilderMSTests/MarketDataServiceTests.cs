@@ -35,6 +35,7 @@ namespace InvestmentBuilderMSTests
                 bool success = container.Resolve<IMarketDataService>().TryGetClosingPrice(
                                     "BAC",
                                     null,
+                                    null,
                                     "Bank Of America",
                                     "USD",
                                     "GBP",
@@ -51,13 +52,14 @@ namespace InvestmentBuilderMSTests
         {
             using (var container = new UnityContainer())
             {
-                container.RegisterType<IMarketDataSource, YahooMarketDataSourceOld>();
+                container.RegisterType<IMarketDataSource, YahooMarketDataSource>();
                 container.RegisterType<IMarketDataService, MarketDataService>();
 
                 double dResult;
                 bool success = container.Resolve<IMarketDataService>().TryGetClosingPrice(
                                     "VOD",
                                     "LSE",
+                                    null,
                                     "Vodaphone",
                                     "GBP",
                                     "GBP",
@@ -75,12 +77,13 @@ namespace InvestmentBuilderMSTests
         {
             using (var container = new UnityContainer())
             {
-                container.RegisterType<IMarketDataSource, YahooMarketDataSourceOld>();
+                container.RegisterType<IMarketDataSource, YahooMarketDataSource>();
                 container.RegisterType<IMarketDataService, MarketDataService>();
 
                 double dResult;
                 bool success = container.Resolve<IMarketDataService>().TryGetClosingPrice(
                                     "BAC",
+                                    null,
                                     null,
                                     "Bank Of America",
                                     "USD",
@@ -105,6 +108,7 @@ namespace InvestmentBuilderMSTests
                 double dResult;
                 bool success = container.Resolve<IMarketDataService>().TryGetClosingPrice(
                                     "BAC",
+                                    null,
                                     null,
                                     "Bank Of America",
                                     "USD",

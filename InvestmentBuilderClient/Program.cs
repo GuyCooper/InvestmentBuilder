@@ -25,7 +25,9 @@ namespace InvestmentBuilderClient
             ContainerManager.RegisterType(typeof(IAuthorizationManager), typeof(SQLAuthorizationManager), true);
             //ContainerManager.RegisterType(typeof(IMarketDataSource), typeof(AggregatedMarketDataSource), false);
             //ContainerManager.RegisterType(typeof(IMarketDataSource), typeof(TestFileMarketDataSource), true, "testMarketData.txt");
-            ContainerManager.RegisterType(typeof(IMarketDataSource), typeof(CachedMarketDataSource), true, "testMarketData.txt");
+            ContainerManager.RegisterType(typeof(IMarketDataSerialiser), typeof(MarketDataFileSerialiser), true, "testMarketData.txt");
+            ContainerManager.RegisterType(typeof(IMarketSourceLocator), typeof(MefMarketSourceLocator), true);
+            ContainerManager.RegisterType(typeof(IMarketDataSource), typeof(CachedMarketDataSource), true);
             ContainerManager.RegisterType(typeof(IMarketDataService), typeof(MarketDataService), true);
             ContainerManager.RegisterType(typeof(IConfigurationSettings), typeof(ConfigurationSettings), true, "InvestmentBuilderConfig.xml");
             //todo,use servicelocator

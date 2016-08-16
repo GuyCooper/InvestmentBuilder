@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.ComponentModel.Composition;
-using System.ComponentModel.Composition.Hosting;
 using System.Reflection;
 using InvestmentBuilderCore;
+using NLog;
 
 namespace MarketDataServices
 {
@@ -16,28 +15,27 @@ namespace MarketDataServices
     /// </summary>
     public class AggregatedMarketDataSource : IMarketDataSource
     {
-        [ImportMany(typeof(IMarketDataSource))]
-        private IEnumerable<IMarketDataSource> Sources { get; set; }
+        private static Logger logger = LogManager.GetCurrentClassLogger();
 
-        private CompositionContainer _container;
+        private IMarketSourceLocator _sourceLocator;
 
         public string Name { get { return "Aggregated"; } }
 
-        public AggregatedMarketDataSource()
+        public AggregatedMarketDataSource(IMarketSourceLocator sourceLocator)
         {
-            var catalog = new AggregateCatalog();
-            //inject all IMarketDataSource instances in this assemlby
-            catalog.Catalogs.Add(new AssemblyCatalog(typeof(IMarketDataSource).Assembly));
-
-            _container = new CompositionContainer(catalog);
-            _container.ComposeParts(this);
+            _sourceLocator = sourceLocator;
         }
 
-        public bool TryGetMarketData(string symbol, string exchange, out MarketDataPrice marketData)
+        public IList<string> GetSources()
         {
-            foreach(var source in _GetOrderedDataSources())
+            return _sourceLocator.Sources.SelectMany(x => x.GetSources()).ToList();
+        }
+
+        public bool TryGetMarketData(string symbol, string exchange, string source, out MarketDataPrice marketData)
+        {
+            foreach(var element in _GetOrderedDataSources(source))
             {
-                if(source.TryGetMarketData(symbol, exchange, out marketData))
+                if(element.TryGetMarketData(symbol, exchange, source, out marketData))
                 {
                     return true;
                 }
@@ -47,11 +45,11 @@ namespace MarketDataServices
             return false;
         }
 
-        public bool TryGetFxRate(string baseCurrency, string contraCurrency, out double dFxRate)
+        public bool TryGetFxRate(string baseCurrency, string contraCurrency, string source, out double dFxRate)
         {
-            foreach (var source in _GetOrderedDataSources())
+            foreach (var element in _GetOrderedDataSources(source))
             {
-                if (source.TryGetFxRate(baseCurrency, contraCurrency, out dFxRate))
+                if (element.TryGetFxRate(baseCurrency, contraCurrency, source, out dFxRate))
                 {
                     return true;
                 }
@@ -61,11 +59,11 @@ namespace MarketDataServices
             return false;
         }
 
-        public IEnumerable<HistoricalData> GetHistoricalData(string instrument, DateTime dtFrom)
+        public IEnumerable<HistoricalData> GetHistoricalData(string instrument, string exchange, string source,  DateTime dtFrom)
         {
-            foreach (var source in _GetOrderedDataSources())
+            foreach (var element in _GetOrderedDataSources(source))
             {
-                var result = source.GetHistoricalData(instrument, dtFrom);
+                var result = element.GetHistoricalData(instrument, exchange, source, dtFrom);
                 if(result != null)
                 {
                     return result;
@@ -74,9 +72,19 @@ namespace MarketDataServices
             return null;
         }
 
-        private IEnumerable<IMarketDataSource> _GetOrderedDataSources()
+        private IList<IMarketDataSource> _GetOrderedDataSources(string source)
         {
-            return Sources.OrderBy(x => x.Priority);
+            if(string.IsNullOrEmpty(source) == false)
+            {
+                var element = _sourceLocator.Sources.FirstOrDefault(x => source.Equals(x.Name));
+                if (element != default(IMarketDataSource))
+                    return new List<IMarketDataSource> { element };
+
+                logger.Log(LogLevel.Warn, "unable to locate market source {0}!", source);
+            }
+
+            return _sourceLocator.Sources.OrderBy(x => x.Priority).ToList();
+            
         }
         public int Priority { get { return 0; } }
     }

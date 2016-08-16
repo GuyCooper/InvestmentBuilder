@@ -36,7 +36,7 @@ namespace InvestmentBuilderClient.View
             lblCheckResult.Text = "";
             if (!string.IsNullOrEmpty(txtSymbol.Text))
             {
-                var historicalData = _marketDataSource.GetHistoricalData(txtSymbol.Text, DateTime.Today.AddMonths(-1));
+                var historicalData = _marketDataSource.GetHistoricalData(txtSymbol.Text, txtExchange.Text, txtSource.Text, DateTime.Today.AddMonths(-1));
                 if (historicalData != null)
                     lblCheckResult.Text = "Success. Valid Index!!";
                 else
