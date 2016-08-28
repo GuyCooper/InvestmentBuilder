@@ -115,7 +115,7 @@ namespace MarketDataServices
             return false;
         }
 
-        public bool TryGetFxRate(string baseCurrency, string contraCurrency, string source, out double dFxRate)
+        public bool TryGetFxRate(string baseCurrency, string contraCurrency, string exchange, string source, out double dFxRate)
         {
             return _fxDataLookup.TryGetValue(baseCurrency + contraCurrency, out dFxRate);
         }
@@ -177,5 +177,7 @@ namespace MarketDataServices
         }
 
         public int Priority { get { return 1; } }
+
+        public IMarketDataReader DataReader { get; set; }
     }
 }

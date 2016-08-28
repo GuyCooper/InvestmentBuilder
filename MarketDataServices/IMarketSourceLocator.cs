@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MarketDataServices
 {
-    public interface IMarketSourceLocator
+    internal interface IMarketSourceLocator
     {
         IEnumerable<IMarketDataSource> Sources { get; }
     }

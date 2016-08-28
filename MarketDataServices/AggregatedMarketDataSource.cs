@@ -13,7 +13,7 @@ namespace MarketDataServices
     /// aggregates all market data sources and iterates through each one to get 
     /// source data until succeeds
     /// </summary>
-    public class AggregatedMarketDataSource : IMarketDataSource
+    internal class AggregatedMarketDataSource : IMarketDataSource
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -45,11 +45,11 @@ namespace MarketDataServices
             return false;
         }
 
-        public bool TryGetFxRate(string baseCurrency, string contraCurrency, string source, out double dFxRate)
+        public bool TryGetFxRate(string baseCurrency, string contraCurrency, string exchange, string source, out double dFxRate)
         {
             foreach (var element in _GetOrderedDataSources(source))
             {
-                if (element.TryGetFxRate(baseCurrency, contraCurrency, source, out dFxRate))
+                if (element.TryGetFxRate(baseCurrency, contraCurrency, exchange, source, out dFxRate))
                 {
                     return true;
                 }
@@ -87,5 +87,7 @@ namespace MarketDataServices
             
         }
         public int Priority { get { return 0; } }
+
+        public IMarketDataReader DataReader { get; set; }
     }
 }

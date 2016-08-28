@@ -68,7 +68,7 @@ namespace MarketDataServices
             {
                 //need todo an fx conversion to get correct price
                 double dFx;
-                if (_marketSource.TryGetFxRate(localCurrency, reportingCurrency, source, out dFx))
+                if (_marketSource.TryGetFxRate(localCurrency, reportingCurrency, exchange, source, out dFx))
                 {
                     dClosing = dClosing * dFx;
                 }

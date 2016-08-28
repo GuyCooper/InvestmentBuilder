@@ -63,8 +63,10 @@ namespace InvestmentBuilderClient.View
             if (addView.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 _dataModel.UpdateTrade(addView.GetTrade());
+                //force a reload of the items
+                _dataModel.LoadPortfolioItems();
             }
-        }
+}
         private void _AddTextColumn(string header, string property, bool bFrozen = false)
         {
             gridPortfolio.Columns.Add(new DataGridViewTextBoxColumn

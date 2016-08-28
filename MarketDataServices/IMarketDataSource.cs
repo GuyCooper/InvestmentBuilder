@@ -14,6 +14,11 @@ namespace MarketDataServices
         public double Price { get; set; }
         public string Currency { get; set; }
         public string Exchange { get; set; }
+
+        public override string ToString()
+        {
+            return string.Format("{0},{1},{2},{3}", Symbol, Price, Currency, Exchange);
+        }
     }
 
     public interface IMarketDataSource
@@ -37,7 +42,7 @@ namespace MarketDataServices
         /// <param name="contraCurrency"></param>
         /// <param name="dFxRate"></param>
         /// <returns></returns>
-        bool TryGetFxRate(string baseCurrency, string contraCurrency, string source, out double dFxRate);
+        bool TryGetFxRate(string baseCurrency, string contraCurrency, string exchange, string source, out double dFxRate);
         /// <summary>
         /// try to retrieve historical data for instrument, return data if success, null for fail
         /// </summary>
@@ -54,6 +59,10 @@ namespace MarketDataServices
         /// 1 = highest
         /// </summary>
         int Priority { get; }
+        /// <summary>
+        /// property setter for injecting datasource 
+        /// </summary>
+        IMarketDataReader DataReader { get; set; }
     }
 
 }

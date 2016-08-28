@@ -216,9 +216,10 @@ namespace InvestmentBuilderMSTests
         {
             Console.WriteLine("getting current investments with price override");
 
+            double dTestPrice = 27.50;
             var prices = new ManualPrices()
                 {
-                    {TestDataCache._TestCompany, 27.50 }
+                    {TestDataCache._TestCompany, dTestPrice }
                 };
 
             var results = _investmentBuilder.GetCurrentInvestments(_userToken, prices).ToList();
@@ -231,6 +232,7 @@ namespace InvestmentBuilderMSTests
             Assert.AreEqual("1971.0500", companyData.NetSellingValue.ToString("#0.0000"));
             Assert.AreEqual("888.3200", companyData.ProfitLoss.ToString("#0.0000"));
             Assert.AreEqual("27.5000", companyData.SharePrice.ToString("#0.0000"));
+            Assert.AreEqual(dTestPrice.ToString("#0.000"), companyData.ManualPrice);
         }
     }
 

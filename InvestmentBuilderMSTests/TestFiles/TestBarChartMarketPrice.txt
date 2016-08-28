@@ -1,0 +1,1 @@
+{"status":{"code":200,"message":"Success."},"results":[{"symbol":"BP","exchange":"NYSE","name":"BP Plc","dayCode":"N","serverTimestamp":"2016-08-24T16:54:22-05:00","mode":"d","lastPrice":34.27,"tradeTimestamp":"2016-08-24T17:17:00-05:00","netChange":0.14,"percentChange":0.41,"unitCode":"2","open":34.27,"high":34.4,"low":34.12,"close":34.27,"flag":"s","volume":6293732}]}

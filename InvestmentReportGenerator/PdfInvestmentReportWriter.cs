@@ -555,7 +555,8 @@ namespace InvestmentReportGenerator
             }
 
             _pdfDocument.Save(reportFileName);
-            //_pdfDocument.Close();
+            _pdfDocument.Dispose();
+            _pdfDocument = null;
         }
     }
 }

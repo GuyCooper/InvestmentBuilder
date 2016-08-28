@@ -62,16 +62,18 @@
     <Compile Include="AggregatedMarketDataSource.cs" />
     <Compile Include="BarChartMarketDataSource.cs" />
     <Compile Include="CachedMarketDataSource.cs" />
+    <Compile Include="IMarketDataReader.cs" />
     <Compile Include="IMarketDataSerialiser.cs" />
     <Compile Include="IMarketDataSource.cs" />
     <Compile Include="IMarketSourceLocator.cs" />
     <Compile Include="MarketDataFileSerialiser.cs" />
+    <Compile Include="MarketDataRegisterService.cs" />
     <Compile Include="MarketDataService.cs" />
     <Compile Include="MefMarketSourceLocator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QuandlMarketDataSource.cs" />
     <Compile Include="TestFileMarketDataSource.cs" />
-    <Compile Include="WebDataHandler.cs" />
+    <Compile Include="WebMarketDataReader.cs" />
     <Compile Include="YahooMarketDataSource.cs" />
   </ItemGroup>
   <ItemGroup>

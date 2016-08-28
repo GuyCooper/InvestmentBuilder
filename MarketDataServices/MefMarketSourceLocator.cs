@@ -8,7 +8,7 @@ using System.ComponentModel.Composition.Hosting;
 
 namespace MarketDataServices
 {
-    public class MefMarketSourceLocator : IMarketSourceLocator
+    internal class MefMarketSourceLocator : IMarketSourceLocator
     {
         private CompositionContainer _container;
 
@@ -18,7 +18,7 @@ namespace MarketDataServices
             get; private set;
         }
 
-        public MefMarketSourceLocator()
+        public MefMarketSourceLocator(IMarketDataReader dataReader)
         {
             var catalog = new AggregateCatalog();
             //inject all IMarketDataSource instances in this assemlby
@@ -26,6 +26,12 @@ namespace MarketDataServices
 
             _container = new CompositionContainer(catalog);
             _container.ComposeParts(this);
+
+            //now inject the datareader into all the different datasources
+            foreach(IMarketDataSource source in Sources)
+            {
+                source.DataReader = dataReader;
+            }
         }
     }
 }

@@ -9,7 +9,7 @@ namespace MarketDataServices
     /// <summary>
     /// abstracted interface for serialising market data
     /// </summary>
-    public interface IMarketDataSerialiser
+    internal interface IMarketDataSerialiser
     {
         void StartSerialiser();
         void EndSerialiser();

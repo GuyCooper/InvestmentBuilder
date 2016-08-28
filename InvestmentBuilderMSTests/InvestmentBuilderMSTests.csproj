@@ -58,8 +58,10 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="AggregatedMarketDataServiceTests.cs" />
     <Compile Include="AuthorisationTests.cs" />
     <Compile Include="BrokerManagerTests.cs" />
+    <Compile Include="CachedMarketDataServiceTests.cs" />
     <Compile Include="CashAccountTests.cs" />
     <Compile Include="CurrentInvestmentTests.cs" />
     <Compile Include="FullInvestmentBuilderTests.cs" />
@@ -107,7 +109,19 @@
     <Content Include="TestFiles\testAggregateTrades.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="TestFiles\TestBarChartHistoricalData.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestFiles\TestBarChartMarketPrice.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="TestFiles\TestResultData.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestFiles\TestYahooHistoricalPriceData.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestFiles\TestYahooMarketPriceData.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="TestFiles\Trades.xml">

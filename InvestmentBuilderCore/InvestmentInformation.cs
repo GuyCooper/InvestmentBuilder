@@ -59,6 +59,11 @@ namespace InvestmentBuilderCore
         public DateTime? Date { get; set; }
         public string Key { get; set; }
         public double Price { get; set; }
+
+        public override string ToString()
+        {
+            return string.Format("{0}={1}", Date.Value.ToString("dd/MM/yyyy"), Price);
+        }
     }
 
     public class ManualPrices : Dictionary<string, double>

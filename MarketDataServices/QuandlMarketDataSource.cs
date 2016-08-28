@@ -8,7 +8,7 @@ using InvestmentBuilderCore;
 
 namespace MarketDataServices
 {
-    class QuandlMarketDataSource : IMarketDataSource
+    internal class QuandlMarketDataSource : IMarketDataSource
     {
         //help: https://www.quandl.com/help/api
         //https://www.quandl.com/api/v1/datasets/WIKI/AAPL.csv?
@@ -35,21 +35,21 @@ namespace MarketDataServices
             }
 
             string url = string.Format(urlTemplate, exchange, symbol);
-            try
-            {
-                var data = WebDataHandler.GetData(url, SourceDataFormat.CSV);
-                return _TryParseResult(data, out marketData);
-            }
-            catch (Exception e)
-            {
-                logger.Log(LogLevel.Error, "unable to retrieve {0} from quandl: {1}", symbol, e.Message);
-            }
+            //try
+            //{
+            //    var data = .GetData(url, SourceDataFormat.CSV);
+            //    return _TryParseResult(data, out marketData);
+            //}
+            //catch (Exception e)
+            //{
+            //    logger.Log(LogLevel.Error, "unable to retrieve {0} from quandl: {1}", symbol, e.Message);
+            //}
             marketData = null;
             return false;
             
         }
 
-        public bool TryGetFxRate(string baseCurrency, string contraCurrency, string source, out double dFxRate)
+        public bool TryGetFxRate(string baseCurrency, string contraCurrency, string exchange, string source, out double dFxRate)
         {
             dFxRate = 0d;
             return false;
@@ -66,5 +66,7 @@ namespace MarketDataServices
             return false;
         }
         public int Priority { get { return 10; } }
+
+        public IMarketDataReader DataReader { get; set; }
     }
 }

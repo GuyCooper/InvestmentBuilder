@@ -33,7 +33,7 @@ namespace InvestmentBuilderMSTests
             return true;
         }
 
-        public bool TryGetFxRate(string baseCurrency, string contraCurrency, string source, out double dFxRate)
+        public bool TryGetFxRate(string baseCurrency, string contraCurrency, string exchange, string source, out double dFxRate)
         {
             dFxRate = TestFxRate;
             return true;
@@ -50,5 +50,7 @@ namespace InvestmentBuilderMSTests
                 }
             };
         }
+
+        public IMarketDataReader DataReader { get; set; }
     }
 }

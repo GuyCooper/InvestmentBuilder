@@ -15,7 +15,7 @@ namespace MarketDataServices
     /// class gets market data from yahoo
     /// </summary>
     [Export(typeof(IMarketDataSource))]
-    public class YahooMarketDataSource : IMarketDataSource
+    internal class YahooMarketDataSource : IMarketDataSource
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
         private Dictionary<string, double> _fxLookup = new Dictionary<string, double>();
@@ -32,12 +32,23 @@ namespace MarketDataServices
             {"MIL","MI"}
         };
 
+        public YahooMarketDataSource()
+        {
+        }
+
+        public YahooMarketDataSource(IMarketDataReader dataReader)
+        {
+            DataReader = dataReader;
+        }
+
         public string Name { get { return "Yahoo"; } }
 
         public IList<string> GetSources()
         {
             return new List<string> { Name };
         }
+
+        public IMarketDataReader DataReader { get; set; }
 
         public bool TryGetMarketData(string symbol, string exchange, string source, out MarketDataPrice marketData)
         { 
@@ -51,7 +62,7 @@ namespace MarketDataServices
             string url = String.Format("http://finance.yahoo.com/d/quotes.csv?s={0}&f=pnxc4", symbol);
             try
             {
-                string result = WebDataHandler.GetData(url, SourceDataFormat.CSV).ToList().First();
+                string result = DataReader.GetData(url, SourceDataFormat.CSV).ToList().First();
                 string[] arr = result.Split(',');
 
                 marketData = new MarketDataPrice();
@@ -87,7 +98,7 @@ namespace MarketDataServices
             return ccy;
         }
 
-        public bool TryGetFxRate(string baseCurrency, string contraCurrency, string source, out double dFxRate)
+        public bool TryGetFxRate(string baseCurrency, string contraCurrency, string exchange, string source, out double dFxRate)
         {
             var ccypair = _mapCurrency(baseCurrency) + _mapCurrency(contraCurrency);
             if (_fxLookup.ContainsKey(ccypair))
@@ -99,7 +110,7 @@ namespace MarketDataServices
             try
             {
                 string fxurl = string.Format("http://finance.yahoo.com/d/quotes.csv?s={0}{1}=X&f=sl1", baseCurrency, contraCurrency);
-                var result = WebDataHandler.GetData(fxurl, SourceDataFormat.CSV).ToList().First();
+                var result = DataReader.GetData(fxurl, SourceDataFormat.CSV).ToList().First();
                 dFxRate = _GetDoubleFromResult(result, 1);
                 _fxLookup.Add(ccypair, dFxRate);
                 return true;
@@ -124,7 +135,7 @@ namespace MarketDataServices
 
             try
             {
-                var data = WebDataHandler.GetData(url, SourceDataFormat.CSV);
+                var data = DataReader.GetData(url, SourceDataFormat.CSV);
 
                 return data.Select(x =>
                 {

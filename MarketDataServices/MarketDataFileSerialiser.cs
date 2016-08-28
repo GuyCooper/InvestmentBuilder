@@ -10,7 +10,7 @@ namespace MarketDataServices
     /// <summary>
     /// market data file serialiser class. saves data to a file
     /// </summary>
-    public class MarketDataFileSerialiser : IMarketDataSerialiser
+    internal class MarketDataFileSerialiser : IMarketDataSerialiser
     {
         private string _fileName;
         private StreamWriter _writer;

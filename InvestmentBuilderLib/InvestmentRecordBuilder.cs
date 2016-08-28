@@ -9,6 +9,13 @@ using InvestmentBuilderCore;
 
 namespace InvestmentBuilder
 {
+    internal enum GetPriceResult
+    {
+        NoPrice,
+        FoundPrice,
+        UseOverride
+    }
+
     public interface IInvestmentRecordDataManager
     {
         bool UpdateInvestmentRecords(UserAccountToken userToken, UserAccountData account, Trades trades, CashAccountData cashData, DateTime valuationDate, ManualPrices manualPrices);
@@ -56,16 +63,21 @@ namespace InvestmentBuilder
                 {
                     double dClosing;
                     var companyData = _investmentRecordData.GetInvestmentDetails(investment.Name);
-                    if(_tryGetClosingPrice(companyData.Symbol, 
-                                           companyData.Exchange, 
-                                           investment.Name, 
-                                           companyData.Currency, 
-                                           account.Currency, 
-                                           companyData.ScalingFactor, 
-                                           manualPrices, 
-                                           out dClosing) == true)
+                    var priceResult = _tryGetClosingPrice(companyData.Symbol,
+                                           companyData.Exchange,
+                                           investment.Name,
+                                           companyData.Currency,
+                                           account.Currency,
+                                           companyData.ScalingFactor,
+                                           manualPrices,
+                                           out dClosing);
+                    if(priceResult != GetPriceResult.NoPrice)
                     {
                         investment.SharePrice = dClosing;
+                        if (priceResult == GetPriceResult.UseOverride)
+                        {
+                            investment.ManualPrice = dClosing.ToString("#0.000");
+                        }
                     }
                 }
 
@@ -94,16 +106,19 @@ namespace InvestmentBuilder
             _investmentRecordData.DeactivateInvestment(userToken, investment);
         }
 
-        private bool _tryGetClosingPrice(string symbol, string exchange, string name, string currency, string accountCurrency,double scalingFactor, ManualPrices manualPrices, out double dPrice)
+        private GetPriceResult _tryGetClosingPrice(string symbol, string exchange, string name, string currency, string accountCurrency, double scalingFactor, ManualPrices manualPrices, out double dPrice)
         {
             double? dManualPrice = null;
-            if((manualPrices != null)&&( manualPrices.ContainsKey(name) == true))
+            if ((manualPrices != null) && (manualPrices.ContainsKey(name) == true))
             {
                 dManualPrice = manualPrices[name];
             }
-            return _marketDataService.TryGetClosingPrice(symbol, exchange, null, name, currency, accountCurrency, dManualPrice, out dPrice);
+            if (_marketDataService.TryGetClosingPrice(symbol, exchange, null, name, currency, accountCurrency, dManualPrice, out dPrice) == true)
+            {
+                return dManualPrice == null ? GetPriceResult.FoundPrice : GetPriceResult.UseOverride;
+            }
+            return GetPriceResult.NoPrice;
         }
-
         /// <summary>
         /// refactored method for updating investment record
         /// this method rolls all the investments in the investment record
@@ -132,11 +147,13 @@ namespace InvestmentBuilder
             {
                 double dPrice = 0d;
                 var companyInfo = investment.CompanyData;
-                if (companyInfo != null && _tryGetClosingPrice(companyInfo.Symbol, companyInfo.Exchange, investment.Name, companyInfo.Currency, account.Currency, companyInfo.ScalingFactor, manualPrices, out dPrice))
+                var priceResult = _tryGetClosingPrice(companyInfo.Symbol, companyInfo.Exchange, investment.Name, companyInfo.Currency, account.Currency, companyInfo.ScalingFactor, manualPrices, out dPrice);
+                if (companyInfo != null && priceResult == GetPriceResult.FoundPrice)
                 {
-                    //validation, compare price with last known price for this investment, if price change> 50%
+                    //validation, compare price with last known price for this investment, if price change> 90%
                     //flag this as an error
-                    if(Math.Abs(investment.Price - dPrice) > (investment.Price / 2))
+                    double dMargin = investment.Price - (investment.Price / 10d);
+                    if (Math.Abs(investment.Price - dPrice) > dMargin)
                     {
                         Log.Error("invalid price for {0}. excessive price movement. price = {1}: previous = {2}",
                                     investment.Name, dPrice, investment.Price);
@@ -199,7 +216,8 @@ namespace InvestmentBuilder
                 //if we have the correct comapy data then calculate the closing price forthis company
                 double dPrice = 0d;
                 var companyInfo = investment.CompanyData;
-                if (companyInfo != null && _tryGetClosingPrice(companyInfo.Symbol, companyInfo.Exchange,investment.Name, companyInfo.Currency, account.Currency, companyInfo.ScalingFactor, manualPrices, out dPrice))
+                var priceResult = _tryGetClosingPrice(companyInfo.Symbol, companyInfo.Exchange, investment.Name, companyInfo.Currency, account.Currency, companyInfo.ScalingFactor, manualPrices, out dPrice);
+                if (companyInfo != null && priceResult != GetPriceResult.NoPrice)
                 {
                     investment.UpdateClosingPrice(valuationDate, dPrice);
                 }

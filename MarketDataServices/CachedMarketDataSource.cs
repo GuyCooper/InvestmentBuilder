@@ -15,7 +15,7 @@ namespace MarketDataServices
     /// serialised to disk in a format that can be used by the test
     /// market data source
     /// </summary>
-    public class CachedMarketDataSource : IMarketDataSource, IDisposable
+    internal class CachedMarketDataSource : IMarketDataSource, IDisposable
     {
         //name of file to persist the cache to on shutdown
         private static Logger logger = LogManager.GetCurrentClassLogger();
@@ -57,9 +57,7 @@ namespace MarketDataServices
                     //dump market data
                     foreach (var marketItem in _marketDataPriceCache)
                     {
-                        _dataSerialiser.SerialiseData("M,{0},{1},{2}", marketItem.Value.Symbol,
-                                                            marketItem.Value.Price,
-                                                            marketItem.Value.Currency);
+                        _dataSerialiser.SerialiseData("M,{0}", marketItem.ToString());
                     }
 
                     //dump fx data
@@ -72,9 +70,7 @@ namespace MarketDataServices
                     //instrument,name,date1=val1:date2=val2:etc...
                     foreach (var historicalData in _historicalDataCache)
                     {
-                        var prices = historicalData.Value.Select(x =>
-                                        string.Format("{0}={1}", x.Date.Value.ToString("dd/MM/yyyy"), x.Price));
-
+                        var prices = historicalData.Value.Select(x => x.ToString());
                         _dataSerialiser.SerialiseData("H,{0},{1}", historicalData.Key,
                         string.Join(":", prices));
                     }
@@ -100,6 +96,7 @@ namespace MarketDataServices
                 {
                     cache = _sourceMarketData.GetHistoricalData(instrument, exchange, source, dtFrom).ToList();
                     _historicalDataCache[instrument] = cache;
+                    return cache;
                 }
             }
 
@@ -114,12 +111,12 @@ namespace MarketDataServices
             return cache;
         }
 
-        public bool TryGetFxRate(string baseCurrency, string contraCurrency, string source, out double dFxRate)
+        public bool TryGetFxRate(string baseCurrency, string contraCurrency, string exchange, string source, out double dFxRate)
         {
             if (_fxPriceCache.TryGetValue(baseCurrency + contraCurrency, out dFxRate) == true)
                 return true;
 
-            if(_sourceMarketData.TryGetFxRate(baseCurrency, contraCurrency, source, out dFxRate) == true)
+            if(_sourceMarketData.TryGetFxRate(baseCurrency, contraCurrency, exchange, source, out dFxRate) == true)
             {
                 _fxPriceCache.Add(baseCurrency + contraCurrency, dFxRate);
                 return true;
@@ -144,5 +141,7 @@ namespace MarketDataServices
         }
 
         public int Priority { get { return 0; } }
+
+        public IMarketDataReader DataReader { get; set; }
     }
 }

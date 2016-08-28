@@ -198,7 +198,7 @@ namespace InvestmentBuilderMSTests
             return Enumerable.Empty<HistoricalData>();
         }
 
-        public virtual bool TryGetFxRate(string baseCurrency, string contraCurrency, string source,  out double dFxRate)
+        public virtual bool TryGetFxRate(string baseCurrency, string contraCurrency, string exchange, string source,  out double dFxRate)
         {
             throw new NotImplementedException();
         }
@@ -207,6 +207,8 @@ namespace InvestmentBuilderMSTests
         {
             throw new NotImplementedException();
         }
+
+        public IMarketDataReader DataReader { get; set; }
     }
 
     #endregion
@@ -433,7 +435,7 @@ namespace InvestmentBuilderMSTests
             return null;
         }
 
-        public virtual bool TryGetFxRate(string baseCurrency, string contraCurrency, string source, out double dFxRate)
+        public virtual bool TryGetFxRate(string baseCurrency, string contraCurrency, string exchange, string source, out double dFxRate)
         {
             dFxRate = 0d;
             return false;
@@ -444,6 +446,8 @@ namespace InvestmentBuilderMSTests
             marketData = null;
             return false;
         }
+
+        public IMarketDataReader DataReader { get; set; }
     }
 
     #endregion

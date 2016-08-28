@@ -8,16 +8,10 @@ using System.IO;
 
 namespace MarketDataServices
 {
-    internal enum SourceDataFormat
-    {
-        CSV,
-        JSON,
-        XML
-    }
 
-    internal static class WebDataHandler
+    internal class WebMarketDataReader : IMarketDataReader
     {
-        public static IEnumerable<string> GetData(string url, SourceDataFormat format)
+        public IEnumerable<string> GetData(string url, SourceDataFormat format)
         {
             HttpWebRequest request = null;
             var result = new List<string>();
