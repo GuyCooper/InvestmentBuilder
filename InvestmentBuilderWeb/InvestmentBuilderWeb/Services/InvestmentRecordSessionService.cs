@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using InvestmentBuilderWeb.Interfaces;
 using InvestmentBuilderCore;
+using InvestmentBuilderWeb.Models;
 
 namespace InvestmentBuilderWeb.Services 
 {
@@ -12,10 +13,12 @@ namespace InvestmentBuilderWeb.Services
         public InvestmentRecordSessionData()
         {
             ManualPrices = new ManualPrices();
+            SummaryData = new Dictionary<DateTime, InvestmentSummaryModel>();
         }
 
         public ManualPrices ManualPrices { get; private set; }
         public DateTime? ValuationDate { get; set; }
+        public Dictionary<DateTime, InvestmentSummaryModel> SummaryData { get; set; }
     }
 
     internal class InvestmentRecordSessionService : IApplicationSessionService
@@ -82,6 +85,29 @@ namespace InvestmentBuilderWeb.Services
         public ManualPrices GetManualPrices(string sessionId)
         {
             return _GetManualPrices(sessionId);
+        }
+
+        public InvestmentSummaryModel GetSummaryData(string sessionId, DateTime dtValuation)
+        {
+            if(_sessionData.ContainsKey(sessionId) == true)
+            {
+                if(_sessionData[sessionId].SummaryData.ContainsKey(dtValuation) == true)
+                {
+                    return _sessionData[sessionId].SummaryData[dtValuation];
+                }
+            }
+            return null;
+        }
+
+        public void SetSummaryData(string sessionId, DateTime dtValuation, InvestmentSummaryModel summaryData)
+        {
+            if (_sessionData.ContainsKey(sessionId) == true)
+            {
+                if(_sessionData[sessionId].SummaryData.ContainsKey(dtValuation) == false)
+                {
+                    _sessionData[sessionId].SummaryData.Add(dtValuation, summaryData);
+                }
+            }
         }
 
         private void _clearSession(string sessionId)

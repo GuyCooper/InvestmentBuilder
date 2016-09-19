@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using InvestmentBuilderCore;
 using NLog;
 using Newtonsoft.Json;
+using System.ComponentModel.Composition;
 
 namespace MarketDataServices
 {
@@ -46,6 +47,7 @@ namespace MarketDataServices
         public IList<BarchartMarketPrice> results { get; set; }
     }
 
+    [Export(typeof(IMarketDataSource))]
     internal class BarChartMarketDataSource :  IMarketDataSource
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
@@ -93,11 +95,14 @@ namespace MarketDataServices
             if (data != null)
             {
                 var result = JsonConvert.DeserializeObject<BarchartHistoricalData>(data.First());
-                return result.results.Select(x => new HistoricalData
+                if (result != null)
                 {
-                     Date = x.tradingDay,
-                     Price = x.close
-                });
+                    return result.results.Select(x => new HistoricalData
+                    {
+                        Date = x.tradingDay,
+                        Price = x.close
+                    });
+                }
             }
             return null;
         }

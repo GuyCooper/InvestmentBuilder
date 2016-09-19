@@ -27,7 +27,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -217,6 +217,7 @@
     <Compile Include="Models\GreetingModel.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\InvestmentRecordModel.cs" />
+    <Compile Include="Models\InvestmentSummaryModel.cs" />
     <Compile Include="Models\ItineraryItem.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\PerformanceModel.cs" />
@@ -327,6 +328,9 @@
     <Content Include="Views\InvestmentRecord\View.cshtml" />
     <Content Include="Views\InvestmentRecord\Reports.cshtml" />
     <Content Include="Views\InvestmentRecord\ValuationReport.cshtml" />
+    <Content Include="Views\InvestmentRecord\AccountSummary.cshtml" />
+    <Content Include="Views\InvestmentRecord\ReceiptCashFlowItem.cshtml" />
+    <Content Include="Views\InvestmentRecord\PaymentCashFlowItem.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -50,7 +50,10 @@ namespace InvestmentBuilderWeb.Translators
                 var val = prop.GetValue(objFrom);
                 if (val != null)
                 {
-                    prop.GetSetMethod().Invoke(objTo, new[] { val });
+                    if (objTo.GetType().GetProperty(prop.Name) != null)
+                    {
+                        prop.GetSetMethod().Invoke(objTo, new[] { val });
+                    }
                 }
             }
             return objTo;
@@ -74,6 +77,23 @@ namespace InvestmentBuilderWeb.Translators
         public static PaymentCashFlowModel ToPaymentCashFlowModel(this PaymentTransaction payment)
         {
             return _CloneObject<PaymentCashFlowModel>(payment.GetType(), payment, () => new PaymentCashFlowModel());
+        }
+
+        public static InvestmentSummaryModel ToInvestmentSummaryModel(this AssetReport report)
+        {
+            //return _CloneObject<InvestmentSummaryModel>(report.GetType(), report, () => new InvestmentSummaryModel());
+            return new InvestmentSummaryModel
+            {
+                AccountName = report.AccountName,
+                BankBalance = report.BankBalance.ToString("#0.00"),
+                MonthlyPnL = report.MonthlyPnL.ToString("#0.00"),
+                NetAssets = report.NetAssets.ToString("#0.00"),
+                ReportingCurrency = report.ReportingCurrency,
+                TotalAssets = report.TotalAssets.ToString("#0.00"),
+                TotalAssetValue = report.TotalAssetValue.ToString("#0.00"),
+                ValuationDate = report.ValuationDate,
+                ValuePerUnit = report.ValuePerUnit.ToString("#0.00")
+            };
         }
     }
 }

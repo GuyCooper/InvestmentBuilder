@@ -228,6 +228,30 @@ namespace InvestmentBuilderMSTests
             Assert.AreEqual(PerfBuilderConstants.dividend2, lstResults[1].Price);
 
         }
+
+        [TestMethod]
+        public void when_creating_account_dividend_yield_ladder()
+        {
+            var ladderBuilder = new PerformanceLaddersBuilder(new PerfLibConfigurationTest(),
+                                                                  _dataLayer,
+                                                                  new PerfLibMarketDataSourceTest());
+
+            var result = ladderBuilder.BuildAccountDividendYieldPerformanceLadder(PerfBuilderConstants.UserToken);
+            Assert.IsNotNull(result);
+
+            Assert.AreEqual("Average Yield", result.Name);
+
+            var lstResults = result.Data.First().Data.ToList();
+            Assert.AreEqual(3, lstResults.Count);
+
+            Assert.AreEqual("0.002792", lstResults[0].Price.ToString("#0.000000"));
+            Assert.AreEqual("0.002309", lstResults[1].Price.ToString("#0.000000"));
+
+            var vwap = ((PerfBuilderConstants.company1TotalCost * lstResults[0].Price) +
+            (PerfBuilderConstants.company2TotalCost * lstResults[1].Price)) / (PerfBuilderConstants.company1TotalCost + PerfBuilderConstants.company2TotalCost);
+
+            Assert.AreEqual(vwap.ToString("#0.000000"), lstResults[2].Price.ToString("#0.000000"));
+        }
     }
 
     /// <summary>

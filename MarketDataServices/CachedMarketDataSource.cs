@@ -57,7 +57,7 @@ namespace MarketDataServices
                     //dump market data
                     foreach (var marketItem in _marketDataPriceCache)
                     {
-                        _dataSerialiser.SerialiseData("M,{0}", marketItem.ToString());
+                        _dataSerialiser.SerialiseData("M,{0}", marketItem.Value.ToString());
                     }
 
                     //dump fx data

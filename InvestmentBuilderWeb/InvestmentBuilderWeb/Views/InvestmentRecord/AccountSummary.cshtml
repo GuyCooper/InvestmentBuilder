@@ -1,0 +1,33 @@
+﻿<div class="row investmentSummary">
+    <div class="pull-left">
+        <ul class="list-inline">
+            <li>
+                <ul class="list-unstyled">
+                    <li><h3>@ViewBag.SummaryData.AccountName</h3></li>
+                    <li>@ViewBag.SummaryData.ReportingCurrency</li>
+                </ul>
+            </li>
+            <li>
+                <dl class="dl-horizontal">
+                    <dt>Unit Price</dt>
+                    <dd>@ViewBag.SummaryData.ValuePerUnit</dd>
+                    <dt>Net Asset Value</dt>
+                    <dd>@ViewBag.SummaryData.NetAssets</dd>
+                </dl>
+            </li>
+            <li>
+                <dl class="dl-horizontal">
+                    <dt>Bank Balance</dt>
+                    <dd>@ViewBag.SummaryData.BankBalance</dd>
+                    <dt>Latest PnL</dt>
+                    <dd>@ViewBag.SummaryData.MonthlyPnL</dd>
+                </dl>
+            </li>
+
+        </ul>
+    </div>
+    <div class="pull-right">
+        <a href="@Url.Action("BuildReport", "InvestmentRecord", new {target="_blank"})" class="btn btn-primary summaryButton">Build Report </a>
+    </div>
+</div>
+

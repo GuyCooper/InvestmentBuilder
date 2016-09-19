@@ -76,6 +76,8 @@ namespace InvestmentBuilderWeb.Controllers
 
         private IEnumerable<CompanyDataModel> _GetCurrentInvestments(UserAccountToken token)
         {
+            var dtPrevious = _clientData.GetPreviousAccountValuationDate(token, _sessionService.GetValuationDate(_sessionId));
+            ViewBag.SummaryData = _GetSummaryModel(token, dtPrevious);
             return _investmentBuilder.GetCurrentInvestments(token, _sessionService.GetManualPrices(_sessionId))
                 .OrderBy(x => x.Name)
                 .Select(x => x.ToCompanyDataModel());
@@ -113,7 +115,28 @@ namespace InvestmentBuilderWeb.Controllers
 
             return View("Index", _GetCurrentInvestments(token));
         }
-         
+
+        private InvestmentSummaryModel _GetSummaryModel(UserAccountToken token, DateTime? dtValuation)
+        {
+            if (dtValuation.HasValue)
+            {
+                var summaryData = _sessionService.GetSummaryData(_sessionId, dtValuation.Value);
+                if (summaryData == null)
+                {
+                    summaryData = _investmentBuilder.BuildAssetReport(token, dtValuation.Value, false, null).ToInvestmentSummaryModel();
+                    _sessionService.SetSummaryData(_sessionId, dtValuation.Value, summaryData);
+                }
+                return summaryData;
+            }
+
+            return new InvestmentSummaryModel
+            {
+                AccountName = token.Account,
+                ValuationDate = _sessionService.GetValuationDate(_sessionId),
+                ValuePerUnit = "1"
+            };
+        }
+
         private CashFlowModel _GetCashFlowModel()
         {
             var token = _SetupAccounts(null);
@@ -126,6 +149,7 @@ namespace InvestmentBuilderWeb.Controllers
             cashFlowModel.ReceiptsTotal = dReceiptTotal;
             cashFlowModel.PaymentsTotal = dPaymentTotal;
             cashFlowModel.ValuationDate = dtValuation.ToShortDateString();
+            ViewBag.SummaryData = _GetSummaryModel(token, dtPrevious);
             return cashFlowModel;
         }
 
@@ -144,6 +168,10 @@ namespace InvestmentBuilderWeb.Controllers
                 RecentReports = _clientData.GetRecentValuationDates(userToken, DateTime.Now).Select(x =>
                                             x.ToShortDateString()).ToList()
             };
+
+            var dtPrevious = _clientData.GetPreviousAccountValuationDate(userToken, _sessionService.GetValuationDate(_sessionId));
+            ViewBag.SummaryData = _GetSummaryModel(userToken, dtPrevious);
+
             return View("Reports", vm);
         }
 
@@ -259,7 +287,7 @@ namespace InvestmentBuilderWeb.Controllers
                 }
             };
  
-            return View("AddTransaction");
+            return PartialView("AddTransaction");
         }
 
         private void _ProcessCashTransaction(UserAccountToken token, DateTime transactionDate, string transactionType, string parameter, double amount)
@@ -363,11 +391,5 @@ namespace InvestmentBuilderWeb.Controllers
         {
             return _RemoveCashTransaction(item);
         }
-
-        //[HttpGet]
-        //public ActionResult BuildReport()
-        //{
-
-        //}
     }
 }

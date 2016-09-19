@@ -389,6 +389,8 @@ namespace PerformanceBuilderLib
             var investmentRecords = _investmentRecordData.GetInvestmentRecordData(userToken, valuationDate);
             var indexes = new List<IndexData>();
             var index = new List<HistoricalData>();
+            double dVWAP = 0d;
+            double dTotalCost = 0d;
             foreach (var record in investmentRecords)
             {
                 var firstRecord = allRecords.FirstOrDefault(x => x.Name == record.Name);
@@ -400,12 +402,15 @@ namespace PerformanceBuilderLib
                     Key = record.Name,
                     Price = yield
                 });
+                dVWAP += (record.TotalCost * yield);
+                dTotalCost += record.TotalCost;
             }
 
             //now add the average yield for all current investments
             // cannot do average yield for whole account because we may not 
             //have all the information available
-            double average = index.Sum(x => x.Price) / (double)index.Count;
+            //must do VWA yield to get accurate figure for account yield
+            double average = dVWAP / dTotalCost;
 
             index.Add(new HistoricalData
             {

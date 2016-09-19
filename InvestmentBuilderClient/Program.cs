@@ -23,8 +23,9 @@ namespace InvestmentBuilderClient
         {
             //registerunity dependencies.
             ContainerManager.RegisterType(typeof(IAuthorizationManager), typeof(SQLAuthorizationManager), true);
-            //ContainerManager.RegisterType(typeof(IMarketDataSource), typeof(TestFileMarketDataSource), true, "testMarketData.txt");
+           // ContainerManager.RegisterType(typeof(IMarketDataSource), typeof(TestFileMarketDataSource), true, "testMarketData.txt");
             ContainerManager.RegisterType(typeof(IConfigurationSettings), typeof(ConfigurationSettings), true, "InvestmentBuilderConfig.xml");
+            ContainerManager.RegisterType(typeof(IMarketDataService), typeof(MarketDataService), true);
             MarketDataRegisterService.RegisterServices();
             //todo,use servicelocator
             ContainerManager.RegisterType(typeof(IDataLayer), typeof(SQLServerDataLayer.SQLServerDataLayer), true);

@@ -37,3 +37,33 @@ position: fixed;
 top: 5em;
 right: 1em;
 }
+
+.investmentSummary {
+    margin-bottom: 10px;
+    background: #D8D8D8;
+    border: 1px solid #000;
+}
+
+.cashTotal {
+    font-weight:bold;
+}
+
+.summaryButton {
+    margin:10px;
+}
+
+.addTransaction {
+    border: solid 1px black;
+    border-right: 3em;
+    min-height: 4em;
+    border-radius: 1em;
+    box-shadow: 1px 1px 15px black;
+    position: fixed;
+    top: 8em;
+    right: 5em;
+    height: 25em;
+    width: 60em;
+    overflow: auto;
+    background-color: whitesmoke;
+    padding: 1.5em;
+}

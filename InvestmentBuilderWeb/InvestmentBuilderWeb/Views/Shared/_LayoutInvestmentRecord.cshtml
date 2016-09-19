@@ -19,8 +19,7 @@
                 @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
             </div>
             <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("Home", "Index", "Home")</li>
+                <ul class="nav navbar-nav navbar-right">
                     <li>@Html.ActionLink("About", "About", "Home")</li>
                     <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
                 </ul>
@@ -29,20 +28,16 @@
         </div>
     </div>
     <div class="container body-content">
-         <ul class="nav nav-tabs">
-             <li><a href="@Url.Action("index")">Portfolio</a>@RenderBody()</li>
-             <li><a href="@Url.Action("CashFlow")">CashFlow</a>@RenderBody()</li>
-             <li><a href="@Url.Action("Performance")">Performance</a>@RenderBody()</li>
-        </ul>
+        @RenderBody()
         <hr />
         <footer>
-            <p>&copy; @DateTime.Now.Year -Investment Record Manager</p>
+            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
         </footer>
     </div>
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/jqueryui")
     @Scripts.Render("~/bundles/bootstrap")
-    @Scripts.Render("~/bundles/MyWebApp")
+    @Scripts.Render("~/bundles/InvestmentBuilderWeb")
     @RenderSection("scripts", required: false)
 </body>
 </html>

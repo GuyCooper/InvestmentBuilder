@@ -9,168 +9,98 @@
     <li><a href="@Url.Action("Reports")">Reports</a></li>
 </ul>
 
-<div class="navbar navbar-default">
-    <ul class="nav navbar navbar-right">
-        <li><a href="@Url.Action("BuildReport", "InvestmentRecord", new {target="_blank"})" class="btn btn-primary">Build Report </a></li>
-    </ul>
-</div>
+<div class="container">
+    @Html.Partial("AccountSummary")
+    <div class="row">
+        <div class="navbar navbar-default">
+            <div class="container">
+                <a class="navbar-brand" href="#">Receipts</a>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><label class="navbar-text">Valuation Date: @Model.ValuationDate</label> </li>
+                    <li><label class="navbar-text">Total: @Model.ReceiptsTotal</label></li>
+                    <li>
+                        <a href="@Url.Action("AddReceiptTransaction", "InvestmentRecord")" class="btn btn-default">Add Receipt</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
 
-<div class="navbar navbar-default">
-    <div class="container">
-        <a class="navbar-brand" href="#">Receipts</a>
-        <ul class="nav navbar-nav navbar-right">
-            <li><label class="navbar-text">Valuation Date: @Model.ValuationDate</label> </li>
-            <li><label class="navbar-text">Total: @Model.ReceiptsTotal</label></li>
-            <li>
-                <a href="@Url.Action("AddReceiptTransaction", "InvestmentRecord")" class="btn btn-default btn-sm navbar-btn">Add Receipt</a>
-            </li>
-        </ul>
+    <div class="row">
+        <div class="panel panel-default">
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>Transaction Date</th>
+                        <th>Parameter</th>
+                        <th>Subscription</th>
+                        <th>Sale</th>
+                        <th>Dividend</th>
+                        <th>Other Receipts</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Receipts.Where(x => x.IsTotal == false))
+                    {
+                        <tr>
+                            @Html.Partial("ReceiptCashFlowItem", item)
+                        </tr>
+                    }
+                    @foreach (var item in Model.Receipts.Where(x => x.IsTotal == true))
+                    {
+                        <tr class="active cashTotal">
+                            @Html.Partial("ReceiptCashFlowItem", item)
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="navbar navbar-default">
+            <div class="container">
+                <a class="navbar-brand" href="#">Payments</a>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><label class="navbar-text">Valuation Date: @Model.ValuationDate</label> </li>
+                    <li><label class="navbar-text">Total: @Model.PaymentsTotal</label></li>
+                    <li>
+                        <a href="@Url.Action("AddPaymentTransaction", "InvestmentRecord")" type="button" class="btn btn-default btn-sm navbar-btn">
+                            Add Payment
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="panel panel-default">
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>Transaction Date</th>
+                        <th>Parameter</th>
+                        <th>Withdrawls</th>
+                        <th>Purchases</th>
+                        <th>Other Payments</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Payments.Where(x => x.IsTotal == false))
+                    {
+                        <tr>
+                            @Html.Partial("PaymentCashFlowItem", item)
+                        </tr>
+                    }
+                    @foreach (var item in Model.Payments.Where(x => x.IsTotal == true))
+                    {
+                        <tr class="active cashTotal">
+                            @Html.Partial("PaymentCashFlowItem", item)
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
-
-<div class="panel panel-default"> 
-    <table class="table table-condensed">
-        <thead>
-            <tr>
-                <th>Transaction Date</th>
-                <th>Parameter</th>
-                <th>Subscription</th>
-                <th>Sale</th>
-                <th>Dividend</th>
-                <th>Other Receipts</th>
-            </tr>
-        </thead>
-        <tbody>
-        @foreach (var item in Model.Receipts.Where(x => x.IsTotal == false))
-        { 
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TransactionDate)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Parameter)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Subscription)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Sale)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Dividend)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Other)
-                </td>
-                <td>
-                    <ul class="nav nav-tabs">
-                        <li><a href="@Url.Action("RemoveReceiptTransaction", "InvestmentRecord", item)" class="btn btn-sm">Delete</a></li>
-                    </ul>
-                </td>
-            </tr>
-        }
-        
-        @foreach (var item in Model.Receipts.Where(x => x.IsTotal == true))
-        {
-            <tr class="active">
-                <td>
-                    @Html.DisplayFor(modelItem => item.TransactionDate)
-                </td>
-                <td>
-                    <strong>@Html.DisplayFor(modelItem => item.Parameter)</strong>
-                </td>
-                <td>
-                    <strong>@Html.DisplayFor(modelItem => item.Subscription)</strong>
-                </td>
-                <td>
-                    <strong>@Html.DisplayFor(modelItem => item.Sale)</strong>
-                </td>
-                <td>
-                    <strong>@Html.DisplayFor(modelItem => item.Dividend)</strong>
-                </td>
-                <td>
-                    <strong>@Html.DisplayFor(modelItem => item.Other)</strong>
-                </td>
-            </tr>
-        }
-        </tbody>
-    </table>
-</div>
-
-<div class="navbar navbar-default">
-    <div class="container">
-        <a class="navbar-brand" href="#">Payments</a>
-        <ul class="nav navbar-nav navbar-right">
-            <li><label class="navbar-text">Valuation Date: @Model.ValuationDate</label> </li>
-            <li><label class="navbar-text">Total: @Model.PaymentsTotal</label></li>
-            <li>
-                <a href="@Url.Action("AddPaymentTransaction", "InvestmentRecord")" type="button" class="btn btn-default btn-sm navbar-btn">
-                    Add Payment
-                </a>
-            </li>
-        </ul>
-    </div>
-</div>
-<div class="panel panel-default">
-    <table class="table table-condensed">
-        <thead>
-            <tr>
-                <th>Transaction Date</th>
-                <th>Parameter</th>
-                <th>Withdrawls</th>
-                <th>Purchases</th>
-                <th>Other Payments</th>
-            </tr>
-        </thead>
-       <tbody>
-        @foreach (var item in Model.Payments.Where(x => x.IsTotal == false))
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TransactionDate)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Parameter)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Withdrawls)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Purchases)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Other)
-                </td>
-                <td>
-                    <ul class="nav nav-tabs">
-                        <li><a href="@Url.Action("RemovePaymentTransaction", "InvestmentRecord", item)" class="btn btn-sm">Delete</a></li>
-                    </ul>
-                </td>
-
-            </tr>
-        }
-        @foreach (var item in Model.Payments.Where(x => x.IsTotal == true))
-        {
-            <tr class="active">
-                <td>
-                    @Html.DisplayFor(modelItem => item.TransactionDate)
-                </td>
-                <td>
-                    <strong>@Html.DisplayFor(modelItem => item.Parameter)</strong>
-                </td>
-                <td>
-                    <strong>@Html.DisplayFor(modelItem => item.Withdrawls)</strong>
-                </td>
-                <td>
-                    <strong>@Html.DisplayFor(modelItem => item.Purchases)</strong>
-                </td>
-                <td>
-                    <strong>@Html.DisplayFor(modelItem => item.Other)</strong>
-                </td>
-            </tr>
-        }
-    </tbody>
-    </table>
-</div>
-
 

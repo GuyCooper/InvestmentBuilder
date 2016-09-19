@@ -37,11 +37,11 @@ SELECT
 	C.Symbol as Symbol,
 	C.Currency as Currency,
 	C.Exchange as Exchange ,
-	C.LastBoughtDate as LastBoughtDate,
 	C.ScalingFactor as ScalingFactor,
 	IR.Shares_Bought,
 	IR.Shares_Sold,
-	IR.Total_Cost	
+	IR.Total_Cost,	
+	IR.last_bought as LastBoughtDate
 FROM InvestmentRecord IR JOIN Companies C
 ON IR.Company_id = C.Company_Id 
 WHERE 

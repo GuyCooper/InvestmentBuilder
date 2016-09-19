@@ -111,9 +111,16 @@ namespace InvestmentBuilderMSTests
             _datasource.Dispose();
 
             Assert.AreEqual(3, _dataserialiser.Data.Count);
-            Assert.IsTrue(_dataserialiser.Data[0].Contains(MarketDataSourceTestData._Source2MarketPrice.Price.ToString()));
-            Assert.IsTrue(_dataserialiser.Data[1].Contains(MarketDataSourceTestData.Source2FxRate.ToString()));
-            Assert.IsTrue(_dataserialiser.Data[2].Contains(MarketDataSourceTestData._TestHistoricalData.ToString())); 
+            var expected1 = MarketDataSourceTestData._Source2MarketPrice.ToString();
+            var expected2 = "," + MarketDataSourceTestData.Source2FxRate;
+            var expected3 = string.Format("{0},{1}", MarketDataSourceTestData.TestName, MarketDataSourceTestData._TestHistoricalData.ToString());
+            var result1 = _dataserialiser.Data[0].Substring(_dataserialiser.Data[0].IndexOf(',')+1);
+            var result2 = _dataserialiser.Data[1].Substring(_dataserialiser.Data[1].IndexOf(',') + 1);
+            var result3 = _dataserialiser.Data[2].Substring(_dataserialiser.Data[2].IndexOf(',') + 1);
+            //var result2 = _dataserialiser.Data[1].Substring(_dataserialiser.Data[0].IndexOf(',') + 1);
+            Assert.IsTrue(result1.Equals(expected1));
+            Assert.IsTrue(result2.Equals(expected2));
+            Assert.IsTrue(result3.Equals(expected3));
         }
     }
 }

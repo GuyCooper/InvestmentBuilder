@@ -18,7 +18,6 @@ namespace MarketDataServices
             ContainerManager.RegisterType(typeof(IMarketDataSerialiser), typeof(MarketDataFileSerialiser), true, "testMarketData.txt");
             ContainerManager.RegisterType(typeof(IMarketSourceLocator), typeof(MefMarketSourceLocator), true);
             ContainerManager.RegisterType(typeof(IMarketDataSource), typeof(CachedMarketDataSource), true);
-            ContainerManager.RegisterType(typeof(IMarketDataService), typeof(MarketDataService), true);
         }
     }
 }
