@@ -1,12 +1,13 @@
-﻿
-    $('.datetime').datepicker({
-        dateFormat: "dd/mm/yy",
-        showOn: "button",
-        gotoCurrent: true,
-        showAnim: 'fold',
-        buttonImage: "/Content/calendar.png",
-        buttonImageOnly: true
-    });
+﻿/// <reference path="CommonTypes.js" />
+
+    //$('.datetime').datepicker({
+    //    dateFormat: "dd/mm/yy",
+    //    showOn: "button",
+    //    gotoCurrent: true,
+    //    showAnim: 'fold',
+    //    buttonImage: "/Content/calendar.png",
+    //    buttonImageOnly: true
+    //});
 
     $(document).ready(function () {
 
@@ -17,6 +18,9 @@
         //    success: function (result) {
         //        $("#accountsList").append(result)
         //    }
+        //});
+        //$('.datetime').datepicker({
+        //    dateFormat: "dd/mm/yy",
         //});
 
         $.ajax({
@@ -38,6 +42,10 @@
 
 
         $("#helpTrigger").click(getHelp);
+
+        $("#addReceiptButton").click(onAddReceipt);
+
+  
     });
 
         function getHelp() {
@@ -86,6 +94,22 @@
         });
     }
 
+    function onAddReceipt() {
+        $.ajax({
+            url: 'AddReceiptTransaction',
+            dataType: "html",
+            type: "GET",
+            success: function (result) {
+                $("#transactionContents").empty().append(result);
+            }
+        });
+    }
+
+    function onSelectDateTimeEdit() {
+        $('.datetime').datepicker({
+            dateFormat: "dd/mm/yy",
+        });
+    }
 
     
             

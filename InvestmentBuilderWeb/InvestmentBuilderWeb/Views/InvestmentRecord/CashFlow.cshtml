@@ -13,18 +13,18 @@
     @Html.Partial("AccountSummary")
     <div class="row">
         <div class="navbar navbar-default">
-            <div class="container">
-                <a class="navbar-brand" href="#">Receipts</a>
-                <ul class="nav navbar-nav navbar-right">
-                    <li><label class="navbar-text">Valuation Date: @Model.ValuationDate</label> </li>
-                    <li><label class="navbar-text">Total: @Model.ReceiptsTotal</label></li>
-                    <li>
-                        <a href="@Url.Action("AddReceiptTransaction", "InvestmentRecord")" class="btn btn-default">Add Receipt</a>
-                    </li>
-                </ul>
-            </div>
+            <a class="navbar-brand" href="#">Receipts</a>
+            <ul class="nav navbar-nav navbar-right">
+                <li><label class="navbar-text">Valuation Date: @Model.ValuationDate</label> </li>
+                <li><label class="navbar-text">Total: @Model.ReceiptsTotal</label></li>
+                <li>
+                    <div id="addReceiptButton" class="btn btn-default" data-toggle="modal" data-target="#myModal">Add Receipt</div>
+                </li>
+            </ul>
         </div>
     </div>
+
+    @Html.Partial("AddTransactionModal")
 
     <div class="row">
         <div class="panel panel-default">
@@ -56,20 +56,19 @@
             </table>
         </div>
     </div>
-    <div class="row">
-        <div class="navbar navbar-default">
-            <div class="container">
-                <a class="navbar-brand" href="#">Payments</a>
-                <ul class="nav navbar-nav navbar-right">
-                    <li><label class="navbar-text">Valuation Date: @Model.ValuationDate</label> </li>
-                    <li><label class="navbar-text">Total: @Model.PaymentsTotal</label></li>
-                    <li>
-                        <a href="@Url.Action("AddPaymentTransaction", "InvestmentRecord")" type="button" class="btn btn-default btn-sm navbar-btn">
-                            Add Payment
-                        </a>
-                    </li>
-                </ul>
-            </div>
+    <div class="row transactionSummary">
+        <div class="pull-left">
+            <h3>Payments</h3>
+        </div>
+        <div class="pull-right">
+            <ul class="nav navbar-nav">
+                <li><label class="navbar-text">Valuation Date: @Model.ValuationDate</label> </li>
+                <li><label class="navbar-text">Total: @Model.PaymentsTotal</label></li>
+                <li>
+                    <div id="addPaymentButton" class="btn btn-default">Add Payment</div>
+                    <div id="addTransaction" class="addTransaction" style="display:none"></div>
+                </li>
+            </ul>
         </div>
     </div>
     <div class="row">

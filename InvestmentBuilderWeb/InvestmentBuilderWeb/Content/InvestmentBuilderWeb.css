@@ -60,10 +60,20 @@ right: 1em;
     box-shadow: 1px 1px 15px black;
     position: fixed;
     top: 8em;
+    bottom:3em;
     right: 5em;
-    height: 25em;
-    width: 60em;
+    width: 30em;
     overflow: auto;
     background-color: whitesmoke;
     padding: 1.5em;
+    z-index:1;
+}
+
+.transactionSummary {
+    background:#f8f8f8;
+    border-color:#e7e7e7;
+    border-radius:4px;
+    position:relative;
+    margin-bottom:10px;
+    box-sizing:border-box;
 }

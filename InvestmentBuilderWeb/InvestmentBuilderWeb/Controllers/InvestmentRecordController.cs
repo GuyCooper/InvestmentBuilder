@@ -372,6 +372,13 @@ namespace InvestmentBuilderWeb.Controllers
             return string.Format("[\"{0}\"]", ParameterType);
         }
 
+        [HttpPost]
+        public JsonResult GetTestReceipt()
+        {
+            return Json("<p>This is the help page</p>");
+        }
+
+        
         private ActionResult _RemoveCashTransaction(Transaction transaction)
         {
             var token = _SetupAccounts(null);

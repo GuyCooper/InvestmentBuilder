@@ -331,6 +331,7 @@
     <Content Include="Views\InvestmentRecord\AccountSummary.cshtml" />
     <Content Include="Views\InvestmentRecord\ReceiptCashFlowItem.cshtml" />
     <Content Include="Views\InvestmentRecord\PaymentCashFlowItem.cshtml" />
+    <Content Include="Views\InvestmentRecord\AddTransactionModal.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
