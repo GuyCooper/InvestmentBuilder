@@ -2,23 +2,9 @@
 @{
     ViewBag.Title = "InvestmentRecordView";
 }
+<div class="container">
+    @Html.Partial("AccountSummary")
 
-<ul class="nav nav-tabs nav-justified">
-    <li><a href="@Url.Action("index")">Portfolio</a></li>
-    <li><a href="@Url.Action("CashFlow")">CashFlow</a></li>
-    <li><a href="@Url.Action("Reports")">Reports</a></li>
-</ul>
-    <nav class="navbar navbar-default">
-        <div class="navbar-header">
-            <a class="navbar-brand">Unit Price</a>
-        </div>
-        <div>
-            <p class="navbar-text">@ViewBag.SummaryData.ValuePerUnit</p>
-        </div>
-        <ul class="nav nav-tabs navbar-right">
-            <li><a href="@Url.Action("Create")" class="btn btn-primary">Create New </a></li>
-        </ul>
-    </nav>
     <p />
 
     <table class="table table-striped table-condensed">
@@ -59,7 +45,7 @@
                         @using (Html.BeginForm("UpdatePrice", "InvestmentRecord", FormMethod.Get, new { id = "indexItem" }))
                         {
                             <input type="hidden" name="investment" value="@item.Name" />
-                            <input name="share_price" value=@item.SharePrice 
+                            <input name="share_price" value=@item.SharePrice
                                    onchange="javascript:document.getElementById('indexItem').submit()" />
                         }
                     </td>
@@ -73,12 +59,19 @@
                         @Html.DisplayFor(modelItem => item.MonthChangeRatio)
                     </td>
                     <td>
+                        <input type="hidden" id="tradeNameValue" value="@item.Name" />
                         <ul class="nav nav-tabs">
-                            <li><a href="@Url.Action("Edit", "InvestmentRecord", item )" class="btn btn-sm">Edit</a></li>
-                            <li><a href="@Url.Action("Delete", "InvestmentRecord", item)" class="btn btn-sm">Delete</a></li>
+                            <li>
+                                <div class="btn btn-sm editTradeButton" data-toggle="modal" data-target="#myModal" value="@item.Name">
+                                    Edit
+                                </div>
+                            </li>
+                            <li><div href="@Url.Action("Delete", "InvestmentRecord", item)" class="btn btn-sm">Delete</div></li>
                         </ul>
                     </td>
                 </tr>
             }
         </tbody>
     </table>
+    @Html.Partial("AddModalDialog")
+</div>

@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 using MarketDataServices;
 using NLog;
 using InvestmentBuilderCore;
+using System.Diagnostics.Contracts;
 
 namespace PerformanceBuilderLib
 {
- 
     public class PerformanceBuilder 
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
@@ -29,6 +29,9 @@ namespace PerformanceBuilderLib
 
         public IList<IndexedRangeData> Run(UserAccountToken userToken, DateTime dtValuation)
         {
+            Contract.Requires(userToken != null);
+            Contract.Ensures(Contract.Result<IList<IndexedRangeData>>() != null);
+
             logger.Log(LogLevel.Info, "starting performance builder...");
             logger.Log(LogLevel.Info, "output path: {0}", _settings.GetOutputPath(userToken.Account));
             logger.Log(LogLevel.Info, "valuation date {0}", dtValuation);
@@ -53,6 +56,7 @@ namespace PerformanceBuilderLib
             return allLadders;
         }
     }
-}
+
+ }
 
   

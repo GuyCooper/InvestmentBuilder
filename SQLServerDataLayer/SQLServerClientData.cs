@@ -189,16 +189,15 @@ namespace SQLServerDataLayer
                     if (reader.Read())
                     {
                         //var obj = reader["Enabled"];
-                        return new AccountModel
-                        {
-                            Name = (string)reader["Name"],
-                            Password = (string)reader["Password"],
-                            Description = (string)reader["Description"],
-                            ReportingCurrency = (string)reader["Currency"],
-                            Enabled = (byte)reader["Enabled"] != 0 ? true : false,
-                            Broker = (string)reader["Broker"],
-                            Type = (string)reader["Type"]
-                        };
+                        return new AccountModel((string)reader["Name"],
+                                                (string)reader["Description"],
+                                                (string)reader["Password"],
+                                                (string)reader["Currency"],
+                                                (string)reader["Type"],
+                                                (byte)reader["Enabled"] != 0 ? true : false,
+                                                (string)reader["Broker"],
+                                                null
+                                                );
                     }
                 }
             }

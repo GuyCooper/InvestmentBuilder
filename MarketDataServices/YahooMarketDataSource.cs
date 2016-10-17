@@ -65,19 +65,16 @@ namespace MarketDataServices
                 string result = DataReader.GetData(url, SourceDataFormat.CSV).ToList().First();
                 string[] arr = result.Split(',');
 
-                marketData = new MarketDataPrice();
-                marketData.Price = double.Parse(arr[0]);
-                marketData.Name = arr[1].Trim('"');
-                marketData.Exchange = arr[2].Trim('"');
-                marketData.Currency = arr[3].Trim('"');
-                marketData.Symbol = symbol;
+                marketData = new MarketDataPrice(
+                    arr[1].Trim('"'),
+                    symbol,
+                    double.Parse(arr[0]),
+                    arr[3].Trim('"'),
+                    arr[2].Trim('"'));
 
                 //yahoo convention, if currency is GBp then price is in pence so must convert to pounds
-                if (marketData.Currency[marketData.Currency.Length -1] == 'p')
-                {
-                    marketData.Price = marketData.Price / 100d;
-                    marketData.Currency = marketData.Currency.ToUpper();
-                }
+                marketData.DecimalisePrice();
+
                 return true;
             }
             catch(Exception e)
@@ -147,10 +144,10 @@ namespace MarketDataServices
                     if (DateTime.TryParse(strDate, out dtDate) && double.TryParse(strClosing, out dPrice))
                     {
                         return new HistoricalData
-                        {
-                            Date = DateTime.Parse(strDate),
-                            Price = double.Parse(strClosing)
-                        };
+                        (
+                            date: DateTime.Parse(strDate),
+                            price: double.Parse(strClosing)
+                        );
                     }
                     return null;
                 }).Where(x => x != null);

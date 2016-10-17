@@ -64,6 +64,7 @@
     <Compile Include="AuthorizationManager.cs" />
     <Compile Include="ConfigurationSettings.cs" />
     <Compile Include="ContainerManager.cs" />
+    <Compile Include="DataLayerContracts.cs" />
     <Compile Include="IDataLayer.cs" />
     <Compile Include="IInvestmentReportWriter.cs" />
     <Compile Include="IndexData.cs" />

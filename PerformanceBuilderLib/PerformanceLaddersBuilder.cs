@@ -214,10 +214,10 @@ namespace PerformanceBuilderLib
 
                 dtPrevious = item.Date;
                 resultList.Add(new HistoricalData
-                {
-                    Date = item.Date,
-                    Price = 1 + ((item.Price - dFirstPrice) / dFirstPrice)
-                });
+                (
+                    date: item.Date,
+                    price: 1 + ((item.Price - dFirstPrice) / dFirstPrice)
+                ));
             }
 
             return resultList;
@@ -313,10 +313,10 @@ namespace PerformanceBuilderLib
 
                     dtPrevious = investment.ValuationDate;
                     dataList.Add(new HistoricalData
-                    {
-                        Date = investment.ValuationDate.Date,
-                        Price = _GetPerformanceAmount(investment)
-                    });
+                    (
+                        date: investment.ValuationDate.Date,
+                        price: _GetPerformanceAmount(investment)
+                    ));
                 }
                 if(dataList.Count > 0)
                 {
@@ -340,10 +340,10 @@ namespace PerformanceBuilderLib
                         if (_IsPointLaterThan(index, point.Date.Value) == true)
                         {
                             index.Data.Insert(0, new HistoricalData
-                            {
-                                Date = point.Date,
-                                Price = 1d
-                            });
+                            (
+                                date: point.Date,
+                                price: 1d
+                            ));
                         }
                         else
                             break;
@@ -368,10 +368,10 @@ namespace PerformanceBuilderLib
             foreach (var record in investmentRecords)
             {
                 index.Add(new HistoricalData
-                {
-                    Key = record.Name,
-                    Price = record.Dividend
-                });
+                (
+                    key: record.Name,
+                    price: record.Dividend
+                ));
             }
 
             indexes.Add(new IndexData
@@ -398,10 +398,10 @@ namespace PerformanceBuilderLib
                 double dYears = span.TotalDays / 365d;
                 double yield = (record.Dividend / record.TotalCost / dYears) * 100;
                 index.Add(new HistoricalData
-                {
-                    Key = record.Name,
-                    Price = yield
-                });
+                (
+                    key: record.Name,
+                    price: yield
+                ));
                 dVWAP += (record.TotalCost * yield);
                 dTotalCost += record.TotalCost;
             }
@@ -413,10 +413,10 @@ namespace PerformanceBuilderLib
             double average = dVWAP / dTotalCost;
 
             index.Add(new HistoricalData
-            {
-                Key = userToken.Account,
-                Price = average
-            });
+            (
+                key: userToken.Account,
+                price: average
+            ));
 
             indexes.Add(new IndexData
             {

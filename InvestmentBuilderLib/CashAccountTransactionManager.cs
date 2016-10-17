@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using InvestmentBuilderCore;
 using System.Data;
 using NLog;
+using System.Diagnostics.Contracts;
 
 namespace InvestmentBuilder
 {
@@ -84,6 +85,7 @@ namespace InvestmentBuilder
 
         public IList<PaymentTransaction> GetPaymentTransactions(UserAccountToken userToken, DateTime dtValuationDate, out double dTotal)
         {
+            Contract.Requires(userToken != null);            
             var transactions = new List<PaymentTransaction>();
             _GetTransactionsImpl<PaymentTransaction>(userToken, dtValuationDate, PaymentMnemomic,
                                                         transactions);
@@ -94,6 +96,7 @@ namespace InvestmentBuilder
         public IList<ReceiptTransaction> GetReceiptTransactions(UserAccountToken userToken, DateTime dtValuationDate, DateTime? dtPreviousValuationDate, 
                                             out double dTotal)
         {
+            Contract.Requires(userToken != null);
             var transactions = new List<ReceiptTransaction>();
             _GetTransactionsImpl<ReceiptTransaction>(userToken, dtValuationDate, ReceiptMnemomic,
                                                         transactions);
@@ -188,6 +191,9 @@ namespace InvestmentBuilder
         public void AddTransaction(UserAccountToken userToken, DateTime dtValuationDate, DateTime dtTransactionDate,
                                         string type, string parameter, double amount)
         {
+            Contract.Requires(userToken != null);
+            Contract.Requires(string.IsNullOrEmpty(type) == false);
+
             logger.Log(LogLevel.Info, "adding cash transaction. type: {0}, parameter: {1}, amount {2}", type, parameter, amount);
             _cashAccountData.AddCashAccountTransaction(userToken, dtValuationDate, dtTransactionDate, type,
                                                 parameter, amount);
@@ -196,6 +202,9 @@ namespace InvestmentBuilder
         public void RemoveTransaction(UserAccountToken userToken, DateTime dtValuationDate, DateTime dtTransactionDate,
                                         string type, string parameter)
         {
+            Contract.Requires(userToken != null);
+            Contract.Requires(string.IsNullOrEmpty(type) == false);
+
             logger.Log(LogLevel.Info, "removing cash transaction. type: {0}, parameter: {1}", type, parameter);
             _cashAccountData.RemoveCashAccountTransaction(userToken, dtValuationDate, dtTransactionDate, type, parameter);    
         }
@@ -208,6 +217,8 @@ namespace InvestmentBuilder
 
         public bool ValidateCashAccount(UserAccountToken userToken, DateTime dtValuationDate)
         {
+            Contract.Requires(userToken != null);
+
             logger.Log(LogLevel.Info, "validating cash account for valuation date {0}", dtValuationDate);
 
             var receipts = new List<ReceiptTransaction>();

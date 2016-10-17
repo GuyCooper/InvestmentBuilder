@@ -76,8 +76,6 @@ namespace InvestmentBuilderWeb.Controllers
 
         private IEnumerable<CompanyDataModel> _GetCurrentInvestments(UserAccountToken token)
         {
-            var dtPrevious = _clientData.GetPreviousAccountValuationDate(token, _sessionService.GetValuationDate(_sessionId));
-            ViewBag.SummaryData = _GetSummaryModel(token, dtPrevious);
             return _investmentBuilder.GetCurrentInvestments(token, _sessionService.GetManualPrices(_sessionId))
                 .OrderBy(x => x.Name)
                 .Select(x => x.ToCompanyDataModel());
@@ -88,19 +86,18 @@ namespace InvestmentBuilderWeb.Controllers
         [Route("index")]
         public ActionResult Index()
         {
-            return View(_GetCurrentInvestments(_SetupAccounts(null)));
+            return _CreateMainView("Index", _GetCurrentInvestments(_SetupAccounts(null)));
         }
 
         [HttpGet]
-        public ActionResult Create()
+        public ActionResult CreateTrade()
         {
             _SetupAccounts(null);
-            ViewBag.Title = "Add New Trade";
-            return View("Edit");
+            return View("CreateTrade");
         }
 
         [HttpPost]
-        public ActionResult Create(TradeItemModel tradeItem)
+        public ActionResult CreateTrade(TradeItemModel tradeItem)
         {
             var token = _SetupAccounts(null);
             if (this.ModelState.IsValid)
@@ -110,10 +107,16 @@ namespace InvestmentBuilderWeb.Controllers
             else
             {
                 this.ModelState.AddModelError("", "Invalid data enterted");
-                return View("Edit");
+                return View("CreateTrade");
             }
 
-            return View("Index", _GetCurrentInvestments(token));
+            return _CreateMainView("Index", _GetCurrentInvestments(token));
+        }
+
+        private ViewResult _CreateMainView(string name, object model)
+        {
+            _GenerateSummary();
+            return View(name, model);
         }
 
         private InvestmentSummaryModel _GetSummaryModel(UserAccountToken token, DateTime? dtValuation)
@@ -149,14 +152,23 @@ namespace InvestmentBuilderWeb.Controllers
             cashFlowModel.ReceiptsTotal = dReceiptTotal;
             cashFlowModel.PaymentsTotal = dPaymentTotal;
             cashFlowModel.ValuationDate = dtValuation.ToShortDateString();
-            ViewBag.SummaryData = _GetSummaryModel(token, dtPrevious);
             return cashFlowModel;
+        }
+
+        //needs to be called before time one of the main views are displayed
+        private void _GenerateSummary()
+        {
+            var token = _SetupAccounts(null);
+            var dtValuation = _sessionService.GetValuationDate(_sessionId);
+            var dtPrevious = _clientData.GetPreviousAccountValuationDate(token, dtValuation);
+            ViewBag.SummaryData = _GetSummaryModel(token, dtPrevious);
         }
 
         [HttpGet]
         public ActionResult CashFlow()
         {
-            return View("CashFlow", _GetCashFlowModel());
+            var model = _GetCashFlowModel();
+            return _CreateMainView("CashFlow", model);
         }
 
         [HttpGet]
@@ -169,10 +181,7 @@ namespace InvestmentBuilderWeb.Controllers
                                             x.ToShortDateString()).ToList()
             };
 
-            var dtPrevious = _clientData.GetPreviousAccountValuationDate(userToken, _sessionService.GetValuationDate(_sessionId));
-            ViewBag.SummaryData = _GetSummaryModel(userToken, dtPrevious);
-
-            return View("Reports", vm);
+            return _CreateMainView("Reports", vm);
         }
 
         [HttpGet]
@@ -186,7 +195,7 @@ namespace InvestmentBuilderWeb.Controllers
         }
 
         [HttpGet]
-        public ActionResult Edit(string name)
+        public ActionResult EditTrade(string name)
         {
             var token =_SetupAccounts(null);
             var tradeItem = _clientData.GetTradeItem(token, name);
@@ -202,17 +211,16 @@ namespace InvestmentBuilderWeb.Controllers
                        Selected = x == model.Action.ToString()
                    });
 
-                ViewBag.Title = "Edit Trade";
-                return View(model);
+                return PartialView(model);
             }
             return null;
         }
 
         [HttpPost]
-        public ActionResult Edit(TradeItemModel tradeItem)
+        public ActionResult EditTrade(TradeItemModel tradeItem)
         {
             var token = _SetupAccounts(null);
-            if (this.ModelState.IsValid)
+            if (this.ModelState.IsValid && tradeItem != null && tradeItem.Action != TransactionType.NONE)
             {
                 _investmentBuilder.UpdateTrades(token, tradeItem.ToTrades(tradeItem.Action), tradeItem.GetManualPrices());
             }
@@ -221,7 +229,7 @@ namespace InvestmentBuilderWeb.Controllers
                 this.ModelState.AddModelError("", "Invalid data enterted");
                 return View("Edit");
             }
-            return View("Index", _GetCurrentInvestments(token));
+            return _CreateMainView("Index", _GetCurrentInvestments(token));
         }
 
         [HttpGet]
@@ -234,7 +242,7 @@ namespace InvestmentBuilderWeb.Controllers
             if (tradeItem != null)
             {
                 _investmentBuilder.UpdateTrades(token, tradeItem.ToTrades(TransactionType.SELL), null);
-                return View("Index", _GetCurrentInvestments(token));
+                return _CreateMainView("Index", _GetCurrentInvestments(token));
             }
             return null;
         }
@@ -244,7 +252,7 @@ namespace InvestmentBuilderWeb.Controllers
         {
             var token = _SetupAccounts(accountId);
             _sessionService.ResetValuationDate(_sessionId);
-            return View("Index", _GetCurrentInvestments(token));
+            return _CreateMainView("Index", _GetCurrentInvestments(token));
         }
 
         [HttpGet]
@@ -253,14 +261,14 @@ namespace InvestmentBuilderWeb.Controllers
             var token = _SetupAccounts(null);
 
             _sessionService.AddManualPrice(_sessionId, investment, share_price);
-            return View("Index", _GetCurrentInvestments(token));
+            return _CreateMainView("Index", _GetCurrentInvestments(token));
         }
 
         [HttpGet]
         public ActionResult UpdateValuationDate(DateTime dtValaution)
         {
             _sessionService.SetValuationDate(_sessionId, dtValaution);
-            return View("CashFlow", _GetCashFlowModel());
+            return _CreateMainView("CashFlow", _GetCashFlowModel());
         }
 
         private ActionResult _AddTransactionView(string title, string transactionType)

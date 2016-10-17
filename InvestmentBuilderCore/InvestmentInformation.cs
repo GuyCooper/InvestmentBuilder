@@ -3,15 +3,34 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics.Contracts;
 
 namespace InvestmentBuilderCore
 {
     public class InvestmentInformation
     {
-        public string Symbol { get; set; }
-        public string Exchange { get; set; }
-        public string Currency { get; set; }
-        public double ScalingFactor { get; set; }
+        public InvestmentInformation(string symbol, 
+                                     string exchange,
+                                     string currency,
+                                     double scalingFactor)
+        {
+            Symbol = symbol;
+            Exchange = exchange;
+            Currency = currency;
+            ScalingFactor = scalingFactor;
+        }
+
+        public string Symbol { get; private set; }
+        public string Exchange { get; private set; }
+        public string Currency { get; private set; }
+        public double ScalingFactor { get; private set; }
+
+        [ContractInvariantMethod]
+        protected void ObjectInvariantMethod()
+        {
+            Contract.Invariant(string.IsNullOrEmpty(Symbol) == false);
+            Contract.Invariant(string.IsNullOrEmpty(Currency) == false);
+        }
     }
 
     public class CashAccountData
@@ -43,10 +62,26 @@ namespace InvestmentBuilderCore
 
     public class UserAccountData
     {
-        public string Name { get; set; }
-        public string Currency { get; set; }
-        public string Description { get; set; }
-        public string Broker { get; set; }
+        public UserAccountData(string name, string currency, string description, string broker)
+        {
+            Name = name;
+            Currency = currency;
+            Description = description;
+            Broker = broker;
+        }
+
+        public string Name { get; private set; }
+        public string Currency { get; private set; }
+        public string Description { get; private set; }
+        public string Broker { get; private set; }
+
+        [ContractInvariantMethod]
+        protected void ObjectInvariantMethod()
+        {
+            Contract.Invariant(string.IsNullOrEmpty(Name) == false);
+            Contract.Invariant(string.IsNullOrEmpty(Currency) == false);
+        }
+
     }
 
     //this class represents a data point in a performance graph. the
@@ -56,13 +91,32 @@ namespace InvestmentBuilderCore
     //key property will be populated and the date property will be null
     public class HistoricalData
     {
-        public DateTime? Date { get; set; }
-        public string Key { get; set; }
-        public double Price { get; set; }
+        public HistoricalData(string key, double price)
+        {
+            Key = key;
+            Price = price;
+        }
+
+        public HistoricalData(DateTime? date, double price)
+        {
+            Date = date;
+            Price = price;
+        }
+
+        public DateTime? Date { get; private set; }
+        public string Key { get; private set; }
+        public double Price { get; private set; }
 
         public override string ToString()
         {
             return string.Format("{0}={1}", Date.Value.ToString("dd/MM/yyyy"), Price);
+        }
+
+        [ContractInvariantMethod]
+        protected void ObjectInvariantMethod()
+        {
+            Contract.Invariant(string.IsNullOrEmpty(Key) == false ||
+                               Date.HasValue == true);
         }
     }
 
@@ -87,9 +141,29 @@ namespace InvestmentBuilderCore
 
     public class Redemption
     {
-        public string User { get; set; }
-        public double Amount { get; set; }
-        public DateTime TransactionDate { get; set; }
-        public RedemptionStatus Status { get; set; }
+        public Redemption(string user, double amount, DateTime date, RedemptionStatus status)
+        {
+            User = user;
+            Amount = amount;
+            TransactionDate = date;
+            Status = status;
+        }
+
+        public string User { get; private set; }
+        public double Amount { get; private set; }
+        public DateTime TransactionDate { get; private set; }
+        public RedemptionStatus Status { get; private set; }
+
+        public void UpdateAmount(double amount)
+        {
+            Amount = amount;
+        }
+
+        [ContractInvariantMethod]
+        protected void ObjectInvariantMethod()
+        {
+            Contract.Invariant(string.IsNullOrEmpty(User) == false);
+            Contract.Invariant(Amount > 0);
+        }
     }
 }

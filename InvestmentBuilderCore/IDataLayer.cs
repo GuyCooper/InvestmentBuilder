@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data;
+using System.Diagnostics.Contracts;
 
 namespace InvestmentBuilderCore
 {
@@ -21,6 +22,7 @@ namespace InvestmentBuilderCore
     /// <summary>
     /// client interface to datalayer contains client specific methods
     /// </summary>
+    [ContractClass(typeof(IClientDataContract))]
     public interface IClientDataInterface
     {
         //client interface
@@ -42,6 +44,7 @@ namespace InvestmentBuilderCore
         void UndoLastTransaction(UserAccountToken userToken);
     }
 
+    [ContractClass(typeof(IInvestmentRecordContract))]
     public interface IInvestmentRecordInterface
     {
         //investment record interface
@@ -69,6 +72,7 @@ namespace InvestmentBuilderCore
         bool IsExistingRecordValuationDate(UserAccountToken userToken, DateTime dtValuation);
     }
 
+    [ContractClass(typeof(ICashAccountContract))]
     public interface ICashAccountInterface
     {
         CashAccountData GetCashAccountData(UserAccountToken userToken, DateTime valuationDate);
@@ -81,6 +85,7 @@ namespace InvestmentBuilderCore
         double GetBalanceInHand(UserAccountToken userToken, DateTime valuationDate);
     }
 
+    [ContractClass(typeof(IUserAccountContract))]
     public interface IUserAccountInterface
     {
        //user account interface

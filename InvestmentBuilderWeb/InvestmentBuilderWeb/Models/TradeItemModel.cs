@@ -12,7 +12,7 @@ namespace InvestmentBuilderWeb.Models
     { 
         public TradeItemModel()
         {
-            Action = TransactionType.BUY;
+            Action = TransactionType.NONE;
         }
 
         public TransactionType Action { get; set; }

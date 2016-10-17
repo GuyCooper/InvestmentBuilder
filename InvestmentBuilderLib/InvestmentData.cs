@@ -4,12 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using InvestmentBuilderCore;
+using System.Diagnostics.Contracts;
 
 namespace InvestmentBuilder
 {
     /// <summary>
     /// investment record interface
     /// </summary>
+    [ContractClass(typeof(InvestmentRecordDataContract))]
     internal interface IInvestmentRecordData
     {
         //name of investment

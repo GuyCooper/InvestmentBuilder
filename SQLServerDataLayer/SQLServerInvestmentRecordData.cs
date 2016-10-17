@@ -116,13 +116,12 @@ namespace SQLServerDataLayer
                         var symbol = (string)reader["Symbol"];
                         var ccy = (string)reader["Currency"];
                         var exchange = reader["Exchange"] as string;
-                        data = new InvestmentInformation
-                        {
-                            Symbol = symbol.Trim(),
-                            Exchange = exchange != null ? exchange.Trim() : string.Empty,
-                            Currency = ccy.Trim(),
-                            ScalingFactor = (double)reader["ScalingFactor"]
-                        };
+                        data = new InvestmentInformation(
+                            symbol.Trim(),
+                            exchange != null ? exchange.Trim() : string.Empty,
+                            ccy.Trim(),
+                            (double)reader["ScalingFactor"]
+                        );
                     }
                     reader.Close();
                 }
@@ -247,6 +246,9 @@ namespace SQLServerDataLayer
 										  @total_cost as float, @account as varchar(30), @user as varchar(50)) AS
 
              */
+            if (trades == null)
+                return;
+
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
             foreach (var trade in trades)
             {

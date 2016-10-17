@@ -275,17 +275,14 @@ namespace InvestmentBuilderClient.View
             var view = new ManageUserView(cmboAccountName.SelectedItem as string, _dataModel);
             if(view.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                var account = new AccountModel
-                {
-                    Name = view.GetAccountName(),
-                    Description = view.GetDescription(),
-                    Password = view.GetPassword(),
-                    Type = view.GetAccountType(),
-                    Enabled = view.GetIsEnabled(),
-                    Members = view.GetMembers(),
-                    Broker = view.GetBroker(),
-                    ReportingCurrency = view.GetCurrency()
-                };
+                var account = new AccountModel(view.GetAccountName(),
+                                               view.GetDescription(),
+                                               view.GetPassword(),
+                                               view.GetCurrency(),
+                                               view.GetAccountType(),
+                                               view.GetIsEnabled(),
+                                               view.GetBroker(),
+                                               view.GetMembers());
 
                 logger.Log(LogLevel.Info, "updating account {0}", account.Name);
                 //ensure the account folder has been created 

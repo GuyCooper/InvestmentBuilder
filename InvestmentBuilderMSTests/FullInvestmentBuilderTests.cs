@@ -160,16 +160,15 @@ namespace InvestmentBuilderMSTests
         {
             Console.WriteLine("adding a new account...");
 
-            var account = new AccountModel
-            {
-                Name = userToken.Account,
-                Description = "Unit Test Account",
-                Enabled = true,
-                ReportingCurrency = "GBP",
-                Type = "Personal",
-                Password = "psst",
-                Broker = "ShareCentre"
-            };
+            var account = new AccountModel(userToken.Account,
+                                           "Unit Test Account",
+                                           "psst",
+                                           "GBP",
+                                           "Personal",
+                                           true,
+                                           "ShareCentre",
+                                           null);
+
             ContainerManager.ResolveValueOnContainer<SQLServerDataLayer.SQLServerDataLayer>(_childContainer).ClientData.CreateAccount(userToken, account);
 
             ContainerManager.ResolveValueOnContainer<SQLServerDataLayer.SQLServerDataLayer>(_childContainer).ClientData.UpdateMemberForAccount(userToken,

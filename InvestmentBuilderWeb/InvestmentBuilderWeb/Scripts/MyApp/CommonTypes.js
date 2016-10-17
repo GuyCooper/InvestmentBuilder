@@ -44,8 +44,8 @@
         $("#helpTrigger").click(getHelp);
 
         $("#addReceiptButton").click(onAddReceipt);
-
-  
+        $("#addPaymentButton").click(onAddPayment);
+        $('.editTradeButton').click(onEditTrade);
     });
 
         function getHelp() {
@@ -94,22 +94,31 @@
         });
     }
 
-    function onAddReceipt() {
+    function onAddDialogContents(transactionurl, parameters) {
         $.ajax({
-            url: 'AddReceiptTransaction',
+            url: transactionurl,
+            data: parameters,
             dataType: "html",
             type: "GET",
             success: function (result) {
-                $("#transactionContents").empty().append(result);
+                $('#dialogContents').empty().append(result);
             }
         });
     }
 
-    function onSelectDateTimeEdit() {
-        $('.datetime').datepicker({
-            dateFormat: "dd/mm/yy",
-        });
+    function onAddReceipt() {
+        onAddDialogContents('AddReceiptTransaction', null);
     }
 
-    
+    function onAddPayment() {
+        onAddDialogContents('AddPaymentTransaction', null);
+    }
+   
+    function onEditTrade() {
+        //var parameter = $("#tradeNameValue").val().toString();
+        //alert("on edit trade!. val = " + parameter);
+        var parameter = $(this).attr('Value');
+        alert('edit trade: ' + parameter);
+        onAddDialogContents('EditTrade', { name: parameter });
+    }
             

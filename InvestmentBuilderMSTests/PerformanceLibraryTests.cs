@@ -72,8 +72,8 @@ namespace InvestmentBuilderMSTests
         {
             return new List<HistoricalData>
             {
-                new HistoricalData { Date = PerfBuilderConstants.TestDate1, Price = PerfBuilderConstants.TestPrice3 },
-                new HistoricalData { Date = PerfBuilderConstants.TestDate2, Price = PerfBuilderConstants.TestPrice4 }
+                new HistoricalData ( date: PerfBuilderConstants.TestDate1, price: PerfBuilderConstants.TestPrice3 ),
+                new HistoricalData ( date: PerfBuilderConstants.TestDate2, price: PerfBuilderConstants.TestPrice4 )
             };
         }
     }
@@ -84,8 +84,8 @@ namespace InvestmentBuilderMSTests
         {
             return new List<HistoricalData>
             {
-                new HistoricalData { Date = PerfBuilderConstants.TestDate1 , Price = PerfBuilderConstants.TestPrice1 },
-                new HistoricalData { Date = PerfBuilderConstants.TestDate2, Price = PerfBuilderConstants.TestPrice2 }
+                new HistoricalData ( date: PerfBuilderConstants.TestDate1 , price: PerfBuilderConstants.TestPrice1 ),
+                new HistoricalData ( date: PerfBuilderConstants.TestDate2, price: PerfBuilderConstants.TestPrice2 )
             };
         }
     }

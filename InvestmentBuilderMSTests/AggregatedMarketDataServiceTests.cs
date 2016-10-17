@@ -21,19 +21,21 @@ namespace InvestmentBuilderMSTests
         public static readonly double TestPrice = 162.98;
         public static readonly double TestPrice2 = 13.21;
         public static string HistoricalDateString = "15/11/2015";
+        public static readonly string TestSymbol = "Acme1";
 
         public static readonly MarketDataPrice _Source2MarketPrice = new MarketDataPrice
-        {
-            Currency = "EUR",
-            Name = TestName,
-            Price = TestPrice,
-        };
+        (
+            TestName,
+            TestSymbol,
+            TestPrice,
+            "EUR"
+        );
 
         public static HistoricalData _TestHistoricalData = new HistoricalData
-        {
-            Date = DateTime.Parse(HistoricalDateString),
-            Price = TestPrice2
-        };
+        (
+            date: DateTime.Parse(HistoricalDateString),
+            price: TestPrice2
+        );
     }
 
     internal class TestMarketSource1 : IMarketDataSource

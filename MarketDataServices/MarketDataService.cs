@@ -6,15 +6,35 @@ using System.Threading.Tasks;
 using System.Net;
 using System.IO;
 using NLog;
+using System.Diagnostics.Contracts;
 
 namespace MarketDataServices
 {
+    [ContractClass(typeof(MarketDataServiceContract))]
     public interface IMarketDataService
     {
         bool TryGetClosingPrice(string symbol, string exchange, string source, string name, string currency, string reportingCurrency, double? dOverride, out double dClosing);
         IList<string> GetSources();
     }
 
+    [ContractClassFor(typeof(IMarketDataService))]
+    internal abstract class MarketDataServiceContract : IMarketDataService
+    {
+        public IList<string> GetSources()
+        {
+            Contract.Ensures(Contract.Result<IList<string>>() != null);
+            return null;
+        }
+
+        public bool TryGetClosingPrice(string symbol, string exchange, string source, string name, string currency, string reportingCurrency, double? dOverride, out double dClosing)
+        {
+            Contract.Requires(string.IsNullOrEmpty(symbol) == false);
+            Contract.Requires(string.IsNullOrEmpty(currency) == false);
+            Contract.Requires(string.IsNullOrEmpty(reportingCurrency) == false);
+            dClosing = 0;
+            return false;
+        }
+    }
     /// <summary>
     /// class provides market data services. provides closing prices and currency conversion for stock symbols
     /// </summary>

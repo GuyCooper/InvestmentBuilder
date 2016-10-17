@@ -4,23 +4,53 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using InvestmentBuilderCore;
+using System.Diagnostics.Contracts;
 
 namespace MarketDataServices
 {
     public class MarketDataPrice
     {
-        public string Name { get; set; }
-        public string Symbol { get; set; }
-        public double Price { get; set; }
-        public string Currency { get; set; }
-        public string Exchange { get; set; }
+        public MarketDataPrice(string name, string symbol, double price,
+                               string currency = null, string exchange = null)
+        {
+            Name = name;
+            Symbol = symbol;
+            Price = price;
+            Currency = currency;
+            Exchange = exchange;
+        }
+
+        public string Name { get; private set; }
+        public string Symbol { get; private set; }
+        public double Price { get; private set; }
+        public string Currency { get; private set; }
+        public string Exchange { get; private set; }
 
         public override string ToString()
         {
             return string.Format("{0},{1},{2},{3}", Symbol, Price, Currency, Exchange);
         }
+
+        public void DecimalisePrice()
+        {
+            //deciamlise price if required
+            if (Currency[Currency.Length - 1] == 'p')
+            {
+                Price = Price / 100d;
+                Currency = Currency.ToUpper();
+            }
+        }
+
+        [ContractInvariantMethod]
+        protected void ObjectInvarianceCheck()
+        {
+            Contract.Invariant(string.IsNullOrEmpty(Name) == false);
+            Contract.Invariant(Price > 0);
+            Contract.Invariant(string.IsNullOrEmpty(Symbol) == false);
+        }
     }
 
+    [ContractClass(typeof(MarketDataSourceContract))]
     public interface IMarketDataSource
     {
         /// <summary>
@@ -63,6 +93,53 @@ namespace MarketDataServices
         /// property setter for injecting datasource 
         /// </summary>
         IMarketDataReader DataReader { get; set; }
+    }
+
+    [ContractClassFor(typeof(IMarketDataSource))]
+    internal abstract class MarketDataSourceContract : IMarketDataSource
+    {
+        public IMarketDataReader DataReader { get; set; }
+
+        public string Name
+        { get
+            {
+                Contract.Ensures(string.IsNullOrEmpty(Contract.Result<string>()) == false);
+                return null;
+            } }
+
+        public int Priority
+        { get
+            {
+                Contract.Ensures(Contract.Result<int>() > 0);
+                return 0;
+            } }
+
+        public IEnumerable<HistoricalData> GetHistoricalData(string instrument, string exchange, string source, DateTime dtFrom)
+        {
+            Contract.Requires(string.IsNullOrEmpty(instrument) == false);
+            throw new NotImplementedException();
+        }
+
+        public IList<string> GetSources()
+        {
+            Contract.Ensures(Contract.Result<IList<string>>() != null);
+            throw new NotImplementedException();
+        }
+
+        public bool TryGetFxRate(string baseCurrency, string contraCurrency, string exchange, string source, out double dFxRate)
+        {
+            Contract.Requires(string.IsNullOrEmpty(baseCurrency) == false);
+            Contract.Requires(string.IsNullOrEmpty(contraCurrency) == false);
+            dFxRate = 0;
+            return false;
+        }
+
+        public bool TryGetMarketData(string symbol, string exchange, string source, out MarketDataPrice marketData)
+        {
+            Contract.Requires(string.IsNullOrEmpty(symbol) == false);
+            marketData = null;
+            return false;
+        }
     }
 
 }

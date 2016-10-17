@@ -27,10 +27,10 @@ namespace SQLServerDataLayer
                     while (reader.Read())
                     {
                         yield return new HistoricalData
-                        {
-                            Date = (DateTime)reader["Valuation_Date"],
-                            Price = (double)reader["Unit_Price"]
-                        };
+                        (
+                            date: (DateTime)reader["Valuation_Date"],
+                            price: (double)reader["Unit_Price"]
+                        );
                     }
                     reader.Close();
                 }

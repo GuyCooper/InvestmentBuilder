@@ -33,11 +33,12 @@ namespace MarketDataServices
             if (double.TryParse(strPrice, out dPrice))
             {
                 lookup.Add(name, new MarketDataPrice
-                {
-                    Name = name,
-                    Price = dPrice,
-                    Currency = strCurrency
-                });
+                (
+                    name,
+                    name,
+                    dPrice,
+                    strCurrency
+                ));
             }
         }
 
@@ -58,10 +59,10 @@ namespace MarketDataServices
                 {
                     int split = x.IndexOf('=');
                     return new HistoricalData
-                    {
-                        Date = DateTime.Parse(x.Substring(0, split)),
-                        Price = Double.Parse(x.Substring(split + 1))
-                    };
+                    (
+                        date: DateTime.Parse(x.Substring(0, split)),
+                        price: Double.Parse(x.Substring(split + 1))
+                    );
                 }).ToList());
         }
 
@@ -105,11 +106,7 @@ namespace MarketDataServices
         {
             if(_marketDataLookup.TryGetValue(symbol, out marketData))
             {
-                if (marketData.Currency[marketData.Currency.Length - 1] == 'p')
-                {
-                    marketData.Price = marketData.Price / 100d;
-                    marketData.Currency = marketData.Currency.ToUpper();
-                }
+                marketData.DecimalisePrice();
                 return true;
             }
             return false;
@@ -129,10 +126,10 @@ namespace MarketDataServices
             while(dtDate <= DateTime.Today)
             {
                 yield return new HistoricalData
-                {
-                    Date = dtDate,
-                    Price = dPrice
-                };
+                (
+                    date: dtDate,
+                    price: dPrice
+                );
 
                 dtDate = dtDate.AddMonths(1);
                 dPrice += dIncrement;

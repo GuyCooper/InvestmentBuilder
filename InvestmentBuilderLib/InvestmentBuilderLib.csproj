@@ -63,6 +63,7 @@
     <Compile Include="CashAccountTransactionManager.cs" />
     <Compile Include="InvestmentBuilder.cs" />
     <Compile Include="InvestmentData.cs" />
+    <Compile Include="InvestmentDataContracts.cs" />
     <Compile Include="InvestmentRecordBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -27,9 +27,12 @@ namespace InvestmentBuilderMSTests
 
         public bool TryGetMarketData(string symbol, string exchange, string source, out MarketDataPrice marketData)
         {
-            marketData = new MarketDataPrice();
-            marketData.Price = TestPrice;
-            marketData.Currency = TestCurrency;
+            marketData = new MarketDataPrice(
+                            symbol,
+                            symbol,
+                            TestPrice,
+                            TestCurrency,
+                            exchange);
             return true;
         }
 
@@ -44,10 +47,10 @@ namespace InvestmentBuilderMSTests
             return new List<HistoricalData>
             {
                 new HistoricalData
-                {
-                     Date = TestDate,
-                     Price = HistoricalPrice
-                }
+                (
+                     date: TestDate,
+                     price: HistoricalPrice
+                )
             };
         }
 

@@ -150,12 +150,12 @@ namespace SQLServerDataLayer
                     if (reader.Read())
                     {
                         return new UserAccountData
-                        {
-                            Name = userToken.Account,
-                            Currency = (string)reader["Currency"],
-                            Description = (string)reader["Description"],
-                            Broker = (string)reader["Broker"]
-                        };
+                        (
+                            userToken.Account,
+                            (string)reader["Currency"],
+                            (string)reader["Description"],
+                            (string)reader["Broker"]
+                        );
                     }
                 }
             }
@@ -196,12 +196,12 @@ namespace SQLServerDataLayer
                     while (reader.Read())
                     {
                         yield return new Redemption
-                        {
-                            User = (string)reader["Name"],
-                            Amount = (double)reader["amount"],
-                            TransactionDate = (DateTime)reader["transaction_date"],
-                            Status = (RedemptionStatus)Enum.Parse(typeof(RedemptionStatus), (string)reader["status"])
-                        };
+                        (
+                            (string)reader["Name"],
+                            (double)reader["amount"],
+                            (DateTime)reader["transaction_date"],
+                            (RedemptionStatus)Enum.Parse(typeof(RedemptionStatus), (string)reader["status"])
+                        );
                     }
                 }
             }

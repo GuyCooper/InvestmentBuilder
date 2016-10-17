@@ -98,10 +98,10 @@ namespace MarketDataServices
                 if (result != null)
                 {
                     return result.results.Select(x => new HistoricalData
-                    {
-                        Date = x.tradingDay,
-                        Price = x.close
-                    });
+                    (
+                        date: x.tradingDay,
+                        price: x.close
+                    ));
                 }
             }
             return null;
@@ -149,11 +149,11 @@ namespace MarketDataServices
                         var rawPriceData = result.results[0];
                         //note, barchart does not return the currency
                         marketData = new MarketDataPrice
-                        {
-                            Name = rawPriceData.name,
-                            Symbol = rawPriceData.symbol,
-                            Price = rawPriceData.close
-                        };
+                        (
+                            rawPriceData.name,
+                            rawPriceData.symbol,
+                            rawPriceData.close
+                        );
                     }
                     return true;
                 }

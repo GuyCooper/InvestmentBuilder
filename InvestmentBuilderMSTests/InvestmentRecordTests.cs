@@ -72,11 +72,12 @@ namespace InvestmentBuilderMSTests
         public override InvestmentInformation GetInvestmentDetails(string investment)
         {
             return new InvestmentInformation
-            {
-                Currency = InvestmentRecordStaticTestData.TestCurrency,
-                ScalingFactor = InvestmentRecordStaticTestData.TestScaling,
-                Symbol = InvestmentRecordStaticTestData.TestSymbol
-            };
+            (
+                InvestmentRecordStaticTestData.TestSymbol,
+                null,
+                InvestmentRecordStaticTestData.TestCurrency,
+                InvestmentRecordStaticTestData.TestScaling
+            );
         }
 
         public override void RollInvestment(UserAccountToken userToken, string investment, DateTime dtValuation, DateTime dtPreviousValaution)
@@ -150,12 +151,12 @@ namespace InvestmentBuilderMSTests
     public class InvestmentRecordTestsBase
     {
         protected readonly UserAccountData _userData = new UserAccountData
-        {
-            Broker = "ShareCentre",
-            Currency = "GBP",
-            Description = "Test Account",
-            Name = InvestmentRecordStaticTestData.TestAccount
-        };
+        (
+            InvestmentRecordStaticTestData.TestAccount,
+            "GBP",
+            "Test Account",
+            "ShareCentre"
+        );
 
         protected CashAccountData _cashData;
         protected IMarketDataSource _mdSource;

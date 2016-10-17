@@ -54,12 +54,12 @@ namespace InvestmentBuilderMSTests
         public override UserAccountData GetUserAccountData(UserAccountToken userToken)
         {
             return new UserAccountData
-            {
-                Name = TestDataCache._TestAccount,
-                Currency = TestDataCache._Currency,
-                Description = TestDataCache._Description,
-                Broker = TestDataCache._Broker
-            };
+            (
+                TestDataCache._TestAccount,
+                TestDataCache._Currency,
+                TestDataCache._Description,
+                TestDataCache._Broker
+            );
         }
 
         public override void SaveNewUnitValue(UserAccountToken userToken, DateTime dtValuation, double dUnitValue)
@@ -140,11 +140,12 @@ namespace InvestmentBuilderMSTests
         public override InvestmentInformation GetInvestmentDetails(string investment)
         {
             return new InvestmentInformation
-            {
-                Currency = TestDataCache._TestCurrency,
-                Symbol = TestDataCache._TestSymbol,
-                ScalingFactor = TestDataCache._TestScalingFactor
-            };
+            (
+                TestDataCache._TestSymbol,
+                null,
+                TestDataCache._TestCurrency,
+                TestDataCache._TestScalingFactor
+            );
         }
 
         public override Trades GetHistoricalTransactions(DateTime dtFrom, DateTime dtTo, UserAccountToken userToken)

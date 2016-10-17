@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics.Contracts;
 
 namespace InvestmentBuilderCore
 {
@@ -37,6 +35,13 @@ namespace InvestmentBuilderCore
             {
                 throw new UnauthorizedAccessException("User does not have permission for this action on this account");
             }
+        }
+
+        [ContractInvariantMethod]
+        protected void ObjectInvariantMethod()
+        {
+            Contract.Invariant(string.IsNullOrEmpty(User) == false);
+            Contract.Invariant(string.IsNullOrEmpty(Account) == false);
         }
     }
     /// <summary>

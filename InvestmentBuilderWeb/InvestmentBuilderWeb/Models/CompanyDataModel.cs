@@ -9,6 +9,7 @@ namespace InvestmentBuilderWeb.Models
 {
     public enum TransactionType
     {
+        NONE,
         BUY,
         SELL,
         CHANGE

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NLog;
 using InvestmentBuilderCore;
-using MarketDataServices;
+using System.Diagnostics.Contracts;
 
 namespace InvestmentBuilder
 {
@@ -31,7 +31,7 @@ namespace InvestmentBuilder
 
         public InvestmentBuilder(IConfigurationSettings settings,
                                  IDataLayer dataLayer,
-                                 CashAccountTransactionManager cashAccountManager, 
+                                 CashAccountTransactionManager cashAccountManager,
                                  IInvestmentReportWriter reportWriter,
                                  IInvestmentRecordDataManager recordBuilder)
         {
@@ -45,7 +45,7 @@ namespace InvestmentBuilder
             _reportWriter = reportWriter;
             _recordBuilder = recordBuilder;
         }
-  
+
         /// <summary>
         /// generate asset report
         /// </summary>
@@ -62,13 +62,13 @@ namespace InvestmentBuilder
         {
             logger.Log(LogLevel.Info, string.Format("Begin BuildAssetSheet"));
             //logger.Log(LogLevel.Info,string.Format("trade file: {0}", _settings.GetTradeFile(accountName)));
-            logger.Log(LogLevel.Info,string.Format("path: {0}", _settings.OutputFolder));
-            logger.Log(LogLevel.Info,string.Format("datasource: {0}",_settings.DatasourceString));
-            logger.Log(LogLevel.Info,string.Format("update: {0}", bUpdate));
-            logger.Log(LogLevel.Info,string.Format("valuation date: {0}", valuationDate.ToShortDateString()));
+            logger.Log(LogLevel.Info, string.Format("path: {0}", _settings.OutputFolder));
+            logger.Log(LogLevel.Info, string.Format("datasource: {0}", _settings.DatasourceString));
+            logger.Log(LogLevel.Info, string.Format("update: {0}", bUpdate));
+            logger.Log(LogLevel.Info, string.Format("valuation date: {0}", valuationDate.ToShortDateString()));
 
             //var factory = BuildFactory(format, path, connectionstr, valuationDate, bUpdate);
-            if(userToken == null)
+            if (userToken == null)
             {
                 throw new ArgumentNullException("invalid user token");
             }
@@ -84,7 +84,7 @@ namespace InvestmentBuilder
 
             var accountData = _userAccountData.GetUserAccountData(userToken);
 
-            if(accountData == null)
+            if (accountData == null)
             {
                 logger.Log(LogLevel.Error, "invalid username {0}", userToken);
                 return assetReport;
@@ -120,7 +120,7 @@ namespace InvestmentBuilder
                         logger.Log(LogLevel.Error, "record date must be later than the previous record valution date");
                         return assetReport;
                     }
-                 }
+                }
                 //trades now added seperately
                 var emptyTrades = new Trades
                 {
@@ -137,14 +137,14 @@ namespace InvestmentBuilder
             }
             else
             {
-                if(currentRecordDate.HasValue)
+                if (currentRecordDate.HasValue)
                 {
                     dtTradeValuationDate = currentRecordDate.Value;
                 }
             }
 
             //now extract the latest data from the investment record
-            var lstData = _recordBuilder.GetInvestmentRecords(userToken, accountData, dtTradeValuationDate, dtPreviousValuation, null,false).ToList();
+            var lstData = _recordBuilder.GetInvestmentRecords(userToken, accountData, dtTradeValuationDate, dtPreviousValuation, null, false).ToList();
             foreach (var val in lstData)
             {
                 logger.Log(LogLevel.Info, string.Format("{0} : {1} : {2} : {3} : {4}", val.Name, val.SharePrice, val.NetSellingValue, val.MonthChange, val.MonthChangeRatio));
@@ -252,14 +252,14 @@ namespace InvestmentBuilder
 
             //user request to redeem some units. 
             var dtPreviousValuation = _clientData.GetPreviousAccountValuationDate(userToken, transactionDate);
-            if(dtPreviousValuation.HasValue == false)
+            if (dtPreviousValuation.HasValue == false)
             {
                 //cannot redeem units if no previous valuation
                 logger.Log(LogLevel.Error, "cannot redeem units as account not yet valued");
                 return false;
             }
 
-            if(_clientData.GetAccountMembers(userToken, dtPreviousValuation.Value ).FirstOrDefault(
+            if (_clientData.GetAccountMembers(userToken, dtPreviousValuation.Value).FirstOrDefault(
                         x => string.Equals(x, user)) == null)
             {
                 logger.Log(LogLevel.Error, "user {0} is not a member of account {1}", user, userToken.Account);
@@ -271,7 +271,7 @@ namespace InvestmentBuilder
             double dBalance = _cashAccountData.GetBalanceInHand(userToken, dtPreviousValuation.Value);
             dBalance += _investmentRecordData.GetHistoricalTransactions(dtPreviousValuation.Value, transactionDate, userToken).Sells.Sum(x => x.TotalCost);
 
-            if(dAmount > dBalance)
+            if (dAmount > dBalance)
             {
                 logger.Log(LogLevel.Error, "requested redemptiom amount more than available funds. reduce amount or sell more shares to rectify");
                 return false;
@@ -298,7 +298,7 @@ namespace InvestmentBuilder
             //first get the previous valuation date and return all the redemptions
             //since that date
             var dtPreviousValuation = _clientData.GetPreviousAccountValuationDate(userToken, dtValuationDate);
-            if(dtPreviousValuation.HasValue)
+            if (dtPreviousValuation.HasValue)
             {
                 return _userAccountData.GetRedemptions(userToken, dtPreviousValuation.Value).ToList();
             }
@@ -371,7 +371,7 @@ namespace InvestmentBuilder
             //unit price
             if (bUpdate)
             {
-               _userAccountData.SaveNewUnitValue(userToken, dtValuationDate, report.ValuePerUnit);
+                _userAccountData.SaveNewUnitValue(userToken, dtValuationDate, report.ValuePerUnit);
             }
 
             return report;
@@ -405,10 +405,10 @@ namespace InvestmentBuilder
                 logger.Log(LogLevel.Info, "new account. setting issued units equal to net assets");
                 //no previous valaution this is a new account, the total issued units should be the same as
                 //the total netassets. this will give a unit valuation of 1.
-                var members = _clientData.GetAccountMembers(userToken, DateTime.Today ).ToList();
+                var members = _clientData.GetAccountMembers(userToken, DateTime.Today).ToList();
                 double memberUnits = dNetAssets / members.Count;
                 dResult = dNetAssets;
-                foreach(var member in members)
+                foreach (var member in members)
                 {
                     _userAccountData.UpdateMemberAccount(userToken, dtValuationDate, member, memberUnits);
                 }
@@ -425,8 +425,8 @@ namespace InvestmentBuilder
             bool updated = false;
 
             var redemptions = _userAccountData.GetRedemptions(userToken, previousValuation).ToList();
-            
-            if(bUpdate == false)
+
+            if (bUpdate == false)
             {
                 report.Redemptions = redemptions;
                 return report;
@@ -434,7 +434,7 @@ namespace InvestmentBuilder
 
             foreach (var redemption in redemptions)
             {
-                if(redemption.Status == RedemptionStatus.Failed)
+                if (redemption.Status == RedemptionStatus.Failed)
                 {
                     continue;
                 }
@@ -449,7 +449,7 @@ namespace InvestmentBuilder
                     requestedUnitRedemption = memberUnits;
                     //calculate the redemption amount based on the current unit valuation.round down
                     //so the club does not lose out on any rounding errors
-                    redemption.Amount = Math.Floor(requestedUnitRedemption * report.ValuePerUnit);
+                    redemption.UpdateAmount(Math.Floor(requestedUnitRedemption * report.ValuePerUnit));
                     logger.Log(LogLevel.Info, "redeeming full user holding for {0}. amount redeemed {1}", redemption.User, redemption.Amount);
                 }
                 else
@@ -458,7 +458,7 @@ namespace InvestmentBuilder
                     //if not enough then keep reduing the redemption amount until there is enough
                     while (requestedUnitRedemption > memberUnits)
                     {
-                        redemption.Amount--;
+                        redemption.UpdateAmount(redemption.Amount - 1);
                         requestedUnitRedemption = redemption.Amount / report.ValuePerUnit;
                     }
 
@@ -476,7 +476,7 @@ namespace InvestmentBuilder
                 _userAccountData.UpdateMemberAccount(userToken, report.ValuationDate, redemption.User, newMemberUnits);
 
                 //only update the cash account the redemption hasn't already been processed
-               //this check is neededin case the user builds the asset report multiple times
+                //this check is neededin case the user builds the asset report multiple times
                 _cashAccountData.AddCashAccountTransaction(userToken, report.ValuationDate, report.ValuationDate, "Redemption", redemption.User,
                     redemption.Amount);
 
@@ -492,9 +492,9 @@ namespace InvestmentBuilder
                 _userAccountData.UpdateRedemption(userToken, redemption.User, redemption.TransactionDate, redemption.Amount, requestedUnitRedemption);
 
                 updated = true;
-            }    
+            }
 
-            if(updated == true)
+            if (updated == true)
             {
                 //if there have been redemptions then update the asset report with the new balance
                 //and units
@@ -506,7 +506,7 @@ namespace InvestmentBuilder
             }
 
             //nothing changed just return report
-            return report;           
+            return report;
         }
 
         //if the asset report is being rerun for the month then the rdemptions need to be rooled
@@ -517,13 +517,26 @@ namespace InvestmentBuilder
             foreach (var redemption in redemptions)
             {
                 //only needto roll back completed redemptions
-                if(redemption.Status == RedemptionStatus.Complete)
+                if (redemption.Status == RedemptionStatus.Complete)
                 {
                     //add in a 
                     _cashAccountData.AddCashAccountTransaction(userToken, dtValuation, redemption.TransactionDate, "BalanceInHandCF", "BalanceInHandCF",
                         redemption.Amount);
                 }
             }
+        }
+
+        [ContractInvariantMethod]
+        protected void ObjectInvariantCheck()
+        {
+            Contract.Invariant(_settings != null);
+            Contract.Invariant(_dataLayer != null);
+            Contract.Invariant(_userAccountData != null);
+            Contract.Invariant(_clientData != null);
+            Contract.Invariant(_investmentRecordData != null);
+            Contract.Invariant(_cashAccountManager != null);
+            Contract.Invariant(_reportWriter != null);
+            Contract.Invariant(_recordBuilder != null);
         }
     }
 }

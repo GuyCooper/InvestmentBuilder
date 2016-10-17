@@ -3,20 +3,16 @@
     ViewBag.Title = "CashFlow";
 }
 
-<ul class="nav nav-tabs nav-justified">
-    <li><a href="@Url.Action("index")">Portfolio</a></li>
-    <li><a href="@Url.Action("CashFlow")">CashFlow</a></li>
-    <li><a href="@Url.Action("Reports")">Reports</a></li>
-</ul>
-
 <div class="container">
     @Html.Partial("AccountSummary")
     <div class="row">
         <div class="navbar navbar-default">
-            <a class="navbar-brand" href="#">Receipts</a>
+            <div class="navbar-header">
+                <a class="navbar-brand">Receipts</a>
+            </div>      
             <ul class="nav navbar-nav navbar-right">
-                <li><label class="navbar-text">Valuation Date: @Model.ValuationDate</label> </li>
-                <li><label class="navbar-text">Total: @Model.ReceiptsTotal</label></li>
+                <li><p class="navbar-text">Valuation Date: @Model.ValuationDate</p> </li>
+                <li><p class="navbar-text">Total: @Model.ReceiptsTotal</p></li>
                 <li>
                     <div id="addReceiptButton" class="btn btn-default" data-toggle="modal" data-target="#myModal">Add Receipt</div>
                 </li>
@@ -24,7 +20,7 @@
         </div>
     </div>
 
-    @Html.Partial("AddTransactionModal")
+    @Html.Partial("AddModalDialog")
 
     <div class="row">
         <div class="panel panel-default">
@@ -56,21 +52,22 @@
             </table>
         </div>
     </div>
-    <div class="row transactionSummary">
-        <div class="pull-left">
-            <h3>Payments</h3>
-        </div>
-        <div class="pull-right">
-            <ul class="nav navbar-nav">
-                <li><label class="navbar-text">Valuation Date: @Model.ValuationDate</label> </li>
-                <li><label class="navbar-text">Total: @Model.PaymentsTotal</label></li>
+    
+    <div class="row">
+        <div class="navbar navbar-default">
+            <div class="navbar-header">
+                <a class="navbar-brand">Payments</a>
+            </div>
+            <ul class="nav navbar-nav navbar-right">
+                <li><p class="navbar-text">Valuation Date: @Model.ValuationDate</p> </li>
+                <li><p class="navbar-text">Total: @Model.PaymentsTotal</p></li>
                 <li>
-                    <div id="addPaymentButton" class="btn btn-default">Add Payment</div>
-                    <div id="addTransaction" class="addTransaction" style="display:none"></div>
+                    <div id="addPaymentButton" class="btn btn-default" data-toggle="modal" data-target="#myModal">Add Payment</div>
                 </li>
             </ul>
         </div>
     </div>
+ 
     <div class="row">
         <div class="panel panel-default">
             <table class="table table-condensed">

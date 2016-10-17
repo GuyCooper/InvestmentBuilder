@@ -177,7 +177,7 @@ namespace InvestmentBuilderClient.DataModel
             AccountModel data = _clientData.GetAccount(tmpToken);
             if(data != null)
             {
-                data.Members = GetAccountMembers(tmpToken).ToList();
+                data.AddMembers(GetAccountMembers(tmpToken).ToList());
             }
 
             return data;

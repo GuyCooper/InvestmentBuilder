@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using InvestmentBuilderCore;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
+using System.Diagnostics.Contracts;
 
 namespace InvestmentBuilder
 {
@@ -13,6 +14,26 @@ namespace InvestmentBuilder
     {
         string Name { get; }
         double GetNetSellingValue(double quantity, double price);
+    }
+
+    internal abstract class BrokerContract : IBroker
+    {
+        public string Name
+        {
+            get
+            {
+                Contract.Ensures(string.IsNullOrEmpty(Contract.Result<string>()) == false);
+                return null;
+            }
+        }
+        
+
+        public double GetNetSellingValue(double quantity, double price)
+        {
+            Contract.Requires(quantity > 0);
+            Contract.Requires(price > 0);
+            return 0;
+        }
     }
 
     public class BrokerManager

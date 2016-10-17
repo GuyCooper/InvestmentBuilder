@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using MarketDataServices;
 using NLog;
 using InvestmentBuilderCore;
+using System.Diagnostics.Contracts;
 
 namespace InvestmentBuilder
 {
@@ -16,6 +17,7 @@ namespace InvestmentBuilder
         UseOverride
     }
 
+    [ContractClass(typeof(InvestmentRecordDataManagerContract))]
     public interface IInvestmentRecordDataManager
     {
         bool UpdateInvestmentRecords(UserAccountToken userToken, UserAccountData account, Trades trades, CashAccountData cashData, DateTime valuationDate, ManualPrices manualPrices);
