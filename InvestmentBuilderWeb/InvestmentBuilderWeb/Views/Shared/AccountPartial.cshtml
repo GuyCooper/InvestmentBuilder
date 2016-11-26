@@ -1,13 +1,27 @@
-﻿ 
-@using (Html.BeginForm("UpdateAccount", "InvestmentRecord", FormMethod.Get, new { id = "accountsList", @class = "navbar-right" }))
-    {
-        @Html.AntiForgeryToken()
-
-        <ul class="nav navbar-nav navbar-right">
-            <li>
-                @Html.DropDownList("accountId", null, new {
-                       onchange = "javascript:document.getElementById('accountsList').submit()"
-                    })       
+﻿<ul class="nav navbar-nav navbar-right">
+    <li>
+        @using (Html.BeginForm("UpdateAccount", "InvestmentRecord", FormMethod.Get, new { id = "accountsList", @class = "navbar-right" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.DropDownList("accountId", null, new
+       {
+           @class= "investmentNavigator",
+           onchange = "javascript:document.getElementById('accountsList').submit()"
+       })
+        }
+    </li>
+    <li class="dropdown">
+        <button type="button" class="btn dropdown-toggle investmentNavigator" id="dropdownMenu1" data-toggle="dropdown">
+            Options <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+            <li role="presentation">
+                <a role="menuitem" href="@Url.Action("AddInvestmentAccount","InvestmentRecord")">Add Account</a>
+            </li>
+            <li role="presentation">
+                <a role="menuitem" href="@Url.Action("ManageAccounts","InvestmentRecord")">Manage Accounts</a>
             </li>
         </ul>
-    }
+    </li>
+</ul>
+

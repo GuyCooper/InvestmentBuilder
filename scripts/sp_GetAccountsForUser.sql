@@ -11,10 +11,10 @@ END
 
 GO
 
-CREATE PROCEDURE sp_GetAccountsForUser(@User AS VARCHAR(50)) AS						 
+CREATE PROCEDURE sp_GetAccountsForUser(@User AS VARCHAR(50), @CheckAdmin AS BIT) AS						 
 BEGIN
 
-IF EXISTS (SELECT [Name] FROM [Administrators] WHERE Name = @User)
+IF @CheckAdmin = 1 AND EXISTS (SELECT [Name] FROM [Administrators] WHERE Name = @User)
 	SELECT Name FROM [Users] WHERE [Enabled] = 1
 ELSE
 BEGIN

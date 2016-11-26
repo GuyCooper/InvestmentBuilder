@@ -24,27 +24,6 @@ namespace InvestmentBuilderCore
             return null;
         }
 
-        public IEnumerable<string> GetActiveCompanies(UserAccountToken userToken, DateTime valuationDate)
-        {
-            Contract.Requires(userToken != null);
-            Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
-            return null;
-        }
-
-        public IEnumerable<string> GetAccountMembers(UserAccountToken userToken, DateTime valuationDate)
-        {
-            Contract.Requires(userToken != null);
-            Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
-            return null;
-        }
-
-        public IEnumerable<KeyValuePair<string, AuthorizationLevel>> GetAccountMemberDetails(UserAccountToken userToken, DateTime valuationDate)
-        {
-            Contract.Requires(userToken != null);
-            Contract.Ensures(Contract.Result<IEnumerable<KeyValuePair<string, AuthorizationLevel>>>() != null);
-            return null;
-        }
-
         public DateTime? GetLatestValuationDate(UserAccountToken userToken)
         {
             Contract.Requires(userToken != null);
@@ -57,35 +36,10 @@ namespace InvestmentBuilderCore
             return null;
         }
 
-        public IEnumerable<string> GetAccountNames(string user)
-        {
-            Contract.Requires(string.IsNullOrEmpty(user) == false);
-            Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
-            return null;
-        }
-
         public bool IsExistingValuationDate(UserAccountToken userToken, DateTime valuationDate)
         {
             Contract.Requires(userToken != null);
             return false;
-        }
-
-        public void UpdateMemberForAccount(UserAccountToken userToken, string member, AuthorizationLevel level, bool add)
-        {
-            Contract.Requires(userToken != null);
-            Contract.Requires(string.IsNullOrEmpty(member) == false);
-        }
-
-        public void CreateAccount(UserAccountToken userToken, AccountModel account)
-        {
-            Contract.Requires(userToken != null);
-        }
-
-        public AccountModel GetAccount(UserAccountToken userToken)
-        {
-            Contract.Requires(userToken != null);
-            Contract.Ensures(Contract.Result<AccountModel>() != null);
-            return null;
         }
 
         public IEnumerable<string> GetAccountTypes()
@@ -356,6 +310,52 @@ namespace InvestmentBuilderCore
             Contract.Requires(string.IsNullOrEmpty(user) == false);
             Contract.Requires(amount > 0);
             Contract.Requires(units> 0);
+        }
+
+        public IEnumerable<string> GetAccountMembers(UserAccountToken userToken, DateTime valuationDate)
+        {
+            Contract.Requires(userToken != null);
+            Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
+            return null;
+        }
+
+        public IEnumerable<AccountMember> GetAccountMemberDetails(UserAccountToken userToken, DateTime valuationDate)
+        {
+            Contract.Requires(userToken != null);
+            Contract.Ensures(Contract.Result<IEnumerable<AccountMember>>() != null);
+            return null;
+        }
+
+        public void UpdateMemberForAccount(UserAccountToken userToken, string member, AuthorizationLevel level, bool add)
+        {
+            Contract.Requires(userToken != null);
+            Contract.Requires(string.IsNullOrEmpty(member) == false);
+        }
+
+        public void CreateAccount(UserAccountToken userToken, AccountModel account)
+        {
+            Contract.Requires(userToken != null);
+        }
+
+        public AccountModel GetAccount(UserAccountToken userToken)
+        {
+            Contract.Requires(userToken != null);
+            Contract.Ensures(Contract.Result<AccountModel>() != null);
+            return null;
+        }
+
+        public IEnumerable<string> GetAccountNames(string user, bool bCheckAdmin)
+        {
+            Contract.Requires(string.IsNullOrEmpty(user) == false);
+            Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
+            return null;
+        }
+
+        public IEnumerable<string> GetActiveCompanies(UserAccountToken userToken, DateTime valuationDate)
+        {
+            Contract.Requires(userToken != null);
+            Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
+            return null;
         }
     }
 

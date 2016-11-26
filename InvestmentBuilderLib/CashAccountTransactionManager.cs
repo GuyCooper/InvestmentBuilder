@@ -38,7 +38,7 @@ namespace InvestmentBuilder
         public double Other { get; set; }
     }
 
-    public class CashAccountTransactionManager
+    public sealed class CashAccountTransactionManager
     {
         private readonly ICashAccountInterface _cashAccountData;
 

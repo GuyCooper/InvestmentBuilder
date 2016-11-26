@@ -95,5 +95,23 @@ namespace InvestmentBuilderWeb.Translators
                 ValuePerUnit = report.ValuePerUnit.ToString("#0.00")
             };
         }
+
+        public static AccountMember ToAccountMember(this AccountMemberDto memberDto)
+        {
+            return new AccountMember(memberDto.MemberID, (AuthorizationLevel)Enum.Parse(typeof(AuthorizationLevel), memberDto.AuthorisationType));
+        }
+
+        public static AccountModel ToAccountModel(this AccountModelDto accountDto)
+        {
+            if(accountDto != null)
+            {
+                return new AccountModel(accountDto.AccountName, accountDto.AccountDescription,
+                                        accountDto.AccountPassword, accountDto.ReportingCurrency,
+                                        accountDto.AccountType, accountDto.AccountEnabled, accountDto.Broker,
+                                        accountDto.Members.Select(x => x.ToAccountMember()).ToList()
+                                        );
+            }
+            return null;
+        }
     }
 }

@@ -7,11 +7,12 @@
     {
         @Html.AntiForgeryToken()
             
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.ValidationSummary(true, "Errors occured", new { @class = "text-danger" })
 
         <div class="form-group">
             @Html.LabelFor(m => m.TransactionDate)
             @Html.EditorFor(m => m.TransactionDate, new { @class = "form-control datetime" })
+            @Html.ValidationMessageFor(m => m.TransactionDate)
         </div>
 
         <div class="form-group">
@@ -28,11 +29,13 @@
             <div id="parameters">
                 @Html.DropDownList("DummyParameters", null, new { @class = "form-control" })
             </div>
+            @Html.ValidationMessageFor(m => m.Parameter)
         </div>
 
         <div class="form-group">
             @Html.LabelFor(m => m.Amount)
             @Html.EditorFor(m => m.Amount, new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.Amount)
         </div>
 
         <div class="form-group">

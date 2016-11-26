@@ -19,14 +19,14 @@ namespace PerformanceBuilderLib
         private IConfigurationSettings _settings;
         private IHistoricalDataReader _historicalDataReader;
         private IInvestmentRecordInterface _investmentRecordData;
-        private IClientDataInterface _ClientRecordData;
+        private IUserAccountInterface _userAccountData;
         private IMarketDataSource _marketDataSource;
 
         public PerformanceLaddersBuilder(IConfigurationSettings settings, IDataLayer dataLayer, IMarketDataSource marketDataSource)
         {
             _historicalDataReader = dataLayer.HistoricalData;
             _investmentRecordData = dataLayer.InvestmentRecordData;
-            _ClientRecordData = dataLayer.ClientData;
+            _userAccountData = dataLayer.UserAccountData;
             _marketDataSource = marketDataSource;
             _settings = settings;
         }
@@ -292,7 +292,7 @@ namespace PerformanceBuilderLib
 
         private IList<IndexData> _BuildCompanyIndexData(UserAccountToken userToken, DateTime valuationDate)
         {
-            var companies = _ClientRecordData.GetActiveCompanies(userToken, valuationDate).ToList();
+            var companies = _userAccountData.GetActiveCompanies(userToken, valuationDate).ToList();
             var investmentRecords = _investmentRecordData.GetFullInvestmentRecordData(userToken).ToList();
             var indexes = new List<IndexData>();
             foreach (var company in companies)

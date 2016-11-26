@@ -169,12 +169,12 @@ namespace InvestmentBuilderMSTests
                                            "ShareCentre",
                                            null);
 
-            ContainerManager.ResolveValueOnContainer<SQLServerDataLayer.SQLServerDataLayer>(_childContainer).ClientData.CreateAccount(userToken, account);
+            ContainerManager.ResolveValueOnContainer<SQLServerDataLayer.SQLServerDataLayer>(_childContainer).UserAccountData.CreateAccount(userToken, account);
 
-            ContainerManager.ResolveValueOnContainer<SQLServerDataLayer.SQLServerDataLayer>(_childContainer).ClientData.UpdateMemberForAccount(userToken,
+            ContainerManager.ResolveValueOnContainer<SQLServerDataLayer.SQLServerDataLayer>(_childContainer).UserAccountData.UpdateMemberForAccount(userToken,
                                                                                          userToken.User, AuthorizationLevel.UPDATE, true);
                                                                                          
-            var result = ContainerManager.ResolveValueOnContainer<SQLServerDataLayer.SQLServerDataLayer>(_childContainer).ClientData.GetAccount(userToken);
+            var result = ContainerManager.ResolveValueOnContainer<SQLServerDataLayer.SQLServerDataLayer>(_childContainer).UserAccountData.GetAccount(userToken);
 
             Assert.IsNotNull(result);
 

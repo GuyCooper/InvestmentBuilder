@@ -36,7 +36,7 @@ namespace InvestmentBuilder
         }
     }
 
-    public class BrokerManager
+    public sealed class BrokerManager
     {
         [ImportMany(typeof(IBroker))]
         private IEnumerable<IBroker> Brokers { get; set; }

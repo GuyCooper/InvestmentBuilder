@@ -15,8 +15,11 @@
 <td>
     @Html.DisplayFor(item => item.Other)
 </td>
+@if(Model.IsTotal == false)
+{
 <td>
     <ul class="nav nav-tabs">
         <li><a href="@Url.Action("RemovePaymentTransaction", "InvestmentRecord", Model)" class="btn btn-sm">Delete</a></li>
     </ul>
 </td>
+}

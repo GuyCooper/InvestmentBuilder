@@ -211,6 +211,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Interfaces\IApplicationSessionManager.cs" />
+    <Compile Include="Models\AccountModelDto.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\CashFlowModel.cs" />
     <Compile Include="Models\CompanyDataModel.cs" />
@@ -266,7 +267,8 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
-    <Content Include="Scripts\MyApp\ValuationReport.js" />
+    <Content Include="Scripts\MyApp\DemoCode.js" />
+    <Content Include="Scripts\MyApp\InvestmentAccount.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\_references.js" />
@@ -332,6 +334,7 @@
     <Content Include="Views\InvestmentRecord\ReceiptCashFlowItem.cshtml" />
     <Content Include="Views\InvestmentRecord\PaymentCashFlowItem.cshtml" />
     <Content Include="Views\InvestmentRecord\AddModalDialog.cshtml" />
+    <Content Include="Views\InvestmentRecord\ManageAccounts.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

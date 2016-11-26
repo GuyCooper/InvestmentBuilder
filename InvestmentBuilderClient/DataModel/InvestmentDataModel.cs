@@ -29,6 +29,7 @@ namespace InvestmentBuilderClient.DataModel
         private CashAccountTransactionManager _cashAccountManager;
         private InvestmentBuilder.InvestmentBuilder _investmentBuilder;
         private PerformanceBuilder _performanceBuilder;
+        private AccountManager _accountManager;
 
         private UserAccountToken _userToken; //cache user token
         private int _TradeUpdateCount;
@@ -48,7 +49,8 @@ namespace InvestmentBuilderClient.DataModel
                                    IAuthorizationManager authorizationManager,
                                    BrokerManager brokerManager,
                                    CashAccountTransactionManager cashAccountManager,
-                                   PerformanceBuilder performanceBuilder) 
+                                   PerformanceBuilder performanceBuilder,
+                                   AccountManager accountManager ) 
         {
             _dataLayer = dataLayer;
             _clientData = dataLayer.ClientData;
@@ -58,7 +60,7 @@ namespace InvestmentBuilderClient.DataModel
             _cashAccountManager = cashAccountManager;
             _investmentBuilder = investmentBuilder;
             _performanceBuilder = performanceBuilder;
-
+            _accountManager = accountManager;
         }
 
         private void UpdateTradeUpdateEvent()
@@ -76,19 +78,6 @@ namespace InvestmentBuilderClient.DataModel
             //always have the current date time as the first entry in the combo
             dates.Insert(0, DateTime.Now);
 
-            //if (dates.Count > 0)
-            //{
-            //    if(dates.First().Month != DateTime.Today.Month ||
-            //        dates.First().Year != DateTime.Today.Year)
-            //    {
-            //        //nowon a different month so add the current date to the list
-            //        dates.Insert(0, DateTime.Now);
-            //    }
-            //}
-            //else
-            //{
-            //    dates.Add(DateTime.Today);
-            //}
             return dates;
         }
 
@@ -116,7 +105,7 @@ namespace InvestmentBuilderClient.DataModel
 
         public IEnumerable<string> GetAccountNames()
         {
-            return _clientData.GetAccountNames(_userName);
+            return _accountManager.GetAccountNames(_userName);
         }
 
         public bool IsExistingValuationDate(DateTime dtValuation)
@@ -124,46 +113,14 @@ namespace InvestmentBuilderClient.DataModel
             return _clientData.IsExistingValuationDate(_userToken, dtValuation);
         }
 
-        public IEnumerable<KeyValuePair<string, AuthorizationLevel>> GetAccountMembers(UserAccountToken token)
+        public IEnumerable<AccountMember> GetAccountMembers(UserAccountToken token)
         {
-            return _clientData.GetAccountMemberDetails(token, LatestValuationDate ?? DateTime.Today);
+            return _accountManager.GetAccountMembers(token, LatestValuationDate ?? DateTime.Today);
         }
 
-        private void _UpdateMemberForAccount(UserAccountToken token, string member, AuthorizationLevel level, bool bAdd)
-        {
-            _clientData.UpdateMemberForAccount(token, member, level,  bAdd);
-        } 
         public void UpdateUserAccount(AccountModel account)
         {
-            logger.Log(LogLevel.Info, "creating/modifying account {0}", account.Name);
-            logger.Log(LogLevel.Info, "Password {0}", account.Password);
-            logger.Log(LogLevel.Info, "Description {0}", account.Description);
-            logger.Log(LogLevel.Info, "Reporting Currency {0}", account.ReportingCurrency);
-            logger.Log(LogLevel.Info, "Account Type {0}", account.Type);
-            logger.Log(LogLevel.Info, "Enabled {0}", account.Enabled);
-            logger.Log(LogLevel.Info, "Broker {0}", account.Broker);
-
-            var tmpToken = _authorizationManager.GetUserAccountToken(_userName, account.Name);
-
-            _clientData.CreateAccount(tmpToken, account);
-            var existingMembers = _clientData.GetAccountMembers(tmpToken, LatestValuationDate ?? DateTime.Today); 
-                //GetAccountMembers(tmpToken).ToList();
-            foreach(var member in existingMembers)
-            {
-                if(account.Members.Where(x => string.Equals(x.Key, member, StringComparison.InvariantCultureIgnoreCase)).Count() == 0)
-                {
-                    //remove this member
-                    logger.Log(LogLevel.Info, "removing member {0} from account {1}", member, account.Name);
-                    _UpdateMemberForAccount(tmpToken, member, AuthorizationLevel.NONE, false);
-                }
-            }
-
-            //now add the members
-            foreach (var member in account.Members)
-            {
-                logger.Log(LogLevel.Info, "adding member {0} to account {1}", member, account.Name);
-                _UpdateMemberForAccount(tmpToken, member.Key, member.Value, true);
-            }
+            _accountManager.UpdateUserAccount(_userName, account, LatestValuationDate ?? DateTime.Today);
         }
 
         public IEnumerable<string> GetAccountTypes()
@@ -173,14 +130,9 @@ namespace InvestmentBuilderClient.DataModel
 
         public AccountModel GetAccountData(string account)
         {
+          
             var tmpToken = _authorizationManager.GetUserAccountToken(_userName, account);
-            AccountModel data = _clientData.GetAccount(tmpToken);
-            if(data != null)
-            {
-                data.AddMembers(GetAccountMembers(tmpToken).ToList());
-            }
-
-            return data;
+            return _accountManager.GetAccountData(tmpToken, LatestValuationDate ?? DateTime.Today);
         }
 
         public void UpdateAccountName(string account)

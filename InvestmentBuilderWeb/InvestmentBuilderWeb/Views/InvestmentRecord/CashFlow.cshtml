@@ -5,55 +5,51 @@
 
 <div class="container">
     @Html.Partial("AccountSummary")
-    <div class="row">
+
+<div class="row panel panel-default investmentSummary">
+    <div class="cashItemType">
         <div class="navbar navbar-default">
             <div class="navbar-header">
                 <a class="navbar-brand">Receipts</a>
-            </div>      
+            </div>
             <ul class="nav navbar-nav navbar-right">
                 <li><p class="navbar-text">Valuation Date: @Model.ValuationDate</p> </li>
                 <li><p class="navbar-text">Total: @Model.ReceiptsTotal</p></li>
                 <li>
-                    <div id="addReceiptButton" class="btn btn-default" data-toggle="modal" data-target="#myModal">Add Receipt</div>
+                    <div id="addReceiptButton" class="btn btn-default" onclick="javascript: onAddReceipt()" data-toggle="modal" data-target="#myModal">Add Receipt</div>
                 </li>
             </ul>
         </div>
-    </div>
 
-    @Html.Partial("AddModalDialog")
-
-    <div class="row">
-        <div class="panel panel-default">
-            <table class="table table-condensed">
-                <thead>
+        <table class="table table-condensed">
+            <thead>
+                <tr>
+                    <th>Transaction Date</th>
+                    <th>Parameter</th>
+                    <th>Subscription</th>
+                    <th>Sale</th>
+                    <th>Dividend</th>
+                    <th>Other Receipts</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Receipts.Where(x => x.IsTotal == false))
+            {
                     <tr>
-                        <th>Transaction Date</th>
-                        <th>Parameter</th>
-                        <th>Subscription</th>
-                        <th>Sale</th>
-                        <th>Dividend</th>
-                        <th>Other Receipts</th>
+                        @Html.Partial("ReceiptCashFlowItem", item)
                     </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model.Receipts.Where(x => x.IsTotal == false))
-                    {
-                        <tr>
-                            @Html.Partial("ReceiptCashFlowItem", item)
-                        </tr>
-                    }
-                    @foreach (var item in Model.Receipts.Where(x => x.IsTotal == true))
-                    {
-                        <tr class="active cashTotal">
-                            @Html.Partial("ReceiptCashFlowItem", item)
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+                }
+                @foreach (var item in Model.Receipts.Where(x => x.IsTotal == true))
+            {
+                    <tr class="active cashTotal">
+                        @Html.Partial("ReceiptCashFlowItem", item)
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
-    
-    <div class="row">
+
+    <div class="cashItemType">
         <div class="navbar navbar-default">
             <div class="navbar-header">
                 <a class="navbar-brand">Payments</a>
@@ -62,41 +58,40 @@
                 <li><p class="navbar-text">Valuation Date: @Model.ValuationDate</p> </li>
                 <li><p class="navbar-text">Total: @Model.PaymentsTotal</p></li>
                 <li>
-                    <div id="addPaymentButton" class="btn btn-default" data-toggle="modal" data-target="#myModal">Add Payment</div>
+                    <div id="addPaymentButton" class="btn btn-default" onclick="javascript:onAddPayment()" data-toggle="modal" data-target="#myModal">Add Payment</div>
                 </li>
             </ul>
         </div>
-    </div>
- 
-    <div class="row">
-        <div class="panel panel-default">
-            <table class="table table-condensed">
-                <thead>
-                    <tr>
-                        <th>Transaction Date</th>
-                        <th>Parameter</th>
-                        <th>Withdrawls</th>
-                        <th>Purchases</th>
-                        <th>Other Payments</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model.Payments.Where(x => x.IsTotal == false))
-                    {
-                        <tr>
-                            @Html.Partial("PaymentCashFlowItem", item)
-                        </tr>
-                    }
-                    @foreach (var item in Model.Payments.Where(x => x.IsTotal == true))
-                    {
-                        <tr class="active cashTotal">
-                            @Html.Partial("PaymentCashFlowItem", item)
-                        </tr>
-                    }
 
-                </tbody>
-            </table>
-        </div>
+        <table class="table table-condensed">
+            <thead>
+                <tr>
+                    <th>Transaction Date</th>
+                    <th>Parameter</th>
+                    <th>Withdrawls</th>
+                    <th>Purchases</th>
+                    <th>Other Payments</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Payments.Where(x => x.IsTotal == false))
+            {
+                    <tr>
+                        @Html.Partial("PaymentCashFlowItem", item)
+                    </tr>
+                }
+                @foreach (var item in Model.Payments.Where(x => x.IsTotal == true))
+            {
+                    <tr class="active cashTotal">
+                        @Html.Partial("PaymentCashFlowItem", item)
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
+</div>
+
+@Html.Partial("AddModalDialog")
+
 </div>
 

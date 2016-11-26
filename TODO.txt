@@ -1,0 +1,11 @@
+InvestmentBuilderWeb TODO 19-10-2016
+
+1. Wire in BuildReport button
+2. Add account management page.
+3  Add redemptions page 
+4. Add undo last transaction button
+5. add new navbar dropdown to allow user to navigate to these pages
+6. fix datetime picker display on date fields
+7. add previous months cash flow in cash flow view
+8. add previous months reports in reports view9. fix client side validation
+9. tidy up header bar

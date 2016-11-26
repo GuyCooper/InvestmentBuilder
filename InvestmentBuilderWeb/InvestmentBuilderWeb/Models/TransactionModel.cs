@@ -17,10 +17,13 @@ namespace InvestmentBuilderWeb.Models
 
     public class TransactionModelAttributes
     {
+        [Required]
         [DisplayFormat(DataFormatString = "{0:d}")]
         public object TransactionDate { get; set; }
+        [Required]
         [MaxLength(30)]
         public object Parameter { get; set; }
+        [Required]
         [DisplayFormat(DataFormatString = "{0:0.00}")]
         public object Amount { get; set; }
     }

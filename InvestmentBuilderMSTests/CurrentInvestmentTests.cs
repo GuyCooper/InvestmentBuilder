@@ -11,6 +11,7 @@ namespace InvestmentBuilderMSTests
     {
         public static readonly string _TestAccount = "TestAccount";
         public static readonly string _Currency = "GBP";
+        public static readonly string _TestAccountType = "Club";
         public static readonly string _Description = "Test account";
         public static readonly string _Broker = "AJBell";
 
@@ -98,13 +99,105 @@ namespace InvestmentBuilderMSTests
         public override void UpdateMemberAccount(UserAccountToken userToken, DateTime dtValuation, string member, double dAmount)
         {
         }
+
+        public override IEnumerable<string> GetAccountMembers(UserAccountToken userToken, DateTime valuationDate)
+        {
+            return new List<string>
+            {
+                TestDataCache._testUser
+            };
+        }
     }
 
     internal class CurrentInvestmentsClientData : ClientDataInterfaceTest
-    {
+    {        
         public override DateTime? GetPreviousAccountValuationDate(UserAccountToken userToken, DateTime dtValuation)
         {
             return TestDataCache._previousValutionDate;
+        }
+    }
+
+    internal class UserAccountDataTest : UserAccountInterfaceTest
+    {
+        public List<AccountModel> TestAccountData = new List<AccountModel>();
+
+        public override AccountModel GetAccount(UserAccountToken userToken)
+        {
+            return TestAccountData.FirstOrDefault(x => x.Name == userToken.Account);
+        }
+
+        public override IEnumerable<AccountMember> GetAccountMemberDetails(UserAccountToken userToken, DateTime valuationDate)
+        {
+            var account = TestAccountData.FirstOrDefault(x => x.Name == userToken.Account);
+            if(account != null)
+            {
+                return account.Members;
+            }
+
+            return Enumerable.Empty<AccountMember>();
+        }
+
+        public override IEnumerable<string> GetAccountMembers(UserAccountToken userToken, DateTime valuationDate)
+        {
+            return GetAccountMemberDetails(userToken, valuationDate).Select(x => x.Name);
+        }
+
+        public override void CreateAccount(UserAccountToken userToken, AccountModel account)
+        {
+            TestAccountData.Add(new AccountModel(account.Name, account.Description,null,
+                account.ReportingCurrency, account.Type, account.Enabled, account.Broker, null));
+        }
+
+        public override void UpdateMemberForAccount(UserAccountToken userToken, string member, AuthorizationLevel level, bool add)
+        {
+            var account = TestAccountData.FirstOrDefault(x => x.Name == userToken.Account);
+            if (account != null)
+            {
+                if (add)
+                    account.Members.Add(new AccountMember(member, level));
+                else
+                {
+                    var match = account.Members.FirstOrDefault(x => x.Name == member);
+                    if(match.Name != null)
+                    {
+                        account.Members.Remove(match);
+                    }
+                }
+            }
+        }
+
+        public override IEnumerable<string> GetAccountNames(string user, bool bCheckAdmin)
+        {
+            return TestAccountData.Select(x => x.Name);
+        }
+    }
+
+    internal class UserAccountDataTest1 : UserAccountDataTest
+    {
+        public override IEnumerable<string> GetAccountNames(string user, bool bCheckAdmin)
+        {
+            return new List<string>
+            {
+                "Acme",
+                "ABC",
+                "DEF",
+                "HIJ",
+                "KLM"
+            };
+        }
+
+    }
+
+    internal class UserAccountDataTest2 : UserAccountDataTest
+    {
+        public override AccountModel GetAccount(UserAccountToken userToken)
+        {
+            return new AccountModel(TestDataCache._TestAccount, TestDataCache._Description,
+                                    null, TestDataCache._Currency, TestDataCache._TestAccountType,
+                                    true, TestDataCache._Broker, new List<AccountMember>
+                                    {
+                                        new AccountMember(TestDataCache._testUser, AuthorizationLevel.ADMINISTRATOR)
+                                    });
         }
     }
 

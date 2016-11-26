@@ -9,7 +9,7 @@ using System.Diagnostics.Contracts;
 
 namespace InvestmentBuilder
 {
-    public class InvestmentBuilder
+    public sealed class InvestmentBuilder
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -259,7 +259,7 @@ namespace InvestmentBuilder
                 return false;
             }
 
-            if (_clientData.GetAccountMembers(userToken, dtPreviousValuation.Value).FirstOrDefault(
+            if (_userAccountData.GetAccountMembers(userToken, dtPreviousValuation.Value).FirstOrDefault(
                         x => string.Equals(x, user)) == null)
             {
                 logger.Log(LogLevel.Error, "user {0} is not a member of account {1}", user, userToken.Account);
@@ -309,10 +309,10 @@ namespace InvestmentBuilder
         {
             if (_typeProcedureLookup.ContainsKey(transactionType))
             {
-                var methodInfo = _clientData.GetType().GetMethod(_typeProcedureLookup[transactionType]);
+                var methodInfo = _userAccountData.GetType().GetMethod(_typeProcedureLookup[transactionType]);
                 if (methodInfo != null)
                 {
-                    return methodInfo.Invoke(_clientData, new object[] { userToken, valuationDate }) as IEnumerable<string>;
+                    return methodInfo.Invoke(_userAccountData, new object[] { userToken, valuationDate }) as IEnumerable<string>;
                 }
             }
             return Enumerable.Empty<string>();
@@ -322,6 +322,20 @@ namespace InvestmentBuilder
         public string GetInvestmentReport(UserAccountToken userToken, DateTime valuationDate)
         {
             return _reportWriter.GetReportFileName(_settings.GetOutputPath(userToken.Account), valuationDate);
+        }
+
+        public IEnumerable<string> GetAllCurrencies()
+        {
+            //TODO do this properly
+            return new List<string>
+            {
+                "GBP",
+                "USD",
+                "EUR",
+                "JPY",
+                "CHF",
+                "CAD"
+            };
         }
 
         private AssetReport _BuildAssetReport(
@@ -405,7 +419,7 @@ namespace InvestmentBuilder
                 logger.Log(LogLevel.Info, "new account. setting issued units equal to net assets");
                 //no previous valaution this is a new account, the total issued units should be the same as
                 //the total netassets. this will give a unit valuation of 1.
-                var members = _clientData.GetAccountMembers(userToken, DateTime.Today).ToList();
+                var members = _userAccountData.GetAccountMembers(userToken, DateTime.Today).ToList();
                 double memberUnits = dNetAssets / members.Count;
                 dResult = dNetAssets;
                 foreach (var member in members)
@@ -527,7 +541,7 @@ namespace InvestmentBuilder
         }
 
         [ContractInvariantMethod]
-        protected void ObjectInvariantCheck()
+        private void ObjectInvariantCheck()
         {
             Contract.Invariant(_settings != null);
             Contract.Invariant(_dataLayer != null);

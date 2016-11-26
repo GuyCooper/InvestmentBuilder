@@ -26,14 +26,14 @@ namespace InvestmentBuilderClient.View
             InitialiseFromData(_dataModel.GetAccountData(account));
         }
 
-        public IList<KeyValuePair<string, AuthorizationLevel>> GetMembers()
+        public IList<AccountMember> GetMembers()
         {
             //return lstVwMembers.Items.Cast<KeyValuePair<string, AuthorizationLevel>>().ToList();
-            var result = new List<KeyValuePair<string, AuthorizationLevel>>();
+            var result = new List<AccountMember>();
             foreach(ListViewItem item in lstVwMembers.Items)
             {
                 result.Add(
-                    new KeyValuePair<string, AuthorizationLevel>(
+                    new AccountMember(
                                     item.Text,
                                     (AuthorizationLevel)Enum.Parse(typeof(AuthorizationLevel), item.SubItems[1].Text)));
             }
@@ -134,7 +134,7 @@ namespace InvestmentBuilderClient.View
                 this.lstVwMembers.BeginUpdate();
                 foreach (var member in modelData.Members)
                 {
-                    _addMember(member.Key, member.Value);
+                    _addMember(member.Name, member.AuthLevel);
                 }
                 this.lstVwMembers.EndUpdate();
             }

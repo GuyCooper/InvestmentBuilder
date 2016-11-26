@@ -1,0 +1,59 @@
+﻿@model InvestmentBuilderWeb.Models.AccountModelDto
+
+<h2>@ViewBag.Title</h2>
+
+<div class="editor">
+
+    <form name="investmentAccountForm" role="form" action="ProcessInvestmentAccount" method="post" onsubmit="javascript: submitInvestmentAccount()">
+        <div class="form-group">
+            <label>Account Name</label>
+            <input class="form-control" name="AccountName" placeholder="name of account"/>
+        </div>
+
+        <div class="form-group">
+            <label>Description</label>
+            <input class="form-control" name="AccountDescription" placeholder="description of account" />
+        </div>
+
+        <div class="form-group">
+            <label for="accountCurrency">Reporting Currency</label>
+            <select name="ReportingCurrency">
+                @foreach (var item in (IEnumerable<SelectListItem>)ViewBag.Currencies)
+                {
+                    <option>@item.Value</option>
+                }
+            </select>            
+        </div>
+
+        <div class="form-group">
+            <label>Account Type</label>
+            <label class="checkbox-inline">
+                <input type="radio" name="AccountType" value="Club" />Club
+                <input type="radio" name="AccountType" value="Personal" />Personal
+            </label>
+        </div>
+
+        <ul id="memberList">
+            @foreach (var item in Model.Members)
+            {
+                <li>
+                    <div id="memberEntry">
+                        <input id="memberID" value="@item.MemberID" />
+                        @Html.DropDownList("AuthorisationType", null, new { id= "authLevel" })
+                    </div>
+                </li>
+            }
+        </ul>
+
+        <input type="hidden" name="SerialisedMembers"/>
+        
+        <div class="form-group">
+            <div onclick="javascript: addMemberSlot()" class="btn btn-sm">Add Member</div>
+        </div>
+
+        <div class="form-group">
+            <div class="btn">Cancel</div>
+            <input type="submit" value="Submit" />
+        </div>
+    </form>
+</div>

@@ -7,25 +7,53 @@ using System.Diagnostics.Contracts;
 
 namespace InvestmentBuilderCore
 {
-    public class AccountModel
+    public class AccountMember
     {
-        public AccountModel(string name, string description, string password, 
-                            string currency, string type, bool enabled, string broker,
-                            IList<KeyValuePair<string, AuthorizationLevel>> members)
+        public AccountMember(string name, AuthorizationLevel level)
         {
             Name = name;
-            Description = description;
-            Password = password;
+            AuthLevel = level;
+        }
+
+        public string Name { get; private set; }
+        public AuthorizationLevel AuthLevel { get; private set; }
+        public string AuthLevelString {
+              get { return AuthLevel.ToString(); }
+              private set
+              {
+                AuthLevel = (AuthorizationLevel)Enum.Parse(typeof(AuthorizationLevel), value); 
+              }
+         }
+    }
+
+    public class AccountModel
+    {
+        private readonly IList<AccountMember> _members =
+                    new List<AccountMember> ();
+
+        public AccountModel(string name, string description, string password, 
+                            string currency, string type, bool enabled, string broker,
+                            IList<AccountMember> members)
+        {
+            Name = name;
+            Description = description ?? Name;
+            Password = password ?? "password";
             ReportingCurrency = currency;
             Type = type;
             Enabled = enabled;
             Broker = broker;
-            Members = members;
+            AddMembers(members);
         }
 
-        public void AddMembers(IList<KeyValuePair<string, AuthorizationLevel>> members)
+        public void AddMembers(IList<AccountMember> members)
         {
-            Members = members;
+            if (members != null)
+            {
+                foreach (var member in members)
+                {
+                    _members.Add(member);
+                }
+            }
         }
 
         public string Name { get; private set; }
@@ -35,14 +63,22 @@ namespace InvestmentBuilderCore
         public string Type { get; private set; }
         public bool Enabled { get; private set; }
         public string Broker { get; private set; }
-        public IList<KeyValuePair<string, AuthorizationLevel>> Members { get; private set; }
+        public IList<AccountMember> Members
+        {
+            get
+            {
+                return _members;
+            }
+        }
 
         [ContractInvariantMethod]
         protected void ObjectInvariantMethod()
         {
             Contract.Invariant(string.IsNullOrEmpty(Name) == false);
+            Contract.Invariant(string.IsNullOrEmpty(Password) == false);
             Contract.Invariant(string.IsNullOrEmpty(ReportingCurrency) == false);
             Contract.Invariant(string.IsNullOrEmpty(Type) == false);
+            Contract.Invariant(Members != null);
         }
     }
 }

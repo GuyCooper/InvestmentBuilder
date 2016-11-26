@@ -103,7 +103,7 @@ namespace InvestmentBuilderMSTests
         }
     }
 
-    internal class PerfLibClientDataInterfaceTest : ClientDataInterfaceTest
+    internal class PerfLibUserAccountInterfaceTest : UserAccountInterfaceTest
     {
         public override IEnumerable<string> GetActiveCompanies(UserAccountToken userToken, DateTime valuationDate)
         {
@@ -140,10 +140,10 @@ namespace InvestmentBuilderMSTests
         [TestInitialize]
         public void Setup()
         {
-            _dataLayer = new DataLayerTest(new PerfLibClientDataInterfaceTest(),
+            _dataLayer = new DataLayerTest(null,
                          new PerfLibInvestmentRecordInterfaceTest(),
                          null,
-                         null,
+                         new PerfLibUserAccountInterfaceTest(),
                          new PerfLibHistoricalData());
         }
 

@@ -11,10 +11,14 @@ END
 
 GO
 
-CREATE PROCEDURE sp_CreateAccount(@Name AS VARCHAR(30), @Password AS VARCHAR(1024),
-								  @Description AS VARCHAR(1024), @Currency AS CHAR(3), 
-								  @AccountType AS VARCHAR(50), @Enabled AS TINYINT,
-								  @Broker AS VARCHAR(30) ) AS
+CREATE PROCEDURE sp_CreateAccount(@Name AS VARCHAR(30)
+								  ,@Currency AS CHAR(3)
+								  ,@AccountType AS VARCHAR(50)
+								  ,@Enabled AS TINYINT					   
+								  ,@Password AS VARCHAR(1024)
+								  ,@Description AS VARCHAR(1024) = NULL
+								  ,@Broker AS VARCHAR(30) = NULL
+								  ) AS
 BEGIN
 
 IF NOT EXISTS (SELECT 1 FROM Users WHERE Name = @Name)

@@ -48,16 +48,9 @@ namespace InvestmentBuilderMSTests
         //client interface
         public virtual IEnumerable<DateTime> GetRecentValuationDates(UserAccountToken userToken, DateTime dtDateFrom) { throw new NotImplementedException(); }
         public virtual IEnumerable<string> GetTransactionTypes(string side) { throw new NotImplementedException(); }
-        public virtual IEnumerable<string> GetActiveCompanies(UserAccountToken userToken, DateTime valuationDate) { throw new NotImplementedException(); }
-        public virtual IEnumerable<string> GetAccountMembers(UserAccountToken userToken, DateTime valuationDate) { throw new NotImplementedException(); }
-        public virtual IEnumerable<KeyValuePair<string, AuthorizationLevel>> GetAccountMemberDetails(UserAccountToken userToken, DateTime valuationDate) { throw new NotImplementedException(); }
         public virtual DateTime? GetLatestValuationDate(UserAccountToken userToken) { throw new NotImplementedException(); }
         public virtual DateTime? GetPreviousAccountValuationDate(UserAccountToken userToken, DateTime dtValuation) { throw new NotImplementedException(); }
-        public virtual IEnumerable<string> GetAccountNames(string user) { throw new NotImplementedException(); }
         public virtual bool IsExistingValuationDate(UserAccountToken userToken, DateTime valuationDate) { throw new NotImplementedException(); }
-        public virtual void UpdateMemberForAccount(UserAccountToken userToken, string member, AuthorizationLevel level, bool add) { throw new NotImplementedException(); }
-        public virtual void CreateAccount(UserAccountToken userToken, AccountModel account) { throw new NotImplementedException(); }
-        public virtual AccountModel GetAccount(UserAccountToken userToken) { throw new NotImplementedException(); }
         public virtual IEnumerable<string> GetAccountTypes() { throw new NotImplementedException(); }
         public virtual IEnumerable<string> GetAllCompanies() { throw new NotImplementedException(); }
         public virtual Stock GetTradeItem(UserAccountToken userToken, string name) { throw new NotImplementedException(); }
@@ -119,6 +112,13 @@ namespace InvestmentBuilderMSTests
         public virtual IEnumerable<Redemption> GetRedemptions(UserAccountToken userToken, DateTime valuationDate) { throw new NotImplementedException(); }
         public virtual void AddRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount) { throw new NotImplementedException(); }
         public virtual void UpdateRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount, double units) { throw new NotImplementedException(); }
+        public virtual IEnumerable<string> GetAccountMembers(UserAccountToken userToken, DateTime valuationDate) { throw new NotImplementedException(); }
+        public virtual IEnumerable<AccountMember> GetAccountMemberDetails(UserAccountToken userToken, DateTime valuationDate) { throw new NotImplementedException(); }
+        public virtual void UpdateMemberForAccount(UserAccountToken userToken, string member, AuthorizationLevel level, bool add) { throw new NotImplementedException(); }
+        public virtual void CreateAccount(UserAccountToken userToken, AccountModel account) { throw new NotImplementedException(); }
+        public virtual AccountModel GetAccount(UserAccountToken userToken) { throw new NotImplementedException(); }
+        public virtual IEnumerable<string> GetAccountNames(string user, bool bCheckAdmin) { throw new NotImplementedException(); }
+        public virtual IEnumerable<string> GetActiveCompanies(UserAccountToken userToken, DateTime valuationDate) { throw new NotImplementedException(); }
     }
 
     internal class HistoricalDataReaderTest : IHistoricalDataReader
@@ -284,6 +284,13 @@ namespace InvestmentBuilderMSTests
         public virtual IEnumerable<Redemption> GetRedemptions(UserAccountToken userToken, DateTime valuationDate) { return null; }
         public virtual void AddRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount) { }
         public virtual void UpdateRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount, double units) { }
+        public void UpdateMemberForAccount(UserAccountToken userToken, string member, AuthorizationLevel level, bool add) { }
+        public virtual void CreateAccount(UserAccountToken userToken, AccountModel account) { }
+        public virtual AccountModel GetAccount(UserAccountToken userToken) { return null; }
+        public virtual IEnumerable<string> GetAccountMembers(UserAccountToken userToken, DateTime valuationDate) { return null; }
+        public virtual IEnumerable<AccountMember> GetAccountMemberDetails(UserAccountToken userToken, DateTime valuationDate) { return null; }
+        public virtual IEnumerable<string> GetAccountNames(string user, bool bCheckAdmin) { return null; }
+        public virtual IEnumerable<string> GetActiveCompanies(UserAccountToken userToken, DateTime valuationDate) { return Enumerable.Empty<string>(); }
     }
 
     internal class InvestmentRecordEmptyInterfaceTest : IInvestmentRecordInterface
@@ -317,16 +324,9 @@ namespace InvestmentBuilderMSTests
         //client interface
         public virtual IEnumerable<DateTime> GetRecentValuationDates(UserAccountToken userToken, DateTime dtDateFrom) { return null; }
         public virtual IEnumerable<string> GetTransactionTypes(string side) { return Enumerable.Empty<string>(); }
-        public virtual IEnumerable<string> GetActiveCompanies(UserAccountToken userToken, DateTime valuationDate) { return Enumerable.Empty<string>(); }
-        public virtual IEnumerable<string> GetAccountMembers(UserAccountToken userToken, DateTime valuationDate) { return Enumerable.Empty<string>(); }
-        public virtual IEnumerable<KeyValuePair<string, AuthorizationLevel>> GetAccountMemberDetails(UserAccountToken userToken, DateTime valuationDate) { return null; }
         public virtual DateTime? GetLatestValuationDate(UserAccountToken userToken) { return null; }
         public virtual DateTime? GetPreviousAccountValuationDate(UserAccountToken userToken, DateTime dtValuation) { return null; }
-        public virtual IEnumerable<string> GetAccountNames(string user) { return null; }
         public virtual bool IsExistingValuationDate(UserAccountToken userToken, DateTime valuationDate) { return false; }
-        public virtual void UpdateMemberForAccount(UserAccountToken userToken, string member, AuthorizationLevel level, bool add) { }
-        public virtual void CreateAccount(UserAccountToken userToken, AccountModel account) { }
-        public virtual AccountModel GetAccount(UserAccountToken userToken) { return null; }
         public virtual IEnumerable<string> GetAccountTypes() { return Enumerable.Empty<string>(); }
         public virtual IEnumerable<string> GetAllCompanies() { return Enumerable.Empty<string>(); }
         public virtual Stock GetTradeItem(UserAccountToken userToken, string name) { return null; }

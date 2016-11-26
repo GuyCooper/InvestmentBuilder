@@ -54,49 +54,6 @@ namespace SQLServerDataLayer
             }
         }
 
-        public IEnumerable<string> GetActiveCompanies(UserAccountToken userToken, DateTime valuationDate)
-        {
-            userToken.AuthorizeUser(AuthorizationLevel.READ);
-            using (var command = new SqlCommand("sp_GetActiveCompanies", Connection))
-            {
-                command.CommandType = CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
-                command.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        yield return (string)reader["Name"];
-                    }
-                }
-            }
-        }
-
-        public IEnumerable<string> GetAccountMembers(UserAccountToken userToken, DateTime valuationDate)
-        {
-            return GetAccountMemberDetails(userToken, valuationDate).Select(x => x.Key);
-        }
-
-        public IEnumerable<KeyValuePair<string, AuthorizationLevel>> GetAccountMemberDetails(UserAccountToken userToken, DateTime valuationDate)
-        {
-            userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
-            using (var command = new SqlCommand("sp_GetAccountMembers", Connection))
-            {
-                command.CommandType = CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
-                command.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        yield return new KeyValuePair<string, AuthorizationLevel>(
-                                                (string)reader["Name"],
-                                                (AuthorizationLevel)reader["Authorization"]);
-                    }
-                }
-            }
-        }
-
         public DateTime? GetLatestValuationDate(UserAccountToken userToken)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
@@ -115,24 +72,6 @@ namespace SQLServerDataLayer
             return null;
         }
 
-        public IEnumerable<string> GetAccountNames(string user)
-        {
-            //return the list of accounts that this user is able to see
-
-            using (var sqlCommand = new SqlCommand("sp_GetAccountsForUser", Connection))
-            {
-                sqlCommand.CommandType = CommandType.StoredProcedure;
-                sqlCommand.Parameters.Add(new SqlParameter("@User", user));
-                using (var reader = sqlCommand.ExecuteReader())
-                {
-                    while(reader.Read())
-                    {
-                        yield return reader.GetString(0);
-                    }
-                }
-            }
-        }
-
         public bool IsExistingValuationDate(UserAccountToken userToken, DateTime valuationDate)
         {
             userToken.AuthorizeUser(AuthorizationLevel.READ);
@@ -144,64 +83,6 @@ namespace SQLServerDataLayer
                 var result = sqlCommand.ExecuteScalar();
                 return result != null;
             }
-        }
-
-        public void UpdateMemberForAccount(UserAccountToken userToken, string member, AuthorizationLevel level, bool add)
-        {
-            userToken.AuthorizeUser(AuthorizationLevel.ADMINISTRATOR);
-            using (var sqlCommand = new SqlCommand("sp_UpdateMemberForAccount", Connection))
-            {
-                sqlCommand.CommandType = CommandType.StoredProcedure;
-                sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account));
-                sqlCommand.Parameters.Add(new SqlParameter("@Member", member));
-                sqlCommand.Parameters.Add(new SqlParameter("@Level", (int)level));
-                sqlCommand.Parameters.Add(new SqlParameter("@Add", add ? 1 : 0));
-                sqlCommand.ExecuteNonQuery();
-            }
-        }
-
-        public void CreateAccount(UserAccountToken userToken, AccountModel account)
-        {
-            userToken.AuthorizeUser(AuthorizationLevel.ADMINISTRATOR);
-            using (var sqlCommand = new SqlCommand("sp_CreateAccount", Connection))
-            {
-                sqlCommand.CommandType = CommandType.StoredProcedure;
-                sqlCommand.Parameters.Add(new SqlParameter("@Name", account.Name));
-                sqlCommand.Parameters.Add(new SqlParameter("@Password", account.Password));
-                sqlCommand.Parameters.Add(new SqlParameter("@Description", account.Description));
-                sqlCommand.Parameters.Add(new SqlParameter("@Currency", account.ReportingCurrency));
-                sqlCommand.Parameters.Add(new SqlParameter("@AccountType", account.Type));
-                sqlCommand.Parameters.Add(new SqlParameter("@Enabled", account.Enabled));
-                sqlCommand.Parameters.Add(new SqlParameter("@Broker", account.Broker));
-                sqlCommand.ExecuteNonQuery();
-            }
-        }
-
-        public AccountModel GetAccount(UserAccountToken userToken)
-        {
-            userToken.AuthorizeUser(AuthorizationLevel.ADMINISTRATOR);
-            using (var sqlCommand = new SqlCommand("sp_GetAccountData", Connection))
-            {
-                sqlCommand.CommandType = CommandType.StoredProcedure;
-                sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account));
-                using (var reader = sqlCommand.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        //var obj = reader["Enabled"];
-                        return new AccountModel((string)reader["Name"],
-                                                (string)reader["Description"],
-                                                (string)reader["Password"],
-                                                (string)reader["Currency"],
-                                                (string)reader["Type"],
-                                                (byte)reader["Enabled"] != 0 ? true : false,
-                                                (string)reader["Broker"],
-                                                null
-                                                );
-                    }
-                }
-            }
-            return null;
         }
 
         public IEnumerable<string> GetAccountTypes()
@@ -294,6 +175,5 @@ namespace SQLServerDataLayer
             }
             return dtPrevious;
         }
-
     }
 }

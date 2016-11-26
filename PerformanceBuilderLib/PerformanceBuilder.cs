@@ -10,7 +10,7 @@ using System.Diagnostics.Contracts;
 
 namespace PerformanceBuilderLib
 {
-    public class PerformanceBuilder 
+    public sealed class PerformanceBuilder 
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
         private IConfigurationSettings _settings;

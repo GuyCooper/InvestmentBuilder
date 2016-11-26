@@ -27,17 +27,10 @@ namespace InvestmentBuilderCore
     {
         //client interface
         IEnumerable<DateTime> GetRecentValuationDates(UserAccountToken userToken, DateTime dtDateFrom);
-        IEnumerable<string> GetTransactionTypes(string side);
-        IEnumerable<string> GetActiveCompanies(UserAccountToken userToken, DateTime valuationDate);
-        IEnumerable<string> GetAccountMembers(UserAccountToken userToken, DateTime valuationDate);
-        IEnumerable<KeyValuePair<string, AuthorizationLevel>> GetAccountMemberDetails(UserAccountToken userToken, DateTime valuationDate);
+        IEnumerable<string> GetTransactionTypes(string side);        
         DateTime? GetLatestValuationDate(UserAccountToken userToken);
         DateTime? GetPreviousAccountValuationDate(UserAccountToken userToken, DateTime dtValuation);
-        IEnumerable<string> GetAccountNames(string user);
         bool IsExistingValuationDate(UserAccountToken userToken, DateTime valuationDate);
-        void UpdateMemberForAccount(UserAccountToken userToken, string member, AuthorizationLevel level, bool add);
-        void CreateAccount(UserAccountToken userToken, AccountModel account);
-        AccountModel GetAccount(UserAccountToken userToken);
         IEnumerable<string> GetAccountTypes();
         IEnumerable<string> GetAllCompanies();
         Stock GetTradeItem(UserAccountToken userToken, string name);
@@ -101,6 +94,13 @@ namespace InvestmentBuilderCore
         IEnumerable<Redemption> GetRedemptions(UserAccountToken userToken, DateTime valuationDate);
         void AddRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount);
         void UpdateRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount, double units);
+        void UpdateMemberForAccount(UserAccountToken userToken, string member, AuthorizationLevel level, bool add);
+        void CreateAccount(UserAccountToken userToken, AccountModel account);
+        AccountModel GetAccount(UserAccountToken userToken);
+        IEnumerable<string> GetAccountMembers(UserAccountToken userToken, DateTime valuationDate);
+        IEnumerable<AccountMember> GetAccountMemberDetails(UserAccountToken userToken, DateTime valuationDate);
+        IEnumerable<string> GetAccountNames(string user, bool bCheckAdmin);
+        IEnumerable<string> GetActiveCompanies(UserAccountToken userToken, DateTime valuationDate);
     }
 
     public interface IHistoricalDataReader

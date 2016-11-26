@@ -10,6 +10,7 @@ using InvestmentBuilder;
 using InvestmentBuilderCore;
 using InvestmentBuilderWeb.Translators;
 using InvestmentBuilderWeb.Interfaces;
+using Newtonsoft.Json;
 
 namespace InvestmentBuilderWeb.Controllers
 {
@@ -24,6 +25,9 @@ namespace InvestmentBuilderWeb.Controllers
         private IAuthorizationManager _authorizationManager;
         private InvestmentRecordSessionService _sessionService;
         private CashAccountTransactionManager _cashTransactionManager;
+        private AccountManager _accountManager;
+        private BrokerManager _brokerManager;
+
         private string _sessionId;
 
         private const string ALL = "All";
@@ -32,7 +36,10 @@ namespace InvestmentBuilderWeb.Controllers
                                         , IDataLayer dataLayer
                                         , IAuthorizationManager authorizationManager
                                         , IApplicationSessionService sessionService
-                                        , CashAccountTransactionManager cashTransactionManager)  
+                                        , CashAccountTransactionManager cashTransactionManager
+                                        , AccountManager accountManager
+                                        , BrokerManager brokerManager
+                                        )  
         {
             _investmentBuilder = investmentBuilder;
             _clientData = dataLayer.ClientData;
@@ -41,17 +48,27 @@ namespace InvestmentBuilderWeb.Controllers
             _sessionService = sessionService as InvestmentRecordSessionService;
             _sessionId = System.Web.HttpContext.Current.Session.SessionID;
             _cashTransactionManager = cashTransactionManager;
+            _accountManager = accountManager;
+            _brokerManager = brokerManager;
         }
 
+        private string _GetThisUserName()
+        {
+            if (User != null && User.Identity != null)
+            {
+                return User.Identity.GetUserName();
+            }
+            return null;
+        }
         //setup the user account accounttoken and populate accounts list for user. if selectedAccount is null then just uses
         //first account for user if no usertoken setup for user otherwise just uses existing token 
         private UserAccountToken _SetupAccounts(string selectedAccount)
         {
             UserAccountToken token = null;
-            if (User != null && User.Identity != null)
+            var username = _GetThisUserName();
+            if (username != null)
             {
-                var username = User.Identity.GetUserName();
-                var accounts = _clientData.GetAccountNames(username).ToList();
+                var accounts = _accountManager.GetAccountNames(username).ToList();
                 if (_authorizationManager.GetCurrentTokenForUser(username) == null)
                 {
                     _authorizationManager.SetUserAccountToken(username, accounts.FirstOrDefault());
@@ -331,10 +348,9 @@ namespace InvestmentBuilderWeb.Controllers
             else
             {
                 this.ModelState.AddModelError("", "Invalid data enterted");
-                return AddReceiptTransaction();
             }
 
-            return View("CashFlow", _GetCashFlowModel());
+            return _CreateMainView("CashFlow", _GetCashFlowModel());
         }
 
         [HttpGet]
@@ -391,8 +407,7 @@ namespace InvestmentBuilderWeb.Controllers
         {
             var token = _SetupAccounts(null);
             _cashTransactionManager.RemoveTransaction(token, transaction.ValuationDate, transaction.TransactionDate, transaction.TransactionType, transaction.Parameter);
-            return View("CashFlow", _GetCashFlowModel());
-
+            return _CreateMainView("CashFlow", _GetCashFlowModel());
         }
 
         [HttpGet]
@@ -405,6 +420,78 @@ namespace InvestmentBuilderWeb.Controllers
         public ActionResult RemovePaymentTransaction(PaymentCashFlowModel item)
         {
             return _RemoveCashTransaction(item);
+        }
+
+        private ActionResult _createInvestmentAccountPage()
+        {
+            var accountToken = _SetupAccounts(null);
+
+            ViewBag.Currencies = _investmentBuilder.GetAllCurrencies().Select(x =>
+              new SelectListItem
+              {
+                  Text = x,
+                  Value = x,
+                  Selected = x == "GBP"
+              });
+
+            ViewBag.Brokers = _brokerManager.GetBrokers().Select(x =>
+              new SelectListItem
+              {
+                  Text = x,
+                  Value = x
+              });
+
+            //by default, user is always made an adminstrstor of any accounts
+            //they create
+            ViewBag.AuthorisationType = Enum.GetNames(typeof(AuthorizationLevel)).Select(x =>
+            {
+                var item = new SelectListItem
+                {
+                    Text = x,
+                    Value = x,
+                    Selected = x == "ADMINISTRATOR"
+                };
+                return item;
+            }).ToList();
+
+            var account = new AccountModelDto();
+            account.Members.Add(new AccountMemberDto
+            {
+                MemberID = accountToken.User,
+                AuthorisationType = AuthorizationLevel.ADMINISTRATOR.ToString()
+            });
+
+            ViewBag.Title = "Add Investment Account";
+
+            return View("ManageAccounts", account);
+        }
+
+        [HttpGet]
+        public ActionResult AddInvestmentAccount()
+        {
+            return _createInvestmentAccountPage();
+        }
+
+        [HttpPost]
+        public ActionResult ProcessInvestmentAccount(AccountModelDto account)
+        {
+            var username = _GetThisUserName();
+            if (username != null)
+            {
+                account.Members = JsonConvert.DeserializeObject<IList<AccountMemberDto>>(account.SerialisedMembers);
+                //can only update account information if this is a valid user
+                bool updated = _accountManager.UpdateUserAccount(
+                                                    username,
+                                                    account.ToAccountModel(),
+                                                    _sessionService.GetValuationDate(_sessionId));
+                if (updated == false)
+                {
+                    //update failed, probably due to validation error, return same
+                    //page and let user try again
+                    return _createInvestmentAccountPage();
+                }
+            }
+            return _CreateMainView("Index", _GetCurrentInvestments(_SetupAccounts(null)));
         }
     }
 }
