@@ -14,7 +14,7 @@ using Newtonsoft.Json;
 
 namespace InvestmentBuilderWeb.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [RoutePrefix("InvestmentRecord")]
     [Route("{action}")]
     public class InvestmentRecordController : Controller
@@ -54,11 +54,12 @@ namespace InvestmentBuilderWeb.Controllers
 
         private string _GetThisUserName()
         {
-            if (User != null && User.Identity != null)
-            {
-                return User.Identity.GetUserName();
-            }
-            return null;
+            return "bob@bob.com"; //just for testing!!
+            //if (User != null && User.Identity != null)
+            //{
+            //    return User.Identity.GetUserName();
+            //}
+            //return null;
         }
         //setup the user account accounttoken and populate accounts list for user. if selectedAccount is null then just uses
         //first account for user if no usertoken setup for user otherwise just uses existing token 
@@ -455,6 +456,7 @@ namespace InvestmentBuilderWeb.Controllers
             }).ToList();
 
             var account = new AccountModelDto();
+            account.AccountType = "Club";
             account.Members.Add(new AccountMemberDto
             {
                 MemberID = accountToken.User,
@@ -480,7 +482,7 @@ namespace InvestmentBuilderWeb.Controllers
             {
                 account.Members = JsonConvert.DeserializeObject<IList<AccountMemberDto>>(account.SerialisedMembers);
                 //can only update account information if this is a valid user
-                bool updated = _accountManager.UpdateUserAccount(
+                bool updated = _accountManager.CreateUserAccount(
                                                     username,
                                                     account.ToAccountModel(),
                                                     _sessionService.GetValuationDate(_sessionId));
@@ -490,7 +492,7 @@ namespace InvestmentBuilderWeb.Controllers
                     //page and let user try again
                     return _createInvestmentAccountPage();
                 }
-            }
+            } 
             return _CreateMainView("Index", _GetCurrentInvestments(_SetupAccounts(null)));
         }
     }

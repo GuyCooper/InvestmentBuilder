@@ -27,19 +27,29 @@
 
         <div class="form-group">
             <label>Account Type</label>
-            <label class="checkbox-inline">
-                <input type="radio" name="AccountType" value="Club" />Club
-                <input type="radio" name="AccountType" value="Personal" />Personal
-            </label>
+            <div class="checkbox-inline">
+                @if(Model.AccountType == "Club")
+                { 
+                    <small>Club</small><input type="radio" name="AccountType" checked="checked" value="Club" onclick="javascript:selectClubAccountType()"/>
+                    <small>Personal</small><input type="radio" name="AccountType" value="Personal" onclick="javascript:selectPersonalAccountType()" />
+                    
+                }
+                else
+                {
+                    <small>Club</small><input type="radio" name="AccountType" value="Club" onclick="javascript:selectClubAccountType()" />
+                    <small>Personal</small><input type="radio" name="AccountType" checked="checked" value="Personal" onclick="javascript:selectPersonalAccountType()" />
+                }
+            </div>
         </div>
 
         <ul id="memberList">
             @foreach (var item in Model.Members)
             {
                 <li>
-                    <div id="memberEntry">
-                        <input id="memberID" value="@item.MemberID" />
+                    <div class="memberEntry">
+                        <input id="memberID" value="@item.MemberID"/>
                         @Html.DropDownList("AuthorisationType", null, new { id= "authLevel" })
+                        <div class="btn btn-sm removeEntry">Del</div>
                     </div>
                 </li>
             }
@@ -48,8 +58,8 @@
         <input type="hidden" name="SerialisedMembers"/>
         
         <div class="form-group">
-            <div onclick="javascript: addMemberSlot()" class="btn btn-sm">Add Member</div>
-        </div>
+            <div id="addMemberSlot" onclick="javascript: addMemberSlot()" class="btn btn-sm">Add Member</div>
+        </div> 
 
         <div class="form-group">
             <div class="btn">Cancel</div>

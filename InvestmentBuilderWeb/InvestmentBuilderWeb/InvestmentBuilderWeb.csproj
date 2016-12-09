@@ -335,6 +335,7 @@
     <Content Include="Views\InvestmentRecord\PaymentCashFlowItem.cshtml" />
     <Content Include="Views\InvestmentRecord\AddModalDialog.cshtml" />
     <Content Include="Views\InvestmentRecord\ManageAccounts.cshtml" />
+    <Content Include="Views\Shared\_LoginPartialTestUser.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

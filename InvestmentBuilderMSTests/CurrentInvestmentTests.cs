@@ -16,6 +16,7 @@ namespace InvestmentBuilderMSTests
         public static readonly string _Broker = "AJBell";
 
         public static readonly string _testUser = "testUser";
+        public static readonly string _dodgyUser = "dodgyUser";
         public static readonly double _testUserValution = 1.24;
         public static readonly double _testUserSubscription = 1065;
         public static readonly DateTime _previousValutionDate = DateTime.Parse("23/10/2015");
@@ -144,6 +145,7 @@ namespace InvestmentBuilderMSTests
 
         public override void CreateAccount(UserAccountToken userToken, AccountModel account)
         {
+            userToken.AuthorizeUser(AuthorizationLevel.ADMINISTRATOR);
             TestAccountData.Add(new AccountModel(account.Name, account.Description,null,
                 account.ReportingCurrency, account.Type, account.Enabled, account.Broker, null));
         }
@@ -201,6 +203,13 @@ namespace InvestmentBuilderMSTests
         }
     }
 
+    internal class UserAccountDataTest3 : UserAccountDataTest
+    {
+        public override bool InvestmentAccountExists(string accountName)
+        {
+            return true;
+        }
+    }
     internal class CurrentInvestmentsRecordData : InvestmentRecordInterfaceTest
     {
         public override DateTime? GetLatestRecordInvestmentValuationDate(UserAccountToken userToken)

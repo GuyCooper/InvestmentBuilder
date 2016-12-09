@@ -45,6 +45,11 @@ namespace InvestmentBuilderCore
             AddMembers(members);
         }
 
+        public void AddMember(string name, AuthorizationLevel authLevel)
+        {
+            _members.Add(new AccountMember(name, authLevel));
+        }
+
         public void AddMembers(IList<AccountMember> members)
         {
             if (members != null)
@@ -54,6 +59,11 @@ namespace InvestmentBuilderCore
                     _members.Add(member);
                 }
             }
+        }
+
+        public void ClearAllMembers()
+        {
+            _members.Clear();
         }
 
         public string Name { get; private set; }

@@ -1,5 +1,9 @@
 ﻿/// <reference path="InvestmentAccount.js" />
 
+$(document).ready(function () {
+    $(".removeEntry").click(removeMemberSlot);
+});
+
 function submitInvestmentAccount() {
 
     //client side validation!!!
@@ -19,12 +23,20 @@ function submitInvestmentAccount() {
     //var serialisedMembers = accountForm.SerialisedMembers;
 
     var members = "[";
-    $("#memberEntry").each(() => {
-        var level = this.authLevel.options[this.authLevel.selectedIndex].value;
+    for (i = 0; i < this.memberID.length; i++) {
+        var level = this.authLevel[i].options[this.authLevel[i].selectedIndex].value;
         if (members != "[")
             members += ",";
-        members += "{\"MemberID\":\"" + this.memberID.value + "\", \"AuthorisationType\":\"" + level + "\"}";
-    });
+        members += "{\"MemberID\":\"" + this.memberID[i].value + "\", \"AuthorisationType\":\"" + level + "\"}";
+    }
+
+    //$(".memberEntry").each(() => {
+    //    var level = this.authLevel.options[this.authLevel.selectedIndex].value;
+    //    if (members != "[")
+    //        members += ",";
+    //    members += "{\"MemberID\":\"" + this.memberID.value + "\", \"AuthorisationType\":\"" + level + "\"}";
+    //});
+
     members += "]";
 
     accountForm.SerialisedMembers.value = members;
@@ -34,6 +46,32 @@ function submitInvestmentAccount() {
 }
 
 function addMemberSlot() {
-    alert("addMemberSlot");
-    $("#memberList").append($("#memberEntry").first().clone());
+    var members = $(".memberEntry"); 
+    var entry = members.first().clone();
+    entry.children(".removeEntry").click(removeMemberSlot);
+    $("#memberList").append(entry);
+}
+
+function selectClubAccountType() {
+    $("#addMemberSlot").show();
+    $("#memberList").show();
+}
+
+function selectPersonalAccountType() {  
+    $("#addMemberSlot").hide();
+    $("#memberList").hide();
+}
+
+function removeMemberSlot() {
+
+    //var selected = $(this).attr("name");
+    var index = $(".memberEntry").index($(this).parent());
+    alert("selected index: " + index);
+    //var index = parseInt(selected);
+    if (index > 0) {
+        var elems = $("#memberList").children();
+        if (elems.length > index) {
+            elems.eq(index).remove();
+        }
+    }
 }

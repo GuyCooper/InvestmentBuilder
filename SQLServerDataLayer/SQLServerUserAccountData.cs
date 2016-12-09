@@ -364,5 +364,21 @@ namespace SQLServerDataLayer
                 }
             }
         }
+
+        public bool InvestmentAccountExists(string accountName)
+        {
+            using (var command = new SqlCommand("sp_InvestmentAccountExists", Connection))
+            {
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+                command.Parameters.Add(new SqlParameter("@Name", accountName));
+                var objResult = command.ExecuteScalar();
+                if (objResult != null)
+                {
+                    return (int)objResult == 1;
+                }
+            }
+            return false;
+
+        }
     }
 }

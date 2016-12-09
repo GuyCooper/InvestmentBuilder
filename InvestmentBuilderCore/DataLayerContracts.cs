@@ -357,6 +357,12 @@ namespace InvestmentBuilderCore
             Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
             return null;
         }
+
+        public bool InvestmentAccountExists(string accountName)
+        {
+            Contract.Requires(string.IsNullOrEmpty(accountName) == false);
+            return false;
+        }
     }
 
     internal abstract class IHistoricalDataContract : IHistoricalDataReader

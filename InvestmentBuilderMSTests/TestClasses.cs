@@ -119,6 +119,7 @@ namespace InvestmentBuilderMSTests
         public virtual AccountModel GetAccount(UserAccountToken userToken) { throw new NotImplementedException(); }
         public virtual IEnumerable<string> GetAccountNames(string user, bool bCheckAdmin) { throw new NotImplementedException(); }
         public virtual IEnumerable<string> GetActiveCompanies(UserAccountToken userToken, DateTime valuationDate) { throw new NotImplementedException(); }
+        public virtual bool InvestmentAccountExists(string accountName) { return false; }
     }
 
     internal class HistoricalDataReaderTest : IHistoricalDataReader
@@ -291,6 +292,7 @@ namespace InvestmentBuilderMSTests
         public virtual IEnumerable<AccountMember> GetAccountMemberDetails(UserAccountToken userToken, DateTime valuationDate) { return null; }
         public virtual IEnumerable<string> GetAccountNames(string user, bool bCheckAdmin) { return null; }
         public virtual IEnumerable<string> GetActiveCompanies(UserAccountToken userToken, DateTime valuationDate) { return Enumerable.Empty<string>(); }
+        public virtual bool InvestmentAccountExists(string accountName) { return false; }
     }
 
     internal class InvestmentRecordEmptyInterfaceTest : IInvestmentRecordInterface
