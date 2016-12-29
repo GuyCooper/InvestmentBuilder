@@ -50,8 +50,8 @@ namespace SQLServerDataLayer
                     {
                         while (reader.Read())
                         {
-                            var company = (string)reader["Company"];
-                            var dividend = (double)reader["Dividend"];
+                            var company = GetDBValue<string>("Company", reader);
+                            var dividend = GetDBValue<double>("Dividend", reader);
                             if(cashData.Dividends.ContainsKey(company) == true)
                             {
                                 cashData.Dividends[company] += dividend; 

@@ -68,6 +68,7 @@
     <Compile Include="IDataLayer.cs" />
     <Compile Include="IInvestmentReportWriter.cs" />
     <Compile Include="IndexData.cs" />
+    <Compile Include="InvestmentBuilderLogger.cs" />
     <Compile Include="InvestmentInformation.cs" />
     <Compile Include="InvestmentUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

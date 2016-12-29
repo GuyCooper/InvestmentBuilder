@@ -1,9 +1,9 @@
 ﻿
-<ul class="nav nav-tabs nav-justified">
-    <li><a href="@Url.Action("index")">Portfolio</a></li>
-    <li><a href="@Url.Action("CreateTrade")">Add</a></li>
-    <li><a href="@Url.Action("CashFlow")">CashFlow</a></li>
-    <li><a href="@Url.Action("Reports")">Reports</a></li>
+<ul id="mainTab" class="nav nav-tabs nav-justified">
+    <li><a href="@Url.Action("index","InvestmentRecord")">Portfolio</a></li>
+    <li><a href="@Url.Action("CreateTrade", "InvestmentRecord")">Add</a></li>
+    <li><a href="@Url.Action("CashFlow","InvestmentRecord")">CashFlow</a></li>
+    <li><a href="@Url.Action("Reports","InvestmentRecord")">Reports</a></li>
 </ul>
 
 <div class="row investmentSummary">
@@ -39,3 +39,7 @@
     </div>
 </div>
 
+@if (ViewBag.HasError == true)
+{
+    @Html.Partial("~/Views/InvestmentRecord/RaiseAlert.cshtml")
+}

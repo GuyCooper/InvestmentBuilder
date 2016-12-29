@@ -4,13 +4,13 @@
 }
 
 <div class="container">
-    @Html.Partial("AccountSummary")
+    @Html.Partial("~/Views/InvestmentRecord/AccountSummary.cshtml")
     <div class="row">
         <ul>
             @foreach (var dt in Model.RecentReports)
             {
                 <li>
-                    @Html.ActionLink(dt, "LoadReport", new { ValuationDate = dt }, new { target = "_blank" })
+                    @Html.ActionLink(dt, "LoadReport", "InvestmentRecord", new { ValuationDate = dt }, new { target = "_blank" })
                 </li>
             }
         </ul>

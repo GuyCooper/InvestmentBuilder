@@ -4,7 +4,22 @@ $(document).ready(function () {
     $(".removeEntry").click(removeMemberSlot);
 });
 
-function submitInvestmentAccount() {
+function processMembers()
+{
+    var members = "[";
+    for (i = 0; i < this.memberID.length; i++) {
+        var level = this.authLevel[i].options[this.authLevel[i].selectedIndex].value;
+        if (members != "[")
+            members += ",";
+        members += "{\"MemberID\":\"" + this.memberID[i].value + "\", \"AuthorisationType\":\"" + level + "\"}";
+    }
+
+    members += "]";
+
+    return members;
+}
+
+function addInvestmentAccount() {
 
     //client side validation!!!
     var accountForm = document.forms.investmentAccountForm;
@@ -20,29 +35,18 @@ function submitInvestmentAccount() {
         if (typeSelect[i].checked) selectedType = typeSelect[i].value;
     }
 
-    //var serialisedMembers = accountForm.SerialisedMembers;
+    accountForm.SerialisedMembers.value = processMembers();
+}
 
-    var members = "[";
-    for (i = 0; i < this.memberID.length; i++) {
-        var level = this.authLevel[i].options[this.authLevel[i].selectedIndex].value;
-        if (members != "[")
-            members += ",";
-        members += "{\"MemberID\":\"" + this.memberID[i].value + "\", \"AuthorisationType\":\"" + level + "\"}";
-    }
+function editInvestmentAccount() {
 
-    //$(".memberEntry").each(() => {
-    //    var level = this.authLevel.options[this.authLevel.selectedIndex].value;
-    //    if (members != "[")
-    //        members += ",";
-    //    members += "{\"MemberID\":\"" + this.memberID.value + "\", \"AuthorisationType\":\"" + level + "\"}";
-    //});
+    var accountForm = document.forms.investmentAccountForm;
+    var name = accountForm.AccountName.value;
+    var description = accountForm.AccountDescription.value;
+    var currency = accountForm.ReportingCurrency.value;
+    var accountType = accountForm.AccountType.value;
 
-    members += "]";
-
-    accountForm.SerialisedMembers.value = members;
-    //accountForm.submit();
-    //add memebers to hidden serialisedMembers element and submit form
-
+    accountForm.SerialisedMembers.value = processMembers();
 }
 
 function addMemberSlot() {
@@ -66,7 +70,6 @@ function removeMemberSlot() {
 
     //var selected = $(this).attr("name");
     var index = $(".memberEntry").index($(this).parent());
-    alert("selected index: " + index);
     //var index = parseInt(selected);
     if (index > 0) {
         var elems = $("#memberList").children();

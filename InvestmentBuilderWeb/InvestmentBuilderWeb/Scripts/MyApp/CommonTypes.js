@@ -1,4 +1,13 @@
-﻿/// <reference path="CommonTypes.js" />
+/// <reference path="CommonTypes.js" />
+
+$(document).ready(function () {
+    $("#addReceiptButton").click(onAddReceipt);
+    $("#addPaymentButton").click(onAddPayment);
+    $('.editTradeButton').click(onEditTrade);
+
+    $('#errorAlert').bind('closed.bs.alert', onCloseErrors);
+
+});
 
 function asyncGetParameters() {
     var parameter = $("#ParameterType").val();
@@ -45,7 +54,13 @@ function onEditTrade() {
     //var parameter = $("#tradeNameValue").val().toString();
     //alert("on edit trade!. val = " + parameter);
     var parameter = $(this).attr('Value');
-    alert('edit trade: ' + parameter);
     onAddDialogContents('EditTrade', { name: parameter });
 }
             
+function onCloseErrors() {
+    $.ajax({
+        url: 'ClearErrors',
+        dataType: "text",
+        type: "GET"
+    });
+}

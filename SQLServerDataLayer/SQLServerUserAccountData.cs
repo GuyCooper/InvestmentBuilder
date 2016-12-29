@@ -82,8 +82,8 @@ namespace SQLServerDataLayer
                 {
                     while (reader.Read())
                     {
-                        var member = (string)reader["Member"];
-                        var units = (double)reader["Units"];
+                        var member = GetDBValue<string>("Member", reader);
+                        var units = GetDBValue<double>("Units", reader);
                         yield return new KeyValuePair<string, double>(member, units);
                     }
                     reader.Close();
@@ -149,14 +149,12 @@ namespace SQLServerDataLayer
                 {
                     if (reader.Read())
                     {
-                        var brokerObj = reader["Broker"];
-                        var descriptionObj = reader["Description"];
                         return new UserAccountData
                         (
                             userToken.Account,
                             (string)reader["Currency"],
-                            descriptionObj.GetType() != typeof(System.DBNull) ? (string)descriptionObj : null,
-                            brokerObj.GetType() != typeof(System.DBNull) ? (string)brokerObj : null
+                            GetDBValue<string>("Description", reader),
+                            GetDBValue<string>("Broker", reader)
                         );
                     }
                 }
@@ -199,9 +197,9 @@ namespace SQLServerDataLayer
                     {
                         yield return new Redemption
                         (
-                            (string)reader["Name"],
-                            (double)reader["amount"],
-                            (DateTime)reader["transaction_date"],
+                            GetDBValue<string>("Name", reader),
+                            GetDBValue<double>("amount", reader),
+                            GetDBValue<DateTime>("transaction_date", reader),
                             (RedemptionStatus)Enum.Parse(typeof(RedemptionStatus), (string)reader["status"])
                         );
                     }
@@ -262,7 +260,7 @@ namespace SQLServerDataLayer
                     while (reader.Read())
                     {
                         yield return new AccountMember(
-                            (string)reader["Name"],
+                            GetDBValue<string>("Name", reader),
                             (AuthorizationLevel)reader["Authorization"]
                         );
                     }
@@ -313,13 +311,13 @@ namespace SQLServerDataLayer
                     if (reader.Read())
                     {
                         //var obj = reader["Enabled"];
-                        return new AccountModel((string)reader["Name"],
-                                                (string)reader["Description"],
-                                                (string)reader["Password"],
-                                                (string)reader["Currency"],
-                                                (string)reader["Type"],
+                        return new AccountModel(GetDBValue<string>("Name", reader),
+                                                GetDBValue<string>("Description", reader),
+                                                GetDBValue<string>("Password", reader),
+                                                GetDBValue<string>("Currency", reader),
+                                                GetDBValue<string>("Type", reader),
                                                 (byte)reader["Enabled"] != 0 ? true : false,
-                                                (string)reader["Broker"],
+                                                GetDBValue<string>("Broker", reader),
                                                 null
                                                 );
                     }

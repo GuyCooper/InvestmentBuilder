@@ -3,9 +3,14 @@
     ViewBag.Title = "InvestmentRecordView";
 }
 <div class="container">
-    @Html.Partial("AccountSummary")
+    @Html.Partial("~/Views/InvestmentRecord/AccountSummary.cshtml")
 
     <p />
+
+    @if (ViewBag.HasError == true)
+    {
+        <input type="hidden" id="errorType" value="1"/>
+    }
 
     <table class="table table-striped table-condensed">
         <thead>
@@ -24,7 +29,7 @@
 
         <tbody>
             @foreach (var item in Model)
-            {
+    {
                 <tr>
                     <td>
                         @Html.DisplayFor(modelItem => item.Name)
@@ -46,7 +51,7 @@
                         {
                             <input type="hidden" name="investment" value="@item.Name" />
                             <input name="share_price" value=@item.SharePrice
-                                   onchange="javascript:document.getElementById('indexItem').submit()" />
+                                    onchange="javascript:document.getElementById('indexItem').submit()" />
                         }
                     </td>
                     <td>
@@ -62,7 +67,7 @@
                         <input type="hidden" id="tradeNameValue" value="@item.Name" />
                         <ul class="nav nav-tabs">
                             <li>
-                                <div class="btn btn-sm editTradeButton" onclick="javascript: onEditTrade()" data-toggle="modal" data-target="#myModal" value="@item.Name">
+                                <div class="btn btn-sm editTradeButton" data-toggle="modal" data-target="#myModal" value="@item.Name">
                                     Edit
                                 </div>
                             </li>
@@ -73,5 +78,5 @@
             }
         </tbody>
     </table>
-    @Html.Partial("AddModalDialog")
+    @Html.Partial("~/Views/InvestmentRecord/AddModalDialog.cshtml")
 </div>

@@ -1,34 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using InvestmentBuilderWeb.Models;
-using InvestmentBuilderWeb.Services;
-using Microsoft.AspNet.Identity;
 using InvestmentBuilder;
 using InvestmentBuilderCore;
 using InvestmentBuilderWeb.Translators;
 using InvestmentBuilderWeb.Interfaces;
-using Newtonsoft.Json;
 
 namespace InvestmentBuilderWeb.Controllers
 {
     //[Authorize]
     [RoutePrefix("InvestmentRecord")]
     [Route("{action}")]
-    public class InvestmentRecordController : Controller
+    public sealed class InvestmentRecordController : InvestmentBaseController
     {
-        private InvestmentBuilder.InvestmentBuilder _investmentBuilder;
-        private IClientDataInterface _clientData;
         private IInvestmentRecordInterface _recordData;
-        private IAuthorizationManager _authorizationManager;
-        private InvestmentRecordSessionService _sessionService;
         private CashAccountTransactionManager _cashTransactionManager;
-        private AccountManager _accountManager;
-        private BrokerManager _brokerManager;
-
-        private string _sessionId;
 
         private const string ALL = "All";
 
@@ -39,64 +27,11 @@ namespace InvestmentBuilderWeb.Controllers
                                         , CashAccountTransactionManager cashTransactionManager
                                         , AccountManager accountManager
                                         , BrokerManager brokerManager
-                                        )  
+                                        )  :
+            base(authorizationManager, accountManager, investmentBuilder, brokerManager, sessionService, dataLayer.ClientData)
         {
-            _investmentBuilder = investmentBuilder;
-            _clientData = dataLayer.ClientData;
             _recordData = dataLayer.InvestmentRecordData;
-            _authorizationManager = authorizationManager;
-            _sessionService = sessionService as InvestmentRecordSessionService;
-            _sessionId = System.Web.HttpContext.Current.Session.SessionID;
             _cashTransactionManager = cashTransactionManager;
-            _accountManager = accountManager;
-            _brokerManager = brokerManager;
-        }
-
-        private string _GetThisUserName()
-        {
-            return "bob@bob.com"; //just for testing!!
-            //if (User != null && User.Identity != null)
-            //{
-            //    return User.Identity.GetUserName();
-            //}
-            //return null;
-        }
-        //setup the user account accounttoken and populate accounts list for user. if selectedAccount is null then just uses
-        //first account for user if no usertoken setup for user otherwise just uses existing token 
-        private UserAccountToken _SetupAccounts(string selectedAccount)
-        {
-            UserAccountToken token = null;
-            var username = _GetThisUserName();
-            if (username != null)
-            {
-                var accounts = _accountManager.GetAccountNames(username).ToList();
-                if (_authorizationManager.GetCurrentTokenForUser(username) == null)
-                {
-                    _authorizationManager.SetUserAccountToken(username, accounts.FirstOrDefault());
-                }
-                
-                if(string.IsNullOrEmpty(selectedAccount) == false)
-                {
-                    _authorizationManager.SetUserAccountToken(username, selectedAccount);
-                }
-
-                token = _authorizationManager.GetCurrentTokenForUser(username);
-                ViewBag.accountId = accounts.Select(x =>
-                   new SelectListItem
-                   {
-                       Text = x,
-                       Value = x,
-                       Selected = token.Account == x
-                   });
-            }
-            return token;
-        }
-
-        private IEnumerable<CompanyDataModel> _GetCurrentInvestments(UserAccountToken token)
-        {
-            return _investmentBuilder.GetCurrentInvestments(token, _sessionService.GetManualPrices(_sessionId))
-                .OrderBy(x => x.Name)
-                .Select(x => x.ToCompanyDataModel());
         }
 
         // GET: InvestmentRecord
@@ -131,37 +66,10 @@ namespace InvestmentBuilderWeb.Controllers
             return _CreateMainView("Index", _GetCurrentInvestments(token));
         }
 
-        private ViewResult _CreateMainView(string name, object model)
-        {
-            _GenerateSummary();
-            return View(name, model);
-        }
-
-        private InvestmentSummaryModel _GetSummaryModel(UserAccountToken token, DateTime? dtValuation)
-        {
-            if (dtValuation.HasValue)
-            {
-                var summaryData = _sessionService.GetSummaryData(_sessionId, dtValuation.Value);
-                if (summaryData == null)
-                {
-                    summaryData = _investmentBuilder.BuildAssetReport(token, dtValuation.Value, false, null).ToInvestmentSummaryModel();
-                    _sessionService.SetSummaryData(_sessionId, dtValuation.Value, summaryData);
-                }
-                return summaryData;
-            }
-
-            return new InvestmentSummaryModel
-            {
-                AccountName = token.Account,
-                ValuationDate = _sessionService.GetValuationDate(_sessionId),
-                ValuePerUnit = "1"
-            };
-        }
-
         private CashFlowModel _GetCashFlowModel()
         {
             var token = _SetupAccounts(null);
-            var dtValuation = _sessionService.GetValuationDate(_sessionId);
+            var dtValuation = _sessionService.GetValuationDate(SessionId);
             var dtPrevious = _clientData.GetPreviousAccountValuationDate(token, dtValuation);
             double dReceiptTotal, dPaymentTotal;
             var cashFlowModel = new CashFlowModel();
@@ -171,15 +79,6 @@ namespace InvestmentBuilderWeb.Controllers
             cashFlowModel.PaymentsTotal = dPaymentTotal;
             cashFlowModel.ValuationDate = dtValuation.ToShortDateString();
             return cashFlowModel;
-        }
-
-        //needs to be called before time one of the main views are displayed
-        private void _GenerateSummary()
-        {
-            var token = _SetupAccounts(null);
-            var dtValuation = _sessionService.GetValuationDate(_sessionId);
-            var dtPrevious = _clientData.GetPreviousAccountValuationDate(token, dtValuation);
-            ViewBag.SummaryData = _GetSummaryModel(token, dtPrevious);
         }
 
         [HttpGet]
@@ -269,7 +168,7 @@ namespace InvestmentBuilderWeb.Controllers
         public ActionResult UpdateAccount(string accountId)
         {
             var token = _SetupAccounts(accountId);
-            _sessionService.ResetValuationDate(_sessionId);
+            _sessionService.ResetValuationDate(SessionId);
             return _CreateMainView("Index", _GetCurrentInvestments(token));
         }
 
@@ -278,14 +177,14 @@ namespace InvestmentBuilderWeb.Controllers
         {
             var token = _SetupAccounts(null);
 
-            _sessionService.AddManualPrice(_sessionId, investment, share_price);
+            _sessionService.AddManualPrice(SessionId, investment, share_price);
             return _CreateMainView("Index", _GetCurrentInvestments(token));
         }
 
         [HttpGet]
         public ActionResult UpdateValuationDate(DateTime dtValaution)
         {
-            _sessionService.SetValuationDate(_sessionId, dtValaution);
+            _sessionService.SetValuationDate(SessionId, dtValaution);
             return _CreateMainView("CashFlow", _GetCashFlowModel());
         }
 
@@ -318,7 +217,7 @@ namespace InvestmentBuilderWeb.Controllers
 
         private void _ProcessCashTransaction(UserAccountToken token, DateTime transactionDate, string transactionType, string parameter, double amount)
         {
-            _cashTransactionManager.AddTransaction(token, _sessionService.GetValuationDate(_sessionId),
+            _cashTransactionManager.AddTransaction(token, _sessionService.GetValuationDate(SessionId),
                                     transactionDate,
                                     transactionType, 
                                     parameter,
@@ -421,79 +320,6 @@ namespace InvestmentBuilderWeb.Controllers
         public ActionResult RemovePaymentTransaction(PaymentCashFlowModel item)
         {
             return _RemoveCashTransaction(item);
-        }
-
-        private ActionResult _createInvestmentAccountPage()
-        {
-            var accountToken = _SetupAccounts(null);
-
-            ViewBag.Currencies = _investmentBuilder.GetAllCurrencies().Select(x =>
-              new SelectListItem
-              {
-                  Text = x,
-                  Value = x,
-                  Selected = x == "GBP"
-              });
-
-            ViewBag.Brokers = _brokerManager.GetBrokers().Select(x =>
-              new SelectListItem
-              {
-                  Text = x,
-                  Value = x
-              });
-
-            //by default, user is always made an adminstrstor of any accounts
-            //they create
-            ViewBag.AuthorisationType = Enum.GetNames(typeof(AuthorizationLevel)).Select(x =>
-            {
-                var item = new SelectListItem
-                {
-                    Text = x,
-                    Value = x,
-                    Selected = x == "ADMINISTRATOR"
-                };
-                return item;
-            }).ToList();
-
-            var account = new AccountModelDto();
-            account.AccountType = "Club";
-            account.Members.Add(new AccountMemberDto
-            {
-                MemberID = accountToken.User,
-                AuthorisationType = AuthorizationLevel.ADMINISTRATOR.ToString()
-            });
-
-            ViewBag.Title = "Add Investment Account";
-
-            return View("ManageAccounts", account);
-        }
-
-        [HttpGet]
-        public ActionResult AddInvestmentAccount()
-        {
-            return _createInvestmentAccountPage();
-        }
-
-        [HttpPost]
-        public ActionResult ProcessInvestmentAccount(AccountModelDto account)
-        {
-            var username = _GetThisUserName();
-            if (username != null)
-            {
-                account.Members = JsonConvert.DeserializeObject<IList<AccountMemberDto>>(account.SerialisedMembers);
-                //can only update account information if this is a valid user
-                bool updated = _accountManager.CreateUserAccount(
-                                                    username,
-                                                    account.ToAccountModel(),
-                                                    _sessionService.GetValuationDate(_sessionId));
-                if (updated == false)
-                {
-                    //update failed, probably due to validation error, return same
-                    //page and let user try again
-                    return _createInvestmentAccountPage();
-                }
-            } 
-            return _CreateMainView("Index", _GetCurrentInvestments(_SetupAccounts(null)));
         }
     }
 }

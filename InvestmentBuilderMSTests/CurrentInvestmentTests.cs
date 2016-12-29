@@ -16,6 +16,7 @@ namespace InvestmentBuilderMSTests
         public static readonly string _Broker = "AJBell";
 
         public static readonly string _testUser = "testUser";
+        public static readonly string _testUser1 = "testUser1";
         public static readonly string _dodgyUser = "dodgyUser";
         public static readonly double _testUserValution = 1.24;
         public static readonly double _testUserSubscription = 1065;

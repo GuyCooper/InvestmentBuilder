@@ -42,7 +42,7 @@ namespace InvestmentBuilder
     {
         private readonly ICashAccountInterface _cashAccountData;
 
-        private static Logger logger = LogManager.GetCurrentClassLogger();
+        private static InvestmentBuilderLogger logger = new InvestmentBuilderLogger(LogManager.GetCurrentClassLogger());
 
         //this structure maps a transaction type onto its transaction property
         private readonly Dictionary<string, string> _receiptTransactionLookup =
@@ -194,7 +194,7 @@ namespace InvestmentBuilder
             Contract.Requires(userToken != null);
             Contract.Requires(string.IsNullOrEmpty(type) == false);
 
-            logger.Log(LogLevel.Info, "adding cash transaction. type: {0}, parameter: {1}, amount {2}", type, parameter, amount);
+            logger.Log(userToken, LogLevel.Info, "adding cash transaction. type: {0}, parameter: {1}, amount {2}", type, parameter, amount);
             _cashAccountData.AddCashAccountTransaction(userToken, dtValuationDate, dtTransactionDate, type,
                                                 parameter, amount);
         }
@@ -205,7 +205,7 @@ namespace InvestmentBuilder
             Contract.Requires(userToken != null);
             Contract.Requires(string.IsNullOrEmpty(type) == false);
 
-            logger.Log(LogLevel.Info, "removing cash transaction. type: {0}, parameter: {1}", type, parameter);
+            logger.Log(userToken, LogLevel.Info, "removing cash transaction. type: {0}, parameter: {1}", type, parameter);
             _cashAccountData.RemoveCashAccountTransaction(userToken, dtValuationDate, dtTransactionDate, type, parameter);    
         }
 
@@ -219,7 +219,7 @@ namespace InvestmentBuilder
         {
             Contract.Requires(userToken != null);
 
-            logger.Log(LogLevel.Info, "validating cash account for valuation date {0}", dtValuationDate);
+            logger.Log(userToken, LogLevel.Info, "validating cash account for valuation date {0}", dtValuationDate);
 
             var receipts = new List<ReceiptTransaction>();
             _GetTransactionsImpl<ReceiptTransaction>(userToken, dtValuationDate, ReceiptMnemomic,
@@ -234,11 +234,11 @@ namespace InvestmentBuilder
 
             if(_Match(receiptTotal, paymentsTotal) == false )
             {
-                logger.Log(LogLevel.Error, "cash account validation failed!. receipts {0}, payments {1}", receiptTotal, paymentsTotal);
+                logger.Log(userToken, LogLevel.Error, "cash account validation failed!. receipts {0}, payments {1}", receiptTotal, paymentsTotal);
                 return false;
             }
 
-            logger.Log(LogLevel.Info, "cash account validation succeded!");
+            logger.Log(userToken, LogLevel.Info, "cash account validation succeded!");
             return true;
         }
     }

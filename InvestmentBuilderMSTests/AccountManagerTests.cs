@@ -91,6 +91,35 @@ namespace InvestmentBuilderMSTests
         }
 
         [TestMethod]
+        public void When_updating_user_account_members()
+        {
+            var testClientInterface = new UserAccountDataTest();
+            var UoT = new AccountManager(new DataLayerTest(null,
+                                                           null, null, testClientInterface, null), new TestAuthorizationManager());
+
+            var account = new AccountModel(TestDataCache._TestAccount, TestDataCache._Description,
+                                         null, TestDataCache._Currency, TestDataCache._TestAccountType, true,
+                                         TestDataCache._Broker, new List<AccountMember>{
+                                             new AccountMember(TestDataCache._testUser, AuthorizationLevel.ADMINISTRATOR)
+                                         });
+
+            UoT.UpdateUserAccount(TestAuthorizationManager.TestUser, account, TestDataCache._currentValuationDate);
+
+            //now update the same account but with a different member
+            account.ClearAllMembers();
+            account.AddMember(TestDataCache._testUser1, AuthorizationLevel.ADMINISTRATOR);
+
+            var bUpdatedOk = UoT.UpdateUserAccount(TestAuthorizationManager.TestUser, account, TestDataCache._currentValuationDate);
+
+            Assert.IsTrue(bUpdatedOk);
+
+            var result = testClientInterface.GetAccountMemberDetails(_userToken, TestDataCache._currentValuationDate).ToList();
+
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(TestDataCache._testUser1, result[0].Name);
+        }
+
+        [TestMethod]
         public void When_updating_account_with_invalid_user()
         {
             var testClientInterface = new UserAccountDataTest();

@@ -11,6 +11,17 @@ namespace SQLServerDataLayer
     public class SQLServerBase
     {
         public SqlConnection Connection { get; set; }
+
+        protected T GetDBValue<T>(string name, SqlDataReader reader, T defaultVal = default(T))
+        {
+            var result = reader[name];
+            if (result.GetType() != typeof(System.DBNull))
+            {
+                return (T)result;
+            }
+
+            return defaultVal;
+        }
     }
 
     public class SQLServerDataLayer : SQLServerBase, IDataLayer, IDisposable

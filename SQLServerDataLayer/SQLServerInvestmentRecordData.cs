@@ -113,14 +113,14 @@ namespace SQLServerDataLayer
                 {
                     if (reader.Read())
                     {
-                        var symbol = (string)reader["Symbol"];
-                        var ccy = (string)reader["Currency"];
-                        var exchange = reader["Exchange"] as string;
+                        var symbol = GetDBValue<string>("Symbol", reader, string.Empty);
+                        var ccy = GetDBValue<string>("Currency", reader, string.Empty);
+                        var exchange = GetDBValue<string>("Exchange", reader, string.Empty);
                         data = new InvestmentInformation(
                             symbol.Trim(),
-                            exchange != null ? exchange.Trim() : string.Empty,
+                            exchange.Trim(),
                             ccy.Trim(),
-                            (double)reader["ScalingFactor"]
+                            GetDBValue<double>("ScalingFactor", reader)
                         );
                     }
                     reader.Close();
@@ -140,7 +140,9 @@ namespace SQLServerDataLayer
                 var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
-                    yield return new KeyValuePair<string, double>((string)reader["Name"], (double)reader["Price"]);
+                    yield return new KeyValuePair<string, double>(
+                                                            GetDBValue<string>("Name", reader),
+                                                            GetDBValue<double>("Price", reader));
                 }
                 reader.Close();
             }
@@ -178,17 +180,17 @@ namespace SQLServerDataLayer
                 var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
-                    double dTotalCost = (double)reader["TotalCost"];
-                    int dSharesHeld = (int)reader["Bought"] + (int)reader["Bonus"] - (int)reader["Sold"];
+                    double dTotalCost = GetDBValue<double>("TotalCost", reader);
+                    int dSharesHeld = GetDBValue<int>("Bought", reader) + GetDBValue<int>("Bonus", reader) - GetDBValue<int>("Sold", reader);
                     double dAveragePrice = dTotalCost / dSharesHeld;
-                    double dSharePrice = (double)reader["Price"];
-                    double dDividend = (double)reader["Dividends"];
+                    double dSharePrice = GetDBValue<double>("Price", reader);
+                    double dDividend = GetDBValue<double>("Dividends", reader);
 
                     yield return new CompanyData
                     {
-                        Name = (string)reader["Name"],
+                        Name = GetDBValue<string>("Name", reader),
                         ValuationDate = dtValuation,
-                        LastBrought = (DateTime)reader["LastBoughtDate"],
+                        LastBrought = GetDBValue<DateTime>("LastBoughtDate", reader),
                         Quantity = dSharesHeld,
                         AveragePricePaid = dAveragePrice,
                         TotalCost = dTotalCost,
@@ -291,9 +293,9 @@ namespace SQLServerDataLayer
                     var action = (TradeType)Enum.Parse(typeof(TradeType), (string)reader["trade_action"]);
                     var trade = new Stock
                     {
-                        Name = (string)reader["Name"],
-                        Quantity = (int)reader["quantity"],
-                        TotalCost = (double)reader["total_cost"]
+                        Name = GetDBValue<string>("Name", reader),
+                        Quantity = GetDBValue<int>("quantity", reader),
+                        TotalCost = GetDBValue<double>("total_cost", reader)
                     };
                     switch (action)
                     {
@@ -321,39 +323,6 @@ namespace SQLServerDataLayer
 
         }
 
-        //public IEnumerable<CompanyData> GetCompanyRecordData(UserAccountToken userToken, string company)
-        //{
-        //    userToken.AuthorizeUser(AuthorizationLevel.READ);
-        //    using (var command = new SqlCommand("sp_GetCompanyInvestmentRecords", Connection))
-        //    {
-        //        command.CommandType = CommandType.StoredProcedure;
-        //        command.Parameters.Add(new SqlParameter("@Company", company));
-        //        command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
-        //        var reader = command.ExecuteReader();
-        //        while (reader.Read())
-        //        {
-        //            double dTotalCost = (double)reader["TotalCost"];
-        //            int dSharesHeld = (int)reader["Bought"] + (int)reader["Bonus"] - (int)reader["Sold"];
-        //            double dAveragePrice = dTotalCost / dSharesHeld;
-        //            double dSharePrice = (double)reader["Price"];
-        //            double dDividend = (double)reader["Dividends"];
-
-        //            yield return new CompanyData
-        //            {
-        //                Name = (string)reader["Name"],
-        //                ValuationDate = (DateTime)reader["ValuationDate"],
-        //                LastBrought = (DateTime)reader["LastBoughtDate"],
-        //                Quantity = dSharesHeld,
-        //                AveragePricePaid = dAveragePrice,
-        //                TotalCost = dTotalCost,
-        //                SharePrice = dSharePrice,
-        //                //dNetSellingValue = _GetNetSellingValue(dSharesHeld, dSharePrice),
-        //                Dividend = dDividend
-        //            };
-        //        }
-        //        reader.Close();
-        //    }
-        //}
         public IEnumerable<CompanyData> GetFullInvestmentRecordData(UserAccountToken userToken)
         {
             userToken.AuthorizeUser(AuthorizationLevel.READ);
@@ -364,17 +333,17 @@ namespace SQLServerDataLayer
                 var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
-                    double dTotalCost = (double)reader["TotalCost"];
-                    int dSharesHeld = (int)reader["Bought"] + (int)reader["Bonus"] - (int)reader["Sold"];
+                    double dTotalCost = GetDBValue<double>("TotalCost", reader);
+                    int dSharesHeld = GetDBValue<int>("Bought", reader) + GetDBValue<int>("Bonus", reader) - GetDBValue<int>("Sold", reader);
                     double dAveragePrice = dTotalCost / dSharesHeld;
-                    double dSharePrice = (double)reader["Price"];
-                    double dDividend = (double)reader["Dividends"];
+                    double dSharePrice = GetDBValue<double>("Price", reader);
+                    double dDividend = GetDBValue<double>("Dividends", reader);
 
                     yield return new CompanyData
                     {
-                        Name = (string)reader["Name"],
-                        ValuationDate = (DateTime)reader["ValuationDate"],
-                        LastBrought = (DateTime)reader["LastBoughtDate"],
+                        Name = GetDBValue<string>("Name", reader),
+                        ValuationDate = GetDBValue<DateTime>("ValuationDate", reader),
+                        LastBrought = GetDBValue<DateTime>("LastBoughtDate", reader),
                         Quantity = dSharesHeld,
                         AveragePricePaid = dAveragePrice,
                         TotalCost = dTotalCost,

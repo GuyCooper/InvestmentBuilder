@@ -81,6 +81,15 @@ namespace InvestmentBuilderCore
             }
         }
 
+        public void UpdateAccountDetails(AccountModel account)
+        {
+            //uopdate the accunt details for this account from the 
+            //account parameter. do not updaye accunt members
+            Broker = account.Broker;
+            Password = account.Password;
+            Type = account.Type;
+        }
+
         [ContractInvariantMethod]
         protected void ObjectInvariantMethod()
         {

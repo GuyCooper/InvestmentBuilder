@@ -11,7 +11,7 @@ namespace InvestmentBuilder
 {
     public sealed class InvestmentBuilder
     {
-        private static Logger logger = LogManager.GetCurrentClassLogger();
+        private static InvestmentBuilderLogger logger = new InvestmentBuilderLogger(LogManager.GetCurrentClassLogger());
 
         private readonly IConfigurationSettings _settings;
         private readonly IDataLayer _dataLayer;
@@ -60,12 +60,12 @@ namespace InvestmentBuilder
         /// <returns></returns>
         public AssetReport BuildAssetReport(UserAccountToken userToken, DateTime valuationDate, bool bUpdate, ManualPrices manualPrices)
         {
-            logger.Log(LogLevel.Info, string.Format("Begin BuildAssetSheet"));
+            logger.Log(userToken,LogLevel.Info, string.Format("Begin BuildAssetSheet"));
             //logger.Log(LogLevel.Info,string.Format("trade file: {0}", _settings.GetTradeFile(accountName)));
-            logger.Log(LogLevel.Info, string.Format("path: {0}", _settings.OutputFolder));
-            logger.Log(LogLevel.Info, string.Format("datasource: {0}", _settings.DatasourceString));
-            logger.Log(LogLevel.Info, string.Format("update: {0}", bUpdate));
-            logger.Log(LogLevel.Info, string.Format("valuation date: {0}", valuationDate.ToShortDateString()));
+            logger.Log(userToken,LogLevel.Info, string.Format("path: {0}", _settings.OutputFolder));
+            logger.Log(userToken,LogLevel.Info, string.Format("datasource: {0}", _settings.DatasourceString));
+            logger.Log(userToken,LogLevel.Info, string.Format("update: {0}", bUpdate));
+            logger.Log(userToken,LogLevel.Info, string.Format("valuation date: {0}", valuationDate.ToShortDateString()));
 
             //var factory = BuildFactory(format, path, connectionstr, valuationDate, bUpdate);
             if (userToken == null)
@@ -86,7 +86,7 @@ namespace InvestmentBuilder
 
             if (accountData == null)
             {
-                logger.Log(LogLevel.Error, "invalid username {0}", userToken);
+                logger.Log(userToken, LogLevel.Error, "invalid username {0}", userToken);
                 return assetReport;
             }
 
@@ -117,7 +117,7 @@ namespace InvestmentBuilder
                 {
                     if (dtTradeValuationDate <= currentRecordDate)
                     {
-                        logger.Log(LogLevel.Error, "record date must be later than the previous record valution date");
+                        logger.Log(userToken, LogLevel.Error, "record date must be later than the previous record valution date");
                         return assetReport;
                     }
                 }
@@ -147,7 +147,7 @@ namespace InvestmentBuilder
             var lstData = _recordBuilder.GetInvestmentRecords(userToken, accountData, dtTradeValuationDate, dtPreviousValuation, null, false).ToList();
             foreach (var val in lstData)
             {
-                logger.Log(LogLevel.Info, string.Format("{0} : {1} : {2} : {3} : {4}", val.Name, val.SharePrice, val.NetSellingValue, val.MonthChange, val.MonthChangeRatio));
+                logger.Log(userToken, LogLevel.Info, string.Format("{0} : {1} : {2} : {3} : {4}", val.Name, val.SharePrice, val.NetSellingValue, val.MonthChange, val.MonthChangeRatio));
                 //Console.WriteLine("{0} : {1} : {2} : {3} : {4}", val.sName, val.dSharePrice, val.dNetSellingValue, val.dMonthChange, val.dMonthChangeRatio);
             }
 
@@ -168,7 +168,7 @@ namespace InvestmentBuilder
                 _reportWriter.WriteAssetReport(updatedReport, _userAccountData.GetStartOfYearValuation(userToken, valuationDate), _settings.GetOutputPath(accountData.Name));
             }
 
-            logger.Log(LogLevel.Info, "Report Generated, Account Builder Complete");
+            logger.Log(userToken, LogLevel.Info, "Report Generated, Account Builder Complete");
             return updatedReport;
         }
 
@@ -191,7 +191,7 @@ namespace InvestmentBuilder
             //check this is a valid account
             if (accountData == null)
             {
-                logger.Log(LogLevel.Error, "invalid account {0}", userToken.Account);
+                logger.Log(userToken, LogLevel.Error, "invalid account {0}", userToken.Account);
                 return Enumerable.Empty<CompanyData>();
             }
 
@@ -225,7 +225,7 @@ namespace InvestmentBuilder
             //check this is a valid account
             if (accountData == null)
             {
-                logger.Log(LogLevel.Error, "invalid account {0}", userToken.Account);
+                logger.Log(userToken, LogLevel.Error, "invalid account {0}", userToken.Account);
             }
 
             return _recordBuilder.UpdateInvestmentRecords(userToken, accountData, trades, null, valuationDate ?? DateTime.Now, manualPrices);
@@ -247,7 +247,7 @@ namespace InvestmentBuilder
             //administrator access to the account
             userToken.AuthorizeUser(AuthorizationLevel.ADMINISTRATOR);
 
-            logger.Log(LogLevel.Info, "redemption request from user {0} on account {1} for amount {2}",
+            logger.Log(userToken, LogLevel.Info, "redemption request from user {0} on account {1} for amount {2}",
                             user, userToken.Account, dAmount);
 
             //user request to redeem some units. 
@@ -255,14 +255,14 @@ namespace InvestmentBuilder
             if (dtPreviousValuation.HasValue == false)
             {
                 //cannot redeem units if no previous valuation
-                logger.Log(LogLevel.Error, "cannot redeem units as account not yet valued");
+                logger.Log(userToken, LogLevel.Error, "cannot redeem units as account not yet valued");
                 return false;
             }
 
             if (_userAccountData.GetAccountMembers(userToken, dtPreviousValuation.Value).FirstOrDefault(
                         x => string.Equals(x, user)) == null)
             {
-                logger.Log(LogLevel.Error, "user {0} is not a member of account {1}", user, userToken.Account);
+                logger.Log(userToken, LogLevel.Error, "user {0} is not a member of account {1}", user, userToken.Account);
                 return false;
             }
 
@@ -273,7 +273,7 @@ namespace InvestmentBuilder
 
             if (dAmount > dBalance)
             {
-                logger.Log(LogLevel.Error, "requested redemptiom amount more than available funds. reduce amount or sell more shares to rectify");
+                logger.Log(userToken, LogLevel.Error, "requested redemptiom amount more than available funds. reduce amount or sell more shares to rectify");
                 return false;
             }
 
@@ -283,7 +283,7 @@ namespace InvestmentBuilder
             var requestedUnitRedemption = dAmount / dPreviousUnitValue;
             if (requestedUnitRedemption > memberUnits)
             {
-                logger.Log(LogLevel.Error, "requested amount exceeds users holding");
+                logger.Log(userToken, LogLevel.Error, "requested amount exceeds users holding");
                 return false;
             }
 
@@ -347,7 +347,7 @@ namespace InvestmentBuilder
                                                 double dBankBalance,
                                                 bool bUpdate)
         {
-            logger.Log(LogLevel.Info, "building asset report...");
+            logger.Log(userToken, LogLevel.Info, "building asset report...");
             AssetReport report = new AssetReport
             {
                 AccountName = userData.Name,
@@ -398,7 +398,7 @@ namespace InvestmentBuilder
                                                     DateTime dtValuationDate,
                                                     double dNetAssets)
         {
-            logger.Log(LogLevel.Info, "updating members capital account...");
+            logger.Log(userToken, LogLevel.Info, "updating members capital account...");
             //get total number of shares allocated for previous month
             //get list of all members who have made a deposit for current month
             double dResult = default(double);
@@ -416,7 +416,7 @@ namespace InvestmentBuilder
             }
             else
             {
-                logger.Log(LogLevel.Info, "new account. setting issued units equal to net assets");
+                logger.Log(userToken, LogLevel.Info, "new account. setting issued units equal to net assets");
                 //no previous valaution this is a new account, the total issued units should be the same as
                 //the total netassets. this will give a unit valuation of 1.
                 var members = _userAccountData.GetAccountMembers(userToken, DateTime.Today).ToList();
@@ -453,7 +453,7 @@ namespace InvestmentBuilder
                     continue;
                 }
 
-                logger.Log(LogLevel.Info, "Processing redemption for user {0}. Amount requested {1}", redemption.User, redemption.Amount);
+                logger.Log(userToken, LogLevel.Info, "Processing redemption for user {0}. Amount requested {1}", redemption.User, redemption.Amount);
 
                 var memberUnits = _userAccountData.GetMemberAccountData(userToken, report.ValuationDate).Where(x => x.Key == redemption.User).Sum(x => x.Value);
                 var requestedUnitRedemption = redemption.Amount / report.ValuePerUnit;
@@ -464,7 +464,7 @@ namespace InvestmentBuilder
                     //calculate the redemption amount based on the current unit valuation.round down
                     //so the club does not lose out on any rounding errors
                     redemption.UpdateAmount(Math.Floor(requestedUnitRedemption * report.ValuePerUnit));
-                    logger.Log(LogLevel.Info, "redeeming full user holding for {0}. amount redeemed {1}", redemption.User, redemption.Amount);
+                    logger.Log(userToken, LogLevel.Info, "redeeming full user holding for {0}. amount redeemed {1}", redemption.User, redemption.Amount);
                 }
                 else
                 {
@@ -498,7 +498,7 @@ namespace InvestmentBuilder
                 _cashAccountData.AddCashAccountTransaction(userToken, report.ValuationDate, report.ValuationDate, "BalanceInHandCF", "BalanceInHandCF",
                     0d - redemption.Amount);
 
-                logger.Log(LogLevel.Info, "redemption for user {0} complete. Units sold. {1}. Units remaining {2}", redemption.User,
+                logger.Log(userToken, LogLevel.Info, "redemption for user {0} complete. Units sold. {1}. Units remaining {2}", redemption.User,
                     requestedUnitRedemption, newMemberUnits);
 
                 //update redemtpion table with the amount that was actually redeemed, the number of

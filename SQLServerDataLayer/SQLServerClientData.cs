@@ -48,7 +48,7 @@ namespace SQLServerDataLayer
                 {
                     while (reader.Read())
                     {
-                        yield return (string)reader["type"];
+                        yield return GetDBValue<string>("type", reader);
                     }
                 }
             }
@@ -116,6 +116,11 @@ namespace SQLServerDataLayer
 
         public Stock GetTradeItem(UserAccountToken userToken, string name)
         {
+            if(string.IsNullOrEmpty(name))
+            {
+                return null;
+            }
+
             userToken.AuthorizeUser(AuthorizationLevel.READ);
             using (var sqlCommand = new SqlCommand("sp_GetTradeItem", Connection))
             {
@@ -127,19 +132,17 @@ namespace SQLServerDataLayer
                     if (reader.Read())
                     {
                         //var obj = reader["Enabled"];
-                        int quantity = (int)reader["Shares_Bought"] - (int)reader["Shares_Sold"];
-                        var dtBoughtDate = (DateTime)reader["LastBoughtDate"];
-                        var exchange = reader["Exchange"];
+                        int quantity = GetDBValue<int>("Shares_Bought",reader) - GetDBValue<int>("Shares_Sold", reader);
                         return new Stock
                         {
-                            Name = (string)reader["Name"],
-                            TransactionDate = dtBoughtDate,
-                            Symbol = (string)reader["Symbol"],
-                            Exchange = exchange.GetType() != typeof(System.DBNull) ? (string)exchange : null,
-                            Currency = (string)reader["Currency"],
+                            Name = GetDBValue<string>("Name", reader),
+                            TransactionDate = GetDBValue<DateTime>("LastBoughtDate", reader),
+                            Symbol = GetDBValue<string>("Symbol", reader),
+                            Exchange = GetDBValue<string>("Exchange", reader),
+                            Currency = GetDBValue<string>("Currency", reader),
                             Quantity = quantity,
-                            TotalCost = (double)reader["Total_Cost"],
-                            ScalingFactor = (double)reader["ScalingFactor"]
+                            TotalCost = GetDBValue<double>("Total_Cost", reader),
+                            ScalingFactor = GetDBValue<double>("ScalingFactor", reader)
                         };
                     }
                 }

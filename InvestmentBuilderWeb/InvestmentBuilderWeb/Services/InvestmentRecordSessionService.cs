@@ -36,6 +36,19 @@ namespace InvestmentBuilderWeb.Services
             _clearSession(sessionId);
         }
 
+        public DateTime GetValuationDate(string sessionId)
+        {
+            if (_sessionData.ContainsKey(sessionId) == true)
+            {
+                var dt = _sessionData[sessionId].ValuationDate;
+                if (dt.HasValue)
+                {
+                    return dt.Value;
+                }
+            }
+            return DateTime.Today;
+        }
+
         #endregion
 
         public void AddManualPrice(string sessionId, string company, double price)
@@ -54,19 +67,6 @@ namespace InvestmentBuilderWeb.Services
             }
         }
 
-        public DateTime GetValuationDate(string sessionId)
-        {
-            if (_sessionData.ContainsKey(sessionId) == true)
-            {
-                var dt = _sessionData[sessionId].ValuationDate;
-                if (dt.HasValue)
-                {
-                    return dt.Value;
-                }
-            }
-            return DateTime.Today;
-        }
-
         public void SetValuationDate(string sessionId, DateTime dtValuation)
         {
             if (_sessionData.ContainsKey(sessionId) == true)
@@ -82,6 +82,7 @@ namespace InvestmentBuilderWeb.Services
                 _sessionData[sessionId].ValuationDate = null;
             }
         }
+
         public ManualPrices GetManualPrices(string sessionId)
         {
             return _GetManualPrices(sessionId);

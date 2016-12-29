@@ -28,8 +28,8 @@ namespace SQLServerDataLayer
                     {
                         yield return new HistoricalData
                         (
-                            date: (DateTime)reader["Valuation_Date"],
-                            price: (double)reader["Unit_Price"]
+                            date: GetDBValue<DateTime>("Valuation_Date", reader),
+                            price: GetDBValue<double>("Unit_Price", reader)
                         );
                     }
                     reader.Close();

@@ -113,5 +113,28 @@ namespace InvestmentBuilderWeb.Translators
             }
             return null;
         }
+
+        public static AccountModelDto ToAccountModelDto(this AccountModel account)
+        {
+            var dto = new AccountModelDto
+            {
+                AccountName = account.Name,
+                AccountDescription = account.Description,
+                AccountPassword = account.Password,
+                ReportingCurrency = account.ReportingCurrency,
+                AccountType = account.Type,
+                Broker = account.Broker
+            };
+
+            foreach (var member in account.Members)
+            {
+                dto.Members.Add(new AccountMemberDto
+                {
+                    MemberID = member.Name,
+                    AuthorisationType = member.AuthLevel.ToString()
+                });
+            }
+            return dto;
+        }
     }
 }

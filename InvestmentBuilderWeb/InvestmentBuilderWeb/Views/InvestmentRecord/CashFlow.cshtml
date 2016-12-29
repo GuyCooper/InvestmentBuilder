@@ -4,7 +4,7 @@
 }
 
 <div class="container">
-    @Html.Partial("AccountSummary")
+    @Html.Partial("~/Views/InvestmentRecord/AccountSummary.cshtml")
 
 <div class="row panel panel-default investmentSummary">
     <div class="cashItemType">
@@ -16,7 +16,7 @@
                 <li><p class="navbar-text">Valuation Date: @Model.ValuationDate</p> </li>
                 <li><p class="navbar-text">Total: @Model.ReceiptsTotal</p></li>
                 <li>
-                    <div id="addReceiptButton" class="btn btn-default" onclick="javascript: onAddReceipt()" data-toggle="modal" data-target="#myModal">Add Receipt</div>
+                    <div id="addReceiptButton" class="btn btn-default" data-toggle="modal" data-target="#myModal">Add Receipt</div>
                 </li>
             </ul>
         </div>
@@ -36,13 +36,13 @@
                 @foreach (var item in Model.Receipts.Where(x => x.IsTotal == false))
             {
                     <tr>
-                        @Html.Partial("ReceiptCashFlowItem", item)
+                        @Html.Partial("~/Views/InvestmentRecord/ReceiptCashFlowItem.cshtml", item)
                     </tr>
                 }
                 @foreach (var item in Model.Receipts.Where(x => x.IsTotal == true))
             {
                     <tr class="active cashTotal">
-                        @Html.Partial("ReceiptCashFlowItem", item)
+                        @Html.Partial("~/Views/InvestmentRecord/ReceiptCashFlowItem.cshtml", item)
                     </tr>
                 }
             </tbody>
@@ -58,7 +58,7 @@
                 <li><p class="navbar-text">Valuation Date: @Model.ValuationDate</p> </li>
                 <li><p class="navbar-text">Total: @Model.PaymentsTotal</p></li>
                 <li>
-                    <div id="addPaymentButton" class="btn btn-default" onclick="javascript:onAddPayment()" data-toggle="modal" data-target="#myModal">Add Payment</div>
+                    <div id="addPaymentButton" class="btn btn-default" data-toggle="modal" data-target="#myModal">Add Payment</div>
                 </li>
             </ul>
         </div>
@@ -77,13 +77,13 @@
                 @foreach (var item in Model.Payments.Where(x => x.IsTotal == false))
             {
                     <tr>
-                        @Html.Partial("PaymentCashFlowItem", item)
+                        @Html.Partial("~/Views/InvestmentRecord/PaymentCashFlowItem.cshtml", item)
                     </tr>
                 }
                 @foreach (var item in Model.Payments.Where(x => x.IsTotal == true))
             {
                     <tr class="active cashTotal">
-                        @Html.Partial("PaymentCashFlowItem", item)
+                        @Html.Partial("~/Views/InvestmentRecord/PaymentCashFlowItem.cshtml", item)
                     </tr>
                 }
             </tbody>
@@ -91,7 +91,7 @@
     </div>
 </div>
 
-@Html.Partial("AddModalDialog")
+@Html.Partial("~/Views/InvestmentRecord/AddModalDialog.cshtml")
 
 </div>
 
