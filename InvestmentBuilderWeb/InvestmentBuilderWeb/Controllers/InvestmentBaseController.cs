@@ -108,6 +108,7 @@ namespace InvestmentBuilderWeb.Controllers
             var dtValuation = _sessionService.GetValuationDate(SessionId);
             var dtPrevious = _clientData.GetPreviousAccountValuationDate(token, dtValuation);
             ViewBag.SummaryData = _GetSummaryModel(token, dtPrevious);
+            ViewBag.EnableBuildReport = _sessionService.GetEnableBuildReport(SessionId);
         }
 
         protected ViewResult _CreateMainView(string name, object model)

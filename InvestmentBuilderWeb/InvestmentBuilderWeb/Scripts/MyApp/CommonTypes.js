@@ -4,6 +4,7 @@ $(document).ready(function () {
     $("#addReceiptButton").click(onAddReceipt);
     $("#addPaymentButton").click(onAddPayment);
     $('.editTradeButton').click(onEditTrade);
+    $('.datetime').click(onDisplayDateTimePicker);
 
     $('#errorAlert').bind('closed.bs.alert', onCloseErrors);
 
@@ -43,18 +44,18 @@ function onAddDialogContents(transactionurl, parameters) {
 }
 
 function onAddReceipt() {
-    onAddDialogContents('AddReceiptTransaction', null);
+    onAddDialogContents('InvestmentRecord/AddReceiptTransaction', null);
 }
 
 function onAddPayment() {
-    onAddDialogContents('AddPaymentTransaction', null);
+    onAddDialogContents('InvestmentRecord/AddPaymentTransaction', null);
 }
    
 function onEditTrade() {
     //var parameter = $("#tradeNameValue").val().toString();
     //alert("on edit trade!. val = " + parameter);
     var parameter = $(this).attr('Value');
-    onAddDialogContents('EditTrade', { name: parameter });
+    onAddDialogContents('InvestmentRecord/EditTrade', { name: parameter });
 }
             
 function onCloseErrors() {
@@ -62,5 +63,11 @@ function onCloseErrors() {
         url: 'ClearErrors',
         dataType: "text",
         type: "GET"
+    });
+}
+
+function onDisplayDateTimePicker() {
+    $('.datetime').datepicker({
+        dateFormat: "dd/mm/yy",
     });
 }

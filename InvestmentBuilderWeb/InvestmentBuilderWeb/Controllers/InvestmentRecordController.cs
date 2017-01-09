@@ -78,6 +78,13 @@ namespace InvestmentBuilderWeb.Controllers
             cashFlowModel.ReceiptsTotal = dReceiptTotal;
             cashFlowModel.PaymentsTotal = dPaymentTotal;
             cashFlowModel.ValuationDate = dtValuation.ToShortDateString();
+
+            if(cashFlowModel.ReceiptsTotal > 0 && cashFlowModel.ReceiptsTotal == cashFlowModel.PaymentsTotal)
+            {
+                //receipts and payments match, allow build report
+                _sessionService.SetEnableBuildReport(SessionId, true);
+
+            }
             return cashFlowModel;
         }
 
@@ -186,6 +193,24 @@ namespace InvestmentBuilderWeb.Controllers
         {
             _sessionService.SetValuationDate(SessionId, dtValaution);
             return _CreateMainView("CashFlow", _GetCashFlowModel());
+        }
+
+        [HttpGet]
+        public ActionResult BuildReport()
+        {
+            var token = _SetupAccounts(null);
+            var report = _investmentBuilder.BuildAssetReport(token
+                                                            , _sessionService.GetValuationDate(SessionId)
+                                                            , true
+                                                            , _sessionService.GetManualPrices(SessionId));
+            if(report == null)
+            {
+                setupErrors(token.User);
+                return CashFlow();
+            }
+
+            var reportFile = _investmentBuilder.GetInvestmentReport(token, _sessionService.GetValuationDate(SessionId));
+            return File(reportFile, "application/pdf");
         }
 
         private ActionResult _AddTransactionView(string title, string transactionType)

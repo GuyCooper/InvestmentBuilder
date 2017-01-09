@@ -35,7 +35,15 @@
         </ul>
     </div>
     <div class="pull-right">
-        <a href="@Url.Action("BuildReport", "InvestmentRecord", new {target="_blank"})" class="btn btn-primary summaryButton">Build Report </a>
+        @if (ViewBag.EnableBuildReport == true)
+        {
+            <a href="@Url.Action("BuildReport", "InvestmentRecord", new {target="_blank"})" class="btn btn-primary summaryButton">Build Report </a>
+        }
+        else
+        {
+            <a href="@Url.Action("BuildReport", "InvestmentRecord", new {target="_blank"})" class="btn btn-primary summaryButton disabled">Build Report </a>
+        }
+        
     </div>
 </div>
 

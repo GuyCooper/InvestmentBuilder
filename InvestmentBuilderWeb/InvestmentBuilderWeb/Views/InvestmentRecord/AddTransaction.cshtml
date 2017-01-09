@@ -11,7 +11,9 @@
 
         <div class="form-group">
             @Html.LabelFor(m => m.TransactionDate)
-            @Html.EditorFor(m => m.TransactionDate, new { @class = "form-control datetime" })
+            @Html.TextBox("TransactionDate", DateTime.Today.ToShortDateString(), new { @class = "form-control datetime",
+                                                          onclick = "javascript:onDisplayDateTimePicker()",
+                                                          onchange = "javascript:onDisplayDateTimePicker()"})
             @Html.ValidationMessageFor(m => m.TransactionDate)
         </div>
 

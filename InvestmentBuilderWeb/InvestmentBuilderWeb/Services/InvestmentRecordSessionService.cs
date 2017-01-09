@@ -19,6 +19,7 @@ namespace InvestmentBuilderWeb.Services
         public ManualPrices ManualPrices { get; private set; }
         public DateTime? ValuationDate { get; set; }
         public Dictionary<DateTime, InvestmentSummaryModel> SummaryData { get; set; }
+        public bool EnableBuildReport { get; set; }
     }
 
     internal class InvestmentRecordSessionService : IApplicationSessionService
@@ -38,22 +39,14 @@ namespace InvestmentBuilderWeb.Services
 
         public DateTime GetValuationDate(string sessionId)
         {
-            if (_sessionData.ContainsKey(sessionId) == true)
-            {
-                var dt = _sessionData[sessionId].ValuationDate;
-                if (dt.HasValue)
-                {
-                    return dt.Value;
-                }
-            }
-            return DateTime.Today;
+            return _GetSessionValue<DateTime?>(sessionId, "ValuationDate", DateTime.Today).Value;
         }
 
         #endregion
 
         public void AddManualPrice(string sessionId, string company, double price)
         {
-            var manualPrices = _GetManualPrices(sessionId);
+            var manualPrices = _GetSessionValue<ManualPrices>(sessionId, "ManualPrices");
             if (manualPrices != null)
             {
                 if (manualPrices.ContainsKey(company) == false)
@@ -69,23 +62,17 @@ namespace InvestmentBuilderWeb.Services
 
         public void SetValuationDate(string sessionId, DateTime dtValuation)
         {
-            if (_sessionData.ContainsKey(sessionId) == true)
-            {
-                _sessionData[sessionId].ValuationDate = dtValuation;
-            }
+            _SetSessionValue<DateTime?>(sessionId, "ValuationDate", dtValuation);
         }
 
         public void ResetValuationDate(string sessionId)
         {
-            if (_sessionData.ContainsKey(sessionId) == true)
-            {
-                _sessionData[sessionId].ValuationDate = null;
-            }
+            _SetSessionValue<DateTime?>(sessionId, "ValuationDate", null);
         }
 
         public ManualPrices GetManualPrices(string sessionId)
         {
-            return _GetManualPrices(sessionId);
+            return _GetSessionValue<ManualPrices>(sessionId, "ManualPrices");
         }
 
         public InvestmentSummaryModel GetSummaryData(string sessionId, DateTime dtValuation)
@@ -111,6 +98,16 @@ namespace InvestmentBuilderWeb.Services
             }
         }
 
+        public bool GetEnableBuildReport(string sessionId)
+        {
+            return _GetSessionValue<bool>(sessionId, "EnableBuildReport");
+        }
+
+        public void SetEnableBuildReport(string sessionId, bool enable)
+        {
+            _SetSessionValue<bool>(sessionId, "EnableBuildReport", enable);
+        }
+
         private void _clearSession(string sessionId)
         {
             if (_sessionData.ContainsKey(sessionId) == true)
@@ -119,13 +116,35 @@ namespace InvestmentBuilderWeb.Services
             }
         }
 
-        private ManualPrices _GetManualPrices(string sessionId)
+        private T _GetSessionValue<T>(string sessionId, string valueName, T defaultValue = default(T))
         {
-            if (_sessionData.ContainsKey(sessionId) == true)
+            InvestmentRecordSessionData sessionData;
+            if (_sessionData.TryGetValue(sessionId, out sessionData) == true)
             {
-                return _sessionData[sessionId].ManualPrices;
+                var propInfo = sessionData.GetType().GetProperty(valueName);
+                if (propInfo != null)
+                {
+                    var obj = propInfo.GetValue(sessionData);
+                    if (obj != null)
+                    {
+                        return (T)obj;
+                    }
+                }
             }
-            return null;
+            return defaultValue;
+        }
+
+        private void _SetSessionValue<T>(string sessionId, string valueName, T value)
+        {
+            InvestmentRecordSessionData sessionData;
+            if (_sessionData.TryGetValue(sessionId, out sessionData) == true)
+            {
+                var propInfo = sessionData.GetType().GetProperty(valueName);
+                if (propInfo != null)
+                {
+                    propInfo.SetValue(sessionData, value);
+                }
+            }
         }
     }
 }
