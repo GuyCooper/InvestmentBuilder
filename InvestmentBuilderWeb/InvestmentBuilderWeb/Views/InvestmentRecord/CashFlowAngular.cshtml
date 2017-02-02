@@ -1,0 +1,197 @@
+﻿@section scripts {
+    <script src="~/Scripts/angular.js"></script>
+    @*<script src="~/Scripts/MyApp/CashFlowAngular.js"></script>*@
+
+    <script type="text/javascript">
+        "use strict"
+    
+        function CashFlow($http) {
+
+            this.data = null;
+            this.cashFlowFromDate = null;
+
+            var onLoadContents = function (response) {
+                this.data = response.data;
+
+                if (this.data.length > 0) {
+                    this.cashFlowFromDate = this.data[this.data.length - 1].ValuationDate;
+                }
+            }.bind(this);
+
+            $http.get('CashFlowContents')
+            .then(onLoadContents);
+    
+            var onAddDialogData = function (response) {
+                $('#dialogContents').empty().append(response.data);
+            };
+
+            this.addReceipt = function () {
+                $http.get('AddReceiptTransaction')
+                .then(onAddDialogData);
+            };
+
+            this.addPayment = function () {
+                $http.get('AddPaymentTransaction')
+                .then(onAddDialogData);
+            };
+
+            this.deleteReceipt = function (index) {
+                alert('delete receipt ' + index);
+            };
+
+            this.deletePayment = function (index) {
+                alert('delete payment' + index);
+            };
+
+            this.reloadContents = function () {
+                //var url = 'CashFlowContents/' + this.cashFlowFromDate;
+                //$http.get('CashFlowContents/"01-06-2016"')
+                $http({
+                    url: 'CashFlowContents',
+                    method: 'GET',
+                    params: { sDateRequestedFrom: this.cashFlowFromDate }
+                })
+                .then(onLoadContents);
+            };
+        }
+
+        //inject everything angular needs here
+        angular.module('InvestmentRecord', []);
+        
+        angular.module('InvestmentRecord')
+        .controller('CashFlowController', CashFlow);
+           
+    </script>
+}
+
+@{
+    ViewBag.Title = "CashFlowAngular";
+}
+
+<div class="container">
+    @Html.Partial("~/Views/InvestmentRecord/AccountSummary.cshtml")
+    <div ng-app="InvestmentRecord">
+        <div ng-controller="CashFlowController as cashFlow">
+            <div ng-repeat="cashFlowItem in cashFlow.data" class="row cashFlowBlock">
+                <div class="panel panel-default investmentSummary">
+                    <div class="cashItemType">
+                        <div class="navbar navbar-default">
+                            <div class="navbar-header">
+                                <a class="navbar-brand">Receipts</a>
+                            </div>
+                            <ul class="nav navbar-nav navbar-right">
+                                <li><p class="navbar-text">Valuation Date: {{cashFlowItem.ValuationDate}}</p> </li>
+                                <li><p class="navbar-text">Total: {{cashFlowItem.ReciptsTotal}}</p></li>
+                                <li>
+                                    <div ng-show="$index == 0" ng-click="cashFlow.addReceipt()"  class="btn btn-default" data-toggle="modal" data-target="#myModal">Add Receipt</div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <table class="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>Transaction Date</th>
+                                    <th>Parameter</th>
+                                    <th>Subscription</th>
+                                    <th>Sale</th>
+                                    <th>Dividend</th>
+                                    <th>Other Receipts</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                    <tr ng-repeat="receipt in cashFlowItem.Receipts">
+                                        <td>
+                                           <p>{{receipt.TransactionDate}}</p>
+                                        </td>
+                                        <td>
+                                            <p>{{receipt.Parameter}}</p>
+                                        </td>
+                                        <td>
+                                            <p>{{receipt.Subscription}}</p>
+                                        </td>
+                                        <td>
+                                            <p>{{receipt.Sale}}</p>
+                                        </td>
+                                        <td>
+                                            <p>{{receipt.Dividend}}</p>
+                                        </td>
+                                        <td>
+                                            <p>{{receipt.Other}}</p>
+                                        </td>
+                                        <td ng-if="!receipt.IsTotal">
+                                            <ul class="nav nav-tabs">
+                                                <li><a href="#" ng-click="cashFlow.deleteReceipt($index)" class="btn btn-sm">Delete</a></li>
+                                            </ul>
+                                        </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="panel panel-default investmentSummary">
+                    <div class="cashItemType">
+                        <div class="navbar navbar-default">
+                            <div class="navbar-header">
+                                <a class="navbar-brand">Payments</a>
+                            </div>
+                            <ul class="nav navbar-nav navbar-right">
+                                <li><p class="navbar-text">Valuation Date: {{cashFlowItem.ValuationDate}}</p> </li>
+                                <li><p class="navbar-text">Total: {{cashFlowItem.PaymentsTotal}}</p></li>
+                                <li>
+                                    <div ng-show="$index == 0" ng-click="cashFlow.addPayment()" class="btn btn-default" data-toggle="modal" data-target="#myModal">Add Payment</div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <table class="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>Transaction Date</th>
+                                    <th>Parameter</th>
+                                    <th>Withdrawls</th>
+                                    <th>Purchases</th>
+                                    <th>Other Payments</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="payment in cashFlowItem.Payments">
+                                    <td>
+                                        <p>{{payment.TransactionDate}}</p>
+                                    </td>
+                                    <td>
+                                        <p>{{payment.Parameter}}</p>
+                                    </td>
+                                    <td>
+                                        <p>{{payment.Withdrawls}}</p>
+                                    </td>
+                                    <td>
+                                        <p>{{payment.Purchases}}</p>
+                                    </td>
+                                    <td>
+                                        <p>{{payment.Dividend}}</p>
+                                    </td>
+                                    <td>
+                                        <p>{{payment.Other}}</p>
+                                    </td>
+                                    <td ng-if="!payment.IsTotal">
+                                        <ul class="nav nav-tabs">
+                                            <li><a href="#" ng-show="$index == 0" ng-click="cashFlow.deletePayment($index)" class="btn btn-sm">Delete</a></li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <span>Cash Flow From</span>
+                <input class="datetime" ng-model="cashFlow.cashFlowFromDate" type="text" />
+                <input type="button" ng-click="cashFlow.reloadContents()" value="go" />
+            </div>
+            @Html.Partial("~/Views/InvestmentRecord/AddModalDialog.cshtml")
+        </div>
+    </div>
+</div>

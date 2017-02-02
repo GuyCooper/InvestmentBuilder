@@ -7,6 +7,7 @@ using InvestmentBuilder;
 using InvestmentBuilderCore;
 using InvestmentBuilderWeb.Translators;
 using InvestmentBuilderWeb.Interfaces;
+using Newtonsoft.Json;
 
 namespace InvestmentBuilderWeb.Controllers
 {
@@ -66,33 +67,67 @@ namespace InvestmentBuilderWeb.Controllers
             return _CreateMainView("Index", _GetCurrentInvestments(token));
         }
 
-        private CashFlowModel _GetCashFlowModel()
+        private IEnumerable<CashFlowModel> _GetCashFlowModel(string sDateFrom)
         {
             var token = _SetupAccounts(null);
-            var dtValuation = _sessionService.GetValuationDate(SessionId);
-            var dtPrevious = _clientData.GetPreviousAccountValuationDate(token, dtValuation);
-            double dReceiptTotal, dPaymentTotal;
-            var cashFlowModel = new CashFlowModel();
-            cashFlowModel.Receipts = _cashTransactionManager.GetReceiptTransactions(token, dtValuation, dtPrevious, out dReceiptTotal).Select(x => x.ToReceiptCashFlowModel()).ToList();
-            cashFlowModel.Payments = _cashTransactionManager.GetPaymentTransactions(token, dtValuation, out dPaymentTotal).Select(x => x.ToPaymentCashFlowModel()).ToList();
-            cashFlowModel.ReceiptsTotal = dReceiptTotal;
-            cashFlowModel.PaymentsTotal = dPaymentTotal;
-            cashFlowModel.ValuationDate = dtValuation.ToShortDateString();
+            var dtDateEarliest = string.IsNullOrEmpty(sDateFrom) ? _sessionService.GetValuationDate(SessionId) : DateTime.Parse(sDateFrom);
+            var dtDateLatest = _sessionService.GetValuationDate(SessionId);
+            var dtDateNext = dtDateLatest;
 
-            if(cashFlowModel.ReceiptsTotal > 0 && cashFlowModel.ReceiptsTotal == cashFlowModel.PaymentsTotal)
+            var finished = false;
+            while (!finished)
             {
-                //receipts and payments match, allow build report
-                _sessionService.SetEnableBuildReport(SessionId, true);
+                var dtDateFrom = _clientData.GetPreviousAccountValuationDate(token, dtDateNext);
 
+                double dReceiptTotal, dPaymentTotal;
+                var cashFlowModel = new CashFlowModel();
+                cashFlowModel.Receipts = _cashTransactionManager.GetReceiptTransactions(token, dtDateNext, dtDateFrom, out dReceiptTotal).Select(x => x.ToReceiptCashFlowModel()).ToList();
+                cashFlowModel.Payments = _cashTransactionManager.GetPaymentTransactions(token, dtDateNext, out dPaymentTotal).Select(x => x.ToPaymentCashFlowModel()).ToList();
+                cashFlowModel.ReceiptsTotal = dReceiptTotal;
+                cashFlowModel.PaymentsTotal = dPaymentTotal;
+                cashFlowModel.ValuationDate = dtDateNext.ToShortDateString();
+
+                if (cashFlowModel.ReceiptsTotal > 0 && cashFlowModel.ReceiptsTotal == cashFlowModel.PaymentsTotal)
+                {
+                    //receipts and payments match, allow build report
+                    _sessionService.SetEnableBuildReport(SessionId, true);
+
+                }
+                if((dtDateFrom.HasValue == false)||(dtDateNext <= dtDateEarliest))
+                {
+                    finished = true;
+                }
+                else
+                {
+                    dtDateNext = dtDateFrom.Value;
+                }
+                yield return cashFlowModel;
             }
-            return cashFlowModel;
         }
 
         [HttpGet]
         public ActionResult CashFlow()
         {
-            var model = _GetCashFlowModel();
+            var model = _GetCashFlowModel(null);
             return _CreateMainView("CashFlow", model);
+        }
+
+        [HttpGet]
+        public string CashFlowContents(string sDateRequestedFrom)
+        {
+            var model = _GetCashFlowModel(sDateRequestedFrom);
+            return JsonConvert.SerializeObject(model);
+        }
+
+        //public JsonResult CashFlowContents()
+        //{
+        //    return Json(_GetCashFlowModel());
+        //}
+
+        [HttpGet]
+        public ActionResult CashFlowAngular()
+        {
+            return _CreateMainView("CashFlowAngular", null);
         }
 
         [HttpGet]
@@ -192,7 +227,7 @@ namespace InvestmentBuilderWeb.Controllers
         public ActionResult UpdateValuationDate(DateTime dtValaution)
         {
             _sessionService.SetValuationDate(SessionId, dtValaution);
-            return _CreateMainView("CashFlow", _GetCashFlowModel());
+            return _CreateMainView("CashFlow", _GetCashFlowModel(null));
         }
 
         [HttpGet]
@@ -275,7 +310,7 @@ namespace InvestmentBuilderWeb.Controllers
                 this.ModelState.AddModelError("", "Invalid data enterted");
             }
 
-            return _CreateMainView("CashFlow", _GetCashFlowModel());
+            return _CreateMainView("CashFlow", _GetCashFlowModel(null));
         }
 
         [HttpGet]
@@ -332,7 +367,7 @@ namespace InvestmentBuilderWeb.Controllers
         {
             var token = _SetupAccounts(null);
             _cashTransactionManager.RemoveTransaction(token, transaction.ValuationDate, transaction.TransactionDate, transaction.TransactionType, transaction.Parameter);
-            return _CreateMainView("CashFlow", _GetCashFlowModel());
+            return _CreateMainView("CashFlow", _GetCashFlowModel(null));
         }
 
         [HttpGet]

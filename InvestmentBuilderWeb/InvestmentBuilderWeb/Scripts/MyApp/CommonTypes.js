@@ -32,6 +32,10 @@ function asyncGetParameters() {
 }
 
 function onAddDialogContents(transactionurl, parameters) {
+    if (document.location.pathname == "/") {
+        transactionurl = "InvestmentRecord/" + transactionurl;
+    }
+
     $.ajax({
         url: transactionurl,
         data: parameters,
@@ -44,18 +48,18 @@ function onAddDialogContents(transactionurl, parameters) {
 }
 
 function onAddReceipt() {
-    onAddDialogContents('InvestmentRecord/AddReceiptTransaction', null);
+    onAddDialogContents('AddReceiptTransaction', null);
 }
 
 function onAddPayment() {
-    onAddDialogContents('InvestmentRecord/AddPaymentTransaction', null);
+    onAddDialogContents('AddPaymentTransaction', null);
 }
    
 function onEditTrade() {
     //var parameter = $("#tradeNameValue").val().toString();
     //alert("on edit trade!. val = " + parameter);
     var parameter = $(this).attr('Value');
-    onAddDialogContents('InvestmentRecord/EditTrade', { name: parameter });
+    onAddDialogContents('EditTrade', { name: parameter });
 }
             
 function onCloseErrors() {

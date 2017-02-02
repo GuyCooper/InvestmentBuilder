@@ -85,3 +85,10 @@ right: 1em;
 .cashItemType {
     margin:5px;
 }
+
+.cashFlowBlock {
+    border: solid 1px black;
+    border-radius: 1em;
+    padding:5px;
+    margin-bottom:5px;
+}
