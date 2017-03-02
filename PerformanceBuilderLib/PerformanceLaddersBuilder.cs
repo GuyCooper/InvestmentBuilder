@@ -193,13 +193,20 @@ namespace PerformanceBuilderLib
         /// <returns></returns>
         private IEnumerable<HistoricalData> RebaseDataList(IEnumerable<HistoricalData> dataList, DateTime? dtStartDate)
         {
-            var tmpList = dtStartDate.HasValue ? dataList.Where(x => x.Date >= dtStartDate).OrderBy(x => x.Date) :
-                dataList.OrderBy(x => x.Date);
+            DateTime? dtPrevious = null;
+            var resultList = new List<HistoricalData>();
+
+            var tmpList = dtStartDate.HasValue ? dataList.Where(x => x.Date >= dtStartDate).OrderBy(x => x.Date).ToList() :
+                dataList.OrderBy(x => x.Date).ToList();
+
+            if(tmpList.Count == 0)
+            {
+                return resultList;
+            }
+
             var dFirstPrice = tmpList.First().Price;
             //scan through the list, removing any duplicate entries for the same month
             //and rebasing the price
-            DateTime? dtPrevious = null;
-            var resultList = new List<HistoricalData>();
             foreach (var item in tmpList)
             {
                 //where multiple records exist for a single month, just use the the last one
@@ -239,6 +246,11 @@ namespace PerformanceBuilderLib
             var clubData = historicalData.OrderBy(x => x.Date).ToList();
             DumpData("club data", clubData);
             var rebasedClubData = RebaseDataList(clubData, startDate).ToList();
+
+            if(rebasedClubData.Count == 0)
+            {
+                return result;
+            }
 
             DateTime dtFirstDate = rebasedClubData.First().Date.Value;
 

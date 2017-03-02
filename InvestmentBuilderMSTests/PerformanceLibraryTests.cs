@@ -9,8 +9,8 @@ namespace InvestmentBuilderMSTests
 {
     internal static class PerfBuilderConstants
     {
-        public static readonly  DateTime TestDate1 = DateTime.Parse("01/02/2016");
-        public static readonly  DateTime TestDate2 = DateTime.Parse("02/03/2016");
+        public static readonly DateTime TestDate1 = DateTime.Today.AddDays(-60);//DateTime.Parse("01/02/2016");
+        public static readonly DateTime TestDate2 = DateTime.Today.AddDays(-29);//DateTime.Parse("02/03/2016");
         public static readonly  double TestPrice1 = 1.34d;
         public static readonly  double TestPrice2 = 1.36d;
         public static readonly  double TestPrice3 = 1.31d;
@@ -112,6 +112,11 @@ namespace InvestmentBuilderMSTests
                 PerfBuilderConstants.TestCompany1,
                 PerfBuilderConstants.TestCompany2
             };
+        }
+
+        public override IEnumerable<double> GetUnitValuationRange(UserAccountToken userToken, DateTime dateFrom, DateTime dateTo)
+        {
+            return Enumerable.Empty<double>();
         }
     }
 

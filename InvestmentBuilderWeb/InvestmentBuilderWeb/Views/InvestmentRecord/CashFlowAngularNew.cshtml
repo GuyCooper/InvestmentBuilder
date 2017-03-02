@@ -7,13 +7,40 @@
     <script type="text/javascript">
         "use strict"
 
-          function CashFlow($http, $uibModal, $log) {
+        //function InvestmentRecordDatePicker() {
+
+        //    this.today = function () {
+        //        this.dt = new Date();
+        //    }.bind(this);
+
+        //    this.dateOptions = {
+        //        dateDisabled: false,
+        //        formatYear: 'yy',
+        //        maxDate: new Date(2020, 5, 22),
+        //        minDate: null,
+        //        startingDay: 1
+        //    };
+
+        //    this.openDatePicker = function () {
+        //        this.datepicker.opened = true;
+        //    }.bind(this);
+
+        //    this.format = 'dd-MMMM-yyyy';
+        //    this.altInputFormats = ['M!/d!/yyyy'];
+
+        //    this.datepicker = {
+        //        opened: false
+        //    };
+
+        //    this.today();
+        //};
+
+        function CashFlow($http, $uibModal, $log) {
 
             this.cashFlows = null;
+            this.cashFlowFromDate = null;
             this.receiptParamTypes = null;
             this.paymentParamTypes = null;
-
-            this.cashFlowFromDate = new Date();
 
             var onLoadContents = function (response) {
 
@@ -91,25 +118,6 @@
                 .then(onLoadContents);
             };
 
-            this.dateOptions = {
-                dateDisabled: false,
-                formatYear: 'yy',
-                maxDate: new Date(2020, 5, 22),
-                minDate: null,
-                startingDay: 1
-            };
-
-            this.openDatePicker = function () {
-                this.datepicker.opened = true;
-            }.bind(this);
-
-            this.format = 'dd-MMMM-yyyy';
-            this.altInputFormats = ['M!/d!/yyyy'];
-
-            this.datepicker = {
-                opened: false
-            };
-
             //this.formatTransactionDate = function (transaction) {
             //    var transactionDate = Date.parse(transaction.TransactionDate);
             //    return transactionDate.toDateString();
@@ -137,7 +145,7 @@
 
             $transaction.ok = function () {
                 $uibModalInstance.close({
-                    transactionDate: $transaction.dt,
+                    transactionDate: $transaction.datePicker.dt,
                     paramType: $transaction.SelectedParamType,
                     param: $transaction.SelectedParameter,
                     amount: $transaction.Amount,
@@ -149,6 +157,12 @@
                 $uibModalInstance.dismiss('cancel');
             };
            
+            //$transaction.datePicker = new InvestmentRecordDatePicker();
+
+            $transaction.openDatePicker = function () {
+                $transaction.datePicker.openDatePicker();
+            }
+
             $transaction.today = function () {
                 $transaction.dt = new Date();
             };
@@ -332,17 +346,15 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-2">
-                <div class="form-group">
-                    <label>Cash Flow From</label>
-                    <div class="input-group">
-                        <input type="text" name="transactionDate" uib-datepicker-popup="{{cashFlow.format}}" ng-model="cashFlow.cashFlowFromDate" is-open="cashFlow.datepicker.opened" datepicker-options="cashFlow.dateOptions" ng-required="true" close-text="Close" />
-                        <span class="input-group-btn">
-                            <button type="button" class="btn btn-default" ng-click="cashFlow.openDatePicker()"><i class="glyphicon glyphicon-calendar"></i></button>
-                        </span>
-                    </div>
-                    <input type="button" ng-click="cashFlow.reloadContents()" value="go" />
-                </div>
+            <div>
+                <span>Cash Flow From</span>
+                @*<p class="input-group">
+                    <input type="text" name="transactionDate" uib-datepicker-popup="{{cashFlow.format}}" ng-model="cashFlow.cashFlowFromDate" is-open="cashFlow.datepicker.opened" datepicker-options="cashFlow.dateOptions" ng-required="true" close-text="Close" />
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-default" ng-click="cashFlow.openDatePicker()"><i class="glyphicon glyphicon-calendar"></i></button>
+                    </span>
+                </p>*@
+                <input type="button" ng-click="cashFlow.reloadContents()" value="go" />
             </div>
         </div>
     </div>

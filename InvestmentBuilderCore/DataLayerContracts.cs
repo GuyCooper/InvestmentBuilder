@@ -363,6 +363,13 @@ namespace InvestmentBuilderCore
             Contract.Requires(string.IsNullOrEmpty(accountName) == false);
             return false;
         }
+
+        public IEnumerable<double> GetUnitValuationRange(UserAccountToken userToken, DateTime dateFrom, DateTime dateTo)
+        {
+            Contract.Requires(userToken != null);
+            Contract.Ensures(Contract.Result<IEnumerable<string>>().Count() > 0);
+            return null;
+        }
     }
 
     internal abstract class IHistoricalDataContract : IHistoricalDataReader

@@ -16,6 +16,13 @@ namespace InvestmentBuilderWeb.Models
         public string ValuationDate { get; set; }
     }
 
+    public class CashFlowModelAndParams
+    {
+        public IEnumerable<CashFlowModel> CashFlows { get; set; }
+        public IEnumerable<string> ReceiptParamTypes { get; set; }
+        public IEnumerable<string> PaymentParamTypes { get; set; }
+    }
+
     //todo add validation
     [MetadataType(typeof(ReceiptTransactionAttributes))]
     public class ReceiptCashFlowModel : ReceiptTransaction

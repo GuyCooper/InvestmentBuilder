@@ -93,36 +93,46 @@ namespace InvestmentBuilderWeb.Controllers
                     _sessionService.SetEnableBuildReport(SessionId, true);
 
                 }
-                if((dtDateFrom.HasValue == false)||(dtDateNext <= dtDateEarliest))
+                if(dtDateFrom.HasValue == false)
                 {
                     finished = true;
                 }
                 else
                 {
                     dtDateNext = dtDateFrom.Value;
+                    if (dtDateFrom <= dtDateEarliest)
+                    {
+                        finished = true;
+                    }
                 }
+
                 yield return cashFlowModel;
             }
         }
 
+        private CashFlowModelAndParams _GetCashFlowModelAndParams(string sDateFrom)
+        {
+            return new CashFlowModelAndParams
+            {
+                CashFlows = _GetCashFlowModel(sDateFrom),
+                ReceiptParamTypes = new List<string> { "Subscription", "Sale", "Dividend", "Other" },
+                PaymentParamTypes = new List<string> { "Purchase", "AdminFee", "BalanceInHand", "Other" }
+            };
+        }
         [HttpGet]
         public ActionResult CashFlow()
         {
-            var model = _GetCashFlowModel(null);
+
+            var model = _GetCashFlowModelAndParams(null);
             return _CreateMainView("CashFlow", model);
         }
 
         [HttpGet]
         public string CashFlowContents(string sDateRequestedFrom)
         {
-            var model = _GetCashFlowModel(sDateRequestedFrom);
+            var model = _GetCashFlowModelAndParams(sDateRequestedFrom);            
             return JsonConvert.SerializeObject(model);
         }
-
-        //public JsonResult CashFlowContents()
-        //{
-        //    return Json(_GetCashFlowModel());
-        //}
 
         [HttpGet]
         public ActionResult CashFlowAngular()
@@ -284,10 +294,10 @@ namespace InvestmentBuilderWeb.Controllers
                                     amount);
         }
 
-        private ActionResult _ProcessTransaction(TransactionModel transaction, string transactionType)
+        private void _ProcessTransaction(TransactionModel transaction, string transactionType)
         {
             var token = _SetupAccounts(null);
-            if (this.ModelState.IsValid && transaction.TransactionDate != null)
+            if (transaction.TransactionDate != null && transaction.Amount > 0)
             {
                 if (transaction.Parameter == ALL)
                 {
@@ -309,58 +319,83 @@ namespace InvestmentBuilderWeb.Controllers
             {
                 this.ModelState.AddModelError("", "Invalid data enterted");
             }
-
-            return _CreateMainView("CashFlow", _GetCashFlowModel(null));
         }
 
         [HttpGet]
-        public ActionResult AddReceiptTransaction()
+        public ActionResult AddCashTransaction()
         {
-            return _AddTransactionView("Add Receipt", _cashTransactionManager.ReceiptMnemomic);
+            //return _AddTransactionView("Add Receipt", _cashTransactionManager.ReceiptMnemomic);
+            return PartialView("AddTransactionAngular");
         }
 
-        [HttpGet]
-        public ActionResult AddPaymentTransaction()
+        //[HttpGet]
+        //public ActionResult AddPaymentTransaction()
+        //{
+        //    //return _AddTransactionView("Add Payment", _cashTransactionManager.PaymentMnemomic);
+        //    return PartialView("AddTransactionAngular");
+        //}
+
+        //[HttpPost]
+        //public ActionResult AddReceiptTransaction(TransactionModel transaction)
+        //{
+        //    return _ProcessTransaction(transaction, _cashTransactionManager.ReceiptMnemomic);
+        //}
+        private string _AddTransactionAngularImpl(string transactionDate, string paramType, string param, double amount, string dateRequestedFrom, string transactionType)
         {
-            return _AddTransactionView("Add Payment", _cashTransactionManager.PaymentMnemomic);
+            var transaction = new TransactionModel
+            {
+                TransactionDate = DateTime.Parse(transactionDate),
+                ParameterType = paramType,
+                Parameter = param,
+                Amount = amount
+            };
+
+            _ProcessTransaction(transaction, transactionType);
+            return CashFlowContents(dateRequestedFrom);
         }
 
         [HttpPost]
-        public ActionResult AddReceiptTransaction(TransactionModel transaction)
+        public string AddReceiptTransactionAngular(string transactionDate, string paramType, string param, double amount, string dateRequestedFrom)
         {
-            return _ProcessTransaction(transaction, _cashTransactionManager.ReceiptMnemomic);
+            return _AddTransactionAngularImpl(transactionDate, paramType, param, amount, dateRequestedFrom, _cashTransactionManager.ReceiptMnemomic);
         }
 
         [HttpPost]
-        public ActionResult AddPaymentTransaction(TransactionModel transaction)
+        public string AddPaymentTransactionAngular(string transactionDate, string paramType, string param, double amount, string dateRequestedFrom)
         {
-            return _ProcessTransaction(transaction, _cashTransactionManager.PaymentMnemomic);
+            return _AddTransactionAngularImpl(transactionDate, paramType, param, amount, dateRequestedFrom, _cashTransactionManager.PaymentMnemomic);
         }
+
+        //[HttpPost]
+        //public ActionResult AddPaymentTransaction(TransactionModel transaction)
+        //{
+        //    return _ProcessTransaction(transaction, _cashTransactionManager.PaymentMnemomic);
+        //}
 
         [HttpGet]
         public string GetParametersForTransaction(string ParameterType)
         {
             var token = _SetupAccounts(null);
             var latestRecordDate = _recordData.GetLatestRecordInvestmentValuationDate(token) ?? DateTime.Today;
-            var parameters = _investmentBuilder.
-                GetParametersForTransactionType(token,
-                                                latestRecordDate,
-                                                ParameterType).Select(x => string.Format("\"{0}\"", x)).ToList();
 
-            if (parameters.Count > 0)
+            var parameters = _investmentBuilder.GetParametersForTransactionType(token, latestRecordDate, ParameterType).ToList();
+            if(parameters.Count == 0)
             {
-                parameters.Add(string.Format("\"{0}\"", ALL));
-                return string.Format("[{0}]", string.Join(",", parameters));
+                parameters.Add(ParameterType);
+            }
+            else
+            {
+                parameters.Add(ALL);
             }
 
-            return string.Format("[\"{0}\"]", ParameterType);
+            return JsonConvert.SerializeObject(new { parameters = parameters });
         }
 
-        [HttpPost]
-        public JsonResult GetTestReceipt()
-        {
-            return Json("<p>This is the help page</p>");
-        }
+        //[HttpPost]
+        //public JsonResult GetTestReceipt()
+        //{
+        //    return Json("<p>This is the help page</p>");
+        //}
 
         
         private ActionResult _RemoveCashTransaction(Transaction transaction)

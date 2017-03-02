@@ -92,3 +92,7 @@ right: 1em;
     padding:5px;
     margin-bottom:5px;
 }
+
+.nav, .pagination, .carousel, .panel-title a { 
+    cursor: pointer; 
+}

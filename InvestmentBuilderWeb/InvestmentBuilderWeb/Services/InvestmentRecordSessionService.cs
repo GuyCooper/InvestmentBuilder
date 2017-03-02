@@ -29,7 +29,10 @@ namespace InvestmentBuilderWeb.Services
         #region IApplicationSessionService
         public void StartSession(string sessionId)
         {
-            _sessionData.Add(sessionId, new InvestmentRecordSessionData());
+            if(_sessionData.ContainsKey(sessionId) == false)
+            {
+                _sessionData.Add(sessionId, new InvestmentRecordSessionData());
+            }
         }
 
         public void EndSession(string sessionId)

@@ -378,5 +378,26 @@ namespace SQLServerDataLayer
             return false;
 
         }
+
+        public IEnumerable<double> GetUnitValuationRange(UserAccountToken userToken, DateTime dateFrom, DateTime dateTo)
+        {
+            userToken.AuthorizeUser(AuthorizationLevel.READ);
+            var ret = new List<double>();
+            using (var command = new SqlCommand("sp_GetUnitValuationRange", Connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                command.Parameters.Add(new SqlParameter("@dateFrom", dateFrom));
+                command.Parameters.Add(new SqlParameter("@dateTo", dateTo));
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        ret.Add((double)reader["Unit_Price"]);
+                    }
+                }
+            }
+            return ret;
+        }
     }
 }

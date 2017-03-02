@@ -317,6 +317,7 @@
     <Content Include="Scripts\MyApp\InvestmentAccount.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
+    <Content Include="Scripts\ui-bootstrap-tpls-2.5.0.js" />
     <Content Include="Scripts\_references.js" />
     <Content Include="TestMarketData.txt" />
     <Content Include="Web.config">
@@ -387,6 +388,7 @@
     <Content Include="Views\InvestmentRecord\RaiseAlert.cshtml" />
     <Content Include="Scripts\version.json" />
     <Content Include="Views\InvestmentRecord\CashFlowAngular.cshtml" />
+    <Content Include="Views\InvestmentRecord\AddTransactionAngular.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

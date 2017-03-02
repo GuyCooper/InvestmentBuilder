@@ -255,7 +255,7 @@ namespace InvestmentBuilder
             return true;
         }
 
-        private IEnumerable<CompanyData> GetInvestmentRecordsImpl(UserAccountToken userToken, UserAccountData account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate, bool bSnapshot, ManualPrices manualPrices)
+        private IEnumerable<CompanyData> _GetInvestmentRecordsImpl(UserAccountToken userToken, UserAccountData account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate, bool bSnapshot, ManualPrices manualPrices)
         {
             var lstCurrentData = _GetCompanyDataImpl(userToken, account, dtValuationDate, bSnapshot, manualPrices).ToList();
             var lstPreviousData = dtPreviousValuationDate.HasValue ? _GetCompanyDataImpl(userToken, account, dtPreviousValuationDate.Value, false, null).ToList() : new List<CompanyData>();
@@ -301,7 +301,7 @@ namespace InvestmentBuilder
                 }
             }
 
-            return GetInvestmentRecordsImpl(userToken, account, dtValuationDate, dtNewPreviousRecordValuationDate, bSnapshot, manualPrices);
+            return _GetInvestmentRecordsImpl(userToken, account, dtValuationDate, dtNewPreviousRecordValuationDate, bSnapshot, manualPrices);
         }
 
         /// <summary>
@@ -317,7 +317,7 @@ namespace InvestmentBuilder
         {
             DateTime? dtPreviousValuationDate = _investmentRecordData.GetLatestRecordInvestmentValuationDate(userToken);
             if (dtPreviousValuationDate.HasValue) //
-                return GetInvestmentRecordsImpl(userToken, account, dtPreviousValuationDate.Value, dtPreviousValuationDate, true, manualPrices);
+                return _GetInvestmentRecordsImpl(userToken, account, dtPreviousValuationDate.Value, dtPreviousValuationDate, true, manualPrices);
 
             //if there is no last known valuation date for this account then just return an empty report
             return new List<CompanyData>(); 

@@ -102,6 +102,7 @@ namespace InvestmentBuilderCore
         IEnumerable<string> GetAccountNames(string user, bool bCheckAdmin);
         IEnumerable<string> GetActiveCompanies(UserAccountToken userToken, DateTime valuationDate);
         bool InvestmentAccountExists(string accountName);
+        IEnumerable<double> GetUnitValuationRange(UserAccountToken userToken, DateTime dateFrom, DateTime dateTo);
     }
 
     public interface IHistoricalDataReader

@@ -34,6 +34,7 @@ namespace InvestmentBuilderMSTests
         public static readonly string _TestCurrency = "GBP";
         public static readonly double _TestScalingFactor = 100;
         public static readonly double _TestSharePrice = 25.98;
+        public static readonly double _TestPreviousValuation = 1.0;
 
         public static readonly CompanyData TestCompanyData = new CompanyData
         {
@@ -108,6 +109,11 @@ namespace InvestmentBuilderMSTests
             {
                 TestDataCache._testUser
             };
+        }
+
+        public override IEnumerable<double> GetUnitValuationRange(UserAccountToken userToken, DateTime dateFrom, DateTime dateTo)
+        {
+            return new List<double> { TestDataCache._TestPreviousValuation };
         }
     }
 

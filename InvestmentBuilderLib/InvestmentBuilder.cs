@@ -388,6 +388,14 @@ namespace InvestmentBuilder
                 _userAccountData.SaveNewUnitValue(userToken, dtValuationDate, report.ValuePerUnit);
             }
 
+            //now calculate the YTD value
+            //YTD is compared against unit price from last month of previous year
+            DateTime dtFrom = new DateTime(dtValuationDate.Year - 1, 12, 01);
+            DateTime dtTo = new DateTime(dtValuationDate.Year - 1, 12, 31);
+            var previousVals = _userAccountData.GetUnitValuationRange(userToken, dtFrom, dtTo).ToList();
+            var startOfYear = previousVals.Count > 0 ? previousVals.Last() : 1.0;
+            report.YearToDatePerformance = ((report.ValuePerUnit - startOfYear) / startOfYear) * 100.0;
+
             return report;
         }
 

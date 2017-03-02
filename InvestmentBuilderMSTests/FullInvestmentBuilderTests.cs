@@ -325,6 +325,7 @@ namespace InvestmentBuilderMSTests
             MatchDoubleVal(report.NetAssets, "1830.152");
             MatchDoubleVal(report.TotalAssetValue, "1480.842");
             MatchDoubleVal(report.ValuePerUnit, "0.966");
+            MatchDoubleVal(report.YearToDatePerformance, "-3.34");
 
         }
 

@@ -272,6 +272,7 @@ namespace InvestmentReportGenerator
                     _AddAmountRow(summaryTable, "Net Assets", report.NetAssets);
                     _AddAmountRow(summaryTable, "Issued Units", report.IssuedUnits);
                     _AddAmountRow(summaryTable, "Value Per Unit", report.ValuePerUnit);
+                    _AddAmountRow(summaryTable, "YTD", report.YearToDatePerformance);
                 }
 
                 _RenderAssetTable(document,
