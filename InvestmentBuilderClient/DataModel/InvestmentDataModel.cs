@@ -191,7 +191,8 @@ namespace InvestmentBuilderClient.DataModel
                 _investmentBuilder.UpdateTrades(
                                                 _userToken,
                                                 tradesList,
-                                                manualPrices);
+                                                manualPrices,
+                                                null);
 
                 //PortfolioItemsList =  ContainerManager.ResolveValue<InvestmentBuilder.InvestmentBuilder>().GetCurrentInvestments(_userToken, manualPrices).ToList();
                 _TradeUpdateCount++;
@@ -201,7 +202,12 @@ namespace InvestmentBuilderClient.DataModel
 
         public AssetReport BuildAssetReport(DateTime dtValuation, bool update)
         {
-            return _investmentBuilder.BuildAssetReport(_userToken, dtValuation, update, GetManualPrices());
+            var  report = _investmentBuilder.BuildAssetReport(_userToken, dtValuation, update, GetManualPrices(),null);
+            if(report != null)
+            {
+                _performanceBuilder.Run(_userToken, dtValuation);
+            }
+            return report;
         }
 
         public IEnumerable<string> GetAllCompanies()

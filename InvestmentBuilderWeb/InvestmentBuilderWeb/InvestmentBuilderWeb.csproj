@@ -217,6 +217,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Interfaces\IApplicationSessionManager.cs" />
+    <Compile Include="Interfaces\IBuildMonitor.cs" />
     <Compile Include="Models\AccountModelDto.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\CashFlowModel.cs" />
@@ -236,6 +237,7 @@
     <Compile Include="Services\InvestmentRecordSessionService.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Translators\Translator.cs" />
+    <Compile Include="Utils\BuildReportMonitor.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.css" />
@@ -363,7 +365,6 @@
     <Content Include="Views\Shared\EditorTemplates\Phone.cshtml" />
     <Content Include="Views\InvestmentRecord\Index.cshtml" />
     <Content Include="Views\InvestmentRecord\CreateTrade.cshtml" />
-    <Content Include="Views\InvestmentRecord\CashFlow.cshtml" />
     <Content Include="Views\Shared\_LayoutInvestmentRecord.cshtml" />
     <Content Include="Views\Sample\PartialViewDemo.cshtml" />
     <Content Include="Views\Sample\NotIndex.cshtml" />
@@ -387,20 +388,21 @@
     <Content Include="Views\InvestmentAccount\AddAccountMembers.cshtml" />
     <Content Include="Views\InvestmentRecord\RaiseAlert.cshtml" />
     <Content Include="Scripts\version.json" />
-    <Content Include="Views\InvestmentRecord\CashFlowAngular.cshtml" />
+    <Content Include="Views\InvestmentRecord\CashFlow.cshtml" />
     <Content Include="Views\InvestmentRecord\AddTransactionAngular.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="DTOs\" />
     <Folder Include="Storage\" />
-    <Folder Include="Utils\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\fonts\glyphicons-halflings-regular.woff" />
     <Content Include="Content\fonts\glyphicons-halflings-regular.ttf" />
     <Content Include="Content\fonts\glyphicons-halflings-regular.eot" />
-    <Content Include="packages.config" />
+    <Content Include="packages.config">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Project_Readme.html" />
   </ItemGroup>
   <PropertyGroup>

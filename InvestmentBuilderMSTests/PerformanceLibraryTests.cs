@@ -249,8 +249,8 @@ namespace InvestmentBuilderMSTests
             var lstResults = result.Data.First().Data.ToList();
             Assert.AreEqual(3, lstResults.Count);
 
-            Assert.AreEqual("0.002792", lstResults[0].Price.ToString("#0.000000"));
-            Assert.AreEqual("0.002309", lstResults[1].Price.ToString("#0.000000"));
+            Assert.AreEqual("0.00279", lstResults[0].Price.ToString("#0.00000"));
+            Assert.AreEqual("0.00231", lstResults[1].Price.ToString("#0.00000"));
 
             var vwap = ((PerfBuilderConstants.company1TotalCost * lstResults[0].Price) +
             (PerfBuilderConstants.company2TotalCost * lstResults[1].Price)) / (PerfBuilderConstants.company1TotalCost + PerfBuilderConstants.company2TotalCost);

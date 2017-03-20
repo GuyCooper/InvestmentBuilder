@@ -20,7 +20,7 @@ namespace InvestmentBuilder
     [ContractClass(typeof(InvestmentRecordDataManagerContract))]
     public interface IInvestmentRecordDataManager
     {
-        bool UpdateInvestmentRecords(UserAccountToken userToken, UserAccountData account, Trades trades, CashAccountData cashData, DateTime valuationDate, ManualPrices manualPrices);
+        bool UpdateInvestmentRecords(UserAccountToken userToken, UserAccountData account, Trades trades, CashAccountData cashData, DateTime valuationDate, ManualPrices manualPrices, IProgressCounter progress);
         IEnumerable<CompanyData> GetInvestmentRecords(UserAccountToken userToken, UserAccountData account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate, ManualPrices manualPrices, bool bSnapshot);
         IEnumerable<CompanyData> GetInvestmentRecordSnapshot(UserAccountToken userToken, UserAccountData account, ManualPrices manualPrices);
         DateTime? GetLatestRecordValuationDate(UserAccountToken userToken);
@@ -131,7 +131,7 @@ namespace InvestmentBuilder
         /// <param name="cashData"></param>
         /// <param name="valuationDate"></param>
         /// <param name="previousValuation"></param>
-        public bool UpdateInvestmentRecords(UserAccountToken userToken, UserAccountData account, Trades trades, CashAccountData cashData, DateTime valuationDate, ManualPrices manualPrices)
+        public bool UpdateInvestmentRecords(UserAccountToken userToken, UserAccountData account, Trades trades, CashAccountData cashData, DateTime valuationDate, ManualPrices manualPrices, IProgressCounter progress)
         {
             Log.Log(LogLevel.Info, "building investment records...");
             //Console.WriteLine("building investment records...");
@@ -168,6 +168,12 @@ namespace InvestmentBuilder
             if (bValidationFailed == true)
             {
                 return false;
+            }
+
+            if(progress != null)
+            {
+                var increment = 100 / (enInvestments.Count + 1);
+                progress.ResetCounter(increment);
             }
 
             foreach (var investment in enInvestments)
@@ -223,6 +229,10 @@ namespace InvestmentBuilder
                 {
                     investment.UpdateClosingPrice(valuationDate, dPrice);
                 }
+                if(progress != null)
+                {
+                    progress.IncrementCounter();
+                }
             }
 
             foreach (var newTrade in aggregatedBuys)
@@ -250,6 +260,11 @@ namespace InvestmentBuilder
                 _investmentRecordData.AddTradeTransactions(trades.Buys, TradeType.BUY, userToken, valuationDate);
                 _investmentRecordData.AddTradeTransactions(trades.Sells, TradeType.SELL, userToken, valuationDate);
                 _investmentRecordData.AddTradeTransactions(trades.Changed, TradeType.MODIFY, userToken, valuationDate);
+            }
+
+            if (progress != null)
+            {
+                progress.IncrementCounter();
             }
 
             return true;

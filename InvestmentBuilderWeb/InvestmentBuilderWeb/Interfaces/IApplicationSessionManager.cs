@@ -17,5 +17,7 @@ namespace InvestmentBuilderWeb.Interfaces
         void SetSummaryData(string sessionId, DateTime dtValuation, InvestmentSummaryModel summaryData);
         bool GetEnableBuildReport(string sessionId);
         void SetEnableBuildReport(string sessionId, bool enable);
+        IBuildMonitor GetBuildMonitor(string sessionId);
+        void SetBuildMonitor(string sessionId, IBuildMonitor buildMonitor);
     }
 }

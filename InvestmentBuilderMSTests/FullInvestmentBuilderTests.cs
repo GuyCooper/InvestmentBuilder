@@ -213,7 +213,7 @@ namespace InvestmentBuilderMSTests
             var trades = toTradeBuys(_TestNewTrade);
 
             ContainerManager.ResolveValueOnContainer<InvestmentBuilder.InvestmentBuilder>(_childContainer).UpdateTrades(userToken,
-                                                                                              trades, null, _TradeValuationDate);
+                                                                                              trades, null, null, _TradeValuationDate);
             VerifyTradeTransactionResults(userToken);
         }
 
@@ -225,7 +225,7 @@ namespace InvestmentBuilderMSTests
             _TestNewTrade.TotalCost = 234.43d;
             var trades = toTradeBuys(_TestNewTrade);
             ContainerManager.ResolveValueOnContainer<InvestmentBuilder.InvestmentBuilder>(_childContainer).UpdateTrades(userToken,
-                                                            trades, null, _TradeValuationDate.AddSeconds(120));
+                                                            trades, null, null, _TradeValuationDate.AddSeconds(120));
 
             var results = ContainerManager.ResolveValueOnContainer<InvestmentBuilder.InvestmentBuilder>(_childContainer).GetCurrentInvestments(userToken, null).ToList();
             Assert.AreEqual(1, results.Count);
@@ -260,6 +260,7 @@ namespace InvestmentBuilderMSTests
             var report = ContainerManager.ResolveValueOnContainer<InvestmentBuilder.InvestmentBuilder>(_childContainer).BuildAssetReport(userToken,
                                                                                                   dtValuationDate.AddHours(14),
                                                                                                   true,
+                                                                                                  null,
                                                                                                   null);
             Assert.IsNotNull(report);
 
@@ -346,8 +347,9 @@ namespace InvestmentBuilderMSTests
                 Buys = new List<Stock> { _TestNewTrade }.ToArray()
             };
 
+            var counter = new TestProgressCounter();
             ContainerManager.ResolveValueOnContainer<InvestmentBuilder.InvestmentBuilder>(_childContainer).UpdateTrades(userToken,
-                                                                                              trades, null, _TradeValuationDateNextMonth);
+                                                                                              trades, null, counter, _TradeValuationDateNextMonth);
 
             //ContainerManager.ResolveValue<SQLServerDataLayer.SQLServerDataLayer>().ClientData.AddCashAccountData(
             //    userToken, dtValuationDate, dtTransactionDate, "BalanceInHand", "BalanceInHand", 913.05);
@@ -375,9 +377,12 @@ namespace InvestmentBuilderMSTests
             var report = ContainerManager.ResolveValueOnContainer<InvestmentBuilder.InvestmentBuilder>(_childContainer).BuildAssetReport(userToken,
                                                                                       dtValuationDate.AddHours(13),
                                                                                       true,
-                                                                                      manualPrices);
+                                                                                      manualPrices,
+                                                                                      counter);
 
             _validate_report_next_month(report);
+
+            Assert.AreEqual(counter.Count, 100);
         }
 
         private void When_building_asset_report_next_month_repeat(UserAccountToken userToken, DateTime dtTransactionDate, DateTime dtValuationDate)
@@ -392,7 +397,7 @@ namespace InvestmentBuilderMSTests
             var report = ContainerManager.ResolveValueOnContainer<InvestmentBuilder.InvestmentBuilder>(_childContainer).BuildAssetReport(userToken,
                                                                                       dtValuationDate.AddHours(16),
                                                                                       true,
-                                                                                      manualPrices);
+                                                                                      manualPrices, null);
             _validate_report_next_month(report);
         }
 

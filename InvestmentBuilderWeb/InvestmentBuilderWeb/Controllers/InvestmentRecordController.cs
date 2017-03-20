@@ -2,12 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using System.Threading;
+using System.Threading.Tasks;
 using InvestmentBuilderWeb.Models;
 using InvestmentBuilder;
 using InvestmentBuilderCore;
 using InvestmentBuilderWeb.Translators;
 using InvestmentBuilderWeb.Interfaces;
+using InvestmentBuilderWeb.Utils;
 using Newtonsoft.Json;
+using PerformanceBuilderLib;
 
 namespace InvestmentBuilderWeb.Controllers
 {
@@ -18,6 +22,7 @@ namespace InvestmentBuilderWeb.Controllers
     {
         private IInvestmentRecordInterface _recordData;
         private CashAccountTransactionManager _cashTransactionManager;
+        private PerformanceBuilder _performanceBuilder;
 
         private const string ALL = "All";
 
@@ -28,11 +33,13 @@ namespace InvestmentBuilderWeb.Controllers
                                         , CashAccountTransactionManager cashTransactionManager
                                         , AccountManager accountManager
                                         , BrokerManager brokerManager
+                                        , PerformanceBuilder performanceBuilder
                                         )  :
             base(authorizationManager, accountManager, investmentBuilder, brokerManager, sessionService, dataLayer.ClientData)
         {
             _recordData = dataLayer.InvestmentRecordData;
             _cashTransactionManager = cashTransactionManager;
+            _performanceBuilder = performanceBuilder;
         }
 
         // GET: InvestmentRecord
@@ -56,7 +63,7 @@ namespace InvestmentBuilderWeb.Controllers
             var token = _SetupAccounts(null);
             if (this.ModelState.IsValid)
             {
-                _investmentBuilder.UpdateTrades(token, tradeItem.ToTrades(TransactionType.BUY), null);   
+                _investmentBuilder.UpdateTrades(token, tradeItem.ToTrades(TransactionType.BUY), null, null);   
             }
             else
             {
@@ -85,15 +92,12 @@ namespace InvestmentBuilderWeb.Controllers
                 cashFlowModel.Payments = _cashTransactionManager.GetPaymentTransactions(token, dtDateNext, out dPaymentTotal).Select(x => x.ToPaymentCashFlowModel()).ToList();
                 cashFlowModel.ReceiptsTotal = dReceiptTotal;
                 cashFlowModel.PaymentsTotal = dPaymentTotal;
-                cashFlowModel.ValuationDate = dtDateNext.ToShortDateString();
+                cashFlowModel.ValuationDate = dtDateNext.ToString("yyyy-MM-dd"); //ISO 8601
 
-                if (cashFlowModel.ReceiptsTotal > 0 && cashFlowModel.ReceiptsTotal == cashFlowModel.PaymentsTotal)
-                {
-                    //receipts and payments match, allow build report
-                    _sessionService.SetEnableBuildReport(SessionId, true);
+                cashFlowModel.CanEdit = dtDateNext == dtDateLatest;
+                cashFlowModel.CanBuild = cashFlowModel.CanEdit && cashFlowModel.ReceiptsTotal > 0 && cashFlowModel.ReceiptsTotal == cashFlowModel.PaymentsTotal;
 
-                }
-                if(dtDateFrom.HasValue == false)
+                if (dtDateFrom.HasValue == false)
                 {
                     finished = true;
                 }
@@ -115,17 +119,18 @@ namespace InvestmentBuilderWeb.Controllers
             return new CashFlowModelAndParams
             {
                 CashFlows = _GetCashFlowModel(sDateFrom),
-                ReceiptParamTypes = new List<string> { "Subscription", "Sale", "Dividend", "Other" },
-                PaymentParamTypes = new List<string> { "Purchase", "AdminFee", "BalanceInHand", "Other" }
+                //ReceiptParamTypes = new List<string> { "Subscription", "Sale", "Dividend", "Other" },
+                ReceiptParamTypes = _cashTransactionManager.GetTransactionTypes(_cashTransactionManager.ReceiptMnemomic),
+                PaymentParamTypes = _cashTransactionManager.GetTransactionTypes(_cashTransactionManager.PaymentMnemomic)
             };
         }
-        [HttpGet]
-        public ActionResult CashFlow()
-        {
+        //[HttpGet]
+        //public ActionResult CashFlow()
+        //{
 
-            var model = _GetCashFlowModelAndParams(null);
-            return _CreateMainView("CashFlow", model);
-        }
+        //    var model = _GetCashFlowModelAndParams(null);
+        //    return _CreateMainView("CashFlow", model);
+        //}
 
         [HttpGet]
         public string CashFlowContents(string sDateRequestedFrom)
@@ -135,9 +140,9 @@ namespace InvestmentBuilderWeb.Controllers
         }
 
         [HttpGet]
-        public ActionResult CashFlowAngular()
+        public ActionResult CashFlow()
         {
-            return _CreateMainView("CashFlowAngular", null);
+            return _CreateMainView("CashFlow", null);
         }
 
         [HttpGet]
@@ -191,7 +196,7 @@ namespace InvestmentBuilderWeb.Controllers
             var token = _SetupAccounts(null);
             if (this.ModelState.IsValid && tradeItem != null && tradeItem.Action != TransactionType.NONE)
             {
-                _investmentBuilder.UpdateTrades(token, tradeItem.ToTrades(tradeItem.Action), tradeItem.GetManualPrices());
+                _investmentBuilder.UpdateTrades(token, tradeItem.ToTrades(tradeItem.Action), tradeItem.GetManualPrices(), null);
             }
             else
             {
@@ -210,7 +215,7 @@ namespace InvestmentBuilderWeb.Controllers
             var tradeItem = _clientData.GetTradeItem(token, name);
             if (tradeItem != null)
             {
-                _investmentBuilder.UpdateTrades(token, tradeItem.ToTrades(TransactionType.SELL), null);
+                _investmentBuilder.UpdateTrades(token, tradeItem.ToTrades(TransactionType.SELL), null, null);
                 return _CreateMainView("Index", _GetCurrentInvestments(token));
             }
             return null;
@@ -241,21 +246,61 @@ namespace InvestmentBuilderWeb.Controllers
         }
 
         [HttpGet]
-        public ActionResult BuildReport()
+        public string BuildReport(string sDateRequestedFrom)
         {
             var token = _SetupAccounts(null);
-            var report = _investmentBuilder.BuildAssetReport(token
-                                                            , _sessionService.GetValuationDate(SessionId)
-                                                            , true
-                                                            , _sessionService.GetManualPrices(SessionId));
-            if(report == null)
+
+            IBuildMonitor monitor = _sessionService.GetBuildMonitor(SessionId);
+            if(monitor == null)
             {
-                setupErrors(token.User);
-                return CashFlow();
+                monitor = new BuildReportMonitor(_GetThisUserName());
+                _sessionService.SetBuildMonitor(SessionId, monitor);
+            }
+            monitor.StartBuilding();
+
+            Task.Factory.StartNew( () =>
+            {
+                monitor.GetProgressCounter().ResetCounter(10);
+                for (int i = 0; i < 10; ++i)
+                {
+                    System.Threading.Thread.Sleep(3000);
+                    monitor.GetProgressCounter().IncrementCounter();
+                }
+
+                monitor.StopBuiliding();
+                //first generate the asset report
+                //var report = _investmentBuilder.BuildAssetReport(token
+                //                                                , _sessionService.GetValuationDate(SessionId)
+                //                                                , true
+                //                                                , _sessionService.GetManualPrices(SessionId)
+                //                                                , this);
+
+                //if (report != null)
+                //{
+                //    //now generate the performance charts. by doing this the whole report will be persisted
+                //    //to a pdf file
+                //    _performanceBuilder.Run(token, _sessionService.GetValuationDate(SessionId));
+                //}
+            });
+
+            return CashFlowContents(sDateRequestedFrom);
+        }
+
+        [HttpGet]
+        public string CheckBuildStatus()
+        {
+            var monitor = _sessionService.GetBuildMonitor(SessionId);
+            ReportStatus status = null;
+            if (monitor != null)
+            {
+                status = _sessionService.GetBuildMonitor(SessionId).GetReportStatus();
+            }
+            else
+            {
+                status = new ReportStatus();
             }
 
-            var reportFile = _investmentBuilder.GetInvestmentReport(token, _sessionService.GetValuationDate(SessionId));
-            return File(reportFile, "application/pdf");
+            return JsonConvert.SerializeObject(status);
         }
 
         private ActionResult _AddTransactionView(string title, string transactionType)
@@ -390,19 +435,20 @@ namespace InvestmentBuilderWeb.Controllers
 
             return JsonConvert.SerializeObject(new { parameters = parameters });
         }
-
-        //[HttpPost]
-        //public JsonResult GetTestReceipt()
-        //{
-        //    return Json("<p>This is the help page</p>");
-        //}
-
-        
+       
         private ActionResult _RemoveCashTransaction(Transaction transaction)
         {
             var token = _SetupAccounts(null);
             _cashTransactionManager.RemoveTransaction(token, transaction.ValuationDate, transaction.TransactionDate, transaction.TransactionType, transaction.Parameter);
             return _CreateMainView("CashFlow", _GetCashFlowModel(null));
+        }
+
+        [HttpPost]
+        public string RemoveTransaction(DateTime valuationDate, DateTime transactionDate, string transactionType, string parameter, string dateRequestedFrom)
+        {
+            var token = _SetupAccounts(null);
+            _cashTransactionManager.RemoveTransaction(token, valuationDate, transactionDate, transactionType, parameter);
+            return CashFlowContents(dateRequestedFrom);
         }
 
         [HttpGet]

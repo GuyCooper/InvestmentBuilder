@@ -20,6 +20,7 @@ namespace InvestmentBuilderWeb.Services
         public DateTime? ValuationDate { get; set; }
         public Dictionary<DateTime, InvestmentSummaryModel> SummaryData { get; set; }
         public bool EnableBuildReport { get; set; }
+        public IBuildMonitor BuildMonitor { get; set; }
     }
 
     internal class InvestmentRecordSessionService : IApplicationSessionService
@@ -109,6 +110,16 @@ namespace InvestmentBuilderWeb.Services
         public void SetEnableBuildReport(string sessionId, bool enable)
         {
             _SetSessionValue<bool>(sessionId, "EnableBuildReport", enable);
+        }
+
+        public IBuildMonitor GetBuildMonitor(string sessionId)
+        {
+            return _GetSessionValue<IBuildMonitor>(sessionId, "BuildMonitor" );
+        }
+        
+        public void SetBuildMonitor(string sessionId, IBuildMonitor buildMonitor)
+        {
+            _SetSessionValue<IBuildMonitor>(sessionId, "BuildMonitor", buildMonitor);
         }
 
         private void _clearSession(string sessionId)

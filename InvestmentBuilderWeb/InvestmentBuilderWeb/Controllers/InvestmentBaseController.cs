@@ -22,8 +22,6 @@ namespace InvestmentBuilderWeb.Controllers
 
         protected string SessionId { get; set; }
 
-        protected static Dictionary<string, List<string>> ErrorLookup = new Dictionary<string, List<string>>();
-
         protected InvestmentBaseController(IAuthorizationManager authorizationManager
                                            ,AccountManager accountManager
                                            ,InvestmentBuilder.InvestmentBuilder investmentBuilder
@@ -87,7 +85,7 @@ namespace InvestmentBuilderWeb.Controllers
                 var summaryData = _sessionService.GetSummaryData(SessionId, dtValuation.Value);
                 if (summaryData == null)
                 {
-                    summaryData = _investmentBuilder.BuildAssetReport(token, dtValuation.Value, false, null).ToInvestmentSummaryModel();
+                    summaryData = _investmentBuilder.BuildAssetReport(token, dtValuation.Value, false, null, null).ToInvestmentSummaryModel();
                     _sessionService.SetSummaryData(SessionId, dtValuation.Value, summaryData);
                 }
                 return summaryData;
@@ -122,48 +120,6 @@ namespace InvestmentBuilderWeb.Controllers
             return _investmentBuilder.GetCurrentInvestments(token, _sessionService.GetManualPrices(SessionId))
                 .OrderBy(x => x.Name)
                 .Select(x => x.ToCompanyDataModel());
-        }
-
-        [HttpGet]       
-        public string ClearErrors()
-        {
-            var username = _GetThisUserName();
-            ErrorLookup.Remove(username);
-
-            return "OK";
-        }
-
-        public static void LogMethod(string level, string message)
-        {
-            //errors that are displayed in client. only include error message
-            if(level.Equals("ERROR", StringComparison.InvariantCultureIgnoreCase) == true)
-            {
-                int index = message.IndexOf(';');
-                if(index > 0)
-                {
-                    string user = message.Substring(0, index);
-                    string errorData = message.Substring(index + 1);
-
-                    List<string> userList;
-                    if(ErrorLookup.TryGetValue(user, out userList) == false)
-                    {
-                        userList = new List<string>();
-                        ErrorLookup.Add(user, userList);
-                    }
-                    userList.Add(errorData);
-                }
-            }
-        }
-
-        protected void setupErrors(string username)
-        {
-            List<string> userErrors;
-            if (ErrorLookup.TryGetValue(username, out userErrors) == true)
-            {
-                ViewBag.HasError = true;
-                ViewBag.AlertTitle = "Account Errors";
-                ViewBag.AlertList = userErrors;
-            }
         }
     }
 }

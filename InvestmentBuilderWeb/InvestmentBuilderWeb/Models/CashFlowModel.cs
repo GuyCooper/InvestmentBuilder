@@ -14,6 +14,8 @@ namespace InvestmentBuilderWeb.Models
         public double ReceiptsTotal { get; set; }
         public double PaymentsTotal { get; set; }
         public string ValuationDate { get; set; }
+        public bool   CanEdit { get; set; }
+        public bool   CanBuild { get; set; }
     }
 
     public class CashFlowModelAndParams

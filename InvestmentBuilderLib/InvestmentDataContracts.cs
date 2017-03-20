@@ -92,7 +92,7 @@ namespace InvestmentBuilder
             return null;
         }
 
-        public bool UpdateInvestmentRecords(UserAccountToken userToken, UserAccountData account, Trades trades, CashAccountData cashData, DateTime valuationDate, ManualPrices manualPrices)
+        public bool UpdateInvestmentRecords(UserAccountToken userToken, UserAccountData account, Trades trades, CashAccountData cashData, DateTime valuationDate, ManualPrices manualPrices, IProgressCounter progress)
         {
             Contract.Requires(userToken != null);
             Contract.Requires(account != null);

@@ -112,7 +112,6 @@ namespace InvestmentBuilderWeb.Controllers
                 {
                     //update failed, probably due to validation error, return same
                     //page and let user try again
-                    setupErrors(username);
                     return _createInvestmentAccountPage();
                 }
             }
@@ -135,7 +134,6 @@ namespace InvestmentBuilderWeb.Controllers
                 {
                     //update failed, probably due to validation error, return same
                     //page and let user try again
-                    setupErrors(username);
                     return _editInvestmentAccountPage();
                 }
             }

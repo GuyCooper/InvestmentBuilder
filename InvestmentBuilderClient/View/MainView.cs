@@ -192,30 +192,30 @@ namespace InvestmentBuilderClient.View
             }
         }
 
-        private void btnPerformance_Click(object sender, EventArgs e)
-        {
-            if (MessageBox.Show("Are You Sure?", "Build Charts", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes)
-            {
-                DateTime dtValuation = _GetSelectedValuationDate();
-                Task.Factory.StartNew(() =>
-                    {
-                        var performanceData = _dataModel.GetPerformanceCharts(dtValuation);
-                        if(performanceData != null && _displayContext != null)
-                        {
-                            _displayContext.Post(o =>
-                            {
-                                var data = (IList<IndexedRangeData>)o;
-                                foreach(var range in data)
-                                {
-                                    var chartView = new PerformanceChartView(range);
-                                    chartView.TopLevel = true;
-                                    chartView.Show();
-                                }
-                            },performanceData);
-                        }
-                    });
-            }
-        }
+        //private void btnPerformance_Click(object sender, EventArgs e)
+        //{
+        //    if (MessageBox.Show("Are You Sure?", "Build Charts", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes)
+        //    {
+        //        DateTime dtValuation = _GetSelectedValuationDate();
+        //        Task.Factory.StartNew(() =>
+        //            {
+        //                var performanceData = _dataModel.GetPerformanceCharts(dtValuation);
+        //                if(performanceData != null && _displayContext != null)
+        //                {
+        //                    _displayContext.Post(o =>
+        //                    {
+        //                        var data = (IList<IndexedRangeData>)o;
+        //                        foreach(var range in data)
+        //                        {
+        //                            var chartView = new PerformanceChartView(range);
+        //                            chartView.TopLevel = true;
+        //                            chartView.Show();
+        //                        }
+        //                    },performanceData);
+        //                }
+        //            });
+        //    }
+        //}
 
         private void cmboAccountName_SelectedIndexChanged(object sender, EventArgs e)
         {

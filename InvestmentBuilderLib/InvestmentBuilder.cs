@@ -58,7 +58,7 @@ namespace InvestmentBuilder
         /// method just returns the asset report forthe specified valuation date
         /// </param>
         /// <returns></returns>
-        public AssetReport BuildAssetReport(UserAccountToken userToken, DateTime valuationDate, bool bUpdate, ManualPrices manualPrices)
+        public AssetReport BuildAssetReport(UserAccountToken userToken, DateTime valuationDate, bool bUpdate, ManualPrices manualPrices, IProgressCounter progress)
         {
             logger.Log(userToken,LogLevel.Info, string.Format("Begin BuildAssetSheet"));
             //logger.Log(LogLevel.Info,string.Format("trade file: {0}", _settings.GetTradeFile(accountName)));
@@ -129,7 +129,7 @@ namespace InvestmentBuilder
                     Changed = Enumerable.Empty<Stock>().ToArray()
                 };
 
-                if (_recordBuilder.UpdateInvestmentRecords(userToken, accountData, emptyTrades/*trades*/, cashAccountData, dtTradeValuationDate, manualPrices) == false)
+                if (_recordBuilder.UpdateInvestmentRecords(userToken, accountData, emptyTrades/*trades*/, cashAccountData, dtTradeValuationDate, manualPrices, progress) == false)
                 {
                     //failed to update investments, return null report
                     return assetReport;
@@ -213,7 +213,7 @@ namespace InvestmentBuilder
         /// will retrieve the new trades
         /// </summary>
         /// <param name="trades"></param>
-        public bool UpdateTrades(UserAccountToken userToken, Trades trades, ManualPrices manualPrices, DateTime? valuationDate = null)
+        public bool UpdateTrades(UserAccountToken userToken, Trades trades, ManualPrices manualPrices, IProgressCounter progress, DateTime? valuationDate = null)
         {
             if (userToken == null)
             {
@@ -228,7 +228,7 @@ namespace InvestmentBuilder
                 logger.Log(userToken, LogLevel.Error, "invalid account {0}", userToken.Account);
             }
 
-            return _recordBuilder.UpdateInvestmentRecords(userToken, accountData, trades, null, valuationDate ?? DateTime.Now, manualPrices);
+            return _recordBuilder.UpdateInvestmentRecords(userToken, accountData, trades, null, valuationDate ?? DateTime.Now, manualPrices, progress);
         }
 
         /// <summary>

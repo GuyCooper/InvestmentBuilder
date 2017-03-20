@@ -26,7 +26,7 @@ namespace InvestmentBuilderMSTests
             return null;
         }
 
-        public virtual bool UpdateInvestmentRecords(UserAccountToken userToken, UserAccountData account, Trades trades, CashAccountData cashData, DateTime valuationDate, ManualPrices manualPrices)
+        public virtual bool UpdateInvestmentRecords(UserAccountToken userToken, UserAccountData account, Trades trades, CashAccountData cashData, DateTime valuationDate,  ManualPrices manualPrices, IProgressCounter progress)
         {
             return true;
         }
@@ -92,9 +92,9 @@ namespace InvestmentBuilderMSTests
         [TestMethod]
         public void When_building_empty_asset_report()
         {
-
+            var counter = new TestProgressCounter();
             var builder = CreateEmptyBuilder();
-            var report = builder.BuildAssetReport(TestDataCache._userToken, TestDataCache._currentValuationDate, true, null);
+            var report = builder.BuildAssetReport(TestDataCache._userToken, TestDataCache._currentValuationDate, true, null, counter);
 
             Assert.IsNotNull(report);
             Assert.AreEqual(TestDataCache._TestAccount, report.AccountName);
@@ -105,6 +105,8 @@ namespace InvestmentBuilderMSTests
             Assert.AreEqual(0d, report.NetAssets);
             Assert.AreEqual(0d, report.TotalAssets);
             Assert.AreEqual(1d, report.ValuePerUnit);
+
+            Assert.AreEqual(0, counter.Count);
         }
 
         [TestMethod]
@@ -125,7 +127,7 @@ namespace InvestmentBuilderMSTests
                                                                   new InvestmentReportEmptyWriter(),
                                                                   new SimpleTestInvestmentRecordBuilder());
 
-            var report = builder.BuildAssetReport(TestDataCache._userToken, TestDataCache._currentValuationDate, true, null);
+            var report = builder.BuildAssetReport(TestDataCache._userToken, TestDataCache._currentValuationDate, true, null, null);
 
             Assert.IsNotNull(report);
 

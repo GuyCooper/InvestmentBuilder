@@ -71,6 +71,7 @@
     <Compile Include="InvestmentBuilderLogger.cs" />
     <Compile Include="InvestmentInformation.cs" />
     <Compile Include="InvestmentUtils.cs" />
+    <Compile Include="IProgressCounter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TradeLoader.cs" />
   </ItemGroup>

@@ -15,6 +15,7 @@ namespace InvestmentBuilderClient
 {
     static class Program
     {
+        static bool UseTestDatasource = false;
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -23,10 +24,16 @@ namespace InvestmentBuilderClient
         {
             //registerunity dependencies.
             ContainerManager.RegisterType(typeof(IAuthorizationManager), typeof(SQLAuthorizationManager), true);
-            //ContainerManager.RegisterType(typeof(IMarketDataSource), typeof(TestFileMarketDataSource), true, "testMarketData.txt");
             ContainerManager.RegisterType(typeof(IConfigurationSettings), typeof(ConfigurationSettings), true, "InvestmentBuilderConfig.xml");
             ContainerManager.RegisterType(typeof(IMarketDataService), typeof(MarketDataService), true);
-            MarketDataRegisterService.RegisterServices();
+            if (UseTestDatasource == true)
+            {
+                ContainerManager.RegisterType(typeof(IMarketDataSource), typeof(TestFileMarketDataSource), true, "testMarketData.txt");
+            }
+            else
+            {
+                MarketDataRegisterService.RegisterServices();
+            }
             //todo,use servicelocator
             ContainerManager.RegisterType(typeof(IDataLayer), typeof(SQLServerDataLayer.SQLServerDataLayer), true);
             //ContainerManager.RegisterType(typeof(InvestmentBuilder.InvestmentBuilder), typeof(InvestmentBuilder.InvestmentBuilder), true);
