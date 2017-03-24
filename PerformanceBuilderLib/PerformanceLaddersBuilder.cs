@@ -94,13 +94,15 @@ namespace PerformanceBuilderLib
             return result;
         }
 
-        public IList<IndexedRangeData> BuildPerformanceLadders(UserAccountToken userToken, DateTime dtValuation)
+        public IList<IndexedRangeData> BuildPerformanceLadders(UserAccountToken userToken, DateTime dtValuation, ProgressCounter progress )
         {
             logger.Log(LogLevel.Info, "building performance ladders");
 
             var historicalData = _historicalDataReader.GetHistoricalAccountData(userToken);
 
             var performanceRangeList = _DetermineIndexRanges(historicalData);
+
+            progress.Initialise("building performance ladders", performanceRangeList.Count);
             //now retrieve all historical data ladders from the market data source 
             var allLadders = new List<IndexedRangeData>();
             foreach (var point in performanceRangeList)
@@ -117,6 +119,8 @@ namespace PerformanceBuilderLib
                     Data = indexladder,
                     Title = "Account Performance"
                 });
+
+                progress.Increment();
             }
 
             logger.Log(LogLevel.Info, "performance data ladders complete...");
@@ -130,7 +134,7 @@ namespace PerformanceBuilderLib
         /// <param name="userToken"></param>
         /// <param name="dtValuation"></param>
         /// <returns></returns>
-        public IndexedRangeData BuildCompanyPerformanceLadders(UserAccountToken userToken)
+        public IndexedRangeData BuildCompanyPerformanceLadders(UserAccountToken userToken, ProgressCounter progress)
         {
             var dtValuation = _investmentRecordData.GetLatestRecordInvestmentValuationDate(userToken);
             if (dtValuation.HasValue == false)
@@ -142,12 +146,12 @@ namespace PerformanceBuilderLib
                 MinValue = 0.0,
                 IsHistorical = true,
                 Name = "Companies",
-                Data = _BuildCompanyIndexData(userToken, dtValuation.Value),
+                Data = _BuildCompanyIndexData(userToken, dtValuation.Value, progress),
                 Title = "Individual company performance (units)"
             };
         }
 
-        public IndexedRangeData BuildAccountDividendPerformanceLadder(UserAccountToken userToken)
+        public IndexedRangeData BuildAccountDividendPerformanceLadder(UserAccountToken userToken, ProgressCounter progress)
         {
             var dtValuation = _investmentRecordData.GetLatestRecordInvestmentValuationDate(userToken);
             if (dtValuation.HasValue == false)
@@ -161,12 +165,12 @@ namespace PerformanceBuilderLib
                 IsHistorical = false,
                 KeyName = "Company",
                 Name = "Dividends",
-                Data = _BuildAccountDividendIndexData(userToken, dtValuation.Value),
+                Data = _BuildAccountDividendIndexData(userToken, dtValuation.Value, progress),
                 Title = "Individual Company dividends received"
             };
         }
 
-        public IndexedRangeData BuildAccountDividendYieldPerformanceLadder(UserAccountToken userToken)
+        public IndexedRangeData BuildAccountDividendYieldPerformanceLadder(UserAccountToken userToken, ProgressCounter progress)
         {
             var dtValuation = _investmentRecordData.GetLatestRecordInvestmentValuationDate(userToken);
             if (dtValuation.HasValue == false)
@@ -180,7 +184,7 @@ namespace PerformanceBuilderLib
                 IsHistorical = false,
                 KeyName = "Company",
                 Name = "Average Yield",
-                Data = _BuildAccountDividendYieldIndexData(userToken, dtValuation.Value),
+                Data = _BuildAccountDividendYieldIndexData(userToken, dtValuation.Value, progress),
                 Title = "Individual Company average yield (%)"
             };
         }
@@ -302,9 +306,10 @@ namespace PerformanceBuilderLib
             return false;
         }
 
-        private IList<IndexData> _BuildCompanyIndexData(UserAccountToken userToken, DateTime valuationDate)
+        private IList<IndexData> _BuildCompanyIndexData(UserAccountToken userToken, DateTime valuationDate, ProgressCounter progress)
         {
             var companies = _userAccountData.GetActiveCompanies(userToken, valuationDate).ToList();
+            progress.Initialise("building company performance ladders", companies.Count);
             var investmentRecords = _investmentRecordData.GetFullInvestmentRecordData(userToken).ToList();
             var indexes = new List<IndexData>();
             foreach (var company in companies)
@@ -336,6 +341,7 @@ namespace PerformanceBuilderLib
                     index.Data = dataList;
                     indexes.Add(index);
                 }
+                progress.Increment();
             }
             //now get the oldest company index
             //and pad all other indexes with unit data points
@@ -372,9 +378,11 @@ namespace PerformanceBuilderLib
             return indexes;
         }
 
-        private IList<IndexData> _BuildAccountDividendIndexData(UserAccountToken userToken, DateTime valuationDate)
+        private IList<IndexData> _BuildAccountDividendIndexData(UserAccountToken userToken, DateTime valuationDate, ProgressCounter progress)
         {
-            var investmentRecords = _investmentRecordData.GetInvestmentRecordData(userToken, valuationDate);
+            progress.Initialise("Building Company income data ladder", 1);
+            var investmentRecords = _investmentRecordData.GetInvestmentRecordData(userToken, valuationDate).ToList();
+            progress.Increment();
             var indexes = new List<IndexData>();
             var index = new List<HistoricalData>();
             foreach (var record in investmentRecords)
@@ -395,10 +403,13 @@ namespace PerformanceBuilderLib
             return indexes;
         }
 
-        private IList<IndexData> _BuildAccountDividendYieldIndexData(UserAccountToken userToken, DateTime valuationDate)
+        private IList<IndexData> _BuildAccountDividendYieldIndexData(UserAccountToken userToken, DateTime valuationDate, ProgressCounter progress)
         {
+            progress.Initialise("building company yield data ladder", 3);
             var allRecords = _investmentRecordData.GetFullInvestmentRecordData(userToken).OrderBy(x => x.ValuationDate).ToList();
+            progress.Increment();
             var investmentRecords = _investmentRecordData.GetInvestmentRecordData(userToken, valuationDate);
+            progress.Increment();
             var indexes = new List<IndexData>();
             var index = new List<HistoricalData>();
             double dVWAP = 0d;
@@ -418,6 +429,7 @@ namespace PerformanceBuilderLib
                 dTotalCost += record.TotalCost;
             }
 
+            progress.Increment();
             //now add the average yield for all current investments
             // cannot do average yield for whole account because we may not 
             //have all the information available

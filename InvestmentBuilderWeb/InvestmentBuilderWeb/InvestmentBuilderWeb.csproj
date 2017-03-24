@@ -373,7 +373,6 @@
     <Content Include="Views\Example\Index.cshtml" />
     <Content Include="Views\Shared\AccountPartial.cshtml" />
     <Content Include="Views\InvestmentRecord\EditTrade.cshtml" />
-    <Content Include="Views\InvestmentRecord\AddTransaction.cshtml" />
     <Content Include="Views\InvestmentRecord\Parameters.cshtml" />
     <Content Include="Views\InvestmentRecord\View.cshtml" />
     <Content Include="Views\InvestmentRecord\Reports.cshtml" />
@@ -389,7 +388,7 @@
     <Content Include="Views\InvestmentRecord\RaiseAlert.cshtml" />
     <Content Include="Scripts\version.json" />
     <Content Include="Views\InvestmentRecord\CashFlow.cshtml" />
-    <Content Include="Views\InvestmentRecord\AddTransactionAngular.cshtml" />
+    <Content Include="Views\InvestmentRecord\AddTransaction.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

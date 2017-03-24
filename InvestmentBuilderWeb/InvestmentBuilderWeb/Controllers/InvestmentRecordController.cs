@@ -260,7 +260,7 @@ namespace InvestmentBuilderWeb.Controllers
 
             Task.Factory.StartNew( () =>
             {
-                monitor.GetProgressCounter().ResetCounter(10);
+                monitor.GetProgressCounter().ResetCounter("test build", 10);
                 for (int i = 0; i < 10; ++i)
                 {
                     System.Threading.Thread.Sleep(3000);
@@ -370,7 +370,7 @@ namespace InvestmentBuilderWeb.Controllers
         public ActionResult AddCashTransaction()
         {
             //return _AddTransactionView("Add Receipt", _cashTransactionManager.ReceiptMnemomic);
-            return PartialView("AddTransactionAngular");
+            return PartialView("AddTransaction");
         }
 
         //[HttpGet]

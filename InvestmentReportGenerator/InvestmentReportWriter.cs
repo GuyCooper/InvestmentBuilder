@@ -37,20 +37,20 @@ namespace InvestmentReportGenerator
             return PdfInvestmentReportWriter.GetPdfReportFile(outputPath, ValuationDate);
         }
 
-        public void WriteAssetReport(AssetReport report, double startOfYear, string outputPath)
+        public void WriteAssetReport(AssetReport report, double startOfYear, string outputPath, ProgressCounter progress)
         {
             var reports = _InitReports().ToList();
            foreach (var reportType in reports)
             {
-                reportType.WriteAssetReport(report, startOfYear, outputPath);
+                reportType.WriteAssetReport(report, startOfYear, outputPath, progress);
             }
         }
 
-        public void WritePerformanceData(IList<IndexedRangeData> data, string path, DateTime dtValuation)
+        public void WritePerformanceData(IList<IndexedRangeData> data, string path, DateTime dtValuation, ProgressCounter progress)
         {
             foreach (var reportType in _InitReports())
             {
-                reportType.WritePerformanceData(data, path, dtValuation);
+                reportType.WritePerformanceData(data, path, dtValuation, progress);
             }
         }
 

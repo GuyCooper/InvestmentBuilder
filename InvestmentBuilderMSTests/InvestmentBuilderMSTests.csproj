@@ -73,7 +73,6 @@
     <Compile Include="TestClasses.cs" />
     <Compile Include="TestDataReader.cs" />
     <Compile Include="TestMarketDataSource.cs" />
-    <Compile Include="TestProgressCounter.cs" />
     <Compile Include="TradeLoaderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UtilityTests.cs" />

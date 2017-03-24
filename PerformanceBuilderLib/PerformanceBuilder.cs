@@ -27,7 +27,7 @@ namespace PerformanceBuilderLib
             _reportWriter = reportWriter;
         }
 
-        public IList<IndexedRangeData> Run(UserAccountToken userToken, DateTime dtValuation)
+        public IList<IndexedRangeData> Run(UserAccountToken userToken, DateTime dtValuation, ProgressCounter progress)
         {
             Contract.Requires(userToken != null);
             Contract.Ensures(Contract.Result<IList<IndexedRangeData>>() != null);
@@ -37,20 +37,20 @@ namespace PerformanceBuilderLib
             logger.Log(LogLevel.Info, "valuation date {0}", dtValuation);
 
             var ladderBuilder = new PerformanceLaddersBuilder(_settings, _dataLayer, _marketDataSource);
-            var allLadders = ladderBuilder.BuildPerformanceLadders(userToken, dtValuation);
+            var allLadders = ladderBuilder.BuildPerformanceLadders(userToken, dtValuation, progress);
 
             //now build the individual company performance ladders
-            allLadders.Insert(0, ladderBuilder.BuildCompanyPerformanceLadders(userToken));
+            allLadders.Insert(0, ladderBuilder.BuildCompanyPerformanceLadders(userToken, progress));
 
             //now build the company dividend ladders
-            allLadders.Insert(0, ladderBuilder.BuildAccountDividendPerformanceLadder(userToken));
+            allLadders.Insert(0, ladderBuilder.BuildAccountDividendPerformanceLadder(userToken, progress));
            
             //and finally the company dividend yield ladders
-            allLadders.Insert(0, ladderBuilder.BuildAccountDividendYieldPerformanceLadder(userToken));
+            allLadders.Insert(0, ladderBuilder.BuildAccountDividendYieldPerformanceLadder(userToken, progress));
 
             logger.Log(LogLevel.Info, "data ladders building complete...");
             //now persist it to the spreadsheet, TODO, make configurable, allow persist to pdf
-            _reportWriter.WritePerformanceData(allLadders, _settings.GetOutputPath(userToken.Account), dtValuation);
+            _reportWriter.WritePerformanceData(allLadders, _settings.GetOutputPath(userToken.Account), dtValuation, progress);
 
             logger.Log(LogLevel.Info, "performance chartbuilder complete");
             return allLadders;

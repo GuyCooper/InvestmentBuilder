@@ -7,8 +7,8 @@ namespace InvestmentBuilderCore
     [ContractClass(typeof(IInvestmentReportWriterContract))]
     public interface IInvestmentReportWriter
     {
-        void WriteAssetReport(AssetReport report, double startOfYear, string outputPath);
-        void WritePerformanceData(IList<IndexedRangeData> data, string outputPath, DateTime dtValuation);
+        void WriteAssetReport(AssetReport report, double startOfYear, string outputPath, ProgressCounter progress);
+        void WritePerformanceData(IList<IndexedRangeData> data, string outputPath, DateTime dtValuation, ProgressCounter progress);
 
         string GetReportFileName(string outputPath, DateTime dtValuation);
     }
@@ -23,14 +23,14 @@ namespace InvestmentBuilderCore
             return null;
         }
 
-        public void WriteAssetReport(AssetReport report, double startOfYear, string outputPath)
+        public void WriteAssetReport(AssetReport report, double startOfYear, string outputPath, ProgressCounter progress = null)
         {
             Contract.Requires(report != null);
             Contract.Requires(startOfYear > 0);
             Contract.Requires(string.IsNullOrEmpty(outputPath) == false);
         }
 
-        public void WritePerformanceData(IList<IndexedRangeData> data, string outputPath, DateTime dtValuation)
+        public void WritePerformanceData(IList<IndexedRangeData> data, string outputPath, DateTime dtValuation, ProgressCounter progress)
         {
             Contract.Requires(data != null);
             Contract.Requires(data.Count > 0);

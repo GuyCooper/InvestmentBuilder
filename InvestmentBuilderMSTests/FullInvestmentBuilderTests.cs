@@ -347,7 +347,7 @@ namespace InvestmentBuilderMSTests
                 Buys = new List<Stock> { _TestNewTrade }.ToArray()
             };
 
-            var counter = new TestProgressCounter();
+            var counter = new ProgressCounter();
             ContainerManager.ResolveValueOnContainer<InvestmentBuilder.InvestmentBuilder>(_childContainer).UpdateTrades(userToken,
                                                                                               trades, null, counter, _TradeValuationDateNextMonth);
 

@@ -11,6 +11,7 @@ namespace InvestmentBuilderWeb.Interfaces
     {
         public bool IsBuilding { get; set; }
         public int Progress { get; set; }
+        public string BuildSection { get; set; }
         public IEnumerable<string> Errors { get; set; }
     }
 
@@ -19,6 +20,6 @@ namespace InvestmentBuilderWeb.Interfaces
         void StartBuilding();
         void StopBuiliding();
         ReportStatus GetReportStatus();
-        IProgressCounter GetProgressCounter();
+        ProgressCounter GetProgressCounter();
     }
 }

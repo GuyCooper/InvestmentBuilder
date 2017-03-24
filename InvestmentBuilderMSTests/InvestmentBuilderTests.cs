@@ -26,7 +26,7 @@ namespace InvestmentBuilderMSTests
             return null;
         }
 
-        public virtual bool UpdateInvestmentRecords(UserAccountToken userToken, UserAccountData account, Trades trades, CashAccountData cashData, DateTime valuationDate,  ManualPrices manualPrices, IProgressCounter progress)
+        public virtual bool UpdateInvestmentRecords(UserAccountToken userToken, UserAccountData account, Trades trades, CashAccountData cashData, DateTime valuationDate,  ManualPrices manualPrices, ProgressCounter progress)
         {
             return true;
         }
@@ -92,7 +92,7 @@ namespace InvestmentBuilderMSTests
         [TestMethod]
         public void When_building_empty_asset_report()
         {
-            var counter = new TestProgressCounter();
+            var counter = new ProgressCounter();
             var builder = CreateEmptyBuilder();
             var report = builder.BuildAssetReport(TestDataCache._userToken, TestDataCache._currentValuationDate, true, null, counter);
 
@@ -106,7 +106,7 @@ namespace InvestmentBuilderMSTests
             Assert.AreEqual(0d, report.TotalAssets);
             Assert.AreEqual(1d, report.ValuePerUnit);
 
-            Assert.AreEqual(0, counter.Count);
+            Assert.AreEqual(100, counter.Count);
         }
 
         [TestMethod]

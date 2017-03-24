@@ -159,7 +159,9 @@ namespace InvestmentBuilderMSTests
                                                               _dataLayer,
                                                               new PerfLibMarketDataSourceTest());
 
-            var result = ladderBuilder.BuildPerformanceLadders(PerfBuilderConstants.UserToken, PerfBuilderConstants.ValuationDate);
+            var progress = new ProgressCounter();
+
+            var result = ladderBuilder.BuildPerformanceLadders(PerfBuilderConstants.UserToken, PerfBuilderConstants.ValuationDate, progress);
 
             Assert.IsNotNull(result);
             Assert.AreEqual(1, result.Count);
@@ -184,6 +186,8 @@ namespace InvestmentBuilderMSTests
             Assert.AreEqual(1d, testIndexData.Data[0].Price);
             Assert.AreEqual(PerfBuilderConstants.TestDate2, testIndexData.Data[1].Date);
             Assert.AreEqual("1.0076", testIndexData.Data[1].Price.ToString("#0.0000"));
+
+            Assert.AreEqual(progress.Count, 100);
         }
 
         [TestMethod]
@@ -192,7 +196,10 @@ namespace InvestmentBuilderMSTests
             var ladderBuilder = new PerformanceLaddersBuilder(new PerfLibConfigurationTest(),
                                                                _dataLayer,
                                                                new PerfLibMarketDataSourceTest());
-            var result = ladderBuilder.BuildCompanyPerformanceLadders(PerfBuilderConstants.UserToken);
+
+            var progress = new ProgressCounter();
+
+            var result = ladderBuilder.BuildCompanyPerformanceLadders(PerfBuilderConstants.UserToken, progress);
 
             Assert.AreEqual("Companies", result.Name);
             Assert.AreEqual(2, result.Data.Count);
@@ -210,6 +217,8 @@ namespace InvestmentBuilderMSTests
 
             Assert.AreEqual(1d, indexData2.Data[0].Price);
             Assert.AreEqual("1.1319", indexData2.Data[1].Price.ToString("#0.0000"));
+
+            Assert.AreEqual(100, progress.Count);
         }
 
         [TestMethod]
@@ -218,7 +227,7 @@ namespace InvestmentBuilderMSTests
             var ladderBuilder = new PerformanceLaddersBuilder(new PerfLibConfigurationTest(),
                                                                            _dataLayer,
                                                                            new PerfLibMarketDataSourceTest());
-            var result = ladderBuilder.BuildAccountDividendPerformanceLadder(PerfBuilderConstants.UserToken);
+            var result = ladderBuilder.BuildAccountDividendPerformanceLadder(PerfBuilderConstants.UserToken, null);
 
             Assert.IsNotNull(result);
 
@@ -241,7 +250,9 @@ namespace InvestmentBuilderMSTests
                                                                   _dataLayer,
                                                                   new PerfLibMarketDataSourceTest());
 
-            var result = ladderBuilder.BuildAccountDividendYieldPerformanceLadder(PerfBuilderConstants.UserToken);
+            var progress = new ProgressCounter();
+
+            var result = ladderBuilder.BuildAccountDividendYieldPerformanceLadder(PerfBuilderConstants.UserToken, progress);
             Assert.IsNotNull(result);
 
             Assert.AreEqual("Average Yield", result.Name);
@@ -256,6 +267,8 @@ namespace InvestmentBuilderMSTests
             (PerfBuilderConstants.company2TotalCost * lstResults[1].Price)) / (PerfBuilderConstants.company1TotalCost + PerfBuilderConstants.company2TotalCost);
 
             Assert.AreEqual(vwap.ToString("#0.000000"), lstResults[2].Price.ToString("#0.000000"));
+
+            Assert.AreEqual(99, progress.Count);
         }
     }
 
@@ -280,7 +293,7 @@ namespace InvestmentBuilderMSTests
                                                              _dataLayer,
                                                              new PerfLibMarketDataSourceTest());
 
-            var result = ladderBuilder.BuildPerformanceLadders(PerfBuilderConstants.UserToken, PerfBuilderConstants.ValuationDate).ToList();
+            var result = ladderBuilder.BuildPerformanceLadders(PerfBuilderConstants.UserToken, PerfBuilderConstants.ValuationDate, null).ToList();
 
             Assert.AreEqual(0, result.Count);
         }
@@ -291,7 +304,7 @@ namespace InvestmentBuilderMSTests
             var ladderBuilder = new PerformanceLaddersBuilder(new PerfLibConfigurationTest(),
                                                                    _dataLayer,
                                                                    new PerfLibMarketDataSourceTest());
-            var result = ladderBuilder.BuildCompanyPerformanceLadders(PerfBuilderConstants.UserToken);
+            var result = ladderBuilder.BuildCompanyPerformanceLadders(PerfBuilderConstants.UserToken, null);
             Assert.IsNull(result);
         }
 
@@ -301,7 +314,7 @@ namespace InvestmentBuilderMSTests
             var ladderBuilder = new PerformanceLaddersBuilder(new PerfLibConfigurationTest(),
                                                                                _dataLayer,
                                                                                new PerfLibMarketDataSourceTest());
-            var result = ladderBuilder.BuildAccountDividendPerformanceLadder(PerfBuilderConstants.UserToken);
+            var result = ladderBuilder.BuildAccountDividendPerformanceLadder(PerfBuilderConstants.UserToken, null);
 
             Assert.IsNull(result);
         }

@@ -119,7 +119,7 @@ namespace InvestmentReportGenerator
         /// </summary>
         /// <param name="companyData"></param>
         /// <returns></returns>
-        private IEnumerable<AssetListParts> _breakdownAssets(IEnumerable<CompanyData> companyData)
+        private List<AssetListParts> _breakdownAssets(IEnumerable<CompanyData> companyData)
         {
             var result = new List<AssetListParts>();
             var partList = new List<CompanyData>();
@@ -167,7 +167,7 @@ namespace InvestmentReportGenerator
             return result;
         }
 
-        public void WriteAssetReport(AssetReport report, double startOfYear, string outputPath)
+        public void WriteAssetReport(AssetReport report, double startOfYear, string outputPath, ProgressCounter progress)
         {
             var reportFileName = GetReportFileName(outputPath, report.ValuationDate);
             if (File.Exists(reportFileName))
@@ -179,6 +179,9 @@ namespace InvestmentReportGenerator
             //before we can render the table, we need to break down the
             //company data information into sizes that can fit onto a page
             var parts = _breakdownAssets(report.Assets);
+
+            progress.Initialise("writing pdf asset report", parts.Count);
+
             foreach (var part in parts)
             {
                 var document = new MigraDoc.DocumentObjectModel.Document();
@@ -281,6 +284,8 @@ namespace InvestmentReportGenerator
                                     totalsTable,
                                     summaryTable,
                                     part.Height);
+
+                progress.Increment();
             }
             //_pdfDocument.Save(_reportFileName);
             //_pdfDocument.Close();
@@ -512,13 +517,15 @@ namespace InvestmentReportGenerator
             }
         }
 
-        public void WritePerformanceData(IList<IndexedRangeData> data, string outputPath, DateTime dtValuation)
+        public void WritePerformanceData(IList<IndexedRangeData> data, string outputPath, DateTime dtValuation, ProgressCounter progress)
         {
+            progress.Initialise("writing performance data to pdf report", data.Count+2);
             string title = string.Format(@"{0}\Performance Report-{1}", outputPath, dtValuation);
             var reportFileName = GetReportFileName(outputPath, dtValuation);
  
             _CreateDocument(title);
 
+            progress.Increment();
             foreach (var rangeIndex in data.Reverse())
             {
                 if (rangeIndex.Data.Count == 0)
@@ -553,11 +560,14 @@ namespace InvestmentReportGenerator
                     _RenderChart(_pdfDocument, fullTitle, chart);
                     bRepeated = true;
                 }
+                progress.Increment();
             }
 
             _pdfDocument.Save(reportFileName);
             _pdfDocument.Dispose();
             _pdfDocument = null;
+
+            progress.Increment();
         }
     }
 }

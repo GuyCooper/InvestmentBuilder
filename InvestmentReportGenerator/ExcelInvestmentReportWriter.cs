@@ -49,15 +49,19 @@ namespace InvestmentReportGenerator
         /// <param name="report"></param>
         /// <param name="startOfYear"></param>
         /// <param name="outputPath"></param>
-        public void WriteAssetReport(AssetReport report, double startOfYear, string outputPath)
+        public void WriteAssetReport(AssetReport report, double startOfYear, string outputPath, ProgressCounter progress)
         {
             logger.Log(LogLevel.Info, "persisting asset report to excel spreadsheet in location {0}", outputPath);
 
+            var lstCompanyData = report.Assets.ToList();
+
+            progress.Initialise("writing excel asset report", lstCompanyData.Count + 6);
             _assetSheetLocation = GetReportFileName(outputPath,  report.ValuationDate);
             //if the asset sheet already exists,just open it,otherwise create a new one
             _Workbook assetBook = null;
             _Workbook templateBook = _app.Workbooks.Open(_templateFileName);
 
+            progress.Increment();
             try
             {
                 if (File.Exists(_assetSheetLocation))
@@ -69,6 +73,8 @@ namespace InvestmentReportGenerator
                     assetBook = _app.Workbooks.Add();
                     assetBook.SaveAs(_assetSheetLocation, XlFileFormat.xlWorkbookNormal);
                 }
+
+                progress.Increment();
 
                 var newSheetName = report.ValuationDate.ToString("MMMM");
                 //if this sheet already exists then delete it
@@ -92,6 +98,8 @@ namespace InvestmentReportGenerator
 
                 newSheet.get_Range("B16").Value = report.ReportingCurrency;
 
+                progress.Increment();
+
                 //add in redemptions
                 if (report.Redemptions != null)
                 {
@@ -112,7 +120,8 @@ namespace InvestmentReportGenerator
                 }
 
                 //add in the new rows
-                var lstCompanyData = report.Assets.ToList();
+                progress.Increment();
+
                 for (int row = 1; row < lstCompanyData.Count; ++row)
                 {
                     Range rowToCopy = newSheet.get_Range("A7", "A7").EntireRow;
@@ -120,6 +129,8 @@ namespace InvestmentReportGenerator
                     rowToCopy.Insert(XlInsertShiftDirection.xlShiftDown);
                     newSheet.get_Range("A7", "A7").EntireRow.PasteSpecial(); //paste format into new row
                 }
+
+                progress.Increment();
 
                 int count = 7;
                 //now add the company data
@@ -140,6 +151,7 @@ namespace InvestmentReportGenerator
                     newSheet.get_Range("K" + count).Value = company.MonthChangeRatio;
                     newSheet.get_Range("L" + count).Value = company.Dividend;
                     count++;
+                    progress.Increment();
                 }
 
                 newSheet.get_Range("H" + count).Value = report.TotalAssetValue;
@@ -164,6 +176,7 @@ namespace InvestmentReportGenerator
             {
                 assetBook.Close();
                 templateBook.Close();
+                progress.Increment();
             }
         }
 
@@ -173,7 +186,7 @@ namespace InvestmentReportGenerator
         /// <param name="data"></param>
         /// <param name="path"></param>
         /// <param name="dtValuation"></param>
-        public void WritePerformanceData(IList<IndexedRangeData> data, string outputPath, DateTime dtValuation)
+        public void WritePerformanceData(IList<IndexedRangeData> data, string outputPath, DateTime dtValuation, ProgressCounter progress)
         {
             _Workbook performanceBook = null;
             try
@@ -213,6 +226,7 @@ namespace InvestmentReportGenerator
                     char previousCol1 = startColA;
                     char? previousCol2 = startColB;
 
+                    progress.Initialise("writing performance data to excel report", totalNodeCount + 1);
                     for (int i = 0; i < totalNodeCount; ++i)
                     {
                         currentCol1 = startColA;
@@ -237,6 +251,8 @@ namespace InvestmentReportGenerator
                             nextCell.Value = index.Data.Count > i ? index.Data[i].Price : index.Data[index.Data.Count - 1].Price;
                         }
                         currentRow++;
+
+                        progress.Increment();
                     }
 
                     //now generate the chart and pivot table...
@@ -253,6 +269,8 @@ namespace InvestmentReportGenerator
                                     performanceBook.FullName);
 
                 performanceBook.Save();
+
+                progress.Increment();
             }
             finally
             {

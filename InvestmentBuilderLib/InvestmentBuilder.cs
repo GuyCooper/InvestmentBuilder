@@ -58,7 +58,7 @@ namespace InvestmentBuilder
         /// method just returns the asset report forthe specified valuation date
         /// </param>
         /// <returns></returns>
-        public AssetReport BuildAssetReport(UserAccountToken userToken, DateTime valuationDate, bool bUpdate, ManualPrices manualPrices, IProgressCounter progress)
+        public AssetReport BuildAssetReport(UserAccountToken userToken, DateTime valuationDate, bool bUpdate, ManualPrices manualPrices, ProgressCounter progress)
         {
             logger.Log(userToken,LogLevel.Info, string.Format("Begin BuildAssetSheet"));
             //logger.Log(LogLevel.Info,string.Format("trade file: {0}", _settings.GetTradeFile(accountName)));
@@ -143,6 +143,8 @@ namespace InvestmentBuilder
                 }
             }
 
+            progress.Initialise("building asset report", 2);
+
             //now extract the latest data from the investment record
             var lstData = _recordBuilder.GetInvestmentRecords(userToken, accountData, dtTradeValuationDate, dtPreviousValuation, null, false).ToList();
             foreach (var val in lstData)
@@ -151,6 +153,7 @@ namespace InvestmentBuilder
                 //Console.WriteLine("{0} : {1} : {2} : {3} : {4}", val.sName, val.dSharePrice, val.dNetSellingValue, val.dMonthChange, val.dMonthChangeRatio);
             }
 
+            progress.Increment();
             assetReport = _BuildAssetReport(
                                             userToken,
                                             valuationDate,
@@ -160,12 +163,14 @@ namespace InvestmentBuilder
                                             cashAccountData.BankBalance,
                                             bUpdate);
 
+            progress.Increment();
+
             //now process any redemptions that have occured since the previous valuation
             var updatedReport = dtPreviousValuation.HasValue ? _ProcessRedemptions(userToken, assetReport, accountData, dtPreviousValuation.Value, bUpdate) : assetReport;
             //finally, build the asset statement
             if (bUpdate == true)
             {
-                _reportWriter.WriteAssetReport(updatedReport, _userAccountData.GetStartOfYearValuation(userToken, valuationDate), _settings.GetOutputPath(accountData.Name));
+                _reportWriter.WriteAssetReport(updatedReport, _userAccountData.GetStartOfYearValuation(userToken, valuationDate), _settings.GetOutputPath(accountData.Name), progress);
             }
 
             logger.Log(userToken, LogLevel.Info, "Report Generated, Account Builder Complete");
@@ -213,7 +218,7 @@ namespace InvestmentBuilder
         /// will retrieve the new trades
         /// </summary>
         /// <param name="trades"></param>
-        public bool UpdateTrades(UserAccountToken userToken, Trades trades, ManualPrices manualPrices, IProgressCounter progress, DateTime? valuationDate = null)
+        public bool UpdateTrades(UserAccountToken userToken, Trades trades, ManualPrices manualPrices, ProgressCounter progress, DateTime? valuationDate = null)
         {
             if (userToken == null)
             {

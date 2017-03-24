@@ -7,20 +7,18 @@ using InvestmentBuilderWeb.Interfaces;
 
 namespace InvestmentBuilderWeb.Utils
 {
-    internal class BuildReportMonitor : IProgressCounter, IBuildMonitor
+    internal class BuildReportMonitor : IBuildMonitor
     {
-        private int count_;
-        private int increment_;
         private string username_;
         private bool isbuilding_;
         private IEnumerable<string> errors_;
+        private ProgressCounter counter_;
 
         private static Dictionary<string, List<string>> ErrorLookup = new Dictionary<string, List<string>>();
 
         public BuildReportMonitor(string username)
         {
-            count_ = 0;
-            increment_ = 0;
+            counter_ = new ProgressCounter();
             username_ = username;
             isbuilding_ = false;
         }
@@ -35,17 +33,6 @@ namespace InvestmentBuilderWeb.Utils
         {
             isbuilding_ = false;
             errors_ = _GetUserErrors();
-        }
-
-        public void IncrementCounter()
-        {
-            count_ += increment_;
-        }
-
-        public void ResetCounter(int Increment)
-        {
-            increment_ = Increment;
-            count_ = 0;
         }
 
         public static void LogMethod(string level, string message)
@@ -85,15 +72,16 @@ namespace InvestmentBuilderWeb.Utils
         {
             return new ReportStatus
             {
-                Progress = count_,
+                Progress = counter_.Count,
+                BuildSection = counter_.Section,
                 IsBuilding = isbuilding_,
                 Errors = errors_
             };
         }
 
-        public IProgressCounter GetProgressCounter()
+        public ProgressCounter GetProgressCounter()
         {
-            return this;
+            return counter_;
         }
     }
 }

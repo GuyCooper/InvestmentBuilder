@@ -262,11 +262,11 @@ namespace InvestmentBuilderMSTests
             return FileName;
         }
 
-        public void WriteAssetReport(AssetReport report, double startOfYear, string outputPath)
+        public void WriteAssetReport(AssetReport report, double startOfYear, string outputPath, ProgressCounter progress)
         {
         }
 
-        public void WritePerformanceData(IList<IndexedRangeData> data, string path, DateTime dtValuation)
+        public void WritePerformanceData(IList<IndexedRangeData> data, string path, DateTime dtValuation, ProgressCounter progress)
         {
         }
     }

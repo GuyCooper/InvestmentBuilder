@@ -103,6 +103,21 @@ right: 1em;
   left: 20%;
   height:20%;
   width: 50%;
-  background-color: #a6d4f6;
+  background-color: #e9e5e5;
   z-index: 100;
+  border: solid 1px black;
+  border-radius: 1em;
+  padding:5px;
+}
+
+.hideCashFlow {
+    visibility:hidden;
+}
+
+.showCashFlow {
+    visibility: visible;
+}
+
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
 }
