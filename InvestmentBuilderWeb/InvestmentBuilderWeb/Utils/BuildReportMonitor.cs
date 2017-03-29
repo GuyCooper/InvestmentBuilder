@@ -35,6 +35,16 @@ namespace InvestmentBuilderWeb.Utils
             errors_ = _GetUserErrors();
         }
 
+        public void AddError(string error)
+        {
+            if(errors_ == null)
+            {
+                errors_ = new List<string>
+                {
+                    error
+                };
+            }
+        }
         public static void LogMethod(string level, string message)
         {
             //errors that are displayed in client. only include error message

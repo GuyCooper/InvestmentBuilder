@@ -124,13 +124,6 @@ namespace InvestmentBuilderWeb.Controllers
                 PaymentParamTypes = _cashTransactionManager.GetTransactionTypes(_cashTransactionManager.PaymentMnemomic)
             };
         }
-        //[HttpGet]
-        //public ActionResult CashFlow()
-        //{
-
-        //    var model = _GetCashFlowModelAndParams(null);
-        //    return _CreateMainView("CashFlow", model);
-        //}
 
         [HttpGet]
         public string CashFlowContents(string sDateRequestedFrom)
@@ -156,6 +149,14 @@ namespace InvestmentBuilderWeb.Controllers
             };
 
             return _CreateMainView("Reports", vm);
+        }
+
+        [HttpGet]
+        public ActionResult LoadLatestReport()
+        {
+            var userToken = _SetupAccounts(null);
+            var reportFile = _investmentBuilder.GetInvestmentReport(userToken, _sessionService.GetValuationDate(SessionId));
+            return File(reportFile, "application/pdf");
         }
 
         [HttpGet]
@@ -258,29 +259,37 @@ namespace InvestmentBuilderWeb.Controllers
             }
             monitor.StartBuilding();
 
+            var testing = true;
+
             Task.Factory.StartNew( () =>
             {
-                monitor.GetProgressCounter().ResetCounter("test build", 10);
-                for (int i = 0; i < 10; ++i)
+                if (testing == true)
                 {
-                    System.Threading.Thread.Sleep(3000);
-                    monitor.GetProgressCounter().IncrementCounter();
+                    monitor.GetProgressCounter().ResetCounter("test build", 10);
+                    for (int i = 0; i < 10; ++i)
+                    {
+                        System.Threading.Thread.Sleep(1000);
+                        monitor.GetProgressCounter().IncrementCounter();
+                    }
+                    ((BuildReportMonitor)monitor).AddError("something failed!!!");
                 }
+                else
+                {
+                    //first generate the asset report
+                    var report = _investmentBuilder.BuildAssetReport(token
+                                                                    , _sessionService.GetValuationDate(SessionId)
+                                                                    , true
+                                                                    , _sessionService.GetManualPrices(SessionId)
+                                                                    , monitor.GetProgressCounter());
 
+                    if (report != null)
+                    {
+                        //now generate the performance charts. by doing this the whole report will be persisted
+                        //to a pdf file
+                        _performanceBuilder.Run(token, _sessionService.GetValuationDate(SessionId), monitor.GetProgressCounter());
+                    }
+                }
                 monitor.StopBuiliding();
-                //first generate the asset report
-                //var report = _investmentBuilder.BuildAssetReport(token
-                //                                                , _sessionService.GetValuationDate(SessionId)
-                //                                                , true
-                //                                                , _sessionService.GetManualPrices(SessionId)
-                //                                                , this);
-
-                //if (report != null)
-                //{
-                //    //now generate the performance charts. by doing this the whole report will be persisted
-                //    //to a pdf file
-                //    _performanceBuilder.Run(token, _sessionService.GetValuationDate(SessionId));
-                //}
             });
 
             return CashFlowContents(sDateRequestedFrom);
@@ -301,6 +310,12 @@ namespace InvestmentBuilderWeb.Controllers
             }
 
             return JsonConvert.SerializeObject(status);
+        }
+
+        [HttpGet]
+        public ActionResult ReportCompletionView()
+        {
+            return PartialView("ReportCompletion");
         }
 
         private ActionResult _AddTransactionView(string title, string transactionType)

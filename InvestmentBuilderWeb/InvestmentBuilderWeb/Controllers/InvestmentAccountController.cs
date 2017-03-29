@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 
 namespace InvestmentBuilderWeb.Controllers
 {
+    //[Authorize]
     public sealed class InvestmentAccountController : InvestmentBaseController
     {
         public InvestmentAccountController(IAuthorizationManager authorizationManager

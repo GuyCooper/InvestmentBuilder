@@ -19,6 +19,7 @@
                 @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
             </div>
             <div class="navbar-collapse collapse">
+                @*@Html.Partial("_LoginPartial")*@
                 @Html.Partial("_LoginPartialTestUser") 
             </div>
         </div>
@@ -33,9 +34,9 @@
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/jqueryui")
     @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/angular")
     @Scripts.Render("~/bundles/InvestmentBuilderWeb")
     
-    <script src="~/Scripts/MyApp/InvestmentAccount.js"></script>
     @RenderSection("scripts", required: false)
 </body>
 </html>

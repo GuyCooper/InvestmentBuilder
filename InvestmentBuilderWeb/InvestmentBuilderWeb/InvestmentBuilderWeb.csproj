@@ -304,6 +304,7 @@
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\jquery.unobtrusive-ajax.js" />
     <Content Include="Scripts\jquery.unobtrusive-ajax.min.js" />
+    <Content Include="Scripts\MyApp\CashFlow.js" />
     <Content Include="Scripts\MyApp\CommonTypes.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
@@ -385,10 +386,10 @@
     <Content Include="Views\Shared\_LoginPartialTestUser.cshtml" />
     <Content Include="Views\InvestmentAccount\AddAccount.cshtml" />
     <Content Include="Views\InvestmentAccount\AddAccountMembers.cshtml" />
-    <Content Include="Views\InvestmentRecord\RaiseAlert.cshtml" />
     <Content Include="Scripts\version.json" />
     <Content Include="Views\InvestmentRecord\CashFlow.cshtml" />
     <Content Include="Views\InvestmentRecord\AddTransaction.cshtml" />
+    <Content Include="Views\InvestmentRecord\ReportCompletion.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
