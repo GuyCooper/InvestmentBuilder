@@ -140,6 +140,11 @@ namespace SQLServerDataLayer
 
         public UserAccountData GetUserAccountData(UserAccountToken userToken)
         {
+            if(userToken == null || userToken.Account == null)
+            {
+                return null;
+            }
+
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
             using (var command = new SqlCommand("sp_GetUserData", Connection))
             {

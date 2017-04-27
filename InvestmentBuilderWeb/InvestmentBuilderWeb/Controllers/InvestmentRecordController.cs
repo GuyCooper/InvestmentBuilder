@@ -15,7 +15,7 @@ using PerformanceBuilderLib;
 
 namespace InvestmentBuilderWeb.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [RoutePrefix("InvestmentRecord")]
     [Route("{action}")]
     public sealed class InvestmentRecordController : InvestmentBaseController

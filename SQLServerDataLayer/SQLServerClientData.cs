@@ -163,6 +163,11 @@ namespace SQLServerDataLayer
 
         public DateTime? GetPreviousAccountValuationDate(UserAccountToken userToken, DateTime dtValuation)
         {
+            if(userToken.Account == null)
+            {
+                //user is not a member of any account
+                return null;
+            }
             userToken.AuthorizeUser(AuthorizationLevel.READ);
             DateTime? dtPrevious = null;
             using (var command = new SqlCommand("sp_GetPreviousValuationDate", Connection))

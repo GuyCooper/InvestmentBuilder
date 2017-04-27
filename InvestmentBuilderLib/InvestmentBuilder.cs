@@ -86,7 +86,7 @@ namespace InvestmentBuilder
 
             if (accountData == null)
             {
-                logger.Log(userToken, LogLevel.Error, "invalid username {0}", userToken);
+                logger.Log(userToken, LogLevel.Error, "no accounts for user", userToken.User);
                 return assetReport;
             }
 
@@ -196,7 +196,7 @@ namespace InvestmentBuilder
             //check this is a valid account
             if (accountData == null)
             {
-                logger.Log(userToken, LogLevel.Error, "invalid account {0}", userToken.Account);
+                logger.Log(userToken, LogLevel.Error, "invalid account for user {0}. {1}", userToken.User, userToken.Account);
                 return Enumerable.Empty<CompanyData>();
             }
 

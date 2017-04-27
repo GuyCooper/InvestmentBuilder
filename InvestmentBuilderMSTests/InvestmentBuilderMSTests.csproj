@@ -69,6 +69,7 @@
     <Compile Include="InvestmentBuilderTests.cs" />
     <Compile Include="InvestmentRecordTests.cs" />
     <Compile Include="MarketDataServiceTests.cs" />
+    <Compile Include="NornaliseDataseTests.cs" />
     <Compile Include="PerformanceLibraryTests.cs" />
     <Compile Include="TestClasses.cs" />
     <Compile Include="TestDataReader.cs" />

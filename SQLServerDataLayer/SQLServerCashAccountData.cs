@@ -86,11 +86,12 @@ namespace SQLServerDataLayer
 
         public void GetCashAccountTransactions(UserAccountToken userToken, string side, DateTime valuationDate, Action<System.Data.IDataReader> fnAddTransaction)
         {
-            userToken.AuthorizeUser(AuthorizationLevel.READ);
-            if (fnAddTransaction == null)
+            if (userToken.Account == null || fnAddTransaction == null)
             {
                 return;
             }
+
+            userToken.AuthorizeUser(AuthorizationLevel.READ);
 
             using (var sqlCommand = new SqlCommand("sp_GetCashAccountData", Connection))
             {

@@ -501,18 +501,7 @@ namespace InvestmentReportGenerator
             {
                 if (index.Data.Count > MaxXLabelCount)
                 {
-                    IList<HistoricalData> result = index.Data.Select(x => x).ToList();
-                    int increment = 1;
-                    while (result.Count > MaxXLabelCount)
-                    {
-                        increment++;
-                        result.Clear();
-                        for (int i = 0; i < index.Data.Count; i += increment)
-                        {
-                            result.Add(index.Data[i]);
-                        }
-                    }
-                    index.Data = result;
+                    index.Data = DatasetNormaliser.NormaliseDataset<HistoricalData>(index.Data, MaxXLabelCount);
                 }
             }
         }
