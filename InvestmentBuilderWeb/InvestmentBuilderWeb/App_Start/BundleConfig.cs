@@ -20,8 +20,11 @@ namespace InvestmentBuilderWeb
             bundles.Add(new ScriptBundle("~/bundles/InvestmentBuilderWeb").Include(
                        "~/Scripts/myapp/CommonTypes.js",
                        "~/Scripts/myapp/InvestmentAccount.js",
-                       "~/Scripts/myapp/CashFlow.js"));
-
+                       "~/Scripts/myapp/Portfolio.js",
+                       "~/Scripts/myapp/CashFlow.js",
+                       "~/Scripts/myapp/Utils.js",
+                       "~/Scripts/myapp/RegisterModules.js"
+                       ));
 
             bundles.Add(new ScriptBundle("~/bundles/angular").Include(
                        "~/Scripts/angular.js",
@@ -39,11 +42,16 @@ namespace InvestmentBuilderWeb
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
                       "~/Content/site.css",
-                       "~/Content/jquery-ui.css",
-                        "~/Content/jquery-ui.structure.css",
-                        "~/Content/jquery-ui.theme.css",
-                        "~/Content/InvestmentBuilderWeb.css"));
-                       
+                      "~/Content/jquery-ui.css",
+                      "~/Content/jquery-ui.structure.css",
+                      "~/Content/jquery-ui.theme.css",
+                      "~/Content/InvestmentBuilderWeb.css",
+                      "~/Content/ag-Grid/ag-grid.css",
+                      "~/Content/ag-Grid/theme-bootstrap.css"));
+
+            bundles.Add(new ScriptBundle("~/bundles/agGrid").Include(
+                "~/Scripts/ag-Grid/ag-grid.js"));
+
         }
     }
 }

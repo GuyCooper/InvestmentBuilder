@@ -40,12 +40,12 @@ namespace InvestmentBuilderWeb.Controllers
 
         protected string _GetThisUserName()
         {
-            //return "bob@bob.com"; //just for testing!!
-            if (User != null && User.Identity != null)
-            {
-                return User.Identity.Name;
-            }
-            return null;
+            return "bob@bob.com"; //just for testing!!
+            //if (User != null && User.Identity != null)
+            //{
+            //    return User.Identity.Name;
+            //}
+            //return null;
         }
         //setup the user account accounttoken and populate accounts list for user. if selectedAccount is null then just uses
         //first account for user if no usertoken setup for user otherwise just uses existing token 

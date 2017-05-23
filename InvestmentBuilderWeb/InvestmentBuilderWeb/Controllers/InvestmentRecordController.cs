@@ -15,7 +15,7 @@ using PerformanceBuilderLib;
 
 namespace InvestmentBuilderWeb.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [RoutePrefix("InvestmentRecord")]
     [Route("{action}")]
     public sealed class InvestmentRecordController : InvestmentBaseController
@@ -48,6 +48,12 @@ namespace InvestmentBuilderWeb.Controllers
         public ActionResult Index()
         {
             return _CreateMainView("Index", _GetCurrentInvestments(_SetupAccounts(null)));
+        }
+
+        [Route("indexAngular")]
+        public ActionResult IndexAngular()
+        {
+            return _CreateMainView("IndexAngular",null);
         }
 
         [HttpGet]
@@ -126,6 +132,16 @@ namespace InvestmentBuilderWeb.Controllers
         }
 
         [HttpGet]
+        public string LoadPortfolio()
+        {
+            var model = _investmentBuilder.GetCurrentInvestments(_SetupAccounts(null), _sessionService.GetManualPrices(SessionId))
+                .OrderBy(x => x.Name);
+
+            //var model = _GetCurrentInvestments(_SetupAccounts(null));
+            return JsonConvert.SerializeObject(model);
+        }
+
+        [HttpGet]
         public string CashFlowContents(string sDateRequestedFrom)
         {
             var model = _GetCashFlowModelAndParams(sDateRequestedFrom);            
@@ -170,6 +186,19 @@ namespace InvestmentBuilderWeb.Controllers
         }
 
         [HttpGet]
+        public ActionResult EditTradeAngular()
+        {
+            return PartialView();
+        }
+
+        [HttpGet]
+        public ActionResult YesNoChooser()
+        {
+            return PartialView();
+        }
+
+
+        [HttpGet]
         public ActionResult EditTrade(string name)
         {
             var token =_SetupAccounts(null);
@@ -192,6 +221,24 @@ namespace InvestmentBuilderWeb.Controllers
         }
 
         [HttpPost]
+        public string EditTradeAngular(string name, string transactionDate, string tradeType, int quantity, double totalCost)
+        {
+            //TODO process edit trade
+            var token = _SetupAccounts(null);
+            Stock stock = new Stock
+            {
+                Name = name,
+                TransactionDate = DateTime.Parse(transactionDate),
+                Quantity = quantity,
+                TotalCost = totalCost
+            };
+
+            TransactionType ttype = (TransactionType)Enum.Parse(typeof(TransactionType), tradeType.ToUpper());
+            _investmentBuilder.UpdateTrades(token, stock.ToTrades(ttype), null, null);
+            return LoadPortfolio();
+        }
+
+        [HttpPost]
         public ActionResult EditTrade(TradeItemModel tradeItem)
         {
             var token = _SetupAccounts(null);
@@ -208,16 +255,30 @@ namespace InvestmentBuilderWeb.Controllers
         }
 
         [HttpGet]
-        [Route("Delete")]
-        public ActionResult Delete(string name)
+        public string SellTradeAngular(string name)
         {
-            //_service.DeleteRecord(data);
+            _SellTradeImpl(name);
+            return LoadPortfolio();
+        }
+
+        private bool _SellTradeImpl(string name)
+        {
             var token = _SetupAccounts(null);
             var tradeItem = _clientData.GetTradeItem(token, name);
             if (tradeItem != null)
             {
                 _investmentBuilder.UpdateTrades(token, tradeItem.ToTrades(TransactionType.SELL), null, null);
-                return _CreateMainView("Index", _GetCurrentInvestments(token));
+                return true;
+            }
+            return false;
+        } 
+
+        [Route("Delete")]
+        public ActionResult Delete(string name)
+        {
+            if(_SellTradeImpl(name) == true)
+            {
+                return _CreateMainView("Index", _GetCurrentInvestments(_SetupAccounts(null)));
             }
             return null;
         }
@@ -476,6 +537,12 @@ namespace InvestmentBuilderWeb.Controllers
         public ActionResult RemovePaymentTransaction(PaymentCashFlowModel item)
         {
             return _RemoveCashTransaction(item);
+        }
+
+        [Route("TestPage")]
+        public ActionResult TestPage()
+        {
+            return _CreateMainView("TestPage", null);
         }
     }
 }

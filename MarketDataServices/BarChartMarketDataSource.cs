@@ -95,7 +95,7 @@ namespace MarketDataServices
             if (data != null)
             {
                 var result = JsonConvert.DeserializeObject<BarchartHistoricalData>(data.First());
-                if (result != null)
+                if (result != null && result.results != null)
                 {
                     return result.results.Select(x => new HistoricalData
                     (

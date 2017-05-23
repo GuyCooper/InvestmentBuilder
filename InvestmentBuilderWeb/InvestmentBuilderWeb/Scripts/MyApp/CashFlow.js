@@ -276,14 +276,3 @@ function ReportCompletion($uibModalInstance, errors) {
     };
 };
 
-//inject everything angular needs here
-angular.module('InvestmentRecord', ['ui.bootstrap']);
-
-angular.module('InvestmentRecord')
-.controller('CashFlowController', CashFlow);
-
-angular.module('InvestmentRecord')
-.controller('CashTransaction', CashTransaction);
-
-angular.module('InvestmentRecord')
-.controller('ReportCompletion', ReportCompletion);

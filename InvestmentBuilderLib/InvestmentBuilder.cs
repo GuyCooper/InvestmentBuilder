@@ -168,10 +168,10 @@ namespace InvestmentBuilder
             //now process any redemptions that have occured since the previous valuation
             var updatedReport = dtPreviousValuation.HasValue ? _ProcessRedemptions(userToken, assetReport, accountData, dtPreviousValuation.Value, bUpdate) : assetReport;
             //finally, build the asset statement
-            if (bUpdate == true)
-            {
+            //if (bUpdate == true)
+            //{
                 _reportWriter.WriteAssetReport(updatedReport, _userAccountData.GetStartOfYearValuation(userToken, valuationDate), _settings.GetOutputPath(accountData.Name), progress);
-            }
+            //}
 
             logger.Log(userToken, LogLevel.Info, "Report Generated, Account Builder Complete");
             return updatedReport;
