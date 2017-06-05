@@ -71,6 +71,10 @@
     <Reference Include="Microsoft.Practices.Unity.RegistrationByConvention">
       <HintPath>..\packages\Unity.3.5.1404.0\lib\net45\Microsoft.Practices.Unity.RegistrationByConvention.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\NLog.4.3.0\lib\net45\NLog.dll</HintPath>
@@ -149,9 +153,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="EntityFramework">
       <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
@@ -324,6 +325,7 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
+    <Content Include="Scripts\MyApp\CreateTrade.js" />
     <Content Include="Scripts\MyApp\DemoCode.js" />
     <Content Include="Scripts\MyApp\Index.js" />
     <Content Include="Scripts\MyApp\InvestmentAccount.js" />
@@ -376,7 +378,6 @@
     <Content Include="Views\Itinerary\Create.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\DateTime.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\Phone.cshtml" />
-    <Content Include="Views\InvestmentRecord\Index.cshtml" />
     <Content Include="Views\InvestmentRecord\CreateTrade.cshtml" />
     <Content Include="Views\Shared\_LayoutInvestmentRecord.cshtml" />
     <Content Include="Views\Sample\PartialViewDemo.cshtml" />
@@ -385,7 +386,6 @@
     <Content Include="Views\Sample\Index.cshtml" />
     <Content Include="Views\Example\Index.cshtml" />
     <Content Include="Views\Shared\AccountPartial.cshtml" />
-    <Content Include="Views\InvestmentRecord\EditTrade.cshtml" />
     <Content Include="Views\InvestmentRecord\Parameters.cshtml" />
     <Content Include="Views\InvestmentRecord\View.cshtml" />
     <Content Include="Views\InvestmentRecord\Reports.cshtml" />
@@ -402,9 +402,9 @@
     <Content Include="Views\InvestmentRecord\CashFlow.cshtml" />
     <Content Include="Views\InvestmentRecord\AddTransaction.cshtml" />
     <Content Include="Views\InvestmentRecord\ReportCompletion.cshtml" />
-    <Content Include="Views\InvestmentRecord\IndexAngular.cshtml" />
+    <Content Include="Views\InvestmentRecord\Index.cshtml" />
     <Content Include="Views\InvestmentRecord\TestPage.cshtml" />
-    <Content Include="Views\InvestmentRecord\EditTradeAngular.cshtml" />
+    <Content Include="Views\InvestmentRecord\EditTrade.cshtml" />
     <Content Include="Views\InvestmentRecord\YesNoChooser.cshtml" />
   </ItemGroup>
   <ItemGroup>

@@ -47,13 +47,7 @@ namespace InvestmentBuilderWeb.Controllers
         [Route("index")]
         public ActionResult Index()
         {
-            return _CreateMainView("Index", _GetCurrentInvestments(_SetupAccounts(null)));
-        }
-
-        [Route("indexAngular")]
-        public ActionResult IndexAngular()
-        {
-            return _CreateMainView("IndexAngular",null);
+            return _CreateMainView("Index", null);
         }
 
         [HttpGet]
@@ -186,7 +180,7 @@ namespace InvestmentBuilderWeb.Controllers
         }
 
         [HttpGet]
-        public ActionResult EditTradeAngular()
+        public ActionResult EditTrade()
         {
             return PartialView();
         }
@@ -198,30 +192,30 @@ namespace InvestmentBuilderWeb.Controllers
         }
 
 
-        [HttpGet]
-        public ActionResult EditTrade(string name)
-        {
-            var token =_SetupAccounts(null);
-            var tradeItem = _clientData.GetTradeItem(token, name);
-            if(tradeItem != null)
-            {
-                var model = tradeItem.ToTradeItemModel();
+        //[HttpGet]
+        //public ActionResult EditTrade(string name)
+        //{
+        //    var token =_SetupAccounts(null);
+        //    var tradeItem = _clientData.GetTradeItem(token, name);
+        //    if(tradeItem != null)
+        //    {
+        //        var model = tradeItem.ToTradeItemModel();
 
-                ViewBag.Actions = Enum.GetNames(typeof(TransactionType)).Select(x =>
-                   new SelectListItem
-                   {
-                       Text = x,
-                       Value = x,
-                       Selected = x == model.Action.ToString()
-                   });
+        //        ViewBag.Actions = Enum.GetNames(typeof(TransactionType)).Select(x =>
+        //           new SelectListItem
+        //           {
+        //               Text = x,
+        //               Value = x,
+        //               Selected = x == model.Action.ToString()
+        //           });
 
-                return PartialView(model);
-            }
-            return null;
-        }
+        //        return PartialView(model);
+        //    }
+        //    return null;
+        //}
 
         [HttpPost]
-        public string EditTradeAngular(string name, string transactionDate, string tradeType, int quantity, double totalCost)
+        public string EditTrade(string name, string transactionDate, string tradeType, int quantity, double totalCost)
         {
             //TODO process edit trade
             var token = _SetupAccounts(null);

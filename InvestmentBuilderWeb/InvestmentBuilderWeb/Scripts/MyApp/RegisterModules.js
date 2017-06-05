@@ -21,5 +21,6 @@ module.controller('ReportCompletion', ReportCompletion);
 
 module.controller('YesNoController', YesNoPicker);
 
+module.controller('AddTradeController', CreateTrade);
 //angular.module('InvestmentRecord')
 //.controller('PortfolioController', Portfolio);

@@ -23,6 +23,7 @@ namespace InvestmentBuilderWeb
                        "~/Scripts/myapp/Portfolio.js",
                        "~/Scripts/myapp/CashFlow.js",
                        "~/Scripts/myapp/Utils.js",
+                       "~/Scripts/myapp/CreateTrade.js",
                        "~/Scripts/myapp/RegisterModules.js"
                        ));
 

@@ -9,7 +9,7 @@ function Portfolio($http, $scope, $log, $uibModal) {
     var columnDefs = [
         { headerName: "Name", field: "Name" },
         { headerName: "Quantity", field: "Quantity" },
-        { headerName: "Last Brought", field: "LastBrought" },
+        { headerName: "Last Brought", field: "LastBrought", cellFormatter: dateFormatter },
         { headerName: "Avg.Price Paid", field: "AveragePricePaid" },
         { headerName: "Total Cost", field: "TotalCost" },
         { headerName: "Current Price", field: "SharePrice" },
@@ -30,13 +30,12 @@ function Portfolio($http, $scope, $log, $uibModal) {
     }.bind(this);
 
     function editTradeRenderer() {
-        /*
-            <div class="layoutWrapper">
-                <button style="margin:5px">edit</button><button style="margin:5px">delete</button>
-            </div>
-
-        */
         return "<div style=\"display:flex;justify-content:center\"><button style=\"margin-right:2px;\" ng-click=\"editTrade()\">Edit</button><button style=\"margin-left:2px;\" ng-click=\"sellTrade()\">Sell</button></div>";
+    }
+
+    function dateFormatter(val) {
+        var dateobj = new Date(val.value);
+        return dateobj.toLocaleDateString();
     }
 
     $scope.gridOptions = {
@@ -55,7 +54,7 @@ function Portfolio($http, $scope, $log, $uibModal) {
             animation: true,
             ariaLabelledBy: 'modal-title',
             ariaDescribedBy: 'modal-body',
-            templateUrl: 'EditTradeAngular',
+            templateUrl: 'EditTrade',
             controller: 'TradeEditor',
             controllerAs: '$trade',
             size: 'lg',
@@ -70,7 +69,7 @@ function Portfolio($http, $scope, $log, $uibModal) {
             //$ctrl.selected = selectedItem;
             //use has clicked ok , we need to update the trade
             $http({
-                url: 'EditTradeAngular',
+                url: 'EditTrade',
                 method: 'POST',
                 params: trade
             })
@@ -110,7 +109,7 @@ function Portfolio($http, $scope, $log, $uibModal) {
             //$ctrl.selected = selectedItem;
             //use has clicked ok , we need to update the trade
             $http({
-                url: 'SellTradeAngular',
+                url: 'SellTrade',
                 method: 'GET',
                 params: param
             })

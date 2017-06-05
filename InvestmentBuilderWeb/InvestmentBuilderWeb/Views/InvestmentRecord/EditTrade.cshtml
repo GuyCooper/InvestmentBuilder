@@ -1,49 +1,46 @@
-﻿@model InvestmentBuilderWeb.Models.TradeItemModel
-
-<h2>Edit Trade</h2>
-
-<div class="editor">
-    @using (Html.BeginForm())
-    {
-        @Html.AntiForgeryToken()
-
-        //<form role="form">
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-        <div class="form-group">
-            @Html.LabelFor(m => m.Name)
-            @Html.DisplayFor(m => m.Name)
-        </div>
-        <div class="form-group">
-            @Html.LabelFor(m => m.TransactionDate)
-            @Html.TextBox("TransactionDate", DateTime.Today.ToShortDateString(), new
-            {
-                @class = "form-control datetime",
-                onclick = "javascript:onDisplayDateTimePicker()",
-                onchange = "javascript:onDisplayDateTimePicker()"
-            })
-        </div>
-        <div class="form-group">
-            @Html.LabelFor(m => m.Quantity)
-            @Html.EditorFor(m => m.Quantity, new { @class = "form-control" })
-        </div>
-        
-        <div class="form-group">
-            @Html.DropDownList("Action", (IEnumerable<SelectListItem>)ViewBag.Actions, new { @class = "form-control" });
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(m => m.TotalCost)
-            @Html.EditorFor(m => m.TotalCost, new { @class = "form-control" })
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(m => m.ManualPrice)
-            @Html.EditorFor(m => m.ManualPrice, new { @class = "form-control" })
-        </div> 
-              
-        <div class="form-group">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close </button>
-            <input type="submit" value="Submit" class="btn btn-primary" />
-        </div>
-    }
+﻿<div class="modal-header">
+    <h3 class="modal-title" id="modal-title">Edit trade</h3>
 </div>
+<div class="modal-body" id="modal-body">
+    <form>
+        <div class="form-group">
+            <h3>{{$trade.Name}}</h3>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Transaction Date</label>
+                    <p class="input-group">
+                        <input type="text" name="transactionDate" class="form-control" uib-datepicker-popup="{{trade.format}}" ng-model="$trade.dt" is-open="$trade.datepicker.opened" datepicker-options="$trade.dateOptions" ng-required="true" close-text="Close" alt-input-formats="$trade.altInputFormats" />
+                        <span class="input-group-btn">
+                            <button type="button" class="btn btn-default" ng-click="$trade.openDatePicker()"><i class="glyphicon glyphicon-calendar"></i></button>
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Action</label>
+            <select name="parameterType" class="form-control" ng-model="$trade.SelectedAction">
+                <option ng-repeat="action in $trade.Actions">{{action}}</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Quantity</label>
+            <input name="quantity" type="number" class="form-control" ng-model="$trade.Quantity" />
+        </div>
+
+        <div class="form-group">
+            <label>Total Cost</label>
+            <input name="totalcost" type="number" class="form-control" ng-model="$trade.TotalCost" />
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" type="button" ng-click="$trade.ok()">OK</button>
+    <button class="btn btn-warning" type="button" ng-click="$trade.cancel()">Cancel</button>
+</div>
+
+
