@@ -34,7 +34,7 @@ namespace InvestmentBuilderWeb.Controllers
                                         , AccountManager accountManager
                                         , BrokerManager brokerManager
                                         , PerformanceBuilder performanceBuilder
-                                        )  :
+                                        ) :
             base(authorizationManager, accountManager, investmentBuilder, brokerManager, sessionService, dataLayer.ClientData)
         {
             _recordData = dataLayer.InvestmentRecordData;
@@ -63,7 +63,7 @@ namespace InvestmentBuilderWeb.Controllers
             var token = _SetupAccounts(null);
             if (this.ModelState.IsValid)
             {
-                _investmentBuilder.UpdateTrades(token, tradeItem.ToTrades(TransactionType.BUY), null, null);   
+                _investmentBuilder.UpdateTrades(token, tradeItem.ToTrades(TransactionType.BUY), null, null);
             }
             else
             {
@@ -138,7 +138,7 @@ namespace InvestmentBuilderWeb.Controllers
         [HttpGet]
         public string CashFlowContents(string sDateRequestedFrom)
         {
-            var model = _GetCashFlowModelAndParams(sDateRequestedFrom);            
+            var model = _GetCashFlowModelAndParams(sDateRequestedFrom);
             return JsonConvert.SerializeObject(model);
         }
 
@@ -174,8 +174,8 @@ namespace InvestmentBuilderWeb.Controllers
         {
             var token = _SetupAccounts(null);
             var dtValuation = DateTime.Parse(ValuationDate);
-            var reportFile =_investmentBuilder.GetInvestmentReport(token, dtValuation);
-            
+            var reportFile = _investmentBuilder.GetInvestmentReport(token, dtValuation);
+
             return File(reportFile, "application/pdf");
         }
 
@@ -190,29 +190,6 @@ namespace InvestmentBuilderWeb.Controllers
         {
             return PartialView();
         }
-
-
-        //[HttpGet]
-        //public ActionResult EditTrade(string name)
-        //{
-        //    var token =_SetupAccounts(null);
-        //    var tradeItem = _clientData.GetTradeItem(token, name);
-        //    if(tradeItem != null)
-        //    {
-        //        var model = tradeItem.ToTradeItemModel();
-
-        //        ViewBag.Actions = Enum.GetNames(typeof(TransactionType)).Select(x =>
-        //           new SelectListItem
-        //           {
-        //               Text = x,
-        //               Value = x,
-        //               Selected = x == model.Action.ToString()
-        //           });
-
-        //        return PartialView(model);
-        //    }
-        //    return null;
-        //}
 
         [HttpPost]
         public string EditTrade(string name, string transactionDate, string tradeType, int quantity, double totalCost)
@@ -232,24 +209,24 @@ namespace InvestmentBuilderWeb.Controllers
             return LoadPortfolio();
         }
 
-        [HttpPost]
-        public ActionResult EditTrade(TradeItemModel tradeItem)
-        {
-            var token = _SetupAccounts(null);
-            if (this.ModelState.IsValid && tradeItem != null && tradeItem.Action != TransactionType.NONE)
-            {
-                _investmentBuilder.UpdateTrades(token, tradeItem.ToTrades(tradeItem.Action), tradeItem.GetManualPrices(), null);
-            }
-            else
-            {
-                this.ModelState.AddModelError("", "Invalid data enterted");
-                return View("Edit");
-            }
-            return _CreateMainView("Index", _GetCurrentInvestments(token));
-        }
+        //[HttpPost]
+        //public ActionResult EditTrade(TradeItemModel tradeItem)
+        //{
+        //    var token = _SetupAccounts(null);
+        //    if (this.ModelState.IsValid && tradeItem != null && tradeItem.Action != TransactionType.NONE)
+        //    {
+        //        _investmentBuilder.UpdateTrades(token, tradeItem.ToTrades(tradeItem.Action), tradeItem.GetManualPrices(), null);
+        //    }
+        //    else
+        //    {
+        //        this.ModelState.AddModelError("", "Invalid data enterted");
+        //        return View("Edit");
+        //    }
+        //    return _CreateMainView("Index", _GetCurrentInvestments(token));
+        //}
 
         [HttpGet]
-        public string SellTradeAngular(string name)
+        public string SellTrade(string name)
         {
             _SellTradeImpl(name);
             return LoadPortfolio();
@@ -265,12 +242,12 @@ namespace InvestmentBuilderWeb.Controllers
                 return true;
             }
             return false;
-        } 
+        }
 
         [Route("Delete")]
         public ActionResult Delete(string name)
         {
-            if(_SellTradeImpl(name) == true)
+            if (_SellTradeImpl(name) == true)
             {
                 return _CreateMainView("Index", _GetCurrentInvestments(_SetupAccounts(null)));
             }
@@ -307,7 +284,7 @@ namespace InvestmentBuilderWeb.Controllers
             var token = _SetupAccounts(null);
 
             IBuildMonitor monitor = _sessionService.GetBuildMonitor(SessionId);
-            if(monitor == null)
+            if (monitor == null)
             {
                 monitor = new BuildReportMonitor(_GetThisUserName());
                 _sessionService.SetBuildMonitor(SessionId, monitor);
@@ -316,36 +293,36 @@ namespace InvestmentBuilderWeb.Controllers
 
             var testing = true;
 
-            Task.Factory.StartNew( () =>
-            {
-                if (testing == true)
-                {
-                    monitor.GetProgressCounter().ResetCounter("test build", 10);
-                    for (int i = 0; i < 10; ++i)
-                    {
-                        System.Threading.Thread.Sleep(1000);
-                        monitor.GetProgressCounter().IncrementCounter();
-                    }
-                    ((BuildReportMonitor)monitor).AddError("something failed!!!");
-                }
-                else
-                {
+            Task.Factory.StartNew(() =>
+           {
+               if (testing == true)
+               {
+                   monitor.GetProgressCounter().ResetCounter("test build", 10);
+                   for (int i = 0; i < 10; ++i)
+                   {
+                       System.Threading.Thread.Sleep(1000);
+                       monitor.GetProgressCounter().IncrementCounter();
+                   }
+                   ((BuildReportMonitor)monitor).AddError("something failed!!!");
+               }
+               else
+               {
                     //first generate the asset report
                     var report = _investmentBuilder.BuildAssetReport(token
-                                                                    , _sessionService.GetValuationDate(SessionId)
-                                                                    , true
-                                                                    , _sessionService.GetManualPrices(SessionId)
-                                                                    , monitor.GetProgressCounter());
+                                                                   , _sessionService.GetValuationDate(SessionId)
+                                                                   , true
+                                                                   , _sessionService.GetManualPrices(SessionId)
+                                                                   , monitor.GetProgressCounter());
 
-                    if (report != null)
-                    {
+                   if (report != null)
+                   {
                         //now generate the performance charts. by doing this the whole report will be persisted
                         //to a pdf file
                         _performanceBuilder.Run(token, _sessionService.GetValuationDate(SessionId), monitor.GetProgressCounter());
-                    }
-                }
-                monitor.StopBuiliding();
-            });
+                   }
+               }
+               monitor.StopBuiliding();
+           });
 
             return CashFlowContents(sDateRequestedFrom);
         }
@@ -375,7 +352,7 @@ namespace InvestmentBuilderWeb.Controllers
 
         private ActionResult _AddTransactionView(string title, string transactionType)
         {
-           _SetupAccounts(null);
+            _SetupAccounts(null);
             ViewBag.Title = title;
 
             ViewBag.ParameterType = _cashTransactionManager.GetTransactionTypes(transactionType)
@@ -396,7 +373,7 @@ namespace InvestmentBuilderWeb.Controllers
                      Text = "Please select a parameter type"
                 }
             };
- 
+
             return PartialView("AddTransaction");
         }
 
@@ -404,7 +381,7 @@ namespace InvestmentBuilderWeb.Controllers
         {
             _cashTransactionManager.AddTransaction(token, _sessionService.GetValuationDate(SessionId),
                                     transactionDate,
-                                    transactionType, 
+                                    transactionType,
                                     parameter,
                                     amount);
         }
@@ -421,13 +398,13 @@ namespace InvestmentBuilderWeb.Controllers
                     foreach (var parameter in parameters)
                     {
                         _ProcessCashTransaction(token, transaction.TransactionDate.Value, transaction.ParameterType,
-                            parameter, transaction.Amount);   
+                            parameter, transaction.Amount);
                     }
                 }
                 else
                 {
                     _ProcessCashTransaction(token, transaction.TransactionDate.Value, transaction.ParameterType,
-                                        transaction.Parameter, transaction.Amount);   
+                                        transaction.Parameter, transaction.Amount);
                 }
             }
             else
@@ -443,19 +420,7 @@ namespace InvestmentBuilderWeb.Controllers
             return PartialView("AddTransaction");
         }
 
-        //[HttpGet]
-        //public ActionResult AddPaymentTransaction()
-        //{
-        //    //return _AddTransactionView("Add Payment", _cashTransactionManager.PaymentMnemomic);
-        //    return PartialView("AddTransactionAngular");
-        //}
-
-        //[HttpPost]
-        //public ActionResult AddReceiptTransaction(TransactionModel transaction)
-        //{
-        //    return _ProcessTransaction(transaction, _cashTransactionManager.ReceiptMnemomic);
-        //}
-        private string _AddTransactionAngularImpl(string transactionDate, string paramType, string param, double amount, string dateRequestedFrom, string transactionType)
+        private string _AddTransactionImpl(string transactionDate, string paramType, string param, double amount, string dateRequestedFrom, string transactionType)
         {
             var transaction = new TransactionModel
             {
@@ -470,22 +435,16 @@ namespace InvestmentBuilderWeb.Controllers
         }
 
         [HttpPost]
-        public string AddReceiptTransactionAngular(string transactionDate, string paramType, string param, double amount, string dateRequestedFrom)
+        public string AddReceiptTransaction(string transactionDate, string paramType, string param, double amount, string dateRequestedFrom)
         {
-            return _AddTransactionAngularImpl(transactionDate, paramType, param, amount, dateRequestedFrom, _cashTransactionManager.ReceiptMnemomic);
+            return _AddTransactionImpl(transactionDate, paramType, param, amount, dateRequestedFrom, _cashTransactionManager.ReceiptMnemomic);
         }
 
         [HttpPost]
-        public string AddPaymentTransactionAngular(string transactionDate, string paramType, string param, double amount, string dateRequestedFrom)
+        public string AddPaymentTransaction(string transactionDate, string paramType, string param, double amount, string dateRequestedFrom)
         {
-            return _AddTransactionAngularImpl(transactionDate, paramType, param, amount, dateRequestedFrom, _cashTransactionManager.PaymentMnemomic);
+            return _AddTransactionImpl(transactionDate, paramType, param, amount, dateRequestedFrom, _cashTransactionManager.PaymentMnemomic);
         }
-
-        //[HttpPost]
-        //public ActionResult AddPaymentTransaction(TransactionModel transaction)
-        //{
-        //    return _ProcessTransaction(transaction, _cashTransactionManager.PaymentMnemomic);
-        //}
 
         [HttpGet]
         public string GetParametersForTransaction(string ParameterType)
@@ -494,7 +453,7 @@ namespace InvestmentBuilderWeb.Controllers
             var latestRecordDate = _recordData.GetLatestRecordInvestmentValuationDate(token) ?? DateTime.Today;
 
             var parameters = _investmentBuilder.GetParametersForTransactionType(token, latestRecordDate, ParameterType).ToList();
-            if(parameters.Count == 0)
+            if (parameters.Count == 0)
             {
                 parameters.Add(ParameterType);
             }
@@ -505,13 +464,13 @@ namespace InvestmentBuilderWeb.Controllers
 
             return JsonConvert.SerializeObject(new { parameters = parameters });
         }
-       
-        private ActionResult _RemoveCashTransaction(Transaction transaction)
-        {
-            var token = _SetupAccounts(null);
-            _cashTransactionManager.RemoveTransaction(token, transaction.ValuationDate, transaction.TransactionDate, transaction.TransactionType, transaction.Parameter);
-            return _CreateMainView("CashFlow", _GetCashFlowModel(null));
-        }
+
+        //private ActionResult _RemoveCashTransaction(Transaction transaction)
+        //{
+        //    var token = _SetupAccounts(null);
+        //    _cashTransactionManager.RemoveTransaction(token, transaction.ValuationDate, transaction.TransactionDate, transaction.TransactionType, transaction.Parameter);
+        //    return _CreateMainView("CashFlow", _GetCashFlowModel(null));
+        //}
 
         [HttpPost]
         public string RemoveTransaction(DateTime valuationDate, DateTime transactionDate, string transactionType, string parameter, string dateRequestedFrom)
@@ -520,23 +479,16 @@ namespace InvestmentBuilderWeb.Controllers
             _cashTransactionManager.RemoveTransaction(token, valuationDate, transactionDate, transactionType, parameter);
             return CashFlowContents(dateRequestedFrom);
         }
-
-        [HttpGet]
-        public ActionResult RemoveReceiptTransaction(ReceiptCashFlowModel item)
-        {
-            return _RemoveCashTransaction(item);
-        }
-
-        [HttpGet]
-        public ActionResult RemovePaymentTransaction(PaymentCashFlowModel item)
-        {
-            return _RemoveCashTransaction(item);
-        }
-
-        [Route("TestPage")]
-        public ActionResult TestPage()
-        {
-            return _CreateMainView("TestPage", null);
-        }
     }
+        //[HttpGet]
+        //public ActionResult RemoveReceiptTransaction(ReceiptCashFlowModel item)
+        //{
+        //    return _RemoveCashTransaction(item);
+        //}
+
+        //[HttpGet]
+        //public ActionResult RemovePaymentTransaction(PaymentCashFlowModel item)
+        //{
+        //    return _RemoveCashTransaction(item);
+        //}
 }

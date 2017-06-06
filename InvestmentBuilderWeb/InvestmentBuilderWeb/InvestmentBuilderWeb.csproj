@@ -387,12 +387,8 @@
     <Content Include="Views\Example\Index.cshtml" />
     <Content Include="Views\Shared\AccountPartial.cshtml" />
     <Content Include="Views\InvestmentRecord\Parameters.cshtml" />
-    <Content Include="Views\InvestmentRecord\View.cshtml" />
     <Content Include="Views\InvestmentRecord\Reports.cshtml" />
-    <Content Include="Views\InvestmentRecord\ValuationReport.cshtml" />
     <Content Include="Views\InvestmentRecord\AccountSummary.cshtml" />
-    <Content Include="Views\InvestmentRecord\ReceiptCashFlowItem.cshtml" />
-    <Content Include="Views\InvestmentRecord\PaymentCashFlowItem.cshtml" />
     <Content Include="Views\InvestmentRecord\AddModalDialog.cshtml" />
     <Content Include="Views\InvestmentAccount\EditAccount.cshtml" />
     <Content Include="Views\Shared\_LoginPartialTestUser.cshtml" />
@@ -403,7 +399,6 @@
     <Content Include="Views\InvestmentRecord\AddTransaction.cshtml" />
     <Content Include="Views\InvestmentRecord\ReportCompletion.cshtml" />
     <Content Include="Views\InvestmentRecord\Index.cshtml" />
-    <Content Include="Views\InvestmentRecord\TestPage.cshtml" />
     <Content Include="Views\InvestmentRecord\EditTrade.cshtml" />
     <Content Include="Views\InvestmentRecord\YesNoChooser.cshtml" />
   </ItemGroup>

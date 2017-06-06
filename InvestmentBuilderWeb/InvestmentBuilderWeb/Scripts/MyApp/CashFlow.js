@@ -106,11 +106,11 @@ function CashFlow($http, $uibModal, $log, $interval) {
     }.bind(this);
 
     this.addReceipt = function () {
-        this.addTransactionDialog('receipt', this.receiptParamTypes, 'AddReceiptTransactionAngular');
+        this.addTransactionDialog('receipt', this.receiptParamTypes, 'AddReceiptTransaction');
     }.bind(this);
 
     this.addPayment = function () {
-        this.addTransactionDialog('payment', this.paymentParamTypes, 'AddPaymentTransactionAngular');
+        this.addTransactionDialog('payment', this.paymentParamTypes, 'AddPaymentTransaction');
     };
 
     this.deleteTransaction = function (transaction) {
