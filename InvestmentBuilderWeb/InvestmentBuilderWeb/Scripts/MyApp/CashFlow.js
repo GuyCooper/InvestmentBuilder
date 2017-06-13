@@ -1,6 +1,6 @@
 ﻿"use strict"
 
-function CashFlow($http, $uibModal, $log, $interval) {
+function CashFlow($http, $uibModal, $log, $interval, NotifyService) {
 
     this.cashFlows = null;
     this.receiptParamTypes = null;
@@ -52,8 +52,10 @@ function CashFlow($http, $uibModal, $log, $interval) {
 
     }.bind(this);
 
-    $http.get('CashFlowContents')
-    .then(onLoadContents);
+    NotifyService.RegisterCashFlowListener(function () {
+        $http.get('CashFlowContents')
+        .then(onLoadContents);
+    });
 
     this.onReportFinished = function (errors) {
         var modalInstance = $uibModal.open({

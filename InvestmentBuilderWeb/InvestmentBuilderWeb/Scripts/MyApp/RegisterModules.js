@@ -2,6 +2,8 @@
 
 var module = angular.module("InvestmentRecord", ["ui.bootstrap","agGrid"]);
 
+module.service('NotifyService', NotifyService);
+
 module.controller("PortfolioController", Portfolio);
 
 module.controller('TradeEditor', TradeEditor);
@@ -22,5 +24,8 @@ module.controller('ReportCompletion', ReportCompletion);
 module.controller('YesNoController', YesNoPicker);
 
 module.controller('AddTradeController', CreateTrade);
+
+module.controller('LayoutController', Layout);
+
 //angular.module('InvestmentRecord')
 //.controller('PortfolioController', Portfolio);

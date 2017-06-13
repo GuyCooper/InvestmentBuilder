@@ -108,9 +108,8 @@ namespace InvestmentBuilderWeb.Controllers
         }
 
         //needs to be called before time one of the main views are displayed
-        protected void _GenerateSummary()
+        protected void _GenerateSummary(UserAccountToken token)
         {
-            var token = _SetupAccounts(null);
             var dtValuation = _sessionService.GetValuationDate(SessionId);
             var dtPrevious = _clientData.GetPreviousAccountValuationDate(token, dtValuation);
             ViewBag.SummaryData = _GetSummaryModel(token, dtPrevious);
@@ -119,7 +118,11 @@ namespace InvestmentBuilderWeb.Controllers
 
         protected ViewResult _CreateMainView(string name, object model)
         {
-            _GenerateSummary();
+            var token = _SetupAccounts(null);
+            ViewBag.RecentReports = _clientData.GetRecentValuationDates(token, DateTime.Now).Select(x =>
+                                        x.ToShortDateString()).ToList();
+
+            _GenerateSummary(token);
             return View(name, model);
         }
 

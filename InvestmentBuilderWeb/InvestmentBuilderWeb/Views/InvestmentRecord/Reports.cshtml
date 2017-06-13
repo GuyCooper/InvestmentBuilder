@@ -1,13 +1,7 @@
-﻿@model InvestmentBuilderWeb.Models.ReportsModel
-@{
-    ViewBag.Title = "Performance";
-}
-
-<div class="container">
-    @Html.Partial("~/Views/InvestmentRecord/AccountSummary.cshtml")
+﻿<div class="container">
     <div class="row">
         <ul>
-            @foreach (var dt in Model.RecentReports)
+            @foreach (var dt in ViewBag.RecentReports)
             {
                 <li>
                     @Html.ActionLink(dt, "LoadReport", "InvestmentRecord", new { ValuationDate = dt }, new { target = "_blank" })

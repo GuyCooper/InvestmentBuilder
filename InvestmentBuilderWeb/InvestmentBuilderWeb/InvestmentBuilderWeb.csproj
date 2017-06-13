@@ -329,6 +329,7 @@
     <Content Include="Scripts\MyApp\DemoCode.js" />
     <Content Include="Scripts\MyApp\Index.js" />
     <Content Include="Scripts\MyApp\InvestmentAccount.js" />
+    <Content Include="Scripts\MyApp\Layout.js" />
     <Content Include="Scripts\MyApp\Portfolio.js" />
     <Content Include="Scripts\MyApp\RegisterModules.js" />
     <Content Include="Scripts\MyApp\Utils.js" />
@@ -401,6 +402,7 @@
     <Content Include="Views\InvestmentRecord\Index.cshtml" />
     <Content Include="Views\InvestmentRecord\EditTrade.cshtml" />
     <Content Include="Views\InvestmentRecord\YesNoChooser.cshtml" />
+    <Content Include="Views\InvestmentRecord\Portfolio.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

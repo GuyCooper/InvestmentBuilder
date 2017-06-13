@@ -1,11 +1,4 @@
 ﻿
-<ul id="mainTab" class="nav nav-tabs nav-justified">
-    <li><a href="@Url.Action("index","InvestmentRecord")">Portfolio</a></li>
-    <li><a href="@Url.Action("CreateTrade", "InvestmentRecord")">Add Investment</a></li>
-    <li><a href="@Url.Action("CashFlow","InvestmentRecord")">CashFlow</a></li>
-    <li><a href="@Url.Action("Reports","InvestmentRecord")">Reports</a></li>
-</ul>
-
 <div class="row investmentSummary">
     <div class="pull-left">
         <ul class="list-inline">
@@ -35,7 +28,7 @@
         </ul>
     </div>
     <div class="pull-right">
-        <div ng-show="cashFlow.canBuild == true" ng-click="cashFlow.BuildReport()" class="btn btn-primary summaryButton">Build Report </div>        
+        <div ng-show="$scope.canBuild == true" ng-click="$scope.BuildReport()" class="btn btn-primary summaryButton">Build Report </div>        
     </div>
 </div>
 

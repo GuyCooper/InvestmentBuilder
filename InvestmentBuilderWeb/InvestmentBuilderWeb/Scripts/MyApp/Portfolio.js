@@ -4,7 +4,7 @@ agGrid.initialiseAgGridWithAngular1(angular);
 
 //var module = angular.module("example", ["agGrid"]);
 
-function Portfolio($http, $scope, $log, $uibModal) {
+function Portfolio($http, $scope, $log, $uibModal, NotifyService) {
 
     var columnDefs = [
         { headerName: "Name", field: "Name" },
@@ -119,8 +119,10 @@ function Portfolio($http, $scope, $log, $uibModal) {
         });
     }
 
-    $http.get('LoadPortfolio')
-    .then(onLoadContents);
+    NotifyService.RegisterPortfolioListener(function () {
+        $http.get('LoadPortfolio')
+        .then(onLoadContents);
+    });
 };
 
 function TradeEditor($uibModalInstance, name) {

@@ -24,6 +24,7 @@ namespace InvestmentBuilderWeb
                        "~/Scripts/myapp/CashFlow.js",
                        "~/Scripts/myapp/Utils.js",
                        "~/Scripts/myapp/CreateTrade.js",
+                       "~/Scripts/myapp/Layout.js",
                        "~/Scripts/myapp/RegisterModules.js"
                        ));
 

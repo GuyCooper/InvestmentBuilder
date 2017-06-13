@@ -1,6 +1,6 @@
 ﻿'use strict'
 
-function CreateTrade($http) {
+function CreateTrade($http, NotifyService) {
     var addTrade = this;
     addTrade.today = function () {
         addTrade.dt = new Date();
@@ -32,7 +32,6 @@ function CreateTrade($http) {
         opened: false
     };
 
-    
     addTrade.submitTrade = function () {
         $http({
             url: 'SubmitTrade',
@@ -55,5 +54,7 @@ function CreateTrade($http) {
 
     };
 
-    addTrade.today();
+    NotifyService.RegisterAddTradeListener = function () {
+        addTrade.today();
+    };
 }
