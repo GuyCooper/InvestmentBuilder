@@ -44,5 +44,20 @@ namespace MarketDataServices
                 _writer = new StreamWriter(_fileName);
             }
         }
+
+        public void LoadData(Action<string> processRecord)
+        {
+            using (var reader = new StreamReader(_fileName))
+            {
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    if(processRecord != null)
+                    {
+                        processRecord(line);
+                    }
+                }
+            }
+        }
     }
 }

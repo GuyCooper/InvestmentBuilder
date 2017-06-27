@@ -37,6 +37,35 @@ namespace MarketDataServices
             _historicalDataCache = new Dictionary<string, IList<HistoricalData>>();
         }
 
+        private void LoadSerialisedData()
+        {
+            //now load in any serialised data
+            if (_dataSerialiser != null)
+            {
+                _dataSerialiser.LoadData((record) =>
+                {
+                    var elems = record.Split(',');
+                    if (elems.Length > 1)
+                    {
+                        var ch = elems[0];
+                        var symbol = elems[1];
+                        if (ch == "M")
+                        {
+                            //_marketDataPriceCache
+                        }
+                        else if (ch == "F")
+                        {
+
+                        }
+                        else if (ch == "H")
+                        {
+
+                        }
+                    }
+                });
+            }
+        }
+
         public string Name
         {
             get { return "CachedMarketData"; }

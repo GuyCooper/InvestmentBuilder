@@ -23,6 +23,7 @@ namespace InvestmentBuilderMSTests
             Data.Add(string.Format(data, prm));
         }
         public void StartSerialiser() { }
+        public void LoadData(Action<string> processRecord) { }
     }
 
     [TestClass]

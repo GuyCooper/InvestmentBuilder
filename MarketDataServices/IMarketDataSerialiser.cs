@@ -14,5 +14,6 @@ namespace MarketDataServices
         void StartSerialiser();
         void EndSerialiser();
         void SerialiseData(string data, params object[] prm);
+        void LoadData(Action<string> processRecord);
     }
 }

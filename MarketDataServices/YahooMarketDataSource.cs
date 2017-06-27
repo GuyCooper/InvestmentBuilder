@@ -50,6 +50,44 @@ namespace MarketDataServices
 
         public IMarketDataReader DataReader { get; set; }
 
+        private IList<string> ProcessData(string result)
+        {
+            List<string> arr = new List<string>();
+            bool text = false;
+            string val = "";
+            foreach(char ch in result)
+            {
+                switch(ch)
+                {
+                    case '"':
+                        text = !text;
+                        break;
+                    case ',':
+                        if(!text)
+                        {
+                            if (val != "")
+                            {
+                                arr.Add(val);
+                            }
+                            val = "";
+                        }
+                        else
+                        {
+                            val += ch;
+                        }
+                        break;
+                    default:
+                        val += ch;
+                        break;
+                }
+            }
+            if(val != "")
+            {
+                arr.Add(val);
+            }
+            return arr;
+        }
+
         public bool TryGetMarketData(string symbol, string exchange, string source, out MarketDataPrice marketData)
         { 
             if(string.IsNullOrEmpty(exchange) == false &&
@@ -63,7 +101,14 @@ namespace MarketDataServices
             try
             {
                 string result = DataReader.GetData(url, SourceDataFormat.CSV).ToList().First();
-                string[] arr = result.Split(',');
+                var arr = ProcessData(result);
+
+                if(arr.Count < 4)
+                {
+                    logger.Log(LogLevel.Error, "invalid data returned for {0}: {1},", symbol, result);
+                    marketData = null;
+                    return false;
+                }
 
                 marketData = new MarketDataPrice(
                     arr[1].Trim('"'),
