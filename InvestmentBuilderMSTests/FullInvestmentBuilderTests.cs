@@ -319,14 +319,15 @@ namespace InvestmentBuilderMSTests
             MatchDoubleVal(companyData.MonthChangeRatio, "-6.020");
             MatchDoubleVal(companyData.ProfitLoss, "-64.9280");
             MatchDoubleVal(companyData.NetSellingValue, "1480.8420");
+            MatchDoubleVal(companyData.Dividend, "100.0");
 
-            MatchDoubleVal(report.BankBalance, "349.31");
-            MatchDoubleVal(report.IssuedUnits, "1893.4");
+            MatchDoubleVal(report.BankBalance, "449.31");
+            MatchDoubleVal(report.IssuedUnits, "1914.696");
             MatchDoubleVal(report.MonthlyPnL, "-78.120");
-            MatchDoubleVal(report.NetAssets, "1830.152");
+            MatchDoubleVal(report.NetAssets, "1930.152");
             MatchDoubleVal(report.TotalAssetValue, "1480.842");
-            MatchDoubleVal(report.ValuePerUnit, "0.966");
-            MatchDoubleVal(report.YearToDatePerformance, "-3.34");
+            MatchDoubleVal(report.ValuePerUnit, "1.008");
+            MatchDoubleVal(report.YearToDatePerformance, "0.807");
 
         }
 
@@ -367,7 +368,10 @@ namespace InvestmentBuilderMSTests
                userToken, dtValuationDate, dtTransactionDate, "Purchase", _NewTestTradeName, dUpdateTradeCost);
 
             ContainerManager.ResolveValueOnContainer<CashAccountTransactionManager>(_childContainer).AddTransaction(
-                userToken, dtValuationDate, dtTransactionDate, "BalanceInHandCF", "BalanceInHandCF", 849.31);
+                userToken, dtValuationDate, dtTransactionDate, "Dividend", "Acme Plc", 100.0);
+
+            ContainerManager.ResolveValueOnContainer<CashAccountTransactionManager>(_childContainer).AddTransaction(
+                userToken, dtValuationDate, dtTransactionDate, "BalanceInHandCF", "BalanceInHandCF", 949.31);
 
             var manualPrices = new ManualPrices
             {

@@ -44,7 +44,7 @@ namespace SQLServerDataLayer
                 using (SqlCommand cmdDividends = new SqlCommand("sp_GetDividends", Connection))
                 {
                     cmdDividends.CommandType = System.Data.CommandType.StoredProcedure;
-                    cmdDividends.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
+                    cmdDividends.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate.Date));
                     cmdDividends.Parameters.Add(new SqlParameter("@Account", userToken.Account));
                     using (SqlDataReader reader = cmdDividends.ExecuteReader())
                     {

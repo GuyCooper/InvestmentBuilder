@@ -5,12 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.IO;
+using NLog;
 
 namespace MarketDataServices
 {
 
     internal class WebMarketDataReader : IMarketDataReader
     {
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
         public IEnumerable<string> GetData(string url, SourceDataFormat format)
         {
             HttpWebRequest request = null;
@@ -18,21 +21,28 @@ namespace MarketDataServices
             request = (HttpWebRequest)WebRequest.CreateDefault(new Uri(url));
             request.Timeout = 30000;
 
-            using (var response = (HttpWebResponse)request.GetResponse())
-            using (StreamReader input = new StreamReader(
-                response.GetResponseStream()))
+            try
             {
-                if (format == SourceDataFormat.CSV)
+                using (var response = (HttpWebResponse)request.GetResponse())
+                using (StreamReader input = new StreamReader(
+                    response.GetResponseStream()))
                 {
-                    while (input.EndOfStream == false)
+                    if (format == SourceDataFormat.CSV)
                     {
-                        result.Add(input.ReadLine());
+                        while (input.EndOfStream == false)
+                        {
+                            result.Add(input.ReadLine());
+                        }
+                    }
+                    else
+                    {
+                        result.Add(input.ReadToEnd());
                     }
                 }
-                else
-                {
-                    result.Add(input.ReadToEnd());
-                }
+            }
+            catch(WebException e)
+            {
+                logger.Log(LogLevel.Error, "error caling url: {0}. {1}",url, e.Message);
             }
             return result;
         }

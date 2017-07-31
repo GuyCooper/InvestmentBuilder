@@ -188,94 +188,97 @@ namespace InvestmentReportGenerator
         /// <param name="dtValuation"></param>
         public void WritePerformanceData(IList<IndexedRangeData> data, string outputPath, DateTime dtValuation, ProgressCounter progress)
         {
-            _Workbook performanceBook = null;
-            try
-            {
-                var performanceBookName = string.Format(@"{0}\{1}-{2}.xlsx", outputPath, PerformanceChartName, dtValuation.ToString("MMM-yyyy"));
-                File.Delete(performanceBookName);
-                performanceBook = _app.Workbooks.Add();
-                performanceBook.SaveAs(performanceBookName);
+            //_Workbook performanceBook = null;
+            //try
+            //{
+            //    var performanceBookName = string.Format(@"{0}\{1}-{2}.xlsx", outputPath, PerformanceChartName, dtValuation.ToString("MMM-yyyy"));
+            //    File.Delete(performanceBookName);
+            //    performanceBook = _app.Workbooks.Add();
+            //    performanceBook.SaveAs(performanceBookName);
 
-                _Worksheet perfsheet = performanceBook.Worksheets[1];
+            //    _Worksheet perfsheet = performanceBook.Worksheets[1];
 
-                char startColA = 'B';
-                char? startColB = null;
+            //    char startColA = 'B';
+            //    char? startColB = null;
 
-                int startRow = 1;
-                foreach (var rangeIndex in data)
-                {
-                    var currentCol1 = startColA;
-                    char? currentCol2 = startColB;
+            //    int startRow = 1;
+            //    foreach (var rangeIndex in data)
+            //    {
+            //        var currentCol1 = startColA;
+            //        char? currentCol2 = startColB;
 
-                    int currentRow = startRow;
+            //        int currentRow = startRow;
 
-                    string keyName = rangeIndex.IsHistorical ? "date" : rangeIndex.KeyName;
-                    perfsheet.get_Range(_GetNextColumnString(ref currentCol1, ref currentCol2) + currentRow).Value = keyName;
+            //        string keyName = rangeIndex.IsHistorical ? "date" : rangeIndex.KeyName;
+            //        perfsheet.get_Range(_GetNextColumnString(ref currentCol1, ref currentCol2) + currentRow).Value = keyName;
 
-                    foreach (var index in rangeIndex.Data)
-                    {
-                        perfsheet.get_Range(_GetNextColumnString(ref currentCol1, ref currentCol2) + currentRow).Value = index.Name;
-                    }
+            //        foreach (var index in rangeIndex.Data)
+            //        {
+            //            perfsheet.get_Range(_GetNextColumnString(ref currentCol1, ref currentCol2) + currentRow).Value = index.Name;
+            //        }
 
-                    //now add the data
-                    //take the total numberof nodesin this index range from the first index
-                    //this should be the clubindex
-                    var clubIndex = rangeIndex.Data.First();
-                    int totalNodeCount = clubIndex.Data.Count();
-                    currentRow++;
-                    char previousCol1 = startColA;
-                    char? previousCol2 = startColB;
+            //        //now add the data
+            //        //take the total numberof nodesin this index range from the first index
+            //        //this should be the clubindex
+            //        var clubIndex = rangeIndex.Data.First();
+            //        int totalNodeCount = clubIndex.Data.Count();
+            //        currentRow++;
+            //        char previousCol1 = startColA;
+            //        char? previousCol2 = startColB;
 
-                    progress.Initialise("writing performance data to excel report", totalNodeCount + 1);
-                    for (int i = 0; i < totalNodeCount; ++i)
-                    {
-                        currentCol1 = startColA;
-                        currentCol2 = startColB;
+            //        progress.Initialise("writing performance data to excel report", totalNodeCount + 1);
+            //        for (int i = 0; i < totalNodeCount; ++i)
+            //        {
+            //            currentCol1 = startColA;
+            //            currentCol2 = startColB;
 
-                        //first add the key column (date if historical data)
-                        if (rangeIndex.IsHistorical == true)
-                        {
-                            perfsheet.get_Range(_GetNextColumnString(ref currentCol1, ref currentCol2) + currentRow).Value = clubIndex.Data[i].Date.Value;
-                        }
-                        else
-                        {
-                            perfsheet.get_Range(_GetNextColumnString(ref currentCol1, ref currentCol2) + currentRow).Value = clubIndex.Data[i].Key;
-                        }
+            //            //first add the key column (date if historical data)
+            //            if (rangeIndex.IsHistorical == true)
+            //            {
+            //                perfsheet.get_Range(_GetNextColumnString(ref currentCol1, ref currentCol2) + currentRow).Value = clubIndex.Data[i].Date.Value;
+            //            }
+            //            else
+            //            {
+            //                perfsheet.get_Range(_GetNextColumnString(ref currentCol1, ref currentCol2) + currentRow).Value = clubIndex.Data[i].Key;
+            //            }
 
-                        //now add the data for each index (including  cub index)
-                        foreach (var index in rangeIndex.Data)
-                        {
-                            previousCol1 = currentCol1;
-                            previousCol2 = currentCol2;
-                            var nextCell = perfsheet.get_Range(_GetNextColumnString(ref currentCol1, ref currentCol2) + currentRow);
-                            nextCell.Value = index.Data.Count > i ? index.Data[i].Price : index.Data[index.Data.Count - 1].Price;
-                        }
-                        currentRow++;
+            //            //now add the data for each index (including  cub index)
+            //            foreach (var index in rangeIndex.Data)
+            //            {
+            //                if (index.Data.Count > 0)
+            //                {
+            //                    previousCol1 = currentCol1;
+            //                    previousCol2 = currentCol2;
+            //                    var nextCell = perfsheet.get_Range(_GetNextColumnString(ref currentCol1, ref currentCol2) + currentRow);
+            //                    nextCell.Value = index.Data.Count > i ? index.Data[i].Price : index.Data[index.Data.Count - 1].Price;
+            //                }
+            //            }
+            //            currentRow++;
 
-                        progress.Increment();
-                    }
+            //            progress.Increment();
+            //        }
 
-                    //now generate the chart and pivot table...
-                    var lstIndexes = rangeIndex.Data.Select(x => x.Name).ToList();
-                    //FirstRow = startRow, LastRow = currentRow - 1, FirstCol = chFirstCol, LastCol = (char)(chCol - 1)
-                    _buildPivotTableAndChart(performanceBook, lstIndexes, rangeIndex, keyName, _GetCurrentColumnString(startColA, startColB), _GetCurrentColumnString(previousCol1, previousCol2),
-                                            startRow, currentRow - 1, perfsheet, rangeIndex.IsHistorical, rangeIndex.MinValue);
-                    startColA = currentCol1;
-                    startColB = currentCol2;
-                    _GetNextColumnString(ref startColA, ref startColB);
-                }
+            //        //now generate the chart and pivot table...
+            //        var lstIndexes = rangeIndex.Data.Select(x => x.Name).ToList();
+            //        //FirstRow = startRow, LastRow = currentRow - 1, FirstCol = chFirstCol, LastCol = (char)(chCol - 1)
+            //        _buildPivotTableAndChart(performanceBook, lstIndexes, rangeIndex, keyName, _GetCurrentColumnString(startColA, startColB), _GetCurrentColumnString(previousCol1, previousCol2),
+            //                                startRow, currentRow - 1, perfsheet, rangeIndex.IsHistorical, rangeIndex.MinValue);
+            //        startColA = currentCol1;
+            //        startColB = currentCol2;
+            //        _GetNextColumnString(ref startColA, ref startColB);
+            //    }
 
-                logger.Log(LogLevel.Info, "saving performance chart to sheet {0}",
-                                    performanceBook.FullName);
+            //    logger.Log(LogLevel.Info, "saving performance chart to sheet {0}",
+            //                        performanceBook.FullName);
 
-                performanceBook.Save();
+            //    performanceBook.Save();
 
-                progress.Increment();
-            }
-            finally
-            {
-                performanceBook.Close();
-            }
+            //    progress.Increment();
+            //}
+            //finally
+            //{
+            //    performanceBook.Close();
+            //}
         }
 
         /// <summary>

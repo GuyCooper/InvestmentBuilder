@@ -47,7 +47,7 @@ namespace MarketDataServices
         public IList<BarchartMarketPrice> results { get; set; }
     }
 
-    [Export(typeof(IMarketDataSource))]
+    //[Export(typeof(IMarketDataSource))]
     internal class BarChartMarketDataSource :  IMarketDataSource
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
@@ -90,9 +90,9 @@ namespace MarketDataServices
         public IEnumerable<HistoricalData> GetHistoricalData(string instrument, string exchange, string source, DateTime dtFrom)
         {
             var url = string.Format(GetHistoryUrl, AccessKey, instrument, dtFrom.ToString("yyyyMMdd"), exchange);
-            var data = DataReader.GetData(url, SourceDataFormat.JSON);
+            var data = DataReader.GetData(url, SourceDataFormat.JSON).ToList();
             //TODO convert into historical data (use JSON.net)
-            if (data != null)
+            if (data != null && data.Count > 0)
             {
                 var result = JsonConvert.DeserializeObject<BarchartHistoricalData>(data.First());
                 if (result != null && result.results != null)

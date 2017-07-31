@@ -179,10 +179,11 @@ namespace InvestmentBuilder
                     throw new ApplicationException(string.Format("BuildInvestmentRecords: no previous valuation date for {0}. please investigate!!!", account));
                 }
 
+                var dtPrevious = previousValuation.Value;
                 var company = investment.Name;
                 //Console.WriteLine("updating company {0}", company);
                 //now copy the last row into a new row and update
-                investment.UpdateRow(valuationDate, previousValuation.Value);
+                investment.UpdateRow(valuationDate, dtPrevious);
                 var sellTrade = aggregatedSells.FirstOrDefault(x => company.Equals(x.Name, StringComparison.CurrentCultureIgnoreCase));
                 if (sellTrade != null)
                 {
@@ -211,9 +212,10 @@ namespace InvestmentBuilder
                     aggregatedBuys = aggregatedBuys.Where(x => x != trade).ToList();
                 }
 
-                //update any dividend 
+                //update any dividend. do not add dividend if just rerunning current valuation because
+                //the divididend field is accumulative
                 double dDividend;
-                if (cashData!= null && cashData.Dividends.TryGetValue(company, out dDividend))
+                if((valuationDate.Date > dtPrevious.Date) && cashData!= null && cashData.Dividends.TryGetValue(company, out dDividend))
                 {
                     investment.UpdateDividend(valuationDate, dDividend);
                 }
