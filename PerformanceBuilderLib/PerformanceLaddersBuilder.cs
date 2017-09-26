@@ -9,6 +9,8 @@ using InvestmentBuilderCore;
 
 namespace PerformanceBuilderLib
 {
+    using DATE_POINT = Tuple<DateTime?, string>;
+
     /// <summary>
     /// this class builds all the different perfomance ladders that will be included in the
     /// report.
@@ -66,20 +68,19 @@ namespace PerformanceBuilderLib
         /// charts
         /// </summary>
         /// <returns></returns>
-        private IList<Tuple<DateTime?, string>> _DetermineIndexRanges(IEnumerable<HistoricalData> historicalData)
+        private IList<DATE_POINT> _DetermineIndexRanges(DateTime? startDate)
         {
             //historical data must be in ascending chronological order (oldest data first)
-            var result = new List<Tuple<DateTime?, string>>();
-            var firstRecord = historicalData != null ? historicalData.FirstOrDefault() : null; 
-            if (firstRecord != null && firstRecord.Date.HasValue)
+            var result = new List<DATE_POINT>();
+            if (startDate.HasValue)
             {
                 //add all time range
-                result.Add(new Tuple<DateTime?, string>(null, "All Time"));
+                result.Add(new DATE_POINT(null, "All Time"));
                 int previousYear = -1;
                 string description = "1 year";
                 //other indexes displayed will be for 1, 3 and 5 year, then every 5th
                 //year thereon. (i.e. 10, 15, 20 etc.)
-                while (_GetIndexRangeForYear(firstRecord.Date.Value, previousYear, description, result))
+                while (_GetIndexRangeForYear(startDate.Value, previousYear, description, result))
                 {
                     if (previousYear == -1)
                         previousYear = -3;
@@ -94,38 +95,39 @@ namespace PerformanceBuilderLib
             return result;
         }
 
-        public IList<IndexedRangeData> BuildPerformanceLadders(UserAccountToken userToken, DateTime dtValuation, ProgressCounter progress )
+        public IEnumerable<IndexedRangeData> BuildPerformanceLadders(UserAccountToken userToken, DateTime dtValuation, ProgressCounter progress )
         {
             logger.Log(LogLevel.Info, "building performance ladders");
 
             var historicalData = _historicalDataReader.GetHistoricalAccountData(userToken);
-
-            var performanceRangeList = _DetermineIndexRanges(historicalData);
-
-            progress.Initialise("building performance ladders", performanceRangeList.Count);
-            //now retrieve all historical data ladders from the market data source 
-            var allLadders = new List<IndexedRangeData>();
-            foreach (var point in performanceRangeList)
+            var firstRecord = historicalData != null ? historicalData.FirstOrDefault() : null;
+            if (firstRecord != null)
             {
-                logger.Log(LogLevel.Info, "building data ladder for {0}", point.Item2);
-
-                //Console.WriteLine("building data ladder for {0}", perfPoint.Item2);
-                var indexladder = _BuildIndexLadders(point.Item1, historicalData, userToken.Account);
-                allLadders.Add(new IndexedRangeData
+                var performanceRangeList = _DetermineIndexRanges(firstRecord.Date);
+                progress.Initialise("building performance ladders", performanceRangeList.Count);
+                //now retrieve all historical data ladders from the market data source 
+                //var allLadders = new List<IndexedRangeData>();
+                foreach (var point in performanceRangeList)
                 {
-                    MinValue = 0.8,
-                    IsHistorical = true,
-                    Name = point.Item2,
-                    Data = indexladder,
-                    Title = "Account Performance"
-                });
+                    logger.Log(LogLevel.Info, "building data ladder for {0}", point.Item2);
 
-                progress.Increment();
+                    //Console.WriteLine("building data ladder for {0}", perfPoint.Item2);
+                    var indexladder = _BuildIndexLadders(point.Item1, historicalData, userToken.Account);
+                    var result = new IndexedRangeData
+                    {
+                        MinValue = 0.8,
+                        IsHistorical = true,
+                        Name = point.Item2,
+                        Data = indexladder,
+                        Title = "Account Performance"
+                    };
+
+                    progress.Increment();
+
+                    yield return result;
+                }
             }
-
             logger.Log(LogLevel.Info, "performance data ladders complete...");
-
-            return allLadders;
         }
 
         /// <summary>
@@ -134,21 +136,31 @@ namespace PerformanceBuilderLib
         /// <param name="userToken"></param>
         /// <param name="dtValuation"></param>
         /// <returns></returns>
-        public IndexedRangeData BuildCompanyPerformanceLadders(UserAccountToken userToken, ProgressCounter progress)
+        public IEnumerable<IndexedRangeData> BuildCompanyPerformanceLadders(UserAccountToken userToken, ProgressCounter progress)
         {
             var dtValuation = _investmentRecordData.GetLatestRecordInvestmentValuationDate(userToken);
-            if (dtValuation.HasValue == false)
-                return null;
-
-            logger.Log(LogLevel.Info, "building company performance data ladders");
-            return new IndexedRangeData
+            if (dtValuation.HasValue == true)
             {
-                MinValue = 0.0,
-                IsHistorical = true,
-                Name = "Companies",
-                Data = _BuildCompanyIndexData(userToken, dtValuation.Value, progress),
-                Title = "Individual company performance (units)"
-            };
+                logger.Log(LogLevel.Info, "building company performance data ladders");
+                var companies = _userAccountData.GetActiveCompanies(userToken, dtValuation.Value).ToList();
+                var investmentRecords = _investmentRecordData.GetFullInvestmentRecordData(userToken).OrderBy(x => x.ValuationDate).ToList();
+                var firstRecord = investmentRecords.FirstOrDefault();
+                if (firstRecord != null)
+                {
+                    var performanceRangeList = _DetermineIndexRanges(firstRecord.ValuationDate);
+                    foreach (var point in performanceRangeList)
+                    {
+                        yield return new IndexedRangeData
+                        {
+                            MinValue = 0.0,
+                            IsHistorical = true,
+                            Name = point.Item2,
+                            Data = _BuildCompanyIndexData(companies, investmentRecords, point, dtValuation.Value, progress),
+                            Title = string.Format("Individual company performance (units)")
+                        };
+                    }
+                }
+            }
         }
 
         public IndexedRangeData BuildAccountDividendPerformanceLadder(UserAccountToken userToken, ProgressCounter progress)
@@ -306,18 +318,28 @@ namespace PerformanceBuilderLib
             return false;
         }
 
-        private IList<IndexData> _BuildCompanyIndexData(UserAccountToken userToken, DateTime valuationDate, ProgressCounter progress)
+        private IList<IndexData> _BuildCompanyIndexData(IList<string> companies,
+                                                        IList<CompanyData> investmentRecords,
+                                                        DATE_POINT startPoint,
+                                                        DateTime valuationDate,
+                                                        ProgressCounter progress)
         {
-            var companies = _userAccountData.GetActiveCompanies(userToken, valuationDate).ToList();
-            progress.Initialise("building company performance ladders", companies.Count);
-            var investmentRecords = _investmentRecordData.GetFullInvestmentRecordData(userToken).ToList();
+            var title = string.Format("building company performance ladders for {0}", startPoint.Item2);
+            progress.Initialise(title, companies.Count);
             var indexes = new List<IndexData>();
             foreach (var company in companies)
             {
                 DateTime dtPrevious = new DateTime();
                 var dataList = new List<HistoricalData>();
                 var index = new IndexData { Name = company };
-                var companyRecords = investmentRecords.Where(x => x.Name == company).OrderBy(x => x.ValuationDate).ToList();
+                var companyRecords = investmentRecords.Where(x => {
+                    bool match = x.Name == company;
+                    if(startPoint.Item1.HasValue == true)
+                    {
+                        return match && (x.ValuationDate >= startPoint.Item1.Value);
+                    }
+                    return match;
+                }).ToList();
                 foreach (var investment in companyRecords)
                 {
                     //where multiple records exist for a single month, just the the last one

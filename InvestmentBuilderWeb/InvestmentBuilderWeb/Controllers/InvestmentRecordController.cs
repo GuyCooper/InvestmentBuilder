@@ -58,7 +58,7 @@ namespace InvestmentBuilderWeb.Controllers
         }
 
         [HttpPost]
-        public ActionResult CreateTrade(TradeItemModel tradeItemdeserialise
+        public ActionResult CreateTrade(TradeItemModel tradeItem)
         {
             var token = _SetupAccounts(null);
             if (this.ModelState.IsValid)

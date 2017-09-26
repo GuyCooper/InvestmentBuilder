@@ -37,10 +37,10 @@ namespace PerformanceBuilderLib
             logger.Log(LogLevel.Info, "valuation date {0}", dtValuation);
 
             var ladderBuilder = new PerformanceLaddersBuilder(_settings, _dataLayer, _marketDataSource);
-            var allLadders = ladderBuilder.BuildPerformanceLadders(userToken, dtValuation, progress);
+            var allLadders = ladderBuilder.BuildPerformanceLadders(userToken, dtValuation, progress).ToList();
 
-            //now build the individual company performance ladders
-            allLadders.Insert(0, ladderBuilder.BuildCompanyPerformanceLadders(userToken, progress));
+            //now insert the individual company company
+            allLadders.InsertRange(0, ladderBuilder.BuildCompanyPerformanceLadders(userToken, progress));
 
             //now build the company dividend ladders
             allLadders.Insert(0, ladderBuilder.BuildAccountDividendPerformanceLadder(userToken, progress));
