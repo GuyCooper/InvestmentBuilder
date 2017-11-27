@@ -29,6 +29,11 @@ namespace MarketDataServices
 
         private void _addMarketDataToLookup(string name, string strPrice, string strCurrency, Dictionary<string, MarketDataPrice> lookup)
         {
+            if(lookup.ContainsKey(name) == true)
+            {
+                return;
+            }
+
             double dPrice;
             if (double.TryParse(strPrice, out dPrice))
             {
@@ -74,7 +79,7 @@ namespace MarketDataServices
                 string line;
                 while((line = reader.ReadLine()) != null)
                 {
-                    var elems = line.Split(',');
+                    var elems = line.Split(';');
                     if(elems.Length > 2)
                     {
                         if (elems[0].Equals("M", StringComparison.CurrentCultureIgnoreCase) == true)

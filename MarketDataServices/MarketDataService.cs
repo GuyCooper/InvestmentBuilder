@@ -79,6 +79,11 @@ namespace MarketDataServices
                     return false;
                 }
                 dClosing = marketData.Price;
+
+                if(dClosing == 0d)
+                {
+                    return false;
+                }
                 if (marketData.Currency != null)
                 {
                     localCurrency = marketData.Currency;

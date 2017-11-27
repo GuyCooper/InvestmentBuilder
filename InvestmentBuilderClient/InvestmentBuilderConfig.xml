@@ -9,7 +9,7 @@
       <exchange>LSE</exchange>
       <source>Barchart</source>
 		</index>-->
-    <index>
+    <!--<index>
 			<name>FTSE 100</name>
 			<symbol>^FTSE</symbol>
 		</index>
@@ -27,7 +27,7 @@
     <index>
       <name>EuroNext 100</name>
       <symbol>^N100</symbol>
-    </index>
+    </index>-->
 
   </indexes>
   <formats>

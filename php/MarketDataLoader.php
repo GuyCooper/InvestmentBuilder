@@ -21,9 +21,9 @@ $fout = fopen($outfile,'w');
 
  //now process FX instruments
 //processSymbol("VOD.L", $fout);
-processFX("EURGBP=X", $fout);
-processFX("USDGBP=X", $fout);
-processFX("CHFGBP=X", $fout);
+processFX("EURGBP", $fout);
+processFX("USDGBP", $fout);
+processFX("CHFGBP", $fout);
 
 fclose($fout);
 	
@@ -34,7 +34,7 @@ function processInstrument($symbol, $outfile) {
 	$url=sprintf("https://uk.finance.yahoo.com/quote/%s?p=%s", $symbol, $symbol);	
 	$result = processData($url);
 	if($result != null) {
-		$resultData =  sprintf("M,%s,%s,%s\r\n", $symbol,$result["price"], $result["currency"]);	
+		$resultData =  sprintf("M;%s;%s;%s\r\n", $symbol,$result["price"], $result["currency"]);	
 		displayResult('results', $resultData);
 		fwrite($outfile, $resultData);	
 	}
@@ -44,10 +44,10 @@ function processFX($symbol, $outfile) {
 
 	printf("loading data for FX symbol %s\n", $symbol);	
 
-	$url=sprintf("https://uk.finance.yahoo.com/quote/%s?p=%s", $symbol, $symbol);	
+	$url=sprintf("https://uk.finance.yahoo.com/quote/%s=X?p=%s=X", $symbol, $symbol);	
 	$result = processData($url);
 	if($result != null) {
-		$resultData =  sprintf("F,%s,%s\r\n", $symbol, $result["price"]);	
+		$resultData =  sprintf("F;%s;%s\r\n", $symbol, $result["price"]);	
 		displayResult('results', $resultData);
 		fwrite($outfile, $resultData);	
 	}
