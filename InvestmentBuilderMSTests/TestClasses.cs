@@ -145,6 +145,10 @@ namespace InvestmentBuilderMSTests
             get { return string.Empty; }
         }
 
+        public virtual string MarketDatasource { get { return string.Empty; } }
+
+        public virtual string OutputCachedMarketData { get { return string.Empty; } }
+
         public virtual IEnumerable<string> ReportFormats
         {
             get { return Enumerable.Empty<string>(); }
@@ -210,7 +214,7 @@ namespace InvestmentBuilderMSTests
             throw new NotImplementedException();
         }
 
-        public IMarketDataReader DataReader { get; set; }
+        public void Initialise(IConfigurationSettings settings) { }
     }
 
     #endregion
@@ -381,6 +385,10 @@ namespace InvestmentBuilderMSTests
             }
         }
 
+        public virtual string MarketDatasource { get { return null; } }
+
+        public virtual string OutputCachedMarketData { get { return null; } }
+
         public virtual IEnumerable<string> ReportFormats
         {
             get { return null; }
@@ -451,7 +459,7 @@ namespace InvestmentBuilderMSTests
             return false;
         }
 
-        public IMarketDataReader DataReader { get; set; }
+        public void Initialise(IConfigurationSettings settings) { }
     }
 
     #endregion

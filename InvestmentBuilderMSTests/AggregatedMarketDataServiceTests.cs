@@ -66,7 +66,8 @@ namespace InvestmentBuilderMSTests
             return false;
         }
 
-        public IMarketDataReader DataReader { get; set; }
+        public void Initialise(IConfigurationSettings settings) { }
+
     }
 
     internal class TestMarketSource2 : IMarketDataSource
@@ -97,7 +98,7 @@ namespace InvestmentBuilderMSTests
             return true;
         }
 
-        public IMarketDataReader DataReader { get; set; }
+        public void Initialise(IConfigurationSettings settings) { }
     }
 
     internal class TestMarketSourceLocater : IMarketSourceLocator

@@ -161,7 +161,10 @@ namespace InvestmentReportGenerator
             }
             else
             {
-                result.Last().LastPart = true;
+                if (result.Count > 0)
+                {
+                    result.Last().LastPart = true;
+                }
             }
 
             return result;

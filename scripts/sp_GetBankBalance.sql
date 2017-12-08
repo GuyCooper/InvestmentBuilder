@@ -1,5 +1,3 @@
-USE [InvestmentBuilderTest2]
-GO
 
 /****** Object:  StoredProcedure [dbo].[sp_GetBankBalance]    Script Date: 04/02/2016 17:47:46 ******/
 SET ANSI_NULLS ON

@@ -67,6 +67,7 @@ namespace MarketDataServices
         }
         public int Priority { get { return 10; } }
 
-        public IMarketDataReader DataReader { get; set; }
+        public void Initialise(IConfigurationSettings settings) { }
+        //public IMarketDataReader DataReader { get; set; }
     }
 }

@@ -1,5 +1,3 @@
-USE [InvestmentBuilderTest2]
-GO
 
 /****** Object:  StoredProcedure [dbo].[sp_AddCashAccountData]    Script Date: 04/02/2016 17:50:42 ******/
 SET ANSI_NULLS ON

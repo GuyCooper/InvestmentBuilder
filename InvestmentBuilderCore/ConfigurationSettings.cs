@@ -20,6 +20,8 @@ namespace InvestmentBuilderCore
         string GetTemplatePath();
         IEnumerable<Index> ComparisonIndexes { get; }
         IEnumerable<string> ReportFormats { get; }
+        string MarketDatasource { get; }
+        string OutputCachedMarketData { get; }
     }
 
     [XmlType("index")]
@@ -47,6 +49,10 @@ namespace InvestmentBuilderCore
         [XmlArray("formats")]
         [XmlArrayItem("format")]
         public string[] ReportFormats { get; set; }
+        [XmlElement("marketDataSource")]
+        public string MarketDatasourceString { get; set; }
+        [XmlElement("outputCachedMarketDataFile")]
+        public string OutputCachedMarketData { get; set; }
     }
 
     public class ConfigurationSettings : IConfigurationSettings
@@ -64,13 +70,17 @@ namespace InvestmentBuilderCore
 
         public string DatasourceString { get { return _configuration.DatasourceString; } }
 
+        public string MarketDatasource { get { return _configuration.MarketDatasourceString; } }
+
+        public string OutputCachedMarketData { get { return _configuration.OutputCachedMarketData; } }
+
         public string OutputFolder { get { return _configuration.OutputFolder; } }
 
         public IEnumerable<Index> ComparisonIndexes { get { return _configuration.IndexArray; } }
 
         public bool UpdateDatasource(string dataSource)
         {
-            if(dataSource != _configuration.DatasourceString)
+            if (dataSource != _configuration.DatasourceString)
             {
                 _configuration.DatasourceString = dataSource;
                 return true;

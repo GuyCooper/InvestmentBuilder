@@ -54,6 +54,6 @@ namespace InvestmentBuilderMSTests
             };
         }
 
-        public IMarketDataReader DataReader { get; set; }
+        public void Initialise(IConfigurationSettings settings) { }
     }
 }

@@ -62,12 +62,8 @@ namespace MarketDataServices
 
         //default constructor for MEF instantiation. requires property injection of datareader
         public BarChartMarketDataSource()
-        { 
-        }
-
-        public BarChartMarketDataSource(IMarketDataReader dataReader)
         {
-            DataReader = dataReader;
+            DataReader = new WebMarketDataReader();
         }
 
         //responses. GetQuote()
@@ -166,6 +162,7 @@ namespace MarketDataServices
             return false;
         }
 
-        public IMarketDataReader DataReader { get; set; }
+        private IMarketDataReader DataReader { get; set; }
+        public void Initialise(IConfigurationSettings settings) { }
     }
 }

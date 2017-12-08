@@ -15,9 +15,8 @@ namespace MarketDataServices
     {
         public static void RegisterServices()
         {
-            string testDataFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "InvestmentRecordBuilder", "testMarketData.txt");
-            ContainerManager.RegisterType(typeof(IMarketDataReader), typeof(WebMarketDataReader), true);
-            ContainerManager.RegisterType(typeof(IMarketDataSerialiser), typeof(MarketDataFileSerialiser), true, testDataFile);
+            //ContainerManager.RegisterType(typeof(IMarketDataReader), typeof(WebMarketDataReader), true);
+            ContainerManager.RegisterType(typeof(IMarketDataSerialiser), typeof(MarketDataFileSerialiser), true);
             ContainerManager.RegisterType(typeof(IMarketSourceLocator), typeof(MefMarketSourceLocator), true);
             ContainerManager.RegisterType(typeof(IMarketDataSource), typeof(CachedMarketDataSource), true);
         }

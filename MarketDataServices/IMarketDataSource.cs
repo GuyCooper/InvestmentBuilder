@@ -90,9 +90,9 @@ namespace MarketDataServices
         /// </summary>
         int Priority { get; }
         /// <summary>
-        /// property setter for injecting datasource 
+        /// initialise method because of using MEF
         /// </summary>
-        IMarketDataReader DataReader { get; set; }
+        void Initialise(IConfigurationSettings settings);
     }
 
     [ContractClassFor(typeof(IMarketDataSource))]
@@ -139,6 +139,11 @@ namespace MarketDataServices
             Contract.Requires(string.IsNullOrEmpty(symbol) == false);
             marketData = null;
             return false;
+        }
+
+        public void Initialise(IConfigurationSettings settings)
+        {
+            Contract.Requires(settings != null);
         }
     }
 
