@@ -1,32 +1,47 @@
 <?php
 
-//$filename="C:\Projects\InvestmentBuilder\DOMParser\VOD.html";
-$outfile="results.txt";
-
-if($argc > 1) {
-	$outfile=$argv[1];
+//$filename="C:\Projects\InvestmentBuilder\DOMParser\VOD.html"
+if($argc < 2) {
+	echo "command line: --o:output_file --n:lookup_symbol --s:server_name --d:database_name";
+	exit();
 }
-	
-$servername="DESKTOP-JJ9QOJA\SQLEXPRESS";
-$connectionInfo = array( "Database"=>"InvestmentBuilderTest2");
 
-$symbols = loadListOfSymbols($servername, $connectionInfo);
+$allparams = parseCommandLine($argv, $argc);
+
+$servername = getArrayValue($allparams, "s", "DESKTOP-JJ9QOJA\SQLEXPRESS");
+$database = getArrayValue($allparams, "d", "InvestmentBuilderTest2");
+$findSymbol = getArrayValue($allparams, "n", null);
+$outfile= getArrayValue($allparams, "o", "results.txt");
+
+printf("server: %s\ndatabase: %s\noutput file: %s\n", $servername, $database, $outfile);
+$connectionInfo = array( "Database"=>$database);
 
 $fout = fopen($outfile,'w');
 
-//first process company instruments
- foreach($symbols as $symbol) {
-	 processInstrument(trim($symbol), $fout);
- }
-
- //now process FX instruments
-//processSymbol("VOD.L", $fout);
-processFX("EURGBP", $fout);
-processFX("USDGBP", $fout);
-processFX("CHFGBP", $fout);
+if($findSymbol != null) {
+	printf("load symbol %s\n", $findSymbol);
+	processInstrument($findSymbol, $fout);
+} 
+else {
+	printf("loading all symbols");
+	loadAllInstruments($servername, $connectionInfo, $fout);
+}
 
 fclose($fout);
-	
+
+function loadAllInstruments($servername, $connectionInfo, $fout) {
+	$symbols = loadListOfSymbols($servername, $connectionInfo);
+	//first process company instruments
+	 foreach($symbols as $symbol) {
+		 processInstrument(trim($symbol), $fout);
+	 }
+
+	 //now process FX instruments
+	//processSymbol("VOD.L", $fout);
+	processFX("EURGBP", $fout);
+	processFX("USDGBP", $fout);
+	processFX("CHFGBP", $fout);	
+}	
 function processInstrument($symbol, $outfile) {
 
 	printf("loading data for symbol %s\n", $symbol);	
@@ -218,4 +233,28 @@ function loadListOfSymbols($servername, $connectionInfo) {
 	}
 	return $result;	
 }
+
+function parseCommandLine($argv, $argc) {
+	$result = array();	
+	for($i = 0; $i < $argc; $i++) {
+		$entry = $argv[$i];
+		printf("%s\n", $entry );		
+		
+		if(strncmp($entry, "--", 2) == 0) {
+			$param = substr($entry,2);	
+			$pos = strpos($param, ':');
+			if($pos !== false) {
+				$name = substr($param, 0, $pos);
+				$value = substr($param, $pos+1);
+				$result[$name] = $value;
+			}
+		}
+	}
+	return $result;
+} 
+
+function getArrayValue($arr, $key, $default) {
+	return is_null($arr[$key]) ?  $default : $arr[$key];
+}
+
 ?>

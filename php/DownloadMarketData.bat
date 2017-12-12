@@ -1,6 +1,7 @@
 pushd
 
-php MarketDataLoader.php "C:\Users\guy\AppData\Roaming\InvestmentRecordBuilder\testMarketData.txt"
+set outfile=%APPDATA%\InvestmentRecordBuilder\yahooMarketData.txt
+php MarketDataLoader.php --o:%outfile%
 
 pause
 

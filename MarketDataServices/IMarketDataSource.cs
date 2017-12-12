@@ -93,6 +93,14 @@ namespace MarketDataServices
         /// initialise method because of using MEF
         /// </summary>
         void Initialise(IConfigurationSettings settings);
+        /// <summary>
+        /// asynchronously request a price from the data source
+        /// </summary>
+        /// <param name="symbol"></param>
+        /// <param name="exchange"></param>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        Task<MarketDataPrice> RequestPrice(string symbol, string exchange, string source);
     }
 
     [ContractClassFor(typeof(IMarketDataSource))]
@@ -144,6 +152,11 @@ namespace MarketDataServices
         public void Initialise(IConfigurationSettings settings)
         {
             Contract.Requires(settings != null);
+        }
+
+        public Task<MarketDataPrice> RequestPrice(string symbol, string exchange, string source)
+        {
+            return null;
         }
     }
 

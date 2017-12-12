@@ -89,5 +89,18 @@ namespace MarketDataServices
         public int Priority { get { return 0; } }
 
         public void Initialise(IConfigurationSettings settings) { }
+
+        public async Task<MarketDataPrice> RequestPrice(string symbol, string exchange, string source)
+        {
+            foreach (var dataSource in _GetOrderedDataSources(source))
+            {
+                var marketData = await dataSource.RequestPrice(symbol, exchange, source); 
+                if(marketData !=  null)
+                {
+                    return marketData;
+                }
+            }
+            return null;
+        }
     }
 }

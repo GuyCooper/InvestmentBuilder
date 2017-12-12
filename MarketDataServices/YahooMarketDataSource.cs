@@ -27,5 +27,37 @@ namespace MarketDataServices
 
         public override int Priority { get { return 1; } }
 
+        public override Task<MarketDataPrice> RequestPrice(string symbol, string exchange, string source)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                MarketDataPrice price = null;
+                //first check if price is already stored. no point in requesting again
+                if(TryGetMarketData(symbol, exchange, source, out price) == true)
+                {
+                    //it is, just return stored price
+                    return price;
+                }
+
+                //run external php script to download price
+                var outputFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "InvestmentRecordBuilder", "result.txt");
+                File.Delete(outputFile);
+                var process = new System.Diagnostics.Process();
+                process.StartInfo.FileName = "php.exe";
+                process.StartInfo.Arguments = string.Format(@"MarketDataLoader.php --n:{0} --o:{1}", symbol, outputFile);
+                process.StartInfo.CreateNoWindow = false;
+                process.StartInfo.ErrorDialog = true;
+                process.StartInfo.UseShellExecute = true;
+                process.StartInfo.WorkingDirectory = @"C:\Projects\InvestmentBuilder\php";
+                process.Start();
+                process.WaitForExit();
+
+                //add result to cache
+                ProcessFileName(outputFile);
+                //now retrieve the newly found price and return it
+                TryGetMarketData(symbol, exchange, source, out price);
+                return price;
+            });
+        }
     }
 }

@@ -16,7 +16,7 @@ namespace InvestmentBuilderClient
 {
     static class Program
     {
-        static bool UseTestDatasource = true;
+        static bool UseTestDatasource = false;
         /// <summary>
         /// The main entry point for the application.
         /// </summary>

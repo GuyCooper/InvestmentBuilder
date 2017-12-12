@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using InvestmentBuilderCore;
+using NLog;
 
 namespace MarketDataServices
 {
@@ -19,10 +20,11 @@ namespace MarketDataServices
     /// </summary>
     public class TestFileMarketDataSource : IMarketDataSource, IDisposable
     {
-   
         private Dictionary<string, MarketDataPrice> _marketDataLookup = new Dictionary<string, MarketDataPrice>();
         private Dictionary<string, double> _fxDataLookup = new Dictionary<string, double>();
         private Dictionary<string, IList<HistoricalData>> _historicalDataLookup = new Dictionary<string, IList<HistoricalData>>();
+
+        private static Logger logger = LogManager.GetCurrentClassLogger();
 
         //private const string _testDataPath = @"C:\Projects\TestData\InvestmentBuilder";
         //private const string _testDataFile = "testMarketData.txt";
@@ -89,36 +91,47 @@ namespace MarketDataServices
             InitialiseFromFile(settings.MarketDatasource);
         }
 
+        protected void ProcessFileName(string filename)
+        {
+            if(File.Exists(filename) == false)
+            {
+                logger.Log(LogLevel.Error, "file does not exist: {0}", filename);
+                return;
+            }
+
+            using (var reader = new StreamReader(filename))
+            {
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    var elems = line.Split(';');
+                    if (elems.Length > 2)
+                    {
+                        if (elems[0].Equals("M", StringComparison.CurrentCultureIgnoreCase) == true)
+                        {
+                            if (elems.Length > 3)
+                            {
+                                _addMarketDataToLookup(elems[1], elems[2], elems[3], _marketDataLookup);
+                            }
+                        }
+                        else if (elems[0].Equals("F", StringComparison.CurrentCultureIgnoreCase) == true)
+                        {
+                            _addDataToLookup(elems[1], elems[2], _fxDataLookup);
+                        }
+                        else if (elems[0].Equals("H", StringComparison.CurrentCultureIgnoreCase) == true)
+                        {
+                            _AddDataToHistoricalLookup(elems[1], elems[2]);
+                        }
+                    }
+                }
+            }
+        }
+
         private void InitialiseFromFile(string filename)
         {
             if (_marketDataLookup.Count == 0)
             {
-                using (var reader = new StreamReader(filename))
-                {
-                    string line;
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        var elems = line.Split(';');
-                        if (elems.Length > 2)
-                        {
-                            if (elems[0].Equals("M", StringComparison.CurrentCultureIgnoreCase) == true)
-                            {
-                                if (elems.Length > 3)
-                                {
-                                    _addMarketDataToLookup(elems[1], elems[2], elems[3], _marketDataLookup);
-                                }
-                            }
-                            else if (elems[0].Equals("F", StringComparison.CurrentCultureIgnoreCase) == true)
-                            {
-                                _addDataToLookup(elems[1], elems[2], _fxDataLookup);
-                            }
-                            else if (elems[0].Equals("H", StringComparison.CurrentCultureIgnoreCase) == true)
-                            {
-                                _AddDataToHistoricalLookup(elems[1], elems[2]);
-                            }
-                        }
-                    }
-                }
+                ProcessFileName(filename);
             }
         }
 
@@ -200,6 +213,19 @@ namespace MarketDataServices
         }
 
         public virtual int Priority { get { return 5; } }
+
+        public virtual Task<MarketDataPrice> RequestPrice(string symbol, string exchange, string source)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                MarketDataPrice price;
+                if (TryGetMarketData(symbol, exchange, source, out price) == true)
+                {
+                    return price;
+                }
+                return null;
+            });
+        }
 
         //public IMarketDataReader DataReader { get; set; }
 

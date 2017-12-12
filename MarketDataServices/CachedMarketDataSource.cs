@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NLog;
 using InvestmentBuilderCore;
+using System.Threading.Tasks;
 
 namespace MarketDataServices
 {
@@ -174,5 +175,15 @@ namespace MarketDataServices
         public void Initialise(IConfigurationSettings settings) { }
 
         //public IMarketDataReader DataReader { get; set; }
+        public async Task<MarketDataPrice> RequestPrice(string symbol, string exchange, string source)
+        {
+            var marketData = await _sourceMarketData.RequestPrice(symbol, exchange, source);
+            if(marketData != null)
+            {
+                _marketDataPriceCache.Add(symbol + exchange, marketData);
+            }
+            return marketData;
+        }
     }
+
 }
