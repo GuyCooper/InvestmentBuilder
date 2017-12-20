@@ -63,5 +63,5 @@ sqlcmd -S %ServerName% -E -d %DBName% -i sp_UpdateMemberForAccount.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_UpdateMembersCapitalAccount.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_updateRedemption.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_UpdateValuationTable.sql
-
+sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddHistoricalData.sql
 popd

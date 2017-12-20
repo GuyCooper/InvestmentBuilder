@@ -204,6 +204,14 @@ create index IDX_Redemptions on
 dbo.Redemptions([member_id], [transaction_date])
 go
 
+create table dbo.HistoricalData
+(
+	[Name]			  varchar(50) not null,
+	[Symbol]		  varchar(15),
+	[Data]			  Text
+)
+go
+
 /* side: P = Payments (right hand side), R = Receipts (left hand side) */
 insert into dbo.TransactionType ([type], side) values ('Admin Fee', 'P')
 insert into dbo.TransactionType ([type], side) values ('Purchase', 'P')

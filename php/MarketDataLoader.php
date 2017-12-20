@@ -2,7 +2,7 @@
 
 //$filename="C:\Projects\InvestmentBuilder\DOMParser\VOD.html"
 if($argc < 2) {
-	echo "command line: --o:output_file --n:lookup_symbol --s:server_name --d:database_name";
+	echo "command line: --o:output_file --a:(1:0)all_symbols --n:lookup_symbol --h:(1:0)historical_data --s:server_name --d:database_name";
 	exit();
 }
 
@@ -12,6 +12,8 @@ $servername = getArrayValue($allparams, "s", "DESKTOP-JJ9QOJA\SQLEXPRESS");
 $database = getArrayValue($allparams, "d", "InvestmentBuilderTest2");
 $findSymbol = getArrayValue($allparams, "n", null);
 $outfile= getArrayValue($allparams, "o", "results.txt");
+$all= getArrayValue($allparams, "a", "0") === "1";
+$historical= getArrayValue($allparams, "h", "0") === "1";
 
 printf("server: %s\ndatabase: %s\noutput file: %s\n", $servername, $database, $outfile);
 $connectionInfo = array( "Database"=>$database);
@@ -22,12 +24,18 @@ if($findSymbol != null) {
 	printf("load symbol %s\n", $findSymbol);
 	processInstrument($findSymbol, $fout);
 } 
-else {
-	printf("loading all symbols");
+
+if($all){
+	printf("loading all symbols\n");
 	loadAllInstruments($servername, $connectionInfo, $fout);
 }
 
 fclose($fout);
+
+if($historical) {
+	echo "updating historical prices\n";
+	updateHistoricalData($servername, $connectionInfo);
+}
 
 function loadAllInstruments($servername, $connectionInfo, $fout) {
 	$symbols = loadListOfSymbols($servername, $connectionInfo);
@@ -42,6 +50,7 @@ function loadAllInstruments($servername, $connectionInfo, $fout) {
 	processFX("USDGBP", $fout);
 	processFX("CHFGBP", $fout);	
 }	
+
 function processInstrument($symbol, $outfile) {
 
 	printf("loading data for symbol %s\n", $symbol);	
@@ -75,7 +84,7 @@ function processData($url) {
 	# Parse the HTML from Google.
 	# The @ before the method call suppresses any warnings that
 	# loadHTML might throw because of invalid HTML in the page.
-
+	
 	$data=loadUrl($url);
 	if($data == false) {
 		printf("failed to load url %s.\n", $url);
@@ -255,6 +264,67 @@ function parseCommandLine($argv, $argc) {
 
 function getArrayValue($arr, $key, $default) {
 	return is_null($arr[$key]) ?  $default : $arr[$key];
+}
+
+function updateHistoricalData($servername, $connectionInfo) {
+	$conn = sqlsrv_connect($servername, $connectionInfo);
+
+	if( $conn === false ) {
+		 die( print_r( sqlsrv_errors(), true));
+	}
+
+	// $ftse = https://uk.finance.yahoo.com/quote/^FTSE?p=^FTSE
+	// $nasdaq = // $ftse = https://uk.finance.yahoo.com/quote/%5ENDX?p=%5ENDX
+	// $SandP = "https://uk.finance.yahoo.com/quote/%5ESPX?p=^SPX";
+	// eurostoxx50 = https://uk.finance.yahoo.com/quote/%5ESTOXX50E?p=%5ESTOXX50E
+	
+	
+	echo "connection ok!\n";
+	echo "updating historical data\n";
+	
+	$sql = "select * from HistoricalData";
+
+	$stmt = sqlsrv_query( $conn, $sql);
+	if( $stmt === false ) {
+		 die( print_r( sqlsrv_errors(), true));
+	}
+
+	$indexes = array();
+	$row = sqlsrv_fetch( $stmt );
+	while($row != null) {
+		$symbol = sqlsrv_get_field( $stmt, 1);
+		$data = sqlsrv_get_field( $stmt, 2);
+		
+		$indexes[$symbol] = $data;
+		
+		$row = sqlsrv_fetch( $stmt );
+		
+		if($row === false) {
+			die( print_r( sqlsrv_errors(), true));
+		}
+	}
+
+	$today = date("m/d/Y");
+	foreach ($indexes as $key => $val) {
+		$url= "https://uk.finance.yahoo.com/quote/%5E" . $key . "?p=^" .$key;	
+		$result = processData($url);
+		if($result != null) {
+			$newPrice = sprintf("{date: \"%s\", price: \"%s\"}", $today, $result["price"]);
+			$updatedData = rtrim($val, "]") . "," . $newPrice . "]";
+			
+			printf("updated data: %s\n", $updatedData);
+			
+			$sql="exec sp_AddHistoricalData ? , ? , ?";
+			$params = array("", $key, $updatedData);
+			$stmt = sqlsrv_query( $conn, $sql, $params);
+			if( $stmt === false ) {
+				 die( print_r( sqlsrv_errors(), true));
+			}
+		}
+	}
+		
+	sqlsrv_close($conn);	 
+		//download
 }
 
 ?>
