@@ -22,14 +22,12 @@ namespace PerformanceBuilderLib
         private IHistoricalDataReader _historicalDataReader;
         private IInvestmentRecordInterface _investmentRecordData;
         private IUserAccountInterface _userAccountData;
-        private IMarketDataSource _marketDataSource;
 
-        public PerformanceLaddersBuilder(IConfigurationSettings settings, IDataLayer dataLayer, IMarketDataSource marketDataSource)
+        public PerformanceLaddersBuilder(IConfigurationSettings settings, IDataLayer dataLayer)
         {
             _historicalDataReader = dataLayer.HistoricalData;
             _investmentRecordData = dataLayer.InvestmentRecordData;
             _userAccountData = dataLayer.UserAccountData;
-            _marketDataSource = marketDataSource;
             _settings = settings;
         }
 
@@ -112,7 +110,7 @@ namespace PerformanceBuilderLib
                     logger.Log(LogLevel.Info, "building data ladder for {0}", point.Item2);
 
                     //Console.WriteLine("building data ladder for {0}", perfPoint.Item2);
-                    var indexladder = _BuildIndexLadders(point.Item1, historicalData, userToken.Account);
+                    var indexladder = _BuildIndexLadders(userToken, point.Item1, historicalData, userToken.Account);
                     var result = new IndexedRangeData
                     {
                         MinValue = 0.8,
@@ -253,7 +251,7 @@ namespace PerformanceBuilderLib
         /// <param name="startDate"></param>
         /// <param name="indexes"></param>
         /// <returns></returns>
-        private IList<IndexData> _BuildIndexLadders(DateTime? startDate, IEnumerable<HistoricalData> historicalData, string account)
+        private IList<IndexData> _BuildIndexLadders(UserAccountToken userToken, DateTime? startDate, IEnumerable<HistoricalData> historicalData, string account)
         {
             //first get club history
             //var clubData = _GetClubData().OrderBy(x => x.Date).ToList();
@@ -285,7 +283,7 @@ namespace PerformanceBuilderLib
             //all comparison indexes must have the same item count as the club index
             _settings.ComparisonIndexes.ToList().ForEach(index =>
             {
-                var indexedData = _marketDataSource.GetHistoricalData(index.Symbol, index.Exchange, index.Source, dtFirstDate);
+                var indexedData = _historicalDataReader.GetIndexHistoricalData(userToken, index.Symbol, dtFirstDate).ToList();
                 if (indexedData != null)
                 {
                     var rebasedIndexedData = RebaseDataList(indexedData, null).ToList();

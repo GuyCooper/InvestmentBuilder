@@ -58,3 +58,8 @@ packages
  
 /InvestmentBuilderWeb/InvestmentBuilderWeb/Content/InvestmentBuilderWeb - Copy.css
 /php/result.txt
+/php/EUROSTOXXRAW.log
+/php/DAXRaw.log
+/php/HangSengRaw.log
+/php/Nikkei225Raw.log
+/php/ShanghaiCompRaw.log

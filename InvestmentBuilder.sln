@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestmentBuilderMSTests", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestmentReportGenerator", "InvestmentReportGenerator\InvestmentReportGenerator.csproj", "{67E92F66-3A85-4122-8D1E-DCFD499C64BF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestmentBuilderService", "InvestmentBuilderService\InvestmentBuilderService.csproj", "{77D2520C-6C3E-4D55-B20A-9FCD5714A97D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -77,6 +79,10 @@ Global
 		{67E92F66-3A85-4122-8D1E-DCFD499C64BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{67E92F66-3A85-4122-8D1E-DCFD499C64BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{67E92F66-3A85-4122-8D1E-DCFD499C64BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77D2520C-6C3E-4D55-B20A-9FCD5714A97D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77D2520C-6C3E-4D55-B20A-9FCD5714A97D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77D2520C-6C3E-4D55-B20A-9FCD5714A97D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77D2520C-6C3E-4D55-B20A-9FCD5714A97D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

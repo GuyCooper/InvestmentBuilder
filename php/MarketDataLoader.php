@@ -277,6 +277,10 @@ function updateHistoricalData($servername, $connectionInfo) {
 	// $nasdaq = // $ftse = https://uk.finance.yahoo.com/quote/%5ENDX?p=%5ENDX
 	// $SandP = "https://uk.finance.yahoo.com/quote/%5ESPX?p=^SPX";
 	// eurostoxx50 = https://uk.finance.yahoo.com/quote/%5ESTOXX50E?p=%5ESTOXX50E
+	// hang seng = https://uk.finance.yahoo.com/quote/%5EHSI?p=^HSI
+	// nikkei 225 = https://uk.finance.yahoo.com/quote/%5EN225?p=^N225
+	// DAX = https://uk.finance.yahoo.com/quote/%5EGDAXI?p=^GDAXI
+	
 	
 	
 	echo "connection ok!\n";

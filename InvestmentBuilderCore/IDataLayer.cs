@@ -108,5 +108,6 @@ namespace InvestmentBuilderCore
     public interface IHistoricalDataReader
     {
         IEnumerable<HistoricalData> GetHistoricalAccountData(UserAccountToken userToken);
+        IEnumerable<HistoricalData> GetIndexHistoricalData(UserAccountToken userToken, string symbol, DateTime? dtFrom);
     }
 }

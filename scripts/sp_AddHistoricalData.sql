@@ -11,7 +11,7 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_AddHistoricalData](@Name as VARCHAR(20), @Symbol as VARCHAR(50), @Data as TEXT) AS
+CREATE PROCEDURE [dbo].[sp_AddHistoricalData](@Name as VARCHAR(50), @Symbol as VARCHAR(15), @Data as TEXT) AS
 BEGIN
 	IF EXISTS(SELECT 1 FROM [HistoricalData] WHERE [Symbol] = @Symbol)
 	BEGIN

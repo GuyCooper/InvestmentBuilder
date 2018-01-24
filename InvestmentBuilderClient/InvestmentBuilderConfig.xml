@@ -5,32 +5,34 @@
   <marketDataSource>C:\Users\guy\AppData\Roaming\InvestmentRecordBuilder\yahooMarketData.txt</marketDataSource>
   <outputCachedMarketDataFile>C:\Users\guy\AppData\Roaming\InvestmentRecordBuilder\CachedData.txt</outputCachedMarketDataFile>
   <indexes>
-		<!--<index>
+		<index>
 			<name>FTSE 100</name>
-			<symbol>ISF</symbol>
-      <exchange>LSE</exchange>
-      <source>Barchart</source>
-		</index>-->
-    <!--<index>
-			<name>FTSE 100</name>
-			<symbol>^FTSE</symbol>
+			<symbol>FTSE</symbol>
 		</index>
-
     <index>
-			<name>S and P 500 </name>
-			<symbol>^GSPC</symbol>
+			<name>S and P 500</name>
+			<symbol>SPX</symbol>
 		</index>
-
     <index>
-      <name>Nasdaq</name>
-      <symbol>^IXIC</symbol>
+			<name>Nasdaq</name>
+			<symbol>NDX</symbol>
+		</index>
+    <index>
+      <name>Dax</name>
+      <symbol>GDAXI</symbol>
     </index>
-
-    <index>
-      <name>EuroNext 100</name>
-      <symbol>^N100</symbol>
+    <!--<index>
+      <name>EuroStoxx 50</name>
+      <symbol>ESTOXX50E</symbol>
     </index>-->
-
+    <index>
+      <name>Nikkei 225</name>
+      <symbol>N225</symbol>
+    </index>
+    <index>
+      <name>Hang Seng</name>
+      <symbol>HSI</symbol>
+    </index>
   </indexes>
   <formats>
     <format>EXCEL</format>

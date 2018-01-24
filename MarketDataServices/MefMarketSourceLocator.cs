@@ -25,6 +25,8 @@ namespace MarketDataServices
             //inject all IMarketDataSource instances in this assemlby
             catalog.Catalogs.Add(new AssemblyCatalog(typeof(IMarketDataSource).Assembly));
 
+            //ContainerManager.GetContainer().RegisterCatalog(catalog);
+
             _container = new CompositionContainer(catalog);
             _container.ComposeParts(this);
 
