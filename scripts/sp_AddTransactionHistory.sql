@@ -23,8 +23,8 @@ SELECT @Company_Id = [Company_Id]
 FROM Companies
 WHERE [Name] = @company
 
-SELECT @Account_Id = [User_Id]
-FROM [Users]
+SELECT @Account_Id = [Account_Id]
+FROM [Accounts]
 WHERE [Name] = @account
 
 

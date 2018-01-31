@@ -20,21 +20,21 @@ BEGIN
 				  FROM 
 					 Members M
 				  INNER JOIN
-					 Users U
+					 Accounts A
 				  ON
-					 M.account_id = U.[User_Id]
+					 M.account_id = A.[Account_Id]
 				  WHERE 
 					 M.Name = @Member AND
-					 U.Name = @Account
+					 A.Name = @Account
 				  	 )
 	BEGIN
 		INSERT INTO MEMBERS(Name, account_id, [Authorization])
 		SELECT 
 			@Member,
-			[User_Id],
+			[Account_Id],
 			@Level
 		FROM
-			Users
+			Accounts
 		WHERE
 			Name = @Account		 
 	END
@@ -47,11 +47,11 @@ BEGIN
 	FROM
 		Members M
 	INNER JOIN
-		Users U
+		Accounts A
 	ON
-		M.account_id = U.[User_Id]
+		M.account_id = A.[Account_Id]
 	WHERE
 		M.Name = @Member AND
-		U.Name = @Account
+		A.Name = @Account
 		
 END

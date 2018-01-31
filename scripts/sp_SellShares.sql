@@ -25,8 +25,8 @@ FROM Companies
 WHERE [Name] = @company
 
 --get the accountid
-SELECT @AccountID = [User_Id]
-FROM [Users]
+SELECT @AccountID = [Account_Id]
+FROM [Accounts]
 WHERE [Name] = @account
 
 --get the current quantity of shares

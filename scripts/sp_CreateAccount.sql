@@ -15,31 +15,28 @@ CREATE PROCEDURE sp_CreateAccount(@Name AS VARCHAR(30)
 								  ,@Currency AS CHAR(3)
 								  ,@AccountType AS VARCHAR(50)
 								  ,@Enabled AS TINYINT					   
-								  ,@Password AS VARCHAR(1024)
 								  ,@Description AS VARCHAR(1024) = NULL
 								  ,@Broker AS VARCHAR(30) = NULL
 								  ) AS
 BEGIN
 
-IF NOT EXISTS (SELECT 1 FROM Users WHERE Name = @Name)
+IF NOT EXISTS (SELECT 1 FROM Accounts WHERE Name = @Name)
 BEGIN
-	INSERT INTO dbo.Users 
+	INSERT INTO dbo.Accounts 
 	SELECT @Name,
-		   @Password,
 		   @Description,
 		   @Currency,
 		   [Type_Id],
 		   0,
 		   @Broker
 	FROM
-		   dbo.UserTypes
+		   dbo.AccountTypes
 	WHERE
 		   [Type] = @AccountType
 END
 
-	UPDATE dbo.Users
+	UPDATE dbo.Accounts
 	SET 
-		[Password] = @Password,
 		[Description] = @Description,
 		[Currency] = @Currency,
 		[Enabled] = @Enabled,

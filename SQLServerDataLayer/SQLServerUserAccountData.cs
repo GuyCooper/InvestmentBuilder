@@ -297,7 +297,6 @@ namespace SQLServerDataLayer
                 sqlCommand.Parameters.Add(new SqlParameter("@Currency", account.ReportingCurrency));
                 sqlCommand.Parameters.Add(new SqlParameter("@AccountType", account.Type));
                 sqlCommand.Parameters.Add(new SqlParameter("@Enabled", account.Enabled));
-                sqlCommand.Parameters.Add(new SqlParameter("@Password", account.Password));
                 sqlCommand.Parameters.Add(new SqlParameter("@Description", account.Description));
                 sqlCommand.Parameters.Add(new SqlParameter("@Broker", account.Broker));
                 sqlCommand.ExecuteNonQuery();
@@ -318,7 +317,7 @@ namespace SQLServerDataLayer
                         //var obj = reader["Enabled"];
                         return new AccountModel(GetDBValue<string>("Name", reader),
                                                 GetDBValue<string>("Description", reader),
-                                                GetDBValue<string>("Password", reader),
+                                                null,
                                                 GetDBValue<string>("Currency", reader),
                                                 GetDBValue<string>("Type", reader),
                                                 (byte)reader["Enabled"] != 0 ? true : false,

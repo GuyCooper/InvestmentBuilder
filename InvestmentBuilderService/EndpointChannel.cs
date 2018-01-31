@@ -12,7 +12,11 @@ namespace InvestmentBuilderService
     //base class for all Dtos
     internal class Dto
     {
-        public string Name { get; set; }
+        public string Name { get; private set; }
+        public Dto()
+        {
+            Name = this.GetType().Name;
+        }
     }
 
     //base class for reponse Dtos

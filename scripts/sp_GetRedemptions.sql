@@ -21,11 +21,11 @@ INNER JOIN	Members M
 ON
 	R.[member_id] = M.[Member_Id]
 INNER JOIN
-	Users U
+	Accounts A
 ON
-	M.account_id = U.[User_Id]
+	M.account_id = A.[Account_Id]
 WHERE
-	U.[Name] = @Account					  
+	A.[Name] = @Account					  
 AND
 	R.[transaction_date] > @TransactionDate 
 END

@@ -23,9 +23,9 @@ FROM
 INNER JOIN 
 	Companies C ON IR.Company_id = C.Company_Id
 INNER JOIN
-	Users U ON IR.account_id = U.[User_Id]
+	Accounts A ON IR.account_id = A.[Account_Id]
 WHERE 
 	IR.Valuation_Date = @previousDate AND
 	C.Name = @company AND
-	U.Name = @account
+	A.Name = @account
 END

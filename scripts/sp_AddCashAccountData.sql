@@ -24,13 +24,13 @@ SELECT
 	t.[type_id],
 	@Parameter,
 	@Amount,
-	u.[user_id]
+	a.[Account_Id]
 FROM
-	TransactionType t, Users u 
+	TransactionType t, Accounts a
 WHERE
 	t.[type] = @TransactionType 
 AND
-	u.Name = @Account		
+	a.Name = @Account		
 
 
 

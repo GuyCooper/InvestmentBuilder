@@ -19,9 +19,9 @@ BEGIN
 DECLARE @AccountID INT
 
 SELECT
-	 @AccountID = [User_Id]
+	 @AccountID = [Account_Id]
 FROM 
-	Users
+	Accounts
 WHERE
 	Name = @Account
 

@@ -56,9 +56,14 @@
   <ItemGroup>
     <Compile Include="AccountService.cs" />
     <Compile Include="CashFlowManager.cs" />
+    <Compile Include="ChannelEndpointManager.cs" />
+    <Compile Include="Channels\AddTransactionChannel.cs" />
     <Compile Include="Channels\BuildReportChannel.cs" />
+    <Compile Include="Channels\CheckBuildStatusChannel.cs" />
+    <Compile Include="Channels\DeleteTransactionChannel.cs" />
     <Compile Include="Channels\GetCashFlowChannel.cs" />
     <Compile Include="Channels\GetRecentValutationDatesChannel.cs" />
+    <Compile Include="Channels\GetTransactionParametersChannel.cs" />
     <Compile Include="Channels\LoadReportChannel.cs" />
     <Compile Include="Channels\SellTradeRequestChannel.cs" />
     <Compile Include="Channels\UpdateTradeChannel.cs" />
@@ -76,6 +81,9 @@
     <Compile Include="Channels\UpdateAccountEndpointChannel.cs" />
     <Compile Include="Translators\Translators.cs" />
     <Compile Include="UserSession.cs" />
+    <Compile Include="UserSessionManager.cs" />
+    <Compile Include="Utils\BuildReportMonitor.cs" />
+    <Compile Include="Utils\SaltedHash.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -88,6 +96,10 @@
     <ProjectReference Include="..\InvestmentBuilderLib\InvestmentBuilderLib.csproj">
       <Project>{9fa7e2cc-b5c6-463b-856a-e0e21eff93e4}</Project>
       <Name>InvestmentBuilderLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PerformanceBuilderLib\PerformanceBuilderLib.csproj">
+      <Project>{a69b4e7e-44c1-4c52-9c86-5c1148131c79}</Project>
+      <Name>PerformanceBuilderLib</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

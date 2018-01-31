@@ -1,16 +1,16 @@
 use master
 
-if exists(select 1 from sysdatabases where name = 'InvestmentBuilderUnitTest')
+if exists(select 1 from sysdatabases where name = 'InvestmentBuilderUnitTest1')
 begin
-	drop database InvestmentBuilderUnitTest
+	drop database InvestmentBuilderUnitTest1
 end
 
 go
 
-create database InvestmentBuilderUnitTest
+create database InvestmentBuilderUnitTest1
 go
 
-use InvestmentBuilderUnitTest
+use InvestmentBuilderUnitTest1
 go
 
 create table dbo.TransactionType
@@ -20,18 +20,17 @@ create table dbo.TransactionType
 	[side]			  char(1) not null,
 )
 
-create table dbo.UserTypes
+create table dbo.AccountTypes
 (
 	[Type_Id] int identity primary key clustered,
 	[Type] varchar(50) not null,
 	constraint UN_UserTypeName unique([Type])
 )
 
-create table dbo.Users
+create table dbo.Accounts
 (
-	[User_Id] int identity primary key clustered,
+	[Account_Id] int identity primary key clustered,
 	[Name]			  varchar(30) not null,
-	[Password]		  varchar(1024) not null,
 	[Description]	  varchar(1024) null,
 	[Currency]		  char(3) not null,
 	[Type_Id]		  int not null,
@@ -40,12 +39,12 @@ create table dbo.Users
 
 	constraint UN_UserName unique([Name]),
 
-	constraint FK_UserType_User foreign key
-	([Type_Id]) references UserTypes([Type_Id])
+	constraint FK_AccountType_User foreign key
+	([Type_Id]) references AccountTypes([Type_Id])
 )
 
-insert into dbo.UserTypes ([Type]) values ('Club')
-insert into dbo.UserTypes ([Type]) values ('Personal')
+insert into dbo.AccountTypes ([Type]) values ('Club')
+insert into dbo.AccountTypes ([Type]) values ('Personal')
 go
 
 create table Administrators
@@ -177,7 +176,7 @@ create table dbo.TransactionHistory
 	[user] varchar(50)
 
 	constraint FK_accountid_TransactionHistory foreign key
-	([account_id]) references Users([User_Id]),
+	([account_id]) references Accounts([Account_Id]),
 
 	constraint FK_companyid_TransactionHistory foreign key
 	([company_id]) references Companies([Company_Id])

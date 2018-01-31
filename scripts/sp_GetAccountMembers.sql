@@ -19,10 +19,10 @@ SELECT
 FROM 
 	Members M
 INNER JOIN
-	Users U 
+	Accounts A
 ON
-	M.account_id = U.[User_Id]
+	M.account_id = A.[Account_Id]
 WHERE 
-	U.Name = @Account AND
+	A.Name = @Account AND
 	M.[Enabled] = 1
 END

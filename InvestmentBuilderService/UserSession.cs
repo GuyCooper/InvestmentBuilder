@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using InvestmentBuilderCore;
+using InvestmentBuilderService.Utils;
 
 namespace InvestmentBuilderService
 {
@@ -14,6 +15,7 @@ namespace InvestmentBuilderService
         public DateTime ValuationDate { get; set; }
         public string AccountName { get; set; }
         public ManualPrices UserPrices { get; set; }
+        public IBuildMonitor BuildMonitor { get; set; }
 
         public UserSession(string username, string usersessionid)
         {

@@ -18,7 +18,7 @@ BEGIN
 SELECT 
 	 Currency, [Description] , [Broker]
 FROM
-	Users
+	Accounts
 WHERE
 	Name = @Name
 END

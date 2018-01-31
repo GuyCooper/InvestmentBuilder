@@ -23,11 +23,11 @@ INNER JOIN
 ON
 	T.[company_id] = C.[company_id]
 INNER JOIN
-	[Users] U
+	Accounts A
 ON
-	T.[account_id] = U.[User_id]
+	T.[account_id] = A.[Account_id]
 WHERE
-	U.[Name] = @account
+	A.[Name] = @account
 AND
 	T.[transaction_date] >= @dateFrom
 AND

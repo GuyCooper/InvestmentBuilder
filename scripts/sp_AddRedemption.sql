@@ -19,12 +19,12 @@ SELECT member_id, @TransactionDate, @Amount, @Status
 FROM
 	Members M
 INNER JOIN 
-	Users U
+	Accounts A
 ON
-	M.[account_id] = U.[User_Id]
+	M.[account_id] = A.[Account_Id]
 WHERE
 	M.[Name] = @User
 AND
-	U.[Name] = @Account
+	A.[Name] = @Account
 
 END

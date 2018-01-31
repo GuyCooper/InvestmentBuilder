@@ -7,11 +7,10 @@ using MiddlewareNetClient;
 using Middleware;
 using Newtonsoft.Json;
 using InvestmentBuilderService.Channels;
-using InvestmentBuilderCore;
 
 namespace InvestmentBuilderService
 {
-    internal class EndpointManager
+    internal abstract class EndpointManager
     {
         private MiddlewareManager _middleware;
         private ISession _session;
@@ -20,9 +19,6 @@ namespace InvestmentBuilderService
         private string _username;
         private string _password;
 
-        private Dictionary<string, EndpointChannel<Dto>> _channels;
-        private Dictionary<string, UserSession> _userSessions;
-
         public EndpointManager(string server, string username, string password)
         {
             _logger = new ServiceLogger();
@@ -30,9 +26,6 @@ namespace InvestmentBuilderService
             _server = server;
             _username = username;
             _password = password;
-
-            _channels = new Dictionary<string, EndpointChannel<Dto>>();
-            _userSessions = new Dictionary<string, UserSession>();
         }
 
         public async Task<bool> Connect()
@@ -42,42 +35,16 @@ namespace InvestmentBuilderService
             return _session != null;
         }
 
-        public void RegisterEndpointChannels()
+        protected abstract void EndpointMessageHandler(ISession session, Middleware.Message message);
+
+        protected void SendMessageToClient(string channelName, string payload, string destination)
         {
-            ContainerManager.RegisterType(typeof(UpdateAccountEndpointChannel), typeof(UpdateAccountEndpointChannel), true);
+            _middleware.SendMessageToChannel(_session, channelName, payload, destination);
         }
-        private void EndpointMessageHandler(ISession session, Middleware.Message message)
+
+        protected ILogger GetLogger()
         {
-            if(message.Type != MessageType.REQUEST)
-            {
-                _logger.LogError(string.Format("invalid message type: {0}", message.Type));
-                return;
-            }
-
-            UserSession userSession;
-            if(_userSessions.TryGetValue(message.SourceId, out userSession) == false)
-            {
-                _logger.LogError(string.Format("unknown user for session: {0} ", message.SourceId));
-                return;
-            }
-
-            EndpointChannel<Dto> channel;
-            if(_channels.TryGetValue(message.Channel, out channel) == true)
-            {
-                Task.Factory.StartNew(() =>
-               {
-                   var requestPayload = channel.ConvertToRequestPayload(message.Payload);
-                   var responsePayload = channel.HandleEndpointRequest(userSession, requestPayload);
-                   if ((responsePayload != null) && (string.IsNullOrEmpty(channel.ResponseName) == false))
-                   {
-                       _middleware.SendMessageToChannel(session, channel.ResponseName, JsonConvert.SerializeObject(responsePayload), message.SourceId);
-                   }
-               });
-            }
-            else
-            {
-                _logger.LogError(string.Format("invalid channel : {0}", message.Channel));
-            }
+            return _logger;
         }
     }
 

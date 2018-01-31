@@ -1,14 +1,14 @@
 if exists(select 1 from dbo.sysobjects where name = 'UN_UserName')
 begin
-	alter table dbo.Users
+	alter table dbo.Accounts
 	drop constraint UN_UserName
 end
 go
 
 if exists(select 1 from dbo.sysobjects where name = 'FK_UserType_User')
 begin
-	alter table dbo.Users
-	drop constraint FK_UserType_User
+	alter table dbo.Accounts
+	drop constraint FK_AccountType_Account
 end
 go
 

@@ -22,13 +22,13 @@ CashAccount ca
 INNER JOIN TransactionType tt
 ON
 ca.type_id = tt.type_id
-INNER JOIN Users U
+INNER JOIN Accounts A
 ON
-ca.account_id = U.[User_Id]
+ca.account_id = A.[Account_Id]
 WHERE ca.valuation_date = @ValuationDate
 and ca.parameter = @Member
 and tt.[type] = 'Subscription'
-and U.Name = @Account
+and A.Name = @Account
 END
 GO
 

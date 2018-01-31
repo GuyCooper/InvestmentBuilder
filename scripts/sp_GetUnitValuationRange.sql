@@ -20,15 +20,15 @@ SELECT
 FROM
 	Valuations V
 INNER JOIN
-	Users U
+	Accounts A
 ON 
-	V.account_id = U.[User_Id]
+	V.account_id = A.[Account_Id]
 WHERE
 	Valuation_Date >= @dateFrom
 	and
 	Valuation_Date <= @dateTo
 AND
-	U.Name = @Account
+	A.Name = @Account
 END
 GO
 

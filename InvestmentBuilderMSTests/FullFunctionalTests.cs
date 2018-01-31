@@ -82,7 +82,7 @@ namespace InvestmentBuilderMSTests
 
             //first drop the unit testdatabase andrefresh it from the unit testbackup
 
-            ContainerManager.RegisterType(typeof(IConfigurationSettings), typeof(ConfigurationSettings), true, @"TestFiles\UnitTestBuilderConfig.xml");
+            ContainerManager.RegisterType(typeof(IConfigurationSettings), typeof(ConfigurationSettings), true, @"TestFiles\UnitTestBuilderConfig1.xml");
 
             m_bOk = InitialiseDatabase();
             if (m_bOk == false)
@@ -106,15 +106,15 @@ namespace InvestmentBuilderMSTests
 
         private bool InitialiseDatabase()
         {
-            var dbParams = ContainerManager.ResolveValueOnContainer<IConfigurationSettings>(_childContainer).DatasourceString.Split(';').Select(x =>
-            {
-                int i = x.IndexOf('=');
-                if (i > -1)
-                {
-                    return new KeyValuePair<string, string>(x.Substring(0, i), x.Substring(i + 1));
-                }
-                return new KeyValuePair<string, string>(x, string.Empty);
-            });
+            //var dbParams = ContainerManager.ResolveValueOnContainer<IConfigurationSettings>(_childContainer).DatasourceString.Split(';').Select(x =>
+            //{
+            //    int i = x.IndexOf('=');
+            //    if (i > -1)
+            //    {
+            //        return new KeyValuePair<string, string>(x.Substring(0, i), x.Substring(i + 1));
+            //    }
+            //    return new KeyValuePair<string, string>(x, string.Empty);
+            //});
 
             //var server = dbParams.First(x => string.Equals(x.Key, "Data Source", StringComparison.InvariantCultureIgnoreCase)).Value;
             //var database = dbParams.First(x => string.Equals(x.Key, "Initial Catalog", StringComparison.InvariantCultureIgnoreCase)).Value;
@@ -122,7 +122,7 @@ namespace InvestmentBuilderMSTests
             //Console.WriteLine("restoring unit test database against server {0}, database {1}...", server, database);
             var process = new System.Diagnostics.Process();
             //"sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddNewShares.sql"
-            process.StartInfo.FileName = @"C:\Projects\InvestmentBuilder\scripts\RebuildUnitTestDatabase.bat";
+            process.StartInfo.FileName = @"C:\Projects\InvestmentBuilder\scripts\GenerateUnitTestDatabase.bat";
             process.StartInfo.CreateNoWindow = false;
             process.StartInfo.ErrorDialog = true;
             process.StartInfo.UseShellExecute = true;

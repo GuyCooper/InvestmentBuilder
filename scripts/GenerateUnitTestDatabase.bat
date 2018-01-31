@@ -1,11 +1,12 @@
 pushd
 
 set ServerName=DESKTOP-JJ9QOJA\SQLEXPRESS
-set DBName=InvestmentBuilderUnitTest
+set DBName=master
 
 echo rebuild unit test database, server name: %ServerName%, db name: %DBName%
 
 sqlcmd -S %ServerName% -E -d %DBName% -i BuildInvestmentBuilderDatabase.sql
+set DBName=InvestmentBuilderUnitTest1
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddCashAccountData.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddNewShares.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddNewUnitValuation.sql
@@ -66,3 +67,4 @@ sqlcmd -S %ServerName% -E -d %DBName% -i sp_UpdateValuationTable.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddHistoricalData.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_GetHistoricalData.sql
 popd
+

@@ -26,8 +26,8 @@ SELECT @Type_Id = [type_id]
 FROM TransactionType
 WHERE [type] = @TransactionType
 
-SELECT @Account_Id = [User_Id]
-FROM Users
+SELECT @Account_Id = [Account_Id]
+FROM Accounts
 WHERE [Name] = @Account
 
 DELETE FROM CashAccount

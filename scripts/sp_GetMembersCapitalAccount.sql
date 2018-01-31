@@ -22,11 +22,11 @@ FROM
 	MembersCapitalAccount MCA
 INNER JOIN	 Members M
 ON MCA.Member_Id =M.Member_Id
-INNER JOIN Users U
-ON M.account_id = U.[User_Id]
+INNER JOIN Accounts A
+ON M.account_id = A.[Account_Id]
 WHERE
 	Valuation_Date = @valuationDate
-	and U.[Name] = @Account
+	and A.[Name] = @Account
 END
 GO
 

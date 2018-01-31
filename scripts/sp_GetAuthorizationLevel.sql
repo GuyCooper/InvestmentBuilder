@@ -19,11 +19,11 @@ SELECT
 FROM
 	Members m
 INNER JOIN
-	Users u
+	Accounts a
 ON
-	m.account_id = u.[User_Id]
+	m.account_id = a.[Account_Id]
 WHERE
-	u.[Name] = @Account
+	a.[Name] = @Account
 AND
 	m.[Name] = @User
 
