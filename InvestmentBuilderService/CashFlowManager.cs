@@ -19,6 +19,10 @@ namespace InvestmentBuilderService
         public bool CanBuild { get; set; }
     }
 
+    /// <summary>
+    /// class is a wrapper for the CashAccountTransactionManager. prinipally generates the a list
+    /// of CashFlowModel objects that are used by the cachflow web page
+    /// </summary>
     internal class CashFlowManager
     {
         private AccountService _accountService;
@@ -33,6 +37,12 @@ namespace InvestmentBuilderService
             _cashTransactionManager = cashTransactionManager;
         }
 
+        /// <summary>
+        /// returns a list of cachflow models from the earliest date requested
+        /// </summary>
+        /// <param name="userSession"></param>
+        /// <param name="sDateFrom"></param>
+        /// <returns></returns>
         public IEnumerable<CashFlowModel> GetCashFlowModel(UserSession userSession, string sDateFrom)
         {
             var token = _accountService.GetUserAccountToken(userSession, null);

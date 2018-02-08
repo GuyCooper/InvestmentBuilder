@@ -8,6 +8,9 @@ using Middleware;
 using Newtonsoft.Json;
 using InvestmentBuilderCore;
 using InvestmentBuilderService.Channels;
+using InvestmentBuilderService.Utils;
+using InvestmentBuilderService.Session;
+using NLog;
 
 namespace InvestmentBuilderService
 {
@@ -16,8 +19,10 @@ namespace InvestmentBuilderService
         private Dictionary<string, EndpointChannel<Dto>> _channels;
         private ISessionManager _sessionManager;
 
-        public ChannelEndpointManager(string server, string username, string password, ISessionManager sessionManager) 
-            : base(server, username, password)
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
+        public ChannelEndpointManager(IConnectionSession session, ISessionManager sessionManager) 
+            : base(session)
         {
             _channels = new Dictionary<string, EndpointChannel<Dto>>();
             _sessionManager = sessionManager;
@@ -29,11 +34,12 @@ namespace InvestmentBuilderService
             //and the rest....
         }
 
-        protected override void EndpointMessageHandler(ISession session, Middleware.Message message)
+        protected override void EndpointMessageHandler(Message message)
         {
             if (message.Type != MessageType.REQUEST)
             {
-                GetLogger().LogError(string.Format("invalid message type: {0}", message.Type));
+                //GetLogger().LogError(string.Format("invalid message type: {0}", message.Type));
+                logger.Log(LogLevel.Error, "invalid message type");
                 return;
             }
 
@@ -52,13 +58,13 @@ namespace InvestmentBuilderService
                     var responsePayload = channel.HandleEndpointRequest(userSession, requestPayload);
                     if ((responsePayload != null) && (string.IsNullOrEmpty(channel.ResponseName) == false))
                     {
-                        SendMessageToClient(channel.ResponseName, JsonConvert.SerializeObject(responsePayload), message.SourceId);
+                        GetSession().SendMessageToChannel(channel.ResponseName, JsonConvert.SerializeObject(responsePayload), message.SourceId);
                     }
                 });
             }
             else
             {
-                GetLogger().LogError(string.Format("invalid channel : {0}", message.Channel));
+                logger.Log(LogLevel.Error, "invalid channel : {0}", message.Channel);
             }
         }
     }

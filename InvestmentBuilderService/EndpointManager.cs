@@ -3,61 +3,37 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MiddlewareNetClient;
 using Middleware;
 using Newtonsoft.Json;
 using InvestmentBuilderService.Channels;
+using InvestmentBuilderService.Session;
 
 namespace InvestmentBuilderService
 {
     internal abstract class EndpointManager
     {
-        private MiddlewareManager _middleware;
-        private ISession _session;
-        private ILogger _logger;
-        private string _server;
-        private string _username;
-        private string _password;
+        private IConnectionSession _session;
 
-        public EndpointManager(string server, string username, string password)
+        public EndpointManager(IConnectionSession session)
         {
-            _logger = new ServiceLogger();
-            _middleware = new MiddlewareManager();
-            _server = server;
-            _username = username;
-            _password = password;
+            _session = session;
         }
 
-        public async Task<bool> Connect()
+        public virtual async Task<bool> Connect()
         {
-            _session = await _middleware.CreateSession(_server, _username, _password, _logger);
-            _middleware.RegisterMessageCallbackFunction(EndpointMessageHandler);
-            return _session != null;
+            var connected = await _session.Connect();
+            if(connected == true)
+            {
+                _session.RegisterMessageHandler(EndpointMessageHandler);
+            }
+            return connected;
         }
 
-        protected abstract void EndpointMessageHandler(ISession session, Middleware.Message message);
-
-        protected void SendMessageToClient(string channelName, string payload, string destination)
+        protected IConnectionSession GetSession()
         {
-            _middleware.SendMessageToChannel(_session, channelName, payload, destination);
+            return _session;
         }
 
-        protected ILogger GetLogger()
-        {
-            return _logger;
-        }
-    }
-
-    internal class ServiceLogger : ILogger
-    {
-        public void LogError(string error)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void LogMessage(string message)
-        {
-            throw new NotImplementedException();
-        }
+        protected abstract void EndpointMessageHandler(Message message);
     }
 }

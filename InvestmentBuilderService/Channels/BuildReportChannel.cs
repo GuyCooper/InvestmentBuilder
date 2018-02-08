@@ -4,17 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using InvestmentBuilderService.Utils;
-using PerformanceBuilderLib;
 
 namespace InvestmentBuilderService.Channels
 {
     internal class BuildReportChannel : EndpointChannel<Dto>
     {
         InvestmentBuilder.InvestmentBuilder _builder;
-        PerformanceBuilder _chartBuilder;
+        PerformanceBuilderLib.PerformanceBuilder _chartBuilder;
         public BuildReportChannel(AccountService accountService, 
                                   InvestmentBuilder.InvestmentBuilder builder,
-                                  PerformanceBuilder chartBuilder) 
+                                  PerformanceBuilderLib.PerformanceBuilder chartBuilder) 
             : base("BUILD_REPORT_REQUEST", "BUILD_REPORT_RESPONSE", accountService)
         {
             _builder = builder;

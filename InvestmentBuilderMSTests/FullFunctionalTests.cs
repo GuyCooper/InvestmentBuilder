@@ -106,19 +106,6 @@ namespace InvestmentBuilderMSTests
 
         private bool InitialiseDatabase()
         {
-            //var dbParams = ContainerManager.ResolveValueOnContainer<IConfigurationSettings>(_childContainer).DatasourceString.Split(';').Select(x =>
-            //{
-            //    int i = x.IndexOf('=');
-            //    if (i > -1)
-            //    {
-            //        return new KeyValuePair<string, string>(x.Substring(0, i), x.Substring(i + 1));
-            //    }
-            //    return new KeyValuePair<string, string>(x, string.Empty);
-            //});
-
-            //var server = dbParams.First(x => string.Equals(x.Key, "Data Source", StringComparison.InvariantCultureIgnoreCase)).Value;
-            //var database = dbParams.First(x => string.Equals(x.Key, "Initial Catalog", StringComparison.InvariantCultureIgnoreCase)).Value;
-
             //Console.WriteLine("restoring unit test database against server {0}, database {1}...", server, database);
             var process = new System.Diagnostics.Process();
             //"sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddNewShares.sql"
