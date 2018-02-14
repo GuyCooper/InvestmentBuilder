@@ -6,10 +6,18 @@ using System.Threading.Tasks;
 using MarketDataServices;
 using NLog;
 using InvestmentBuilderCore;
+using Newtonsoft.Json;
+using System.Globalization;
 
 namespace PerformanceBuilderLib
 {
     using DATE_POINT = Tuple<DateTime?, string>;
+
+    internal class RawHistoricalData
+    {
+        public string date { get; set; }
+        public string price { get; set; }
+    }
 
     /// <summary>
     /// this class builds all the different perfomance ladders that will be included in the
@@ -244,6 +252,26 @@ namespace PerformanceBuilderLib
             return resultList;
         }
 
+        private IEnumerable<HistoricalData> ParseHistoricalData(string data, DateTime? dtFrom)
+        {
+            var rawData = JsonConvert.DeserializeObject<IList<RawHistoricalData>>(data);
+            foreach (var item in rawData)
+            {
+                var date = DateTime.ParseExact(item.date, "M/d/yyyy", CultureInfo.InvariantCulture);
+                if (dtFrom.HasValue == false || (date >= dtFrom.Value))
+                {
+                    if (string.IsNullOrEmpty(item.price) == false)
+                    {
+                        yield return new HistoricalData
+                        (
+                            date: date,
+                            price: double.Parse(item.price)
+                        );
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// method retrieves the historical price information for all the configured indexes for all required
         /// date ranges. Data is then rebased for each date range to allow easy determination of relative performance
@@ -283,7 +311,7 @@ namespace PerformanceBuilderLib
             //all comparison indexes must have the same item count as the club index
             _settings.ComparisonIndexes.ToList().ForEach(index =>
             {
-                var indexedData = _historicalDataReader.GetIndexHistoricalData(userToken, index.Symbol, dtFirstDate).ToList();
+                var indexedData = ParseHistoricalData(_historicalDataReader.GetIndexHistoricalData(userToken, index.Symbol), dtFirstDate).ToList();
                 if (indexedData != null)
                 {
                     var rebasedIndexedData = RebaseDataList(indexedData, null).ToList();

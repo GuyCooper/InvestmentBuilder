@@ -89,13 +89,17 @@ namespace InvestmentBuilderMSTests
             };
         }
 
-        public override IEnumerable<HistoricalData> GetIndexHistoricalData(UserAccountToken userToken, string symbol, DateTime? dtFrom)
+        public override string GetIndexHistoricalData(UserAccountToken userToken, string symbol)
         {
-            return new List<HistoricalData>
-            {
-                new HistoricalData ( date: PerfBuilderConstants.TestDate1, price: PerfBuilderConstants.TestPrice3 ),
-                new HistoricalData ( date: PerfBuilderConstants.TestDate2, price: PerfBuilderConstants.TestPrice4 )
-            };
+            return string.Format("[{date:{0}, price:{1}}, {date:{2}, price:{3}}]", PerfBuilderConstants.TestDate1, 
+                                                                                   PerfBuilderConstants.TestPrice3, 
+                                                                                   PerfBuilderConstants.TestDate2,
+                                                                                   PerfBuilderConstants.TestPrice4);
+            //return new List<HistoricalData>
+            //{
+            //    new HistoricalData ( date: PerfBuilderConstants.TestDate1, price: PerfBuilderConstants.TestPrice3 ),
+            //    new HistoricalData ( date: PerfBuilderConstants.TestDate2, price: PerfBuilderConstants.TestPrice4 )
+            //};
         }
     }
 

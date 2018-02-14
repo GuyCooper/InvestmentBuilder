@@ -14,7 +14,7 @@ namespace SQLServerDataLayer
 
         public SQLAuthData(IConfigurationSettings settings)
         {
-            _dbConnection = new SqlConnection(settings.DatasourceString);
+            _dbConnection = new SqlConnection(settings.AuthDatasourceString);
             _dbConnection.Open();
         }
 

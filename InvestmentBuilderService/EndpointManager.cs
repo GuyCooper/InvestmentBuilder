@@ -29,7 +29,7 @@ namespace InvestmentBuilderService
             return connected;
         }
 
-        protected IConnectionSession GetSession()
+        public IConnectionSession GetSession()
         {
             return _session;
         }

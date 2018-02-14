@@ -126,7 +126,7 @@ namespace InvestmentBuilderMSTests
     internal class HistoricalDataReaderTest : IHistoricalDataReader
     {
         public virtual IEnumerable<HistoricalData> GetHistoricalAccountData(UserAccountToken userToken) { throw new NotImplementedException(); }
-        public virtual IEnumerable<HistoricalData> GetIndexHistoricalData(UserAccountToken userToken, string symbol, DateTime? dtFrom) { throw new NotImplementedException(); }
+        public virtual string GetIndexHistoricalData(UserAccountToken userToken, string symbol) { throw new NotImplementedException(); }
     }
 
     internal class ConfigurationSettingsTest : IConfigurationSettings
@@ -137,6 +137,11 @@ namespace InvestmentBuilderMSTests
         }
 
         public virtual string DatasourceString
+        {
+            get { return string.Empty; }
+        }
+
+        public virtual string AuthDatasourceString
         {
             get { return string.Empty; }
         }
@@ -363,7 +368,7 @@ namespace InvestmentBuilderMSTests
     internal class EmptyHistoricalDataReaderTest : IHistoricalDataReader
     {
         public virtual IEnumerable<HistoricalData> GetHistoricalAccountData(UserAccountToken userToken) { return null; }
-        public virtual IEnumerable<HistoricalData> GetIndexHistoricalData(UserAccountToken userToken, string symbol, DateTime? dtFrom) { return null; }
+        public virtual string GetIndexHistoricalData(UserAccountToken userToken, string symbol) { return null; }
     }
 
     internal class EmptyConfigurationSettingsTest : IConfigurationSettings
@@ -377,6 +382,14 @@ namespace InvestmentBuilderMSTests
         }
 
         public virtual string DatasourceString
+        {
+            get
+            {
+                return null;
+            }
+        }
+
+        public virtual string AuthDatasourceString
         {
             get
             {

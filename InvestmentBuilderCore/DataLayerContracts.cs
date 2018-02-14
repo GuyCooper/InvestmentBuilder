@@ -381,11 +381,11 @@ namespace InvestmentBuilderCore
             return null;
         }
 
-        public IEnumerable<HistoricalData> GetIndexHistoricalData(UserAccountToken userToken, string symbol, DateTime? dtFrom)
+        public string GetIndexHistoricalData(UserAccountToken userToken, string symbol)
         {
             Contract.Requires(userToken != null);
             Contract.Requires(string.IsNullOrEmpty(symbol) == false);
-            Contract.Ensures(Contract.Result<IEnumerable<HistoricalData>>() != null);
+            Contract.Ensures(Contract.Result<string>() != null);
             return null;
 
         }

@@ -13,11 +13,13 @@ using InvestmentBuilder;
 using System.IO;
 using InvestmentBuilderService.Utils;
 using InvestmentBuilderService.Session;
+using System.Threading;
 
 namespace InvestmentBuilderService
 {
     class Program
     {
+        private static Logger logger = LogManager.GetLogger("InvestmentBuilderService");
         /// <summary>
         /// console app for hosting the investment builder core. interfaces to the middleware
         /// service to allow remote clients access to the investment builder services
@@ -43,18 +45,49 @@ namespace InvestmentBuilderService
 
                 endpointManager.RegisterEndpointChannels();
                 //now connect to servers and wait
+
+                Console.WriteLine("connecting to servers...");
                 ConnectToServers(userManager, endpointManager);
+
+                ManualResetEvent closeEvent = new ManualResetEvent(false);
+                Console.CancelKeyPress += (s, e) =>
+                {
+                    closeEvent.Set();
+                    e.Cancel = true;
+                };
+
+                closeEvent.WaitOne();
             }
         }
 
         static async void ConnectToServers(EndpointManager authServer, EndpointManager server)
         {
             var connected = await authServer.Connect();
-            if(connected == false)
+            if (connected == false)
             {
+                logger.Log(LogLevel.Error, "failed to connect to auth server");
                 return;
             }
+
+            //now register the authserver as an auth server
+            connected = await authServer.GetSession().RegisterAuthenticationServer("InvestmentBuilder");
+            if(connected == false)
+            {
+                logger.Log(LogLevel.Error, "failed to register auth server");
+                return;
+            }
+
             connected = await server.Connect();
+
+            if (connected == false)
+            {
+                logger.Log(LogLevel.Error, "failed to connect to channel server");
+            }
+
+            if(connected == true)
+            {
+                Console.WriteLine("connection succeded!");
+            }
         }
     }
 }

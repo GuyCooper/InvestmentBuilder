@@ -11,6 +11,7 @@ namespace InvestmentBuilderCore
     public interface IConfigurationSettings
     {
         string DatasourceString { get; }
+        string AuthDatasourceString { get; }
         string OutputFolder { get; }
         bool UpdateDatasource(string dataSource);
         bool UpdateOutputFolder(string folder);
@@ -42,6 +43,8 @@ namespace InvestmentBuilderCore
     {
         [XmlElement("dataSource")]
         public string DatasourceString {get;set;}
+        [XmlElement("authdataSource")]
+        public string AuthDatasourceString { get; set; }
         [XmlElement("outputFolder")]
         public string OutputFolder {get;set;}
         [XmlArray("indexes")]
@@ -69,6 +72,8 @@ namespace InvestmentBuilderCore
         }
 
         public string DatasourceString { get { return _configuration.DatasourceString; } }
+
+        public string AuthDatasourceString { get { return _configuration.AuthDatasourceString; } }
 
         public string MarketDatasource { get { return _configuration.MarketDatasourceString; } }
 
