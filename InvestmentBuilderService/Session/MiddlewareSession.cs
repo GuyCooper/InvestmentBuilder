@@ -73,6 +73,20 @@ namespace InvestmentBuilderService.Session
                 _middleware.SendMessageToChannel(_session, channel, payload, destination);
             }
         }
+
+        public async void RegisterChannelListener(string channel)
+        {
+            var response = await _middleware.AddChannelListener(_session, channel);
+            if(response.Success == false)
+            {
+                //TODO add functionality to peridoically attempt the register request
+                //if it fails. For now we will just log the error
+                if(_logger != null)
+                {
+                    _logger.LogError(string.Format("unable to register listener for channel {0}. {1}", channel, response.Payload));
+                }
+            }
+        }
     }
 
     internal class ServiceLogger : MiddlewareNetClient.ILogger

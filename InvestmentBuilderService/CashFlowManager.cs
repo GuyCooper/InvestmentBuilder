@@ -29,11 +29,11 @@ namespace InvestmentBuilderService
         private IClientDataInterface _clientData;
         private CashAccountTransactionManager _cashTransactionManager;
 
-        public CashFlowManager(AccountService accountService, IClientDataInterface clientData,
+        public CashFlowManager(AccountService accountService, IDataLayer dataLayer,
             CashAccountTransactionManager cashTransactionManager)
         {
             _accountService = accountService;
-            _clientData = clientData;
+            _clientData = dataLayer.ClientData;
             _cashTransactionManager = cashTransactionManager;
         }
 

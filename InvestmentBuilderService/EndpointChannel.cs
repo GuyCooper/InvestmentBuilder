@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using MiddlewareNetClient;
 using Newtonsoft.Json;
 using InvestmentBuilderCore;
+using InvestmentBuilderService.Session;
 
 namespace InvestmentBuilderService
 {
@@ -25,7 +26,14 @@ namespace InvestmentBuilderService
         public bool Status { get; set; }
     }
 
-    internal abstract class EndpointChannel<Request> where Request : Dto
+    internal interface IEndpointChannel
+    {
+        string RequestName { get;}
+        string ResponseName { get;}
+        void ProcessMessage(IConnectionSession session, UserSession userSession, string payload, string sourceId);
+    }
+
+    internal abstract class EndpointChannel<Request> : IEndpointChannel where Request : Dto
     {
         public string RequestName { get; private set; }
         public string ResponseName { get; private set; }
@@ -49,6 +57,16 @@ namespace InvestmentBuilderService
         protected UserAccountToken GetCurrentUserToken(UserSession session, string account = null)
         {
             return _accountService.GetUserAccountToken(session, account);
+        }
+
+        public void ProcessMessage(IConnectionSession session,  UserSession userSession,  string payload, string sourceId)
+        {
+            var requestPayload = ConvertToRequestPayload(payload);
+            var responsePayload = HandleEndpointRequest(userSession, requestPayload);
+            if ((responsePayload != null) && (string.IsNullOrEmpty(ResponseName) == false))
+            {
+                session.SendMessageToChannel(ResponseName, JsonConvert.SerializeObject(responsePayload), sourceId);
+            }
         }
     }
 }

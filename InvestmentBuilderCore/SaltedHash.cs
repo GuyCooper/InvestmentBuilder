@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace InvestmentBuilderService.Utils
+namespace InvestmentBuilderCore
 {
     public static class SaltedHash
     {

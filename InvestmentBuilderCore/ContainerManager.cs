@@ -16,6 +16,12 @@ namespace InvestmentBuilderCore
             return _container;
         }
 
+        public static void RegisterType(Type typeFrom, bool bHierachialLifetime)
+        {
+            var lifetimeManager = bHierachialLifetime ? new HierarchicalLifetimeManager() : new ContainerControlledLifetimeManager();
+            _container.RegisterType(typeFrom, lifetimeManager);
+        }
+
         public static void RegisterType(Type typeFrom, Type typeTo, bool bHierachialLifetime, params string[] prm)
         {
             var lifetimeManager = bHierachialLifetime ? new HierarchicalLifetimeManager() : new ContainerControlledLifetimeManager();
@@ -38,6 +44,16 @@ namespace InvestmentBuilderCore
             }
             throw new ArgumentException(string.Format("type {0} has not been registered!"));
 
+        }
+
+        public static T ResolveValueOnContainer<T>(Type typeOf, IUnityContainer container) where T : class
+        {
+            var result = container.Resolve(typeOf);
+            if(result == null)
+            {
+                throw new ArgumentException(string.Format("type {0} has not been registered!", typeOf));
+            }
+            return result as T;
         }
 
         public static T ResolveValue<T>() where T : class

@@ -10,6 +10,7 @@ using InvestmentBuilderCore;
 using NLog;
 using InvestmentBuilderService.Session;
 using InvestmentBuilderService.Utils;
+using Microsoft.Practices.Unity;
 
 namespace InvestmentBuilderService
 {
@@ -21,6 +22,7 @@ namespace InvestmentBuilderService
     internal interface ISessionManager
     {
         UserSession GetUserSession(Middleware.Message message);
+        void RemoveUserSession(string sessionId);
     }
 
     internal class UserSessionManager : EndpointManager, ISessionManager
@@ -39,6 +41,13 @@ namespace InvestmentBuilderService
         //user against the authentication database. password must be stored as encrypted
         protected override void EndpointMessageHandler(Message message)
         {
+            if (message.Command == HandlerNames.NOTIFY_CLOSE)
+            {
+                logger.Log(LogLevel.Info, "session closing: {0}", message.Payload);
+                _userSessions.Remove(message.Payload);
+                return;
+            }
+
             //todo...
             if (message.Command == HandlerNames.LOGIN)
             {
@@ -67,6 +76,16 @@ namespace InvestmentBuilderService
                 logger.Log(LogLevel.Error, "unknown user for session: {0} ", message.SourceId);
             }
             return userSession;
+        }
+
+        public void RemoveUserSession(string sessionId)
+        {
+            _userSessions.Remove(sessionId);
+        }
+
+        public override void RegisterChannels(IUnityContainer container)
+        {
+
         }
     }
 }

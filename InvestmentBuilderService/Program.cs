@@ -33,9 +33,16 @@ namespace InvestmentBuilderService
             MarketDataRegisterService.RegisterServices();
             ContainerManager.RegisterType(typeof(IDataLayer), typeof(SQLServerDataLayer.SQLServerDataLayer), true);
             ContainerManager.RegisterType(typeof(IInvestmentRecordDataManager), typeof(InvestmentRecordBuilder), true);
+            ContainerManager.RegisterType(typeof(AccountService),true);
+            ContainerManager.RegisterType(typeof(InvestmentBuilder.InvestmentBuilder), true);
+            ContainerManager.RegisterType(typeof(PerformanceBuilderLib.PerformanceBuilder), true);
+            ContainerManager.RegisterType(typeof(CashAccountTransactionManager), true);
+            ContainerManager.RegisterType(typeof(CashFlowManager), true);
+            ContainerManager.RegisterType(typeof(CashFlowManager), true);
+            ContainerManager.RegisterType(typeof(IInvestmentReportWriter),typeof(InvestmentReportGenerator.InvestmentReportWriter), true);
 
             using (var child = ContainerManager.CreateChildContainer())
-            {
+            { 
                 var connectionSettings = new ConnectionSettings("Connections.xml");
                 var authData = new SQLAuthData(ContainerManager.ResolveValue<IConfigurationSettings>());
                 var authSession = new MiddlewareSession(connectionSettings.AuthServerConnection);
@@ -43,11 +50,10 @@ namespace InvestmentBuilderService
                 var serverSession = new MiddlewareSession(connectionSettings.ServerConnection);
                 var endpointManager = new ChannelEndpointManager(serverSession, userManager);
 
-                endpointManager.RegisterEndpointChannels();
                 //now connect to servers and wait
 
                 Console.WriteLine("connecting to servers...");
-                ConnectToServers(userManager, endpointManager);
+                ConnectToServers(userManager, endpointManager, child);
 
                 ManualResetEvent closeEvent = new ManualResetEvent(false);
                 Console.CancelKeyPress += (s, e) =>
@@ -60,7 +66,7 @@ namespace InvestmentBuilderService
             }
         }
 
-        static async void ConnectToServers(EndpointManager authServer, EndpointManager server)
+        static async void ConnectToServers(EndpointManager authServer, EndpointManager server, IUnityContainer container)
         {
             var connected = await authServer.Connect();
             if (connected == false)
@@ -86,6 +92,9 @@ namespace InvestmentBuilderService
 
             if(connected == true)
             {
+                //now register all the channels that will be used by the service
+                authServer.RegisterChannels(container);
+                server.RegisterChannels(container);
                 Console.WriteLine("connection succeded!");
             }
         }

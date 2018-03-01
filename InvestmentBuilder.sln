@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestmentReportGenerator",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestmentBuilderService", "InvestmentBuilderService\InvestmentBuilderService.csproj", "{77D2520C-6C3E-4D55-B20A-9FCD5714A97D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManageUsersApp", "ManageUsersApp\ManageUsersApp.csproj", "{C2BE8B9D-4E44-41A5-B6C1-FC0207D2BA61}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,10 @@ Global
 		{77D2520C-6C3E-4D55-B20A-9FCD5714A97D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{77D2520C-6C3E-4D55-B20A-9FCD5714A97D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{77D2520C-6C3E-4D55-B20A-9FCD5714A97D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2BE8B9D-4E44-41A5-B6C1-FC0207D2BA61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2BE8B9D-4E44-41A5-B6C1-FC0207D2BA61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2BE8B9D-4E44-41A5-B6C1-FC0207D2BA61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2BE8B9D-4E44-41A5-B6C1-FC0207D2BA61}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

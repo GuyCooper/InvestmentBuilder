@@ -7,6 +7,7 @@ using Middleware;
 using Newtonsoft.Json;
 using InvestmentBuilderService.Channels;
 using InvestmentBuilderService.Session;
+using Microsoft.Practices.Unity;
 
 namespace InvestmentBuilderService
 {
@@ -33,6 +34,8 @@ namespace InvestmentBuilderService
         {
             return _session;
         }
+
+        public abstract void RegisterChannels(IUnityContainer container);
 
         protected abstract void EndpointMessageHandler(Message message);
     }

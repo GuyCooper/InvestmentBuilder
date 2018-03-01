@@ -16,5 +16,6 @@ namespace InvestmentBuilderService.Session
         void SendMessageToChannel(string channel, string payload, string destination);
         Task<bool> RegisterAuthenticationServer(string identifier);
         void SendAuthenticationResult(bool result, string message, string requestid);
+        void RegisterChannelListener(string channel);
     }
 }

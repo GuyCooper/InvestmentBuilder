@@ -20,11 +20,11 @@ namespace InvestmentBuilderService.Channels
         private InvestmentBuilder.InvestmentBuilder _builder;
 
         public SellTradeRequestChannel(AccountService accountService, 
-                                       IClientDataInterface clientData,
+                                       IDataLayer dataLayer,
                                        InvestmentBuilder.InvestmentBuilder builder) : 
             base("SELL_TRADE_REQUEST", "SELL_TRADE_RESPONSE", accountService)
         {
-            _clientData = clientData;
+            _clientData = dataLayer.ClientData;
             _builder = builder;
         }
 

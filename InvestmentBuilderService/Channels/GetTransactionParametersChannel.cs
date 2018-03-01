@@ -23,11 +23,11 @@ namespace InvestmentBuilderService.Channels
         private InvestmentBuilder.InvestmentBuilder _builder;
 
         public GetTransactionParametersChannel(AccountService accountService, 
-                                               IInvestmentRecordInterface recordData,
+                                               IDataLayer dataLayer,
                                                InvestmentBuilder.InvestmentBuilder builder) 
             : base("GET_TRANSACTION_PARAMTERS_REQUEST", "GET_TRANSACTION_PARAMTERS_RESPONSE", accountService)
         {
-            _recordData = recordData;
+            _recordData = dataLayer.InvestmentRecordData;
             _builder = builder;
         }
 

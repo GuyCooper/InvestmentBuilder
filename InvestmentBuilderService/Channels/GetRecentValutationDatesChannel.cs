@@ -16,10 +16,10 @@ namespace InvestmentBuilderService.Channels
     {
         protected IClientDataInterface _clientData;
 
-        public GetRecentValutationDatesChannel(AccountService accountService, IClientDataInterface clientData) 
+        public GetRecentValutationDatesChannel(AccountService accountService, IDataLayer dataLayer) 
             : base("GET_RECENT_VALUATION_DATES_REQUEST", "GET_RECENT_VALUATION_DATES_RESPONSE", accountService)
         {
-            _clientData = clientData;
+            _clientData = dataLayer.ClientData;
         }
 
         public override Dto HandleEndpointRequest(UserSession userSession, Dto payload)

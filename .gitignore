@@ -54,7 +54,7 @@ bin
 debug
 release
 packages
-
+node_modules
  
 /InvestmentBuilderWeb/InvestmentBuilderWeb/Content/InvestmentBuilderWeb - Copy.css
 /php/result.txt
