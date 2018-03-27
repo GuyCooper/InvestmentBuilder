@@ -126,7 +126,7 @@ namespace InvestmentBuilderService
             {
                 Task.Factory.StartNew(() =>
                 {
-                    channel.ProcessMessage(GetSession(), userSession, message.Payload, message.SourceId);
+                    channel.ProcessMessage(GetSession(), userSession, message.Payload, message.SourceId, message.RequestId);
                 });
             }
             else

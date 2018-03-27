@@ -22,19 +22,54 @@
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="app.css" />
+    <Content Include="Gruntfile.js" />
     <Content Include="gulpfile.js" />
-    <Content Include="libs\MiddlewareClient.js" />
-    <Content Include="src\index.html" />
+    <Content Include="Index.html" />
+    <Content Include="Middleware\Middleware.js" />
+    <Content Include="src\CashFlow.js" />
+    <Content Include="src\CreateTrade.js" />
+    <Content Include="src\Layout.js" />
+    <Content Include="src\MiddlewareService.js" />
+    <Content Include="src\Portfolio.js" />
+    <Content Include="src\RegisterModules.js" />
+    <Content Include="src\Utils.js" />
+    <Content Include="styles\css\InvestmentBuilderWeb.css" />
+    <Content Include="styles\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="styles\images\calendar.png" />
+    <Content Include="styles\images\help.png" />
+    <Content Include="styles\thirdParty\bootstrap.css" />
+    <Content Include="styles\thirdParty\bootstrap.min.css" />
+    <Content Include="styles\thirdParty\jquery-ui.css" />
+    <Content Include="styles\thirdParty\jquery-ui.min.css" />
+    <Content Include="styles\thirdParty\jquery-ui.structure.css" />
+    <Content Include="styles\thirdParty\jquery-ui.structure.min.css" />
+    <Content Include="styles\thirdParty\jquery-ui.theme.css" />
+    <Content Include="styles\thirdParty\jquery-ui.theme.min.css" />
+    <Content Include="styles\thirdParty\Site.css" />
+    <Content Include="tasks\scaffold.js" />
+    <Content Include="views\Layout.html" />
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="src\greet.ts" />
-    <TypeScriptCompile Include="src\main.ts" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="package.json" />
     <Content Include="tsconfig.json" />
+    <Content Include="styles\fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="styles\fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="styles\fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="views\AccountSummary.html" />
+    <Content Include="views\AddModalDialog.html" />
+    <Content Include="views\AddTransaction.html" />
+    <Content Include="views\CashFlow.html" />
+    <Content Include="views\CashFlowAngularNew.html" />
+    <Content Include="views\CreateTrade.html" />
+    <Content Include="views\EditTrade.html" />
+    <Content Include="views\IndexOLD.html" />
+    <Content Include="views\Parameters.html" />
+    <Content Include="views\Portfolio.html" />
+    <Content Include="views\RaiseAlert.html" />
+    <Content Include="views\ReportCompletion.html" />
+    <Content Include="views\Reports.html" />
+    <Content Include="views\YesNoChooser.html" />
+    <Content Include="package.json" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
@@ -44,6 +79,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="dist\" />
+    <Folder Include="libs\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>

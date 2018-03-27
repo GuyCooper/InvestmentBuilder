@@ -1,0 +1,19 @@
+﻿<div ng-app="InvestmentRecord" ng-controller="LayoutController">
+    <uib-tabset active="active" justified="true">
+        <uib-tab index="0" select="onPortfolio()" heading="Portfolio">
+            @[views/Portfolio.html]
+        </uib-tab>
+        <uib-tab index="1" select="onAddTrade()" heading="Add Investment">
+            Add Trade content
+        </uib-tab>
+        <uib-tab index="2" select="onCashFlow()" heading="Cash Flow">
+            Cash Flow content
+        </uib-tab>
+        <uib-tab index="3" select="onReports()" heading="Reports">
+            Reports content
+        </uib-tab>
+    </uib-tabset>
+    <footer>
+        <p>&copy; InvestmentBuilder</p>
+    </footer>
+</div>

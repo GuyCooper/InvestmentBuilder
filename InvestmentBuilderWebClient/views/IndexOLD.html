@@ -1,0 +1,19 @@
+﻿
+<div ng-app="InvestmentRecord" ng-controller="LayoutController">
+    <p/>
+    @Html.Partial("~/Views/InvestmentRecord/AccountSummary.cshtml")
+    <uib-tabset active="active" justified="true">
+        <uib-tab index="0" select="onPortfolio()" heading="Portfolio">
+            @Html.Partial("~/Views/InvestmentRecord/Portfolio.cshtml")
+        </uib-tab>
+        <uib-tab index="1" select="onAddTrade()" heading="Add Investment">
+            @Html.Partial("~/Views/InvestmentRecord/CreateTrade.cshtml")
+        </uib-tab>
+        <uib-tab index="2" select="onCashFlow()" heading="Cash Flow">
+            @Html.Partial("~/Views/InvestmentRecord/CashFlow.cshtml")
+        </uib-tab>
+        @*<uib-tab index="3" select="onReports()" heading="Reports">
+            @Html.Partial("~/Views/InvestmentRecord/Reports.cshtml")
+        </uib-tab>*@
+    </uib-tabset>
+</div>

@@ -1,11 +1,63 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8" />
-    <title>Hello World!</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment Builder</title>
+    <link rel="stylesheet" href="styles/jquery-ui.css" type="text/css">
+    <link rel="stylesheet" href="styles/jquery-ui.structure.css" type="text/css">
+    <link rel="stylesheet" href="styles/jquery-ui.theme.css" type="text/css">
+    <link rel="stylesheet" href="styles/bootstrap.css" type="text/css">
+    <link rel="stylesheet" href="styles/investmentBuilder.css" type="text/css">
 </head>
 <body>
-    <p id="greeting">Loading ...</p>
-    <script src="bundle.js"></script>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="Index.html">Investment Builder</a>
+            </div>
+            <div class="navbar-collapse collapse">
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        <hr />
+        <p/>
+        ﻿<div ng-app="InvestmentRecord" ng-controller="LayoutController">
+    <uib-tabset active="active" justified="true">
+        <uib-tab index="0" select="onPortfolio()" heading="Portfolio">
+            ﻿
+<div class="container">
+    <div ng-controller="PortfolioController">
+        <div class="row" style="height:600px">
+            <div ag-grid="gridOptions" style="height: 100%;width:100%;" class="ag-fresh"></div>
+        </div>
+    </div>
+</div>
+
+        </uib-tab>
+        <uib-tab index="1" select="onAddTrade()" heading="Add Investment">
+            Add Trade content
+        </uib-tab>
+        <uib-tab index="2" select="onCashFlow()" heading="Cash Flow">
+            Cash Flow content
+        </uib-tab>
+        <uib-tab index="3" select="onReports()" heading="Reports">
+            Reports content
+        </uib-tab>
+    </uib-tabset>
+    <footer>
+        <p>&copy; InvestmentBuilder</p>
+    </footer>
+</div>
+
+    </div>
+    <script type="text/javascript" src="js/libs.js"></script>
+    <script type="text/javascript" src="js/app.js"></script>
 </body>
 </html>

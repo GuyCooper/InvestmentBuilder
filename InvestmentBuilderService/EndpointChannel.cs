@@ -30,10 +30,10 @@ namespace InvestmentBuilderService
     {
         string RequestName { get;}
         string ResponseName { get;}
-        void ProcessMessage(IConnectionSession session, UserSession userSession, string payload, string sourceId);
+        void ProcessMessage(IConnectionSession session, UserSession userSession, string payload, string sourceId,  string requestId);
     }
 
-    internal abstract class EndpointChannel<Request> : IEndpointChannel where Request : Dto
+    internal abstract class EndpointChannel<Request> : IEndpointChannel where Request : Dto, new()
     {
         public string RequestName { get; private set; }
         public string ResponseName { get; private set; }
@@ -51,7 +51,7 @@ namespace InvestmentBuilderService
 
         public Request ConvertToRequestPayload(string payload)
         {
-            return JsonConvert.DeserializeObject<Request>(payload);
+            return payload != null ? JsonConvert.DeserializeObject<Request>(payload) : new Request();
         }
 
         protected UserAccountToken GetCurrentUserToken(UserSession session, string account = null)
@@ -59,13 +59,13 @@ namespace InvestmentBuilderService
             return _accountService.GetUserAccountToken(session, account);
         }
 
-        public void ProcessMessage(IConnectionSession session,  UserSession userSession,  string payload, string sourceId)
+        public void ProcessMessage(IConnectionSession session,  UserSession userSession,  string payload, string sourceId, string requestId)
         {
             var requestPayload = ConvertToRequestPayload(payload);
             var responsePayload = HandleEndpointRequest(userSession, requestPayload);
             if ((responsePayload != null) && (string.IsNullOrEmpty(ResponseName) == false))
             {
-                session.SendMessageToChannel(ResponseName, JsonConvert.SerializeObject(responsePayload), sourceId);
+                session.SendMessageToChannel(ResponseName, JsonConvert.SerializeObject(responsePayload), sourceId, requestId);
             }
         }
     }

@@ -1,0 +1,46 @@
+﻿<div class="modal-header">
+    <h3 class="modal-title" id="modal-title">{{$transaction.title}}</h3>
+</div>
+<div class="modal-body" id="modal-body">
+    <form>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Transaction Date</label>
+                    <p class="input-group">
+                        <input type="text" name="transactionDate" class="form-control" uib-datepicker-popup="{{$transaction.format}}" ng-model="$transaction.dt" is-open="$transaction.datepicker.opened" datepicker-options="$transaction.dateOptions" ng-required="true" close-text="Close" alt-input-formats="$transaction.altInputFormats" />
+                        <span class="input-group-btn">
+                            <button type="button" class="btn btn-default" ng-click="$transaction.openDatePicker()"><i class="glyphicon glyphicon-calendar"></i></button>
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Transaction Type</label>
+            <select name="parameterType" class="form-control" ng-model="$transaction.SelectedParamType" ng-click="$transaction.changeParamType()">
+                <option ng-repeat="type in $transaction.ParamTypes">{{type}}</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Parameter</label>
+            <select name="parameter" class="form-control" ng-model="$transaction.SelectedParameter">
+                <option ng-repeat="type in $transaction.Parameters">{{type}}</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Amount</label>
+            <input name="amount" type="number" class="form-control" ng-model="$transaction.Amount" />
+        </div>
+
+    </form>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" type="button" ng-click="$transaction.ok()">OK</button>
+    <button class="btn btn-warning" type="button" ng-click="$transaction.cancel()">Cancel</button>
+</div>
+
+
+   

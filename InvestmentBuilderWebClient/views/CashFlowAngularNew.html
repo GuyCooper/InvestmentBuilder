@@ -1,0 +1,361 @@
+﻿@section scripts {
+    <script src="~/Scripts/angular.js"></script>
+    <script src="~/Scripts/ui-bootstrap-tpls-2.5.0.js"></script>
+    
+    @*<script src="~/Scripts/MyApp/CashFlowAngular.js"></script>*@
+
+    <script type="text/javascript">
+        "use strict"
+
+        //function InvestmentRecordDatePicker() {
+
+        //    this.today = function () {
+        //        this.dt = new Date();
+        //    }.bind(this);
+
+        //    this.dateOptions = {
+        //        dateDisabled: false,
+        //        formatYear: 'yy',
+        //        maxDate: new Date(2020, 5, 22),
+        //        minDate: null,
+        //        startingDay: 1
+        //    };
+
+        //    this.openDatePicker = function () {
+        //        this.datepicker.opened = true;
+        //    }.bind(this);
+
+        //    this.format = 'dd-MMMM-yyyy';
+        //    this.altInputFormats = ['M!/d!/yyyy'];
+
+        //    this.datepicker = {
+        //        opened: false
+        //    };
+
+        //    this.today();
+        //};
+
+        function CashFlow($http, $uibModal, $log) {
+
+            this.cashFlows = null;
+            this.cashFlowFromDate = null;
+            this.receiptParamTypes = null;
+            this.paymentParamTypes = null;
+
+            var onLoadContents = function (response) {
+
+                if (response.data) {
+                    this.cashFlows = response.data.CashFlows;
+                    this.receiptParamTypes = response.data.ReceiptParamTypes;
+                    this.paymentParamTypes = response.data.PaymentParamTypes;
+                }
+
+                if (this.cashFlows.length > 0) {
+                    this.cashFlowFromDate = this.cashFlows[this.cashFlows.length - 1].ValuationDate;
+                }
+            }.bind(this);
+
+            $http.get('CashFlowContents')
+            .then(onLoadContents);
+    
+            this.addDialog = function (title, paramTypes, updateMethod) {
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'AddCashTransaction',
+                    controller: 'CashTransaction',
+                    controllerAs: '$transaction',
+                    size: 'lg',
+                    resolve: {
+                        transactionType: function () {
+                            return title;
+                        },
+                        paramTypes: function () {
+                            return paramTypes;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function (transaction) {
+                    //$ctrl.selected = selectedItem;
+                    //use has clicked ok , we need to update the cash transactions
+                    $http({
+                        url: updateMethod,
+                        method: 'POST',
+                        params: transaction
+                    })
+                    .then(onLoadContents);
+                }, function () {
+                    $log.info('Modal dismissed at: ' + new Date());
+                });
+            }.bind(this);
+
+            this.addReceipt = function () {
+                this.addDialog('receipt', this.receiptParamTypes, 'AddReceiptTransactionAngular');
+            }.bind(this);
+
+            this.addPayment = function () {
+                this.addDialog('payment', this.paymentParamTypes, 'AddPaymentTransactionAngular');
+            };
+
+            this.deleteReceipt = function (index) {
+                alert('delete receipt ' + index);
+            };
+
+            this.deletePayment = function (index) {
+                alert('delete payment' + index);
+            };
+
+            this.reloadContents = function () {
+                //var url = 'CashFlowContents/' + this.cashFlowFromDate;
+                //$http.get('CashFlowContents/"01-06-2016"')
+                $http({
+                    url: 'CashFlowContents',
+                    method: 'GET',
+                    params: { sDateRequestedFrom: this.cashFlowFromDate }
+                })
+                .then(onLoadContents);
+            };
+
+            //this.formatTransactionDate = function (transaction) {
+            //    var transactionDate = Date.parse(transaction.TransactionDate);
+            //    return transactionDate.toDateString();
+            //}
+        }
+
+        function CashTransaction($http, $uibModalInstance, transactionType, paramTypes) {
+            var $transaction = this;
+            if (transactionType == 'receipt') {
+                $transaction.title = 'Add Receipt';
+            }
+            else {
+                $transaction.title = 'Add Payment';
+            }
+           
+            //$transaction.dt = null;
+            $transaction.ParamTypes = paramTypes;
+            $transaction.SelectedParamType = '';
+            if (paramTypes.length > 0) {
+                $transaction.SelectedParamType = paramTypes[0];
+            }
+            $transaction.Parameters = [];
+            $transaction.SelectedParameter = '';
+            $transaction.Amount = 0;
+
+            $transaction.ok = function () {
+                $uibModalInstance.close({
+                    transactionDate: $transaction.datePicker.dt,
+                    paramType: $transaction.SelectedParamType,
+                    param: $transaction.SelectedParameter,
+                    amount: $transaction.Amount,
+                    dateRequestedFrom: this.cashFlowFromDate
+                });
+            };
+
+            $transaction.cancel = function () {
+                $uibModalInstance.dismiss('cancel');
+            };
+           
+            //$transaction.datePicker = new InvestmentRecordDatePicker();
+
+            $transaction.openDatePicker = function () {
+                $transaction.datePicker.openDatePicker();
+            }
+
+            $transaction.today = function () {
+                $transaction.dt = new Date();
+            };
+
+            $transaction.dateOptions = {
+                dateDisabled: false,
+                formatYear: 'yy',
+                maxDate: new Date(2020, 5, 22),
+                minDate: null,
+                startingDay: 1
+            };
+
+            $transaction.openDatePicker = function () {
+                $transaction.datepicker.opened = true;
+            };
+
+            $transaction.format = 'dd-MMMM-yyyy';
+            $transaction.altInputFormats = ['M!/d!/yyyy'];
+
+            $transaction.datepicker = {
+                opened: false
+            };
+
+            $transaction.today();
+
+            $transaction.onLoadParameters = function (response) {
+                if (response.data) {
+                    $transaction.Parameters = response.data.parameters;
+                    if ($transaction.Parameters.length > 0) {
+                        $transaction.SelectedParameter = $transaction.Parameters[0];
+                    }
+                }
+            };
+
+            $transaction.changeParamType = function () {
+                $http({
+                    url: 'GetParametersForTransaction',
+                    method: 'GET',
+                    params: { ParameterType: $transaction.SelectedParamType }
+                })
+                .then($transaction.onLoadParameters);
+            };
+
+            $transaction.changeParamType();
+        }
+
+        //inject everything angular needs here
+        angular.module('InvestmentRecord', ['ui.bootstrap']);
+
+        angular.module('InvestmentRecord')
+        .controller('CashFlowController', CashFlow);
+
+        angular.module('InvestmentRecord')
+        .controller('CashTransaction', CashTransaction);
+           
+    </script>
+}
+
+@{
+    ViewBag.Title = "CashFlowAngular";
+}
+
+<div class="container">
+    @Html.Partial("~/Views/InvestmentRecord/AccountSummary.cshtml")
+    <div ng-app="InvestmentRecord">
+        <div ng-controller="CashFlowController as cashFlow" id="cashflowContainer">
+            <div ng-repeat="cashFlowItem in cashFlow.cashFlows" class="row cashFlowBlock">
+                <div class="panel panel-default investmentSummary">
+                    <div class="cashItemType">
+                        <div class="navbar navbar-default">
+                            <div class="navbar-header">
+                                <a class="navbar-brand">Receipts</a>
+                            </div>
+                            <ul class="nav navbar-nav navbar-right">
+                                <li><p class="navbar-text">Valuation Date: {{cashFlowItem.ValuationDate}}</p> </li>
+                                <li><p class="navbar-text">Total: {{cashFlowItem.ReceiptsTotal}}</p></li>
+                                <li>
+                                    <div ng-show="$index == 0" ng-click="cashFlow.addReceipt()"  class="btn btn-default" data-toggle="modal" data-target="#myModal">Add Receipt</div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <table class="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>Transaction Date</th>
+                                    <th>Parameter</th>
+                                    <th>Subscription</th>
+                                    <th>Sale</th>
+                                    <th>Dividend</th>
+                                    <th>Other Receipts</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                    <tr ng-repeat="receipt in cashFlowItem.Receipts" ng-class="{
+                                            active: receipt.IsTotal == true,
+                                            cashTotal: receipt.IsTotal == true
+                                        }">
+                                        <td>
+                                           <p>{{receipt.TransactionDate}}</p>
+                                        </td>
+                                        <td>
+                                            <p>{{receipt.Parameter}}</p>
+                                        </td>
+                                        <td>
+                                            <p>{{receipt.Subscription}}</p>
+                                        </td>
+                                        <td>
+                                            <p>{{receipt.Sale}}</p>
+                                        </td>
+                                        <td>
+                                            <p>{{receipt.Dividend}}</p>
+                                        </td>
+                                        <td>
+                                            <p>{{receipt.Other}}</p>
+                                        </td>
+                                        <td ng-if="receipt.IsTotal == false">
+                                            <ul class="nav nav-tabs">
+                                                <li><a href="#" ng-show="$parent.$index == 0 && $index != 0" ng-click="cashFlow.deleteReceipt($index)" class="btn btn-sm">Delete</a></li>
+                                            </ul>
+                                        </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="panel panel-default investmentSummary">
+                    <div class="cashItemType">
+                        <div class="navbar navbar-default">
+                            <div class="navbar-header">
+                                <a class="navbar-brand">Payments</a>
+                            </div>
+                            <ul class="nav navbar-nav navbar-right">
+                                <li><p class="navbar-text">Valuation Date: {{cashFlowItem.ValuationDate}}</p> </li>
+                                <li><p class="navbar-text">Total: {{cashFlowItem.PaymentsTotal}}</p></li>
+                                <li>
+                                    <div ng-show="$index == 0" ng-click="cashFlow.addPayment()" class="btn btn-default" data-toggle="modal" data-target="#myModal">Add Payment</div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <table class="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>Transaction Date</th>
+                                    <th>Parameter</th>
+                                    <th>Withdrawls</th>
+                                    <th>Purchases</th>
+                                    <th>Other Payments</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="payment in cashFlowItem.Payments" ng-class="{
+                                            active: payment.IsTotal == true,
+                                            cashTotal: payment.IsTotal == true
+                                        }">
+                                    <td>
+                                        <p>{{payment.TransactionDate}}</p>
+                                    </td>
+                                    <td>
+                                        <p>{{payment.Parameter}}</p>
+                                    </td>
+                                    <td>
+                                        <p>{{payment.Withdrawls}}</p>
+                                    </td>
+                                    <td>
+                                        <p>{{payment.Purchases}}</p>
+                                    </td>
+                                    <td>
+                                        <p>{{payment.Other}}</p>
+                                    </td>
+                                    <td ng-if="payment.IsTotal == false">
+                                        <ul class="nav nav-tabs">
+                                            <li><a href="#" ng-show="$parent.$index == 0 && $index != 0" ng-click="cashFlow.deletePayment($index)" class="btn btn-sm">Delete</a></li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <span>Cash Flow From</span>
+                @*<p class="input-group">
+                    <input type="text" name="transactionDate" uib-datepicker-popup="{{cashFlow.format}}" ng-model="cashFlow.cashFlowFromDate" is-open="cashFlow.datepicker.opened" datepicker-options="cashFlow.dateOptions" ng-required="true" close-text="Close" />
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-default" ng-click="cashFlow.openDatePicker()"><i class="glyphicon glyphicon-calendar"></i></button>
+                    </span>
+                </p>*@
+                <input type="button" ng-click="cashFlow.reloadContents()" value="go" />
+            </div>
+        </div>
+    </div>
+</div>

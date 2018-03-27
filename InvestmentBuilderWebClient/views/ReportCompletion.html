@@ -1,0 +1,14 @@
+﻿<div class="modal-header">
+    <h3 ng-show="$report.success == true" class="modal-title" id="modal-title">Build Report Completed</h3>
+    <h3 ng-show="$report.success == false" class="modal-title" id="modal-title">Build Report Failed!!</h3>
+</div>
+<div class="modal-body" id="modal-body">
+    <ul ng-show="$report.success == false">
+        <li ng-repeat="error in $report.errors" ng-bind="error"></li>
+    </ul>
+</div>
+<div class="modal-footer">
+    <a href="LoadLatestReport" ng-show="$report.success == true" target="_blank" class="btn btn-lg">Show Report</a>
+    <button class="btn btn-primary" type="button" ng-click="$report.ok()">OK</button>
+</div>
+

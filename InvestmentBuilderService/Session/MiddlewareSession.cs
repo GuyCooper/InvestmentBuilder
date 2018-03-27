@@ -66,11 +66,11 @@ namespace InvestmentBuilderService.Session
             }
         }
 
-        public void SendMessageToChannel(string channel, string payload, string destination)
+        public void SendMessageToChannel(string channel, string payload, string destination, string requestId)
         {
             if (_session != null)
             {
-                _middleware.SendMessageToChannel(_session, channel, payload, destination);
+                _middleware.SendMessageToChannel(_session, channel, payload, destination, requestId);
             }
         }
 
