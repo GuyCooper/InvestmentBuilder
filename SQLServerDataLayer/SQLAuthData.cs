@@ -10,12 +10,18 @@ namespace SQLServerDataLayer
 {
     public class SQLAuthData : IAuthDataLayer
     {
-        private SqlConnection _dbConnection;
+        private string _connectionStr;
+
+        private SqlConnection OpenConnection()
+        {
+            var connection = new SqlConnection(_connectionStr);
+            connection.Open();
+            return connection;
+        }
 
         public SQLAuthData(IConfigurationSettings settings)
         {
-            _dbConnection = new SqlConnection(settings.AuthDatasourceString);
-            _dbConnection.Open();
+            _connectionStr = settings.AuthDatasourceString;
         }
 
         /// <summary>
@@ -30,19 +36,22 @@ namespace SQLServerDataLayer
         /// <returns>0: success. -1 : command failed , 1 : empty email, 2: empty password, 3, user already exists</returns>
         public int AddNewUser(string userName, string eMail, string salt, string passwordHash, string phoneNumber, bool twoFactorEnabled)
         {
-            using (var command = new SqlCommand("sp_AuthAddNewUser", _dbConnection))
+            using (var connection = OpenConnection())
             {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@UserName", userName ?? ""));
-                command.Parameters.Add(new SqlParameter("@EMail", eMail));
-                command.Parameters.Add(new SqlParameter("@Salt", salt));            
-                command.Parameters.Add(new SqlParameter("@PasswordHash", passwordHash));
-                command.Parameters.Add(new SqlParameter("@PhoneNumber", phoneNumber));
-                command.Parameters.Add(new SqlParameter("@TwoFactorEnabled", twoFactorEnabled));
-                var objResult = command.ExecuteScalar();
-                if (objResult != null)
+                using (var command = new SqlCommand("sp_AuthAddNewUser", connection))
                 {
-                    return (int)objResult;
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@UserName", userName ?? ""));
+                    command.Parameters.Add(new SqlParameter("@EMail", eMail));
+                    command.Parameters.Add(new SqlParameter("@Salt", salt));
+                    command.Parameters.Add(new SqlParameter("@PasswordHash", passwordHash));
+                    command.Parameters.Add(new SqlParameter("@PhoneNumber", phoneNumber));
+                    command.Parameters.Add(new SqlParameter("@TwoFactorEnabled", twoFactorEnabled));
+                    var objResult = command.ExecuteScalar();
+                    if (objResult != null)
+                    {
+                        return (int)objResult;
+                    }
                 }
             }
             return -1;
@@ -50,15 +59,18 @@ namespace SQLServerDataLayer
 
         public bool AuthenticateUser(string email, string passwordHash)
         {
-            using (var command = new SqlCommand("sp_AuthenticateUser", _dbConnection))
+            using (var connection = OpenConnection())
             {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@EMail", email));
-                command.Parameters.Add(new SqlParameter("@PasswordHash", passwordHash));
-                var objResult = command.ExecuteScalar();
-                if (objResult != null)
+                using (var command = new SqlCommand("sp_AuthenticateUser", connection))
                 {
-                    return (int)objResult == 1;
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@EMail", email));
+                    command.Parameters.Add(new SqlParameter("@PasswordHash", passwordHash));
+                    var objResult = command.ExecuteScalar();
+                    if (objResult != null)
+                    {
+                        return (int)objResult == 1;
+                    }
                 }
             }
             return false;
@@ -66,17 +78,20 @@ namespace SQLServerDataLayer
 
         public bool ChangePassword(string email, string oldPasswordHash, string newPasswordHash, string newSalt)
         {
-            using (var command = new SqlCommand("sp_ChangePassword", _dbConnection))
+            using (var connection = OpenConnection())
             {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@EMail", email));
-                command.Parameters.Add(new SqlParameter("@OldPasswordHash", oldPasswordHash));
-                command.Parameters.Add(new SqlParameter("@NewPasswordHash", newPasswordHash));
-                command.Parameters.Add(new SqlParameter("@NewSalt", newSalt));
-                var objResult = command.ExecuteScalar();
-                if (objResult != null)
+                using (var command = new SqlCommand("sp_ChangePassword", connection))
                 {
-                    return (int)objResult == 1;
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@EMail", email));
+                    command.Parameters.Add(new SqlParameter("@OldPasswordHash", oldPasswordHash));
+                    command.Parameters.Add(new SqlParameter("@NewPasswordHash", newPasswordHash));
+                    command.Parameters.Add(new SqlParameter("@NewSalt", newSalt));
+                    var objResult = command.ExecuteScalar();
+                    if (objResult != null)
+                    {
+                        return (int)objResult == 1;
+                    }
                 }
             }
             return false;
@@ -84,24 +99,30 @@ namespace SQLServerDataLayer
 
         public void RemoveUser(string email)
         {
-            using (var command = new SqlCommand("sp_AuthRemoveUser", _dbConnection))
+            using (var connection = OpenConnection())
             {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@EMail", email));
-                command.ExecuteNonQuery();
+                using (var command = new SqlCommand("sp_AuthRemoveUser", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@EMail", email));
+                    command.ExecuteNonQuery();
+                }
             }
         }
 
         public string GetSalt(string email)
         {
-            using (var command = new SqlCommand("sp_AuthGetSalt", _dbConnection))
+            using (var connection = OpenConnection())
             {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@EMail", email));
-                var objResult = command.ExecuteScalar();
-                if (objResult != null)
+                using (var command = new SqlCommand("sp_AuthGetSalt", connection))
                 {
-                    return (string)objResult;
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@EMail", email));
+                    var objResult = command.ExecuteScalar();
+                    if (objResult != null)
+                    {
+                        return (string)objResult;
+                    }
                 }
             }
             return null;

@@ -68,5 +68,10 @@ namespace InvestmentBuilderService
                 session.SendMessageToChannel(ResponseName, JsonConvert.SerializeObject(responsePayload), sourceId, requestId);
             }
         }
+
+        protected AccountService GetAccountService()
+        {
+            return _accountService;
+        }
     }
 }

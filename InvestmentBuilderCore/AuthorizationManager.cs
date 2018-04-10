@@ -37,6 +37,14 @@ namespace InvestmentBuilderCore
             }
         }
 
+        public void UpdateAccount(string account)
+        {
+            if(string.IsNullOrEmpty(account) == false)
+            {
+                Account = account;
+            }
+        }
+
         [ContractInvariantMethod]
         protected void ObjectInvariantMethod()
         {
@@ -96,7 +104,13 @@ namespace InvestmentBuilderCore
         {
             UserAccountToken existingToken;
             if (IsGlobalAdministrator(user) || account == null)
+            {
                 _userTokenlookup.TryGetValue(user, out existingToken);
+                if(existingToken != null)
+                {
+                    existingToken.UpdateAccount(account);
+                }
+            }
             else
                 existingToken = _userTokenlookup.Values.FirstOrDefault(t => t.Account == account && t.User == user);
 

@@ -9,7 +9,7 @@ namespace InvestmentBuilderService.Channels
 {
     internal class RecentValuationDates : Dto
     {
-        public IEnumerable<string> RecentReports { get; set; }
+        public IEnumerable<string> RecentDates { get; set; }
     }
 
     internal class GetRecentValutationDatesChannel : EndpointChannel<Dto>
@@ -27,7 +27,7 @@ namespace InvestmentBuilderService.Channels
             var userToken = GetCurrentUserToken(userSession);
             return new RecentValuationDates
             {
-                RecentReports = _clientData.GetRecentValuationDates(userToken, DateTime.Now).Select(x =>
+                RecentDates = _clientData.GetRecentValuationDates(userToken, DateTime.Now).Select(x =>
                                          x.ToShortDateString()).ToList()
             };
         }

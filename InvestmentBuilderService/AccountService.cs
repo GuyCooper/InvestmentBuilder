@@ -10,13 +10,13 @@ namespace InvestmentBuilderService
 {
     internal class AccountService
     {
-        private AccountManager _accountManager;
-        IAuthorizationManager _authorizationManager;
+        private readonly IAuthorizationManager _authorizationManager;
+        private readonly AccountManager _accountManager;
 
         public AccountService(AccountManager accountManager, IAuthorizationManager authorizationManager)
         {
-            _accountManager = accountManager;
             _authorizationManager = authorizationManager;
+            _accountManager = accountManager;
         }
 
         public UserAccountToken GetUserAccountToken(UserSession userSession, string selectedAccount)
@@ -25,10 +25,14 @@ namespace InvestmentBuilderService
             var username = userSession.UserName;
             if (username != null)
             {
-                var accounts = _accountManager.GetAccountNames(username).ToList();
-                token = _authorizationManager.SetUserAccountToken(username, selectedAccount ?? accounts.FirstOrDefault());
+                token = _authorizationManager.SetUserAccountToken(username, selectedAccount ?? userSession.AccountName);
             }
             return token;
+        }
+
+        public IEnumerable<string> GetAccountsForUser(UserSession session)
+        {
+            return _accountManager.GetAccountNames(session.UserName);
         }
     }
 }

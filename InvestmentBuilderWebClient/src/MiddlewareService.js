@@ -18,13 +18,19 @@ function MiddlewareService()
         console.log('Error from middleware. ' + message);
     };
 
+    var isNullOrUndefined = function(object) {
+        return object === null || object === undefined;
+    }
+
     var onMessage = function (message) {
         for (var i = 0; i < pendingRequestList.length; i++) {
             var request = pendingRequestList[i];
             if (request.pendingId === message.RequestId) {
                 //message found. remove it from queue
                 pendingRequestList.splice(i, 1);
-                request.callback(JSON.parse(message.Payload));
+                if (isNullOrUndefined(request.callback) === false) {
+                    request.callback(JSON.parse(message.Payload));
+                }
                 break;
             }
         }
@@ -71,6 +77,16 @@ function MiddlewareService()
     };
 
     this.SellTrade = function (name, handler) {
-        doCommand("SELL_TRADE_REQUEST", "SELL_TRADE_RESPONSE", payload, handler)
+        var dto = { TradeName: name };
+        doCommand("SELL_TRADE_REQUEST", "SELL_TRADE_RESPONSE", dto, handler)
     };
+
+    this.GetAccountsForUser = function (handler) {
+        doCommand("GET_ACCOUNT_NAMES_REQUEST", "GET_ACCOUNT_NAMES_RESPONSE", null, handler);
+    }
+
+    this.UpdateAccount = function (account, handler) {
+        var dto = { AccountName: account };
+        doCommand("UPDATE_ACCOUNT_REQUEST", "UPDATE_ACCOUNT_RESPONSE", dto, handler);
+    }
 }

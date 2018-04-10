@@ -113,16 +113,13 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
         });
     }
 
-    //temporary middleware connection. move to login view when ready
-    MiddlewareService.Connect("ws://localhost:8080", "guy@guycooper.plus.com", "rangers").then(function () {
-        console.log("connection to middleware succeded!");
-        NotifyService.RegisterPortfolioListener(function () {
-            loadPortfolio();
-        });
-    },
-    function (error) {
-        console.log("connection to middleware failed" + error);
-    });
+    //register as a portfolio listener so  loadPortfolio will be called every time the
+    //portfolio tab is clicked
+    NotifyService.RegisterPortfolioListener(loadPortfolio);
+
+    //also, we want the portfolio to be loaded on startup so add is as a connectionlistener as well.
+    //this means it will be loaded once the connection to the server has been made
+    NotifyService.RegisterConnectionListener(loadPortfolio);
 };
 
 function TradeEditor($uibModalInstance, name) {

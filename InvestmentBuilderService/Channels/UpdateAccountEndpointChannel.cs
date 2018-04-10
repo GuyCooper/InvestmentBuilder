@@ -20,6 +20,7 @@ namespace InvestmentBuilderService.Channels
         public override Dto HandleEndpointRequest(UserSession userSession, UpdateAccountRequestDto payload)
         {
             GetCurrentUserToken(userSession, payload.AccountName);
+            userSession.AccountName = payload.AccountName;
             return new ResponseDto { Status = true };
         }
     }

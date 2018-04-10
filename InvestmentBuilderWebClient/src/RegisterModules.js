@@ -10,6 +10,7 @@ module.controller("PortfolioController", Portfolio);
 
 module.controller('TradeEditor', TradeEditor);
 
+module.controller('AccountListController', AccountList);
 //inject everything angular needs here
 //angular.module('InvestmentRecord', ['ui.bootstrap']);
 

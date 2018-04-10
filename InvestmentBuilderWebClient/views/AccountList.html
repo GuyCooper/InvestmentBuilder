@@ -1,0 +1,11 @@
+﻿<div class="navbar-collapse collapse" ng-controller="AccountListController">
+    <ul class="nav navbar-nav navbar-right">
+        <li>
+            <form name="accountDetailsForm" role="form" ng-submit="UpdateAccount()">
+                <select name="AccountName" ng-model="SelectedAcount" ng-change="UpdateAccount()">
+                    <option ng-repeat="account in Accounts">{{account}}</option>
+                </select>
+            </form>
+        </li>
+    </ul>
+</div>

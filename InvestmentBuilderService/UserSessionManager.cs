@@ -11,6 +11,7 @@ using NLog;
 using InvestmentBuilderService.Session;
 using InvestmentBuilderService.Utils;
 using Microsoft.Practices.Unity;
+using InvestmentBuilder;
 
 namespace InvestmentBuilderService
 {
@@ -28,13 +29,15 @@ namespace InvestmentBuilderService
     internal class UserSessionManager : EndpointManager, ISessionManager
     {
         private Dictionary<string, UserSession> _userSessions = new Dictionary<string, UserSession>();
-        private IAuthDataLayer _authtdata;
+        private IAuthDataLayer _authdata;
         private static Logger logger = LogManager.GetCurrentClassLogger();
+        private AccountManager _accountManager;
 
-        public UserSessionManager(IConnectionSession session, IAuthDataLayer authtdata)
+        public UserSessionManager(IConnectionSession session, IAuthDataLayer authtdata, AccountManager accountManager)
             : base(session)
         {
-            _authtdata = authtdata;
+            _authdata = authtdata;
+            _accountManager = accountManager;
         }
 
         //this method handles authentication calls from the middleware server. authenitcate
@@ -54,15 +57,18 @@ namespace InvestmentBuilderService
                 Task.Factory.StartNew(() =>
                 {
                     var login = JsonConvert.DeserializeObject<LoginPayload>(message.Payload);
-                    var salt = _authtdata.GetSalt(login.UserName);
+                    var salt = _authdata.GetSalt(login.UserName);
                     var hash = SaltedHash.GenerateHash(login.Password, salt);
-                    bool authenticated = _authtdata.AuthenticateUser(login.UserName, hash);
+                    bool authenticated = _authdata.AuthenticateUser(login.UserName, hash);
 
                     GetSession().SendAuthenticationResult(authenticated, authenticated ? "authentication succeded" : "authenitcation failed", message.RequestId);
 
                     if(authenticated == true)
                     {
-                        _userSessions.Add(message.SourceId, new UserSession(login.UserName, message.SourceId));
+                        var userSession = new UserSession(login.UserName, message.SourceId);
+                        var accounts = _accountManager.GetAccountNames(login.UserName).ToList();
+                        userSession.AccountName = accounts.FirstOrDefault();
+                        _userSessions.Add(message.SourceId, userSession);
                     }
                 });
             }

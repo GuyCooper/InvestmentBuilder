@@ -26,6 +26,8 @@
     <Content Include="gulpfile.js" />
     <Content Include="Index.html" />
     <Content Include="Middleware\Middleware.js" />
+    <Content Include="src\AccountList.js" />
+    <Content Include="src\AccountSummary.js" />
     <Content Include="src\CashFlow.js" />
     <Content Include="src\CreateTrade.js" />
     <Content Include="src\Layout.js" />
@@ -47,6 +49,7 @@
     <Content Include="styles\thirdParty\jquery-ui.theme.min.css" />
     <Content Include="styles\thirdParty\Site.css" />
     <Content Include="tasks\scaffold.js" />
+    <Content Include="views\AccountList.html" />
     <Content Include="views\Layout.html" />
     <Content Include="web.config" />
   </ItemGroup>
@@ -62,7 +65,6 @@
     <Content Include="views\CashFlowAngularNew.html" />
     <Content Include="views\CreateTrade.html" />
     <Content Include="views\EditTrade.html" />
-    <Content Include="views\IndexOLD.html" />
     <Content Include="views\Parameters.html" />
     <Content Include="views\Portfolio.html" />
     <Content Include="views\RaiseAlert.html" />

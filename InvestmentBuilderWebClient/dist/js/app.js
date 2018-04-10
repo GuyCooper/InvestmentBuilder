@@ -17,18 +17,21 @@ function YesNoPicker($uibModalInstance, title, description, name) {
 };
 'use strict'
 
-function NotifyService() {
+function NotifyService(MiddlewareService) {
 
     var PortfolioListeners = [];
     var AddTradeListeners = [];
     var CashFlowListeners = [];
 
+    //this list contains a list of handlers that should be called once connection to the middleware
+    //is complete
+    var ConnectionListeners = [];
     //var BuildReportListener = null;
     //var ViewReportListeners = [];
 
     this.RegisterPortfolioListener = function (listener) {
         PortfolioListeners.push(listener);
-        this.InvokePortfolio(); //as this is the default view ensure it gets loaded
+        //this.InvokePortfolio(); //as this is the default view ensure it gets loaded
     };
 
     this.RegisterAddTradeListener = function (listener) {
@@ -39,6 +42,9 @@ function NotifyService() {
         CashFlowListeners.push(listener);
     };
 
+    this.RegisterConnectionListener = function (listener) {
+        ConnectionListeners.push(listener);
+    };
     //NotifyService.RegisterViewReportListener = function (listener) {
     //    ViewReportListeners.push(listener);
     //};
@@ -61,6 +67,16 @@ function NotifyService() {
         invokeListeners(CashFlowListeners);
     };
 
+    //now connect to the middleware server. once conncted inform any listeners that connection is complete
+    MiddlewareService.Connect("ws://localhost:8080", "guy@guycooper.plus.com", "rangers").then(function () {
+        console.log("connection to middleware succeded!");
+        for (var i = 0; i < ConnectionListeners.length; i++) {
+            ConnectionListeners[i]();
+        }
+    },
+    function (error) {
+        console.log("connection to middleware failed" + error);
+    });
     //NotifyService.InvokeViewReport = function () {
     //    invokeListeners(ViewReportListeners);
     //};
@@ -110,13 +126,19 @@ function MiddlewareService()
         console.log('Error from middleware. ' + message);
     };
 
+    var isNullOrUndefined = function(object) {
+        return object === null || object === undefined;
+    }
+
     var onMessage = function (message) {
         for (var i = 0; i < pendingRequestList.length; i++) {
             var request = pendingRequestList[i];
             if (request.pendingId === message.RequestId) {
                 //message found. remove it from queue
                 pendingRequestList.splice(i, 1);
-                request.callback(JSON.parse(message.Payload));
+                if (isNullOrUndefined(request.callback) === false) {
+                    request.callback(JSON.parse(message.Payload));
+                }
                 break;
             }
         }
@@ -163,8 +185,18 @@ function MiddlewareService()
     };
 
     this.SellTrade = function (name, handler) {
-        doCommand("SELL_TRADE_REQUEST", "SELL_TRADE_RESPONSE", payload, handler)
+        var dto = { TradeName: name };
+        doCommand("SELL_TRADE_REQUEST", "SELL_TRADE_RESPONSE", dto, handler)
     };
+
+    this.GetAccountsForUser = function (handler) {
+        doCommand("GET_ACCOUNT_NAMES_REQUEST", "GET_ACCOUNT_NAMES_RESPONSE", null, handler);
+    }
+
+    this.UpdateAccount = function (account, handler) {
+        var dto = { AccountName: account };
+        doCommand("UPDATE_ACCOUNT_REQUEST", "UPDATE_ACCOUNT_RESPONSE", dto, handler);
+    }
 }
 "use strict"
 
@@ -622,16 +654,13 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
         });
     }
 
-    //temporary middleware connection. move to login view when ready
-    MiddlewareService.Connect("ws://localhost:8080", "guy@guycooper.plus.com", "rangers").then(function () {
-        console.log("connection to middleware succeded!");
-        NotifyService.RegisterPortfolioListener(function () {
-            loadPortfolio();
-        });
-    },
-    function (error) {
-        console.log("connection to middleware failed" + error);
-    });
+    //register as a portfolio listener so  loadPortfolio will be called every time the
+    //portfolio tab is clicked
+    NotifyService.RegisterPortfolioListener(loadPortfolio);
+
+    //also, we want the portfolio to be loaded on startup so add is as a connectionlistener as well.
+    //this means it will be loaded once the connection to the server has been made
+    NotifyService.RegisterConnectionListener(loadPortfolio);
 };
 
 function TradeEditor($uibModalInstance, name) {
@@ -687,6 +716,28 @@ function TradeEditor($uibModalInstance, name) {
 //agGrid.initialiseAgGridWithAngular1(angular)
 
 
+'use strict'
+
+function AccountList($scope, NotifyService, MiddlewareService) {
+
+    var loadAccountList = function() {
+        MiddlewareService.GetAccountsForUser(function (data) {
+            $scope.Accounts = data.AccountNames;
+            if ($scope.Accounts.length > 0) {
+                $scope.SelectedAcount = $scope.Accounts[0];
+            }
+        });
+    };
+
+    $scope.SelectedAcount = "";
+    $scope.UpdateAccount = function () {
+        MiddlewareService.UpdateAccount($scope.SelectedAcount, function (data) {
+            NotifyService.InvokePortfolio();
+        });
+    };
+
+    NotifyService.RegisterConnectionListener(loadAccountList);
+}
 "use strict"
 
 var module = angular.module("InvestmentRecord", ["ui.bootstrap","agGrid"]);
@@ -699,6 +750,7 @@ module.controller("PortfolioController", Portfolio);
 
 module.controller('TradeEditor', TradeEditor);
 
+module.controller('AccountListController', AccountList);
 //inject everything angular needs here
 //angular.module('InvestmentRecord', ['ui.bootstrap']);
 

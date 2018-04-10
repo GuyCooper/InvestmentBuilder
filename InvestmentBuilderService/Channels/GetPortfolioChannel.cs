@@ -29,7 +29,7 @@ namespace InvestmentBuilderService.Channels
         public override Dto HandleEndpointRequest(UserSession userSession, Dto payload)
         {
             var userToken = GetCurrentUserToken(userSession);
-            return new PortfolioResponseDto(_builder.GetCurrentInvestments(userToken, userSession.UserPrices).OrderBy(x => x.Name));
+            return new PortfolioResponseDto(_builder.GetCurrentInvestments(userToken, userSession.UserPrices).OrderBy(x => x.Name).ToList());
         }
     }
 }

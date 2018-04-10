@@ -46,7 +46,7 @@ namespace InvestmentBuilderService
                 var connectionSettings = new ConnectionSettings("Connections.xml");
                 var authData = new SQLAuthData(ContainerManager.ResolveValue<IConfigurationSettings>());
                 var authSession = new MiddlewareSession(connectionSettings.AuthServerConnection);
-                var userManager = new UserSessionManager(authSession, authData);
+                var userManager = new UserSessionManager(authSession, authData, ContainerManager.ResolveValue<AccountManager>());
                 var serverSession = new MiddlewareSession(connectionSettings.ServerConnection);
                 var endpointManager = new ChannelEndpointManager(serverSession, userManager);
 

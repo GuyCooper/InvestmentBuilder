@@ -10,29 +10,32 @@ namespace SQLServerDataLayer
 {
     class SQLServerHistoricalData : SQLServerBase, IHistoricalDataReader
     {
-        public SQLServerHistoricalData(SqlConnection connection)
+        public SQLServerHistoricalData(string connectionStr)
         {
-            Connection = connection;
+            ConnectionStr = connectionStr;
         }
 
         public IEnumerable<HistoricalData> GetHistoricalAccountData(UserAccountToken userToken)
         {
             userToken.AuthorizeUser(AuthorizationLevel.READ);
-            using (var command = new SqlCommand("sp_GetUnitPriceData", Connection))
+            using (var connection = OpenConnection())
             {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
-                using (var reader = command.ExecuteReader())
+                using (var command = new SqlCommand("sp_GetUnitPriceData", connection))
                 {
-                    while (reader.Read())
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    using (var reader = command.ExecuteReader())
                     {
-                        yield return new HistoricalData
-                        (
-                            date: GetDBValue<DateTime>("Valuation_Date", reader),
-                            price: GetDBValue<double>("Unit_Price", reader)
-                        );
+                        while (reader.Read())
+                        {
+                            yield return new HistoricalData
+                            (
+                                date: GetDBValue<DateTime>("Valuation_Date", reader),
+                                price: GetDBValue<double>("Unit_Price", reader)
+                            );
+                        }
+                        reader.Close();
                     }
-                    reader.Close();
                 }
             }
         }
@@ -41,17 +44,20 @@ namespace SQLServerDataLayer
         {
             userToken.AuthorizeUser(AuthorizationLevel.READ);
             string result = null;
-            using (var command = new SqlCommand("sp_GetHistoricalData", Connection))
+            using (var connection = OpenConnection())
             {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@Symbol", symbol));
-                using (var reader = command.ExecuteReader())
+                using (var command = new SqlCommand("sp_GetHistoricalData", connection))
                 {
-                    if(reader.Read())
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@Symbol", symbol));
+                    using (var reader = command.ExecuteReader())
                     {
-                        result = GetDBValue<string>("Data", reader);
+                        if (reader.Read())
+                        {
+                            result = GetDBValue<string>("Data", reader);
+                        }
+                        reader.Close();
                     }
-                    reader.Close();
                 }
             }
             return result;

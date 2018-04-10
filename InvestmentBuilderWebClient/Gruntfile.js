@@ -25,6 +25,7 @@ module.exports = function (grunt) {
                         "./src/CashFlow.js",
                         "./src/CreateTrade.js",
                         "./src/Portfolio.js",
+                        "./src/AccountList.js",
                         "./src/RegisterModules.js"
                       ],
             jsfiles: "./legacy/index.js",
