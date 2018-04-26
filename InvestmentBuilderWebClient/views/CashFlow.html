@@ -7,7 +7,7 @@
             <uib-progressbar animate="false" value="cashFlow.progressCount" type="success"><b>{{cashFlow.progressCount}}%</b></uib-progressbar>
         </div>
         <div ng-class="{hideCashFlow : cashFlow.isBuilding == true, showCashFlow : cashFlow.isBuilding == false}" ng-cloak>
-            <div ng-repeat="cashFlowItem in cashFlow.cashFlows" class="row cashFlowBlock">
+            <div ng-repeat="cashFlowItem in cashFlows" class="row cashFlowBlock">
                 <div class="panel panel-default investmentSummary">
                     <div class="cashItemType">
                         <div class="navbar navbar-default">
@@ -59,7 +59,6 @@
                                     </td>
                                     <td ng-if="receipt.IsTotal == false">
                                         <ul class="nav nav-tabs">
-                                            @*<li><a href="#" ng-show="$parent.$index == 0 && $index != 0" ng-click="cashFlow.deleteReceipt($index)" class="btn btn-sm">Delete</a></li>*@
                                             <li><a href="#" ng-show="cashFlowItem.CanEdit == true" ng-click="cashFlow.deleteReceipt($index)" class="btn btn-sm">Delete</a></li>
                                         </ul>
                                     </td>

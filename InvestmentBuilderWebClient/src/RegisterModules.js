@@ -12,11 +12,6 @@ module.controller('TradeEditor', TradeEditor);
 
 module.controller('AccountListController', AccountList);
 //inject everything angular needs here
-//angular.module('InvestmentRecord', ['ui.bootstrap']);
-
-//angular.module('InvestmentRecord', ['ui.bootstrap', 'agGrid']);
-//angular.module('InvestmentRecord', ['ui.bootstrap'], ['agGrid']);
-//angular.module('InvestmentRecord', ['ui.bootstrap']);
 
 module.controller('CashFlowController', CashFlow);
 
@@ -30,5 +25,5 @@ module.controller('AddTradeController', CreateTrade);
 
 module.controller('LayoutController', Layout);
 
-//angular.module('InvestmentRecord')
-//.controller('PortfolioController', Portfolio);
+module.controller('AccountSummaryController', AccountSummary);
+

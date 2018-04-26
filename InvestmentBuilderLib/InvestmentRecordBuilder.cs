@@ -20,7 +20,7 @@ namespace InvestmentBuilder
     [ContractClass(typeof(InvestmentRecordDataManagerContract))]
     public interface IInvestmentRecordDataManager
     {
-        bool UpdateInvestmentRecords(UserAccountToken userToken, UserAccountData account, Trades trades, CashAccountData cashData, DateTime valuationDate, ManualPrices manualPrices, ProgressCounter progress);
+        bool UpdateInvestmentRecords(UserAccountToken userToken, UserAccountData account, Trades trades, CashAccountData cashData, DateTime valuationDate, ManualPrices manualPrices, DateTime? dtPreviousValuation, ProgressCounter progress);
         IEnumerable<CompanyData> GetInvestmentRecords(UserAccountToken userToken, UserAccountData account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate, ManualPrices manualPrices, bool bSnapshot);
         IEnumerable<CompanyData> GetInvestmentRecordSnapshot(UserAccountToken userToken, UserAccountData account, ManualPrices manualPrices);
         DateTime? GetLatestRecordValuationDate(UserAccountToken userToken);
@@ -131,7 +131,7 @@ namespace InvestmentBuilder
         /// <param name="cashData"></param>
         /// <param name="valuationDate"></param>
         /// <param name="previousValuation"></param>
-        public bool UpdateInvestmentRecords(UserAccountToken userToken, UserAccountData account, Trades trades, CashAccountData cashData, DateTime valuationDate, ManualPrices manualPrices, ProgressCounter progress)
+        public bool UpdateInvestmentRecords(UserAccountToken userToken, UserAccountData account, Trades trades, CashAccountData cashData, DateTime valuationDate, ManualPrices manualPrices, DateTime? dtPreviousValuation, ProgressCounter progress)
         {
             Log.Log(LogLevel.Info, "building investment records...");
             //Console.WriteLine("building investment records...");
@@ -139,9 +139,9 @@ namespace InvestmentBuilder
             var aggregatedBuys = trades != null ? trades.Buys.AggregateStocks().ToList() : Enumerable.Empty<Stock>();
             var aggregatedSells = trades != null ? trades.Sells.AggregateStocks().ToList() : Enumerable.Empty<Stock>();
 
-            var previousValuation = _investmentRecordData.GetLatestRecordInvestmentValuationDate(userToken);
+            var previousUpdate = _investmentRecordData.GetLatestRecordInvestmentValuationDate(userToken);
             //
-            var enInvestments = _GetInvestments(userToken, previousValuation.HasValue ? previousValuation.Value : valuationDate).ToList();
+            var enInvestments = _GetInvestments(userToken, previousUpdate.HasValue ? previousUpdate.Value : valuationDate).ToList();
 
             progress.Initialise("updating investment records", enInvestments.Count + 1);
 
@@ -174,12 +174,12 @@ namespace InvestmentBuilder
 
             foreach (var investment in enInvestments)
             {
-                if (previousValuation.HasValue == false)
+                if (previousUpdate.HasValue == false)
                 {
                     throw new ApplicationException(string.Format("BuildInvestmentRecords: no previous valuation date for {0}. please investigate!!!", account));
                 }
 
-                var dtPrevious = previousValuation.Value;
+                var dtPrevious = previousUpdate.Value;
                 var company = investment.Name;
                 //Console.WriteLine("updating company {0}", company);
                 //now copy the last row into a new row and update
@@ -214,11 +214,7 @@ namespace InvestmentBuilder
 
                 //update any dividend. do not add dividend if just rerunning current valuation because
                 //the divididend field is accumulative
-                double dDividend;
-                if((valuationDate.Date > dtPrevious.Date) && cashData!= null && cashData.Dividends.TryGetValue(company, out dDividend))
-                {
-                    investment.UpdateDividend(valuationDate, dDividend);
-                }
+                UpdateDividend(valuationDate, dtPreviousValuation, investment, cashData);
                 //if we have the correct comapy data then calculate the closing price forthis company
                 double dPrice = 0d;
                 var companyInfo = investment.CompanyData;
@@ -264,6 +260,22 @@ namespace InvestmentBuilder
             }
 
             return true;
+        }
+
+        private void UpdateDividend(DateTime valuationDate, DateTime? previousValulation, IInvestmentRecordData investment,  CashAccountData cashData )
+        {
+            //update any dividend. do not add dividend if just rerunning current valuation because
+            //the divididend field is accumulative
+            if((previousValulation.HasValue == true) && (valuationDate <= previousValulation.Value))
+            {
+                return;
+            }
+
+            double dDividend;
+            if (cashData != null && cashData.Dividends.TryGetValue(investment.Name, out dDividend))
+            {
+                investment.UpdateDividend(valuationDate, dDividend);
+            }
         }
 
         private IEnumerable<CompanyData> _GetInvestmentRecordsImpl(UserAccountToken userToken, UserAccountData account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate, bool bSnapshot, ManualPrices manualPrices)

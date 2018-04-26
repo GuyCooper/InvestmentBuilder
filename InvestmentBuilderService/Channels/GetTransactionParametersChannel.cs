@@ -25,7 +25,7 @@ namespace InvestmentBuilderService.Channels
         public GetTransactionParametersChannel(AccountService accountService, 
                                                IDataLayer dataLayer,
                                                InvestmentBuilder.InvestmentBuilder builder) 
-            : base("GET_TRANSACTION_PARAMTERS_REQUEST", "GET_TRANSACTION_PARAMTERS_RESPONSE", accountService)
+            : base("GET_TRANSACTION_PARAMETERS_REQUEST", "GET_TRANSACTION_PARAMETERS_RESPONSE", accountService)
         {
             _recordData = dataLayer.InvestmentRecordData;
             _builder = builder;

@@ -35,7 +35,7 @@ namespace InvestmentBuilderService.Channels
             var result = false;
             if (tradeItem != null)
             {
-                result = _builder.UpdateTrades(token, tradeItem.ToInternalTrade(TransactionType.SELL), null, null);
+                result = _builder.UpdateTrades(token, tradeItem.ToInternalTrade(TransactionType.Sell), null, null);
             }
 
             return new ResponseDto

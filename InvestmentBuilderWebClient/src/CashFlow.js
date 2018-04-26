@@ -1,8 +1,8 @@
 ﻿"use strict"
 
-function CashFlow($http, $uibModal, $log, $interval, NotifyService) {
+function CashFlow($scope, $uibModal, $log, $interval, NotifyService, MiddlewareService) {
 
-    this.cashFlows = null;
+    $scope.cashFlows = [];
     this.receiptParamTypes = null;
     this.paymentParamTypes = null;
     this.progressCount = 0;
@@ -29,32 +29,31 @@ function CashFlow($http, $uibModal, $log, $interval, NotifyService) {
     }.bind(this);
 
     var checkStatusRequest = function () {
-        $http.get('CheckBuildStatus')
-        .then(onCheckStatus);
+        MiddlewareService.CheckBuildStatus(onCheckStatus);
     };
 
     var onLoadContents = function (response) {
 
-        if (response.data) {
-            this.cashFlows = response.data.CashFlows;
-            this.receiptParamTypes = response.data.ReceiptParamTypes;
-            this.paymentParamTypes = response.data.PaymentParamTypes;
+        if (response) {
+            $scope.cashFlows = response.CashFlows;
+            this.receiptParamTypes = response.ReceiptParamTypes;
+            this.paymentParamTypes = response.PaymentParamTypes;
         }
 
-        if (this.cashFlows.length > 0) {
-            this.cashFlowFromDate = new Date(this.cashFlows[this.cashFlows.length - 1].ValuationDate);
-            this.canBuild = this.cashFlows[0].CanBuild;
+        if ($scope.cashFlows.length > 0) {
+            this.cashFlowFromDate = new Date($scope.cashFlows[$scope.cashFlows.length - 1].ValuationDate);
+            this.canBuild = $scope.cashFlows[0].CanBuild;
         }
 
         if (this.isBuilding == true && progress == null) {
             progress = $interval(checkStatusRequest, 1000);
         }
+        $scope.$apply();
 
     }.bind(this);
 
     NotifyService.RegisterCashFlowListener(function () {
-        $http.get('CashFlowContents')
-        .then(onLoadContents);
+        MiddlewareService.GetCashFlowContents(null, onLoadContents);
     });
 
     this.onReportFinished = function (errors) {
@@ -79,7 +78,7 @@ function CashFlow($http, $uibModal, $log, $interval, NotifyService) {
             animation: true,
             ariaLabelledBy: 'modal-title',
             ariaDescribedBy: 'modal-body',
-            templateUrl: 'AddCashTransaction',
+            templateUrl: 'views/AddTransaction.html',
             controller: 'CashTransaction',
             controllerAs: '$transaction',
             size: 'lg',
@@ -96,60 +95,44 @@ function CashFlow($http, $uibModal, $log, $interval, NotifyService) {
         modalInstance.result.then(function (transaction) {
             //$ctrl.selected = selectedItem;
             //use has clicked ok , we need to update the cash transactions
-            $http({
-                url: updateMethod,
-                method: 'POST',
-                params: transaction
-            })
-            .then(onLoadContents);
+            updateMethod(transaction);
         }, function () {
             $log.info('Modal dismissed at: ' + new Date());
         });
     }.bind(this);
 
     this.addReceipt = function () {
-        this.addTransactionDialog('receipt', this.receiptParamTypes, 'AddReceiptTransaction');
+        this.addTransactionDialog('receipt', this.receiptParamTypes, function (transaction) { MiddlewareService.AddReceiptTransaction(transaction, onLoadContents); });
     }.bind(this);
 
     this.addPayment = function () {
-        this.addTransactionDialog('payment', this.paymentParamTypes, 'AddPaymentTransaction');
+        this.addTransactionDialog('payment', this.paymentParamTypes, function (transaction) { MiddlewareService.AddPaymentTransaction(transaction, onLoadContents); });
     };
 
     this.deleteTransaction = function (transaction) {
-        $http({
-            url: "RemoveTransaction",
-            method: 'POST',
-            params: {
-                valuationDate: transaction.ValuationDate,
-                transactionDate: transaction.TransactionDate,
-                transactionType: transaction.TransactionType,
-                parameter: transaction.Parameter
-            }
-        })
-        .then(onLoadContents);
+        MiddlewareService.RemoveTransaction({
+            valuationDate: transaction.ValuationDate,
+            transactionDate: transaction.TransactionDate,
+            transactionType: transaction.TransactionType,
+            parameter: transaction.Parameter
+        }, onLoadContents);
     };
 
     this.deleteReceipt = function (index) {
-        var item = this.cashFlows[0];
+        var item = $scope.cashFlows[0];
         var transaction = item.Receipts[index];
         this.deleteTransaction(transaction);
     }.bind(this);
 
     this.deletePayment = function (index) {
-        var item = this.cashFlows[0];
+        var item = $scope.cashFlows[0];
         var transaction = item.Payments[index];
         this.deleteTransaction(transaction);
     }.bind(this);
 
     this.reloadContents = function () {
         //var url = 'CashFlowContents/' + this.cashFlowFromDate;
-        //$http.get('CashFlowContents/"01-06-2016"')
-        $http({
-            url: 'CashFlowContents',
-            method: 'GET',
-            params: { sDateRequestedFrom: this.cashFlowFromDate }
-        })
-        .then(onLoadContents);
+        MiddlewareService.GetCashFlowContents(this.cashFlowFromDate, onLoadContents);
     };
 
     this.dateOptions = {
@@ -174,12 +157,7 @@ function CashFlow($http, $uibModal, $log, $interval, NotifyService) {
     this.BuildReport = function () {
 
         this.isBuilding = true;
-        $http({
-            url: 'BuildReport',
-            method: 'GET',
-            params: { sDateRequestedFrom: this.cashFlowFromDate }
-        })
-        .then(onLoadContents);
+        MiddlewareService.BuildReport(onLoadContents);
 
     }.bind(this);
 
@@ -189,7 +167,7 @@ function CashFlow($http, $uibModal, $log, $interval, NotifyService) {
     //}
 }
 
-function CashTransaction($http, $uibModalInstance, transactionType, paramTypes) {
+function CashTransaction($scope, $uibModalInstance, transactionType, paramTypes, MiddlewareService) {
     var $transaction = this;
     if (transactionType == 'receipt') {
         $transaction.title = 'Add Receipt';
@@ -204,7 +182,7 @@ function CashTransaction($http, $uibModalInstance, transactionType, paramTypes) 
     if (paramTypes.length > 0) {
         $transaction.SelectedParamType = paramTypes[0];
     }
-    $transaction.Parameters = [];
+    $scope.Parameters = [];
     $transaction.SelectedParameter = '';
     $transaction.Amount = 0;
 
@@ -248,21 +226,19 @@ function CashTransaction($http, $uibModalInstance, transactionType, paramTypes) 
     $transaction.today();
 
     $transaction.onLoadParameters = function (response) {
-        if (response.data) {
-            $transaction.Parameters = response.data.parameters;
-            if ($transaction.Parameters.length > 0) {
-                $transaction.SelectedParameter = $transaction.Parameters[0];
+        if (response) {
+            $scope.Parameters = response.Parameters;
+            if ($scope.Parameters.length > 0) {
+                $transaction.SelectedParameter = $scope.Parameters[0];
             }
+            $scope.$apply();
         }
     };
 
     $transaction.changeParamType = function () {
-        $http({
-            url: 'GetParametersForTransaction',
-            method: 'GET',
-            params: { ParameterType: $transaction.SelectedParamType }
-        })
-        .then($transaction.onLoadParameters);
+        
+    MiddlewareService.GetTransactionParameters(
+        { ParameterType: $transaction.SelectedParamType }, $transaction.onLoadParameters);
     };
 
     $transaction.changeParamType();

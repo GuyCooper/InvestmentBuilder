@@ -14,7 +14,7 @@ function AccountList($scope, NotifyService, MiddlewareService) {
     $scope.SelectedAcount = "";
     $scope.UpdateAccount = function () {
         MiddlewareService.UpdateAccount($scope.SelectedAcount, function (data) {
-            NotifyService.InvokePortfolio();
+            NotifyService.InvokeAccountChange(); //this will also reload data for the current page
         });
     };
 

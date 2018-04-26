@@ -23,15 +23,22 @@ function NotifyService(MiddlewareService) {
     var AddTradeListeners = [];
     var CashFlowListeners = [];
 
+    var listeners = null;
     //this list contains a list of handlers that should be called once connection to the middleware
     //is complete
     var ConnectionListeners = [];
+
+    //this is a list of listeners that should be invoked when the account is changed
+    var AccountListeners = []
     //var BuildReportListener = null;
     //var ViewReportListeners = [];
 
+    this.RegisterAccountListener = function (listener) {
+        AccountListeners.push(listener);
+    };
+
     this.RegisterPortfolioListener = function (listener) {
         PortfolioListeners.push(listener);
-        //this.InvokePortfolio(); //as this is the default view ensure it gets loaded
     };
 
     this.RegisterAddTradeListener = function (listener) {
@@ -48,25 +55,38 @@ function NotifyService(MiddlewareService) {
     //NotifyService.RegisterViewReportListener = function (listener) {
     //    ViewReportListeners.push(listener);
     //};
-
-    var invokeListeners = function (listeners) {
-        for (var i = 0; i < listeners.length; i++) {
-            listeners[i]();
+        
+    var invokeListeners = function () {
+        if (listeners != null) {
+            for (var i = 0; i < listeners.length; i++) {
+                listeners[i]();
+            }
         }
     }
 
     this.InvokePortfolio = function () {
-        invokeListeners(PortfolioListeners);
+        listeners = PortfolioListeners;
+        invokeListeners();
     };
 
     this.InvokeAddTrade = function () {
-        invokeListeners(AddTradeListeners);
+        listeners = AddTradeListeners;
+        invokeListeners();
     };
 
     this.InvokeCashFlow = function () {
-        invokeListeners(CashFlowListeners);
+        listeners = CashFlowListeners;
+        invokeListeners();
     };
 
+    //call this method if the account is changed. Calls the exisitng view listner and all the 
+    //account listeners
+    this.InvokeAccountChange = function () {
+        for (var i = 0; i < AccountListeners.length; i++) {
+            AccountListeners[i]();
+        }
+        invokeListeners();
+    }
     //now connect to the middleware server. once conncted inform any listeners that connection is complete
     MiddlewareService.Connect("ws://localhost:8080", "guy@guycooper.plus.com", "rangers").then(function () {
         console.log("connection to middleware succeded!");
@@ -82,7 +102,7 @@ function NotifyService(MiddlewareService) {
     //};
 }
 
-function Layout($http, $scope, $log, NotifyService) {
+function Layout($scope, $log, NotifyService) {
     $scope.onPortfolio = function () {
         NotifyService.InvokePortfolio();
         $scope.canBuild = false;
@@ -180,7 +200,7 @@ function MiddlewareService()
         doCommand("GET_PORTFOLIO_REQUEST", "GET_PORTFOLIO_RESPONSE", null, handler);
     };
 
-    this.EditTrade = function (trade, handler) {
+    this.UpdateTrade = function (trade, handler) {
         doCommand("UPDATE_TRADE_REQUEST", "UPDATE_TRADE_RESPONSE", trade, handler);
     };
 
@@ -197,12 +217,45 @@ function MiddlewareService()
         var dto = { AccountName: account };
         doCommand("UPDATE_ACCOUNT_REQUEST", "UPDATE_ACCOUNT_RESPONSE", dto, handler);
     }
+
+    this.CheckBuildStatus = function (handler) {
+        doCommand("CHECK_BUILD_STATUS_REQUEST", "CHECK_BUILD_STATUS_RESPONSE", null, handler);
+    }
+
+    this.GetCashFlowContents = function (dateFrom, handler) {
+        var dto = { DateFrom: dateFrom };
+        doCommand("GET_CASH_FLOW_REQUEST", "GET_CASH_FLOW_RESPONSE", dto, handler);
+    }
+
+    this.BuildReport = function (handler) {
+        doCommand("BUILD_REPORT_REQUEST", "BUILD_REPORT_RESPONSE", null, handler);
+    }
+
+    this.AddReceiptTransaction = function(transaction, handler) {
+        doCommand("ADD_RECEIPT_TRANSACTION_REQUEST", "ADD_RECEIPT_TRANSACTION_RESPONSE", null, handler);
+    }
+
+    this.AddPaymentTransaction = function (transaction, handler) {
+        doCommand("ADD_PAYMENT_TRANSACTION_REQUEST", "ADD_PAYMENT_TRANSACTION_RESPONSE", null, handler);
+    }
+
+    this.RemoveTransaction = function (transaction, handler) {
+        doCommand("REMOVE_TRANSACTION_REQUEST", "REMOVE_TRANSACTION_RESPONSE", transaction, handler);
+    }
+
+    this.GetTransactionParameters = function (type, handler) {
+        doCommand("GET_TRANSACTION_PARAMETERS_REQUEST", "GET_TRANSACTION_PARAMETERS_RESPONSE", type, handler);
+    }
+
+    this.GetInvestmentSummary = function (handler) {
+        doCommand("GET_INVESTMENT_SUMMARY_REQUEST", "GET_INVESTMENT_SUMMARY_RESPONSE", null, handler);
+    }
 }
 "use strict"
 
-function CashFlow($http, $uibModal, $log, $interval, NotifyService) {
+function CashFlow($scope, $uibModal, $log, $interval, NotifyService, MiddlewareService) {
 
-    this.cashFlows = null;
+    $scope.cashFlows = [];
     this.receiptParamTypes = null;
     this.paymentParamTypes = null;
     this.progressCount = 0;
@@ -229,32 +282,31 @@ function CashFlow($http, $uibModal, $log, $interval, NotifyService) {
     }.bind(this);
 
     var checkStatusRequest = function () {
-        $http.get('CheckBuildStatus')
-        .then(onCheckStatus);
+        MiddlewareService.CheckBuildStatus(onCheckStatus);
     };
 
     var onLoadContents = function (response) {
 
-        if (response.data) {
-            this.cashFlows = response.data.CashFlows;
-            this.receiptParamTypes = response.data.ReceiptParamTypes;
-            this.paymentParamTypes = response.data.PaymentParamTypes;
+        if (response) {
+            $scope.cashFlows = response.CashFlows;
+            this.receiptParamTypes = response.ReceiptParamTypes;
+            this.paymentParamTypes = response.PaymentParamTypes;
         }
 
-        if (this.cashFlows.length > 0) {
-            this.cashFlowFromDate = new Date(this.cashFlows[this.cashFlows.length - 1].ValuationDate);
-            this.canBuild = this.cashFlows[0].CanBuild;
+        if ($scope.cashFlows.length > 0) {
+            this.cashFlowFromDate = new Date($scope.cashFlows[$scope.cashFlows.length - 1].ValuationDate);
+            this.canBuild = $scope.cashFlows[0].CanBuild;
         }
 
         if (this.isBuilding == true && progress == null) {
             progress = $interval(checkStatusRequest, 1000);
         }
+        $scope.$apply();
 
     }.bind(this);
 
     NotifyService.RegisterCashFlowListener(function () {
-        $http.get('CashFlowContents')
-        .then(onLoadContents);
+        MiddlewareService.GetCashFlowContents(null, onLoadContents);
     });
 
     this.onReportFinished = function (errors) {
@@ -279,7 +331,7 @@ function CashFlow($http, $uibModal, $log, $interval, NotifyService) {
             animation: true,
             ariaLabelledBy: 'modal-title',
             ariaDescribedBy: 'modal-body',
-            templateUrl: 'AddCashTransaction',
+            templateUrl: 'views/AddTransaction.html',
             controller: 'CashTransaction',
             controllerAs: '$transaction',
             size: 'lg',
@@ -296,60 +348,44 @@ function CashFlow($http, $uibModal, $log, $interval, NotifyService) {
         modalInstance.result.then(function (transaction) {
             //$ctrl.selected = selectedItem;
             //use has clicked ok , we need to update the cash transactions
-            $http({
-                url: updateMethod,
-                method: 'POST',
-                params: transaction
-            })
-            .then(onLoadContents);
+            updateMethod(transaction);
         }, function () {
             $log.info('Modal dismissed at: ' + new Date());
         });
     }.bind(this);
 
     this.addReceipt = function () {
-        this.addTransactionDialog('receipt', this.receiptParamTypes, 'AddReceiptTransaction');
+        this.addTransactionDialog('receipt', this.receiptParamTypes, function (transaction) { MiddlewareService.AddReceiptTransaction(transaction, onLoadContents); });
     }.bind(this);
 
     this.addPayment = function () {
-        this.addTransactionDialog('payment', this.paymentParamTypes, 'AddPaymentTransaction');
+        this.addTransactionDialog('payment', this.paymentParamTypes, function (transaction) { MiddlewareService.AddPaymentTransaction(transaction, onLoadContents); });
     };
 
     this.deleteTransaction = function (transaction) {
-        $http({
-            url: "RemoveTransaction",
-            method: 'POST',
-            params: {
-                valuationDate: transaction.ValuationDate,
-                transactionDate: transaction.TransactionDate,
-                transactionType: transaction.TransactionType,
-                parameter: transaction.Parameter
-            }
-        })
-        .then(onLoadContents);
+        MiddlewareService.RemoveTransaction({
+            valuationDate: transaction.ValuationDate,
+            transactionDate: transaction.TransactionDate,
+            transactionType: transaction.TransactionType,
+            parameter: transaction.Parameter
+        }, onLoadContents);
     };
 
     this.deleteReceipt = function (index) {
-        var item = this.cashFlows[0];
+        var item = $scope.cashFlows[0];
         var transaction = item.Receipts[index];
         this.deleteTransaction(transaction);
     }.bind(this);
 
     this.deletePayment = function (index) {
-        var item = this.cashFlows[0];
+        var item = $scope.cashFlows[0];
         var transaction = item.Payments[index];
         this.deleteTransaction(transaction);
     }.bind(this);
 
     this.reloadContents = function () {
         //var url = 'CashFlowContents/' + this.cashFlowFromDate;
-        //$http.get('CashFlowContents/"01-06-2016"')
-        $http({
-            url: 'CashFlowContents',
-            method: 'GET',
-            params: { sDateRequestedFrom: this.cashFlowFromDate }
-        })
-        .then(onLoadContents);
+        MiddlewareService.GetCashFlowContents(this.cashFlowFromDate, onLoadContents);
     };
 
     this.dateOptions = {
@@ -374,12 +410,7 @@ function CashFlow($http, $uibModal, $log, $interval, NotifyService) {
     this.BuildReport = function () {
 
         this.isBuilding = true;
-        $http({
-            url: 'BuildReport',
-            method: 'GET',
-            params: { sDateRequestedFrom: this.cashFlowFromDate }
-        })
-        .then(onLoadContents);
+        MiddlewareService.BuildReport(onLoadContents);
 
     }.bind(this);
 
@@ -389,7 +420,7 @@ function CashFlow($http, $uibModal, $log, $interval, NotifyService) {
     //}
 }
 
-function CashTransaction($http, $uibModalInstance, transactionType, paramTypes) {
+function CashTransaction($scope, $uibModalInstance, transactionType, paramTypes, MiddlewareService) {
     var $transaction = this;
     if (transactionType == 'receipt') {
         $transaction.title = 'Add Receipt';
@@ -404,7 +435,7 @@ function CashTransaction($http, $uibModalInstance, transactionType, paramTypes) 
     if (paramTypes.length > 0) {
         $transaction.SelectedParamType = paramTypes[0];
     }
-    $transaction.Parameters = [];
+    $scope.Parameters = [];
     $transaction.SelectedParameter = '';
     $transaction.Amount = 0;
 
@@ -448,21 +479,19 @@ function CashTransaction($http, $uibModalInstance, transactionType, paramTypes) 
     $transaction.today();
 
     $transaction.onLoadParameters = function (response) {
-        if (response.data) {
-            $transaction.Parameters = response.data.parameters;
-            if ($transaction.Parameters.length > 0) {
-                $transaction.SelectedParameter = $transaction.Parameters[0];
+        if (response) {
+            $scope.Parameters = response.Parameters;
+            if ($scope.Parameters.length > 0) {
+                $transaction.SelectedParameter = $scope.Parameters[0];
             }
+            $scope.$apply();
         }
     };
 
     $transaction.changeParamType = function () {
-        $http({
-            url: 'GetParametersForTransaction',
-            method: 'GET',
-            params: { ParameterType: $transaction.SelectedParamType }
-        })
-        .then($transaction.onLoadParameters);
+        
+    MiddlewareService.GetTransactionParameters(
+        { ParameterType: $transaction.SelectedParamType }, $transaction.onLoadParameters);
     };
 
     $transaction.changeParamType();
@@ -481,7 +510,7 @@ function ReportCompletion($uibModalInstance, errors) {
 
 'use strict'
 
-function CreateTrade($http, NotifyService) {
+function CreateTrade(NotifyService, MiddlewareService) {
     var addTrade = this;
     addTrade.today = function () {
         addTrade.dt = new Date();
@@ -514,21 +543,16 @@ function CreateTrade($http, NotifyService) {
     };
 
     addTrade.submitTrade = function () {
-        $http({
-            url: 'SubmitTrade',
-            method: 'POST',
-            params: {
-                transactionDate: addTrade.dt,
-                name: addTrade.Name,
-                symbol: addTrade.Symbol,
-                quantity: addTrade.Quantity,
-                scalingFactor: addTrade.ScalingFactor,
-                currency: addTrade.currency,
-                exchange: addTrade.Exchange,
-                totalCost: addTrade.totalCost
-            }
-        })
-        .then(onTradeSubmitted);
+        MiddlewareService.UpdateTrade({
+            TransactionDate: addTrade.dt,
+            ItemName: addTrade.Name,
+            Symbol: addTrade.Symbol,
+            Quantity: addTrade.Quantity,
+            ScalingFactor: addTrade.ScalingFactor,
+            Currency: addTrade.currency,
+            Exchange: addTrade.Exchange,
+            TotalCost: addTrade.totalCost
+        }, onTradeSubmitted);
     };
 
     addTrade.cancel = function () {
@@ -613,7 +637,7 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
         editModal.result.then(function (trade) {
             //$ctrl.selected = selectedItem;
             //use has clicked ok , we need to update the trade
-            MiddlewareService.EditTrade(trade, loadPortfolio);
+            MiddlewareService.UpdateTrade(trade, loadPortfolio);
         }, function () {
             $log.info('Modal dismissed at: ' + new Date());
         });
@@ -674,11 +698,11 @@ function TradeEditor($uibModalInstance, name) {
 
     $trade.ok = function () {
         $uibModalInstance.close({
-            name: $trade.Name,
-            transactionDate: $trade.dt,
-            tradeType: $trade.SelectedAction,
-            quantity: $trade.Quantity,
-            totalcost: $trade.TotalCost        
+            ItemName: $trade.Name,
+            TransactionDate: $trade.dt,
+            Action: $trade.SelectedAction,
+            Quantity: $trade.Quantity,
+            TotalCost: $trade.TotalCost        
         });
     };
 
@@ -732,12 +756,38 @@ function AccountList($scope, NotifyService, MiddlewareService) {
     $scope.SelectedAcount = "";
     $scope.UpdateAccount = function () {
         MiddlewareService.UpdateAccount($scope.SelectedAcount, function (data) {
-            NotifyService.InvokePortfolio();
+            NotifyService.InvokeAccountChange(); //this will also reload data for the current page
         });
     };
 
     NotifyService.RegisterConnectionListener(loadAccountList);
 }
+'use strict'
+
+function AccountSummary($scope, NotifyService, MiddlewareService) {
+
+    var onLoadAccountSummary = function (response) {
+        $scope.AccountName = response.AccountName;
+        $scope.ReportingCurrency = response.ReportingCurrency;
+        $scope.ValuePerUnit = response.ValuePerUnit;
+        $scope.NetAssets = response.NetAssets;
+
+        $scope.BankBalance = response.BankBalance;
+        $scope.MonthlyPnL = response.MonthlyPnL;
+    };
+
+    $scope.refresh = function() {
+    };
+
+    var loadAccountSummary = function () {
+        MiddlewareService.GetInvestmentSummary(onLoadAccountSummary);
+    }
+
+    //ensure this view is reloaded on connection
+    NotifyService.RegisterConnectionListener(loadAccountSummary);
+    //ensure this view is reloaded if the account is changed
+    //NotifyService.RegisterAccountListener(loadAccountSummary);
+};
 "use strict"
 
 var module = angular.module("InvestmentRecord", ["ui.bootstrap","agGrid"]);
@@ -752,11 +802,6 @@ module.controller('TradeEditor', TradeEditor);
 
 module.controller('AccountListController', AccountList);
 //inject everything angular needs here
-//angular.module('InvestmentRecord', ['ui.bootstrap']);
-
-//angular.module('InvestmentRecord', ['ui.bootstrap', 'agGrid']);
-//angular.module('InvestmentRecord', ['ui.bootstrap'], ['agGrid']);
-//angular.module('InvestmentRecord', ['ui.bootstrap']);
 
 module.controller('CashFlowController', CashFlow);
 
@@ -770,5 +815,5 @@ module.controller('AddTradeController', CreateTrade);
 
 module.controller('LayoutController', Layout);
 
-//angular.module('InvestmentRecord')
-//.controller('PortfolioController', Portfolio);
+module.controller('AccountSummaryController', AccountSummary);
+

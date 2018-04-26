@@ -8,10 +8,10 @@ namespace InvestmentBuilderService.Dtos
 {
     public enum TransactionType
     {
-        NONE,
-        BUY,
-        SELL,
-        CHANGE
+        None,
+        Buy,
+        Sell,
+        Change
     }
 
     internal class TradeItemDto : Dto

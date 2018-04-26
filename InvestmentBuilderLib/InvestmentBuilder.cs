@@ -129,7 +129,7 @@ namespace InvestmentBuilder
                     Changed = Enumerable.Empty<Stock>().ToArray()
                 };
 
-                if (_recordBuilder.UpdateInvestmentRecords(userToken, accountData, emptyTrades/*trades*/, cashAccountData, dtTradeValuationDate, manualPrices, progress) == false)
+                if (_recordBuilder.UpdateInvestmentRecords(userToken, accountData, emptyTrades/*trades*/, cashAccountData, dtTradeValuationDate, manualPrices, dtPreviousValuation, progress) == false)
                 {
                     //failed to update investments, return null report
                     return assetReport;
@@ -168,10 +168,10 @@ namespace InvestmentBuilder
             //now process any redemptions that have occured since the previous valuation
             var updatedReport = dtPreviousValuation.HasValue ? _ProcessRedemptions(userToken, assetReport, accountData, dtPreviousValuation.Value, bUpdate) : assetReport;
             //finally, build the asset statement
-            //if (bUpdate == true)
-            //{
+            if (bUpdate == true)
+            {
                 _reportWriter.WriteAssetReport(updatedReport, _userAccountData.GetStartOfYearValuation(userToken, valuationDate), _settings.GetOutputPath(accountData.Name), progress);
-            //}
+            }
 
             logger.Log(userToken, LogLevel.Info, "Report Generated, Account Builder Complete");
             return updatedReport;
@@ -233,7 +233,7 @@ namespace InvestmentBuilder
                 logger.Log(userToken, LogLevel.Error, "invalid account {0}", userToken.Account);
             }
 
-            return _recordBuilder.UpdateInvestmentRecords(userToken, accountData, trades, null, valuationDate ?? DateTime.Now, manualPrices, progress);
+            return _recordBuilder.UpdateInvestmentRecords(userToken, accountData, trades, null, valuationDate ?? DateTime.Now, manualPrices, null, progress);
         }
 
         /// <summary>

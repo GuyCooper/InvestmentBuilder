@@ -59,17 +59,17 @@ namespace InvestmentBuilderService
                     var login = JsonConvert.DeserializeObject<LoginPayload>(message.Payload);
                     var salt = _authdata.GetSalt(login.UserName);
                     var hash = SaltedHash.GenerateHash(login.Password, salt);
+                
                     bool authenticated = _authdata.AuthenticateUser(login.UserName, hash);
-
-                    GetSession().SendAuthenticationResult(authenticated, authenticated ? "authentication succeded" : "authenitcation failed", message.RequestId);
-
-                    if(authenticated == true)
+                    if (authenticated == true)
                     {
                         var userSession = new UserSession(login.UserName, message.SourceId);
                         var accounts = _accountManager.GetAccountNames(login.UserName).ToList();
                         userSession.AccountName = accounts.FirstOrDefault();
                         _userSessions.Add(message.SourceId, userSession);
                     }
+                    GetSession().SendAuthenticationResult(authenticated, authenticated ? "authentication succeded" : "authenitcation failed", message.RequestId);
+
                 });
             }
         }

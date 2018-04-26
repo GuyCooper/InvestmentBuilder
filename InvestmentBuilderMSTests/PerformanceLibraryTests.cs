@@ -4,6 +4,7 @@ using System.Linq;
 using PerformanceBuilderLib;
 using InvestmentBuilderCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 
 namespace InvestmentBuilderMSTests
 {
@@ -91,15 +92,12 @@ namespace InvestmentBuilderMSTests
 
         public override string GetIndexHistoricalData(UserAccountToken userToken, string symbol)
         {
-            return string.Format("[{date:{0}, price:{1}}, {date:{2}, price:{3}}]", PerfBuilderConstants.TestDate1, 
-                                                                                   PerfBuilderConstants.TestPrice3, 
-                                                                                   PerfBuilderConstants.TestDate2,
-                                                                                   PerfBuilderConstants.TestPrice4);
-            //return new List<HistoricalData>
-            //{
-            //    new HistoricalData ( date: PerfBuilderConstants.TestDate1, price: PerfBuilderConstants.TestPrice3 ),
-            //    new HistoricalData ( date: PerfBuilderConstants.TestDate2, price: PerfBuilderConstants.TestPrice4 )
-            //};
+            var data = new List<RawHistoricalData>
+            {
+                new RawHistoricalData { date =  PerfBuilderConstants.TestDate1.ToString("M/d/yyyy"), price = PerfBuilderConstants.TestPrice3.ToString()},
+                new RawHistoricalData { date =  PerfBuilderConstants.TestDate2.ToString("M/d/yyyy"), price = PerfBuilderConstants.TestPrice4.ToString()}
+            };
+            return JsonConvert.SerializeObject(data);   
         }
     }
 

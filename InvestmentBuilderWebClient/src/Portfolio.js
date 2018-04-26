@@ -72,7 +72,7 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
         editModal.result.then(function (trade) {
             //$ctrl.selected = selectedItem;
             //use has clicked ok , we need to update the trade
-            MiddlewareService.EditTrade(trade, loadPortfolio);
+            MiddlewareService.UpdateTrade(trade, loadPortfolio);
         }, function () {
             $log.info('Modal dismissed at: ' + new Date());
         });
@@ -133,11 +133,11 @@ function TradeEditor($uibModalInstance, name) {
 
     $trade.ok = function () {
         $uibModalInstance.close({
-            name: $trade.Name,
-            transactionDate: $trade.dt,
-            tradeType: $trade.SelectedAction,
-            quantity: $trade.Quantity,
-            totalcost: $trade.TotalCost        
+            ItemName: $trade.Name,
+            TransactionDate: $trade.dt,
+            Action: $trade.SelectedAction,
+            Quantity: $trade.Quantity,
+            TotalCost: $trade.TotalCost        
         });
     };
 

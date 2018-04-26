@@ -33,13 +33,13 @@ namespace InvestmentBuilderService.Translators
             var arrStock = new List<Stock> { tradeItem }.ToArray();
             switch (action)
             {
-                case TransactionType.BUY:
+                case TransactionType.Buy:
                     trades.Buys = arrStock;
                     break;
-                case TransactionType.SELL:
+                case TransactionType.Sell:
                     trades.Sells = arrStock;
                     break;
-                case TransactionType.CHANGE:
+                case TransactionType.Change:
                     trades.Changed = arrStock;
                     break;
             }

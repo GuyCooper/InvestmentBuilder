@@ -1,6 +1,6 @@
 ﻿'use strict'
 
-function CreateTrade($http, NotifyService) {
+function CreateTrade(NotifyService, MiddlewareService) {
     var addTrade = this;
     addTrade.today = function () {
         addTrade.dt = new Date();
@@ -33,21 +33,16 @@ function CreateTrade($http, NotifyService) {
     };
 
     addTrade.submitTrade = function () {
-        $http({
-            url: 'SubmitTrade',
-            method: 'POST',
-            params: {
-                transactionDate: addTrade.dt,
-                name: addTrade.Name,
-                symbol: addTrade.Symbol,
-                quantity: addTrade.Quantity,
-                scalingFactor: addTrade.ScalingFactor,
-                currency: addTrade.currency,
-                exchange: addTrade.Exchange,
-                totalCost: addTrade.totalCost
-            }
-        })
-        .then(onTradeSubmitted);
+        MiddlewareService.UpdateTrade({
+            TransactionDate: addTrade.dt,
+            ItemName: addTrade.Name,
+            Symbol: addTrade.Symbol,
+            Quantity: addTrade.Quantity,
+            ScalingFactor: addTrade.ScalingFactor,
+            Currency: addTrade.currency,
+            Exchange: addTrade.Exchange,
+            TotalCost: addTrade.totalCost
+        }, onTradeSubmitted);
     };
 
     addTrade.cancel = function () {

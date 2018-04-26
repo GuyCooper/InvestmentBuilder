@@ -121,6 +121,7 @@ namespace SQLServerDataLayer
         public double GetBalanceInHand(UserAccountToken userToken, DateTime valuationDate)
         {
             userToken.AuthorizeUser(AuthorizationLevel.READ);
+            double result = 0d;
             using (var connection = OpenConnection())
             {
                 using (var sqlCommand = new SqlCommand("sp_GetBalanceInHand", connection))
@@ -128,14 +129,16 @@ namespace SQLServerDataLayer
                     sqlCommand.CommandType = CommandType.StoredProcedure;
                     sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate.Date));
                     sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account));
-                    var result = sqlCommand.ExecuteScalar();
-                    if (result is double)
+                    using (var reader = sqlCommand.ExecuteReader())
                     {
-                        return (double)result;
+                        while (reader.Read())
+                        {
+                            result += reader.GetDouble(0);
+                        }
                     }
                 }
             }
-            return 0d;
+            return result;
         }
 
         public void AddCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate, string type, string parameter, double amount)

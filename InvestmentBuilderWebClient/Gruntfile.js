@@ -26,6 +26,7 @@ module.exports = function (grunt) {
                         "./src/CreateTrade.js",
                         "./src/Portfolio.js",
                         "./src/AccountList.js",
+                        "./src/AccountSummary.js",
                         "./src/RegisterModules.js"
                       ],
             jsfiles: "./legacy/index.js",
@@ -38,6 +39,7 @@ module.exports = function (grunt) {
                            "./Views/RaiseAlert.html",
                            "./Views/ReportCompletion.html",
                            "./Views/YesNoChooser.html",
+                           "./Views/AccountSummary.html"
                        ],
             styles: {
                 source: "./styles/css/**/*.css",

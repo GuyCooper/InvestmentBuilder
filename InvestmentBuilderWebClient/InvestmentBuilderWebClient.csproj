@@ -62,7 +62,6 @@
     <Content Include="views\AddModalDialog.html" />
     <Content Include="views\AddTransaction.html" />
     <Content Include="views\CashFlow.html" />
-    <Content Include="views\CashFlowAngularNew.html" />
     <Content Include="views\CreateTrade.html" />
     <Content Include="views\EditTrade.html" />
     <Content Include="views\Parameters.html" />

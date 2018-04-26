@@ -72,7 +72,7 @@ function MiddlewareService()
         doCommand("GET_PORTFOLIO_REQUEST", "GET_PORTFOLIO_RESPONSE", null, handler);
     };
 
-    this.EditTrade = function (trade, handler) {
+    this.UpdateTrade = function (trade, handler) {
         doCommand("UPDATE_TRADE_REQUEST", "UPDATE_TRADE_RESPONSE", trade, handler);
     };
 
@@ -88,5 +88,38 @@ function MiddlewareService()
     this.UpdateAccount = function (account, handler) {
         var dto = { AccountName: account };
         doCommand("UPDATE_ACCOUNT_REQUEST", "UPDATE_ACCOUNT_RESPONSE", dto, handler);
+    }
+
+    this.CheckBuildStatus = function (handler) {
+        doCommand("CHECK_BUILD_STATUS_REQUEST", "CHECK_BUILD_STATUS_RESPONSE", null, handler);
+    }
+
+    this.GetCashFlowContents = function (dateFrom, handler) {
+        var dto = { DateFrom: dateFrom };
+        doCommand("GET_CASH_FLOW_REQUEST", "GET_CASH_FLOW_RESPONSE", dto, handler);
+    }
+
+    this.BuildReport = function (handler) {
+        doCommand("BUILD_REPORT_REQUEST", "BUILD_REPORT_RESPONSE", null, handler);
+    }
+
+    this.AddReceiptTransaction = function(transaction, handler) {
+        doCommand("ADD_RECEIPT_TRANSACTION_REQUEST", "ADD_RECEIPT_TRANSACTION_RESPONSE", null, handler);
+    }
+
+    this.AddPaymentTransaction = function (transaction, handler) {
+        doCommand("ADD_PAYMENT_TRANSACTION_REQUEST", "ADD_PAYMENT_TRANSACTION_RESPONSE", null, handler);
+    }
+
+    this.RemoveTransaction = function (transaction, handler) {
+        doCommand("REMOVE_TRANSACTION_REQUEST", "REMOVE_TRANSACTION_RESPONSE", transaction, handler);
+    }
+
+    this.GetTransactionParameters = function (type, handler) {
+        doCommand("GET_TRANSACTION_PARAMETERS_REQUEST", "GET_TRANSACTION_PARAMETERS_RESPONSE", type, handler);
+    }
+
+    this.GetInvestmentSummary = function (handler) {
+        doCommand("GET_INVESTMENT_SUMMARY_REQUEST", "GET_INVESTMENT_SUMMARY_RESPONSE", null, handler);
     }
 }
