@@ -38,8 +38,7 @@ namespace InvestmentBuilderService
             ContainerManager.RegisterType(typeof(PerformanceBuilderLib.PerformanceBuilder), true);
             ContainerManager.RegisterType(typeof(CashAccountTransactionManager), true);
             ContainerManager.RegisterType(typeof(CashFlowManager), true);
-            ContainerManager.RegisterType(typeof(CashFlowManager), true);
-            ContainerManager.RegisterType(typeof(IInvestmentReportWriter),typeof(InvestmentReportGenerator.InvestmentReportWriter), true);
+            ContainerManager.RegisterType(typeof(IInvestmentReportWriter),typeof(InvestmentReportGenerator.InvestmentReportWriter), true);           
 
             using (var child = ContainerManager.CreateChildContainer())
             { 

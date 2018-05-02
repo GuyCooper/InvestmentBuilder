@@ -104,11 +104,11 @@ function MiddlewareService()
     }
 
     this.AddReceiptTransaction = function(transaction, handler) {
-        doCommand("ADD_RECEIPT_TRANSACTION_REQUEST", "ADD_RECEIPT_TRANSACTION_RESPONSE", null, handler);
+        doCommand("ADD_RECEIPT_TRANSACTION_REQUEST", "ADD_RECEIPT_TRANSACTION_RESPONSE", transaction, handler);
     }
 
     this.AddPaymentTransaction = function (transaction, handler) {
-        doCommand("ADD_PAYMENT_TRANSACTION_REQUEST", "ADD_PAYMENT_TRANSACTION_RESPONSE", null, handler);
+        doCommand("ADD_PAYMENT_TRANSACTION_REQUEST", "ADD_PAYMENT_TRANSACTION_RESPONSE", transaction, handler);
     }
 
     this.RemoveTransaction = function (transaction, handler) {

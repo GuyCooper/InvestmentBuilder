@@ -73,7 +73,7 @@ function CashFlow($scope, $uibModal, $log, $interval, NotifyService, MiddlewareS
         });
     };
 
-    this.addTransactionDialog = function (title, paramTypes, updateMethod) {
+    this.addTransactionDialog = function (title, paramTypes, dateFrom, updateMethod) {
         var modalInstance = $uibModal.open({
             animation: true,
             ariaLabelledBy: 'modal-title',
@@ -88,6 +88,9 @@ function CashFlow($scope, $uibModal, $log, $interval, NotifyService, MiddlewareS
                 },
                 paramTypes: function () {
                     return paramTypes;
+                },
+                dateFrom: function () {
+                    return dateFrom;
                 }
             }
         });
@@ -102,11 +105,11 @@ function CashFlow($scope, $uibModal, $log, $interval, NotifyService, MiddlewareS
     }.bind(this);
 
     this.addReceipt = function () {
-        this.addTransactionDialog('receipt', this.receiptParamTypes, function (transaction) { MiddlewareService.AddReceiptTransaction(transaction, onLoadContents); });
+        this.addTransactionDialog('receipt', this.receiptParamTypes, this.cashFlowFromDate, function (transaction) { MiddlewareService.AddReceiptTransaction(transaction, onLoadContents); });
     }.bind(this);
 
     this.addPayment = function () {
-        this.addTransactionDialog('payment', this.paymentParamTypes, function (transaction) { MiddlewareService.AddPaymentTransaction(transaction, onLoadContents); });
+        this.addTransactionDialog('payment', this.paymentParamTypes, this.cashFlowFromDate, function (transaction) { MiddlewareService.AddPaymentTransaction(transaction, onLoadContents); });
     };
 
     this.deleteTransaction = function (transaction) {
@@ -167,7 +170,7 @@ function CashFlow($scope, $uibModal, $log, $interval, NotifyService, MiddlewareS
     //}
 }
 
-function CashTransaction($scope, $uibModalInstance, transactionType, paramTypes, MiddlewareService) {
+function CashTransaction($scope, $uibModalInstance, transactionType, paramTypes, dateFrom, MiddlewareService) {
     var $transaction = this;
     if (transactionType == 'receipt') {
         $transaction.title = 'Add Receipt';
@@ -187,12 +190,20 @@ function CashTransaction($scope, $uibModalInstance, transactionType, paramTypes,
     $transaction.Amount = 0;
 
     $transaction.ok = function () {
+        var sendParams = [];
+        if ($transaction.SelectedParameter == "ALL") {
+            sendParams = $scope.Parameters.slice(0, $scope.Parameters.length - 1);
+        }
+        else {
+            sendParams.push($transaction.SelectedParameter)
+        }
+
         $uibModalInstance.close({
-            transactionDate: $transaction.dt,
-            paramType: $transaction.SelectedParamType,
-            param: $transaction.SelectedParameter,
-            amount: $transaction.Amount,
-            dateRequestedFrom: this.cashFlowFromDate
+            TransactionDate: $transaction.dt,
+            ParamType: $transaction.SelectedParamType,
+            Parameter: sendParams,
+            Amount: $transaction.Amount,
+            DateRequestedFrom : dateFrom
         });
     };
 

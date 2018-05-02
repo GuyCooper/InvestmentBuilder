@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using InvestmentBuilder;
 using InvestmentBuilderCore;
+using InvestmentBuilderService.Dtos;
 
 namespace InvestmentBuilderService.Channels
 {
@@ -12,7 +13,7 @@ namespace InvestmentBuilderService.Channels
     {
         public string TransactionDate { get; set; }
         public string ParamType { get; set; }
-        public string Parameter { get; set; }
+        public string[] Parameter { get; set; }
         public double Amount { get; set; }
         public string DateRequestedFrom { get; set; }
     }
@@ -20,71 +21,55 @@ namespace InvestmentBuilderService.Channels
     internal abstract class AddTransactionChannel : EndpointChannel<AddTransactionRequestDto>
     {
         private CashAccountTransactionManager _cashTransactionManager;
-        private InvestmentBuilder.InvestmentBuilder _builder;
-        private IInvestmentRecordInterface _recordData;
-
-        private string _transactionMnemomic;
+        private CashFlowManager _cashFlowManager;
 
         public AddTransactionChannel(string requestName, string responseName, 
                                     AccountService accountService,
                                     CashAccountTransactionManager cashTransactionManager,
-                                    string transactionMnemomic) 
+                                    CashFlowManager cashFlowManager)
             : base(requestName, responseName, accountService)
         {
             _cashTransactionManager = cashTransactionManager;
-            _transactionMnemomic = transactionMnemomic;
+            _cashFlowManager = cashFlowManager;
         }
 
         public override Dto HandleEndpointRequest(UserSession userSession, AddTransactionRequestDto payload)
         {
             var token = GetCurrentUserToken(userSession);
-            var success = false;
             if (payload.TransactionDate != null && payload.Amount > 0)
             {
                 var transactionDate = DateTime.Parse(payload.TransactionDate);
-                if (payload.Parameter == "ALL")
-                {
-                    var latestRecordDate = _recordData.GetLatestRecordInvestmentValuationDate(token) ?? DateTime.Today;
-
-                    var parameters = _builder.GetParametersForTransactionType(token, latestRecordDate, payload.ParamType).ToList();
-                    foreach (var parameter in parameters)
-                    {
-                        _cashTransactionManager.AddTransaction(token, userSession.ValuationDate,
-                                                transactionDate,
-                                                payload.ParamType,
-                                                parameter,
-                                                payload.Amount);
-
-                    }
-                }
-                else
+                //parameters list may be null which is valid
+                var paramList = payload.Parameter ?? new List<string> { null }.ToArray();
+                foreach (var param in paramList)
                 {
                     _cashTransactionManager.AddTransaction(token, userSession.ValuationDate,
                                             transactionDate,
                                             payload.ParamType,
-                                            payload.Parameter,
+                                            param,
                                             payload.Amount);
                 }
-                success = true;
             }
-            return new ResponseDto { Status = success };
+            return CashFlowModelAndParams.GenerateCashFlowModelAndParams(userSession, _cashFlowManager, payload.DateRequestedFrom);
         }
     }
 
     internal class AddRecieptTransactionChannel : AddTransactionChannel
     {
-        public AddRecieptTransactionChannel(AccountService accountService, CashAccountTransactionManager cashTransactionManager) 
+        public AddRecieptTransactionChannel(AccountService accountService, CashAccountTransactionManager cashTransactionManager, 
+                        CashFlowManager cashFlowManager) 
             : base("ADD_RECEIPT_TRANSACTION_REQUEST", "ADD_RECEIPT_TRANSACTION_RESPONSE", 
-                    accountService, cashTransactionManager, cashTransactionManager.ReceiptMnemomic)
+                    accountService, cashTransactionManager, cashFlowManager)
         {
         }
     }
 
     internal class AddPaymentTransactionChannel : AddTransactionChannel
     {
-        public AddPaymentTransactionChannel(AccountService accountService, CashAccountTransactionManager cashTransactionManager)
+        public AddPaymentTransactionChannel(AccountService accountService, CashAccountTransactionManager cashTransactionManager, 
+            CashFlowManager cashFlowManager)
             : base("ADD_PAYMENT_TRANSACTION_REQUEST", "ADD_PAYMENT_TRANSACTION_RESPONSE",
-                    accountService, cashTransactionManager, cashTransactionManager.PaymentMnemomic)
+                    accountService, cashTransactionManager, cashFlowManager)
         {
         }
     }

@@ -55,7 +55,8 @@ debug
 release
 packages
 node_modules
- 
+dist
+
 /InvestmentBuilderWeb/InvestmentBuilderWeb/Content/InvestmentBuilderWeb - Copy.css
 /php/result.txt
 /php/EUROSTOXXRAW.log

@@ -10,6 +10,7 @@ function AccountSummary($scope, NotifyService, MiddlewareService) {
 
         $scope.BankBalance = response.BankBalance;
         $scope.MonthlyPnL = response.MonthlyPnL;
+        $scope.$apply();
     };
 
     $scope.refresh = function() {
@@ -22,5 +23,5 @@ function AccountSummary($scope, NotifyService, MiddlewareService) {
     //ensure this view is reloaded on connection
     NotifyService.RegisterConnectionListener(loadAccountSummary);
     //ensure this view is reloaded if the account is changed
-    //NotifyService.RegisterAccountListener(loadAccountSummary);
+    NotifyService.RegisterAccountListener(loadAccountSummary);
 };

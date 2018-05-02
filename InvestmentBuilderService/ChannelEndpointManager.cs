@@ -38,16 +38,6 @@ namespace InvestmentBuilderService
                 return false;
         }
 
-        //private IEnumerable<Type> IsEndpointChannelClass(Type objType)
-        //{
-        //    return
-        //    from interfaceType in objType.GetInterfaces()
-        //    where interfaceType.IsGenericType
-        //    let baseInterface = interfaceType.GetGenericTypeDefinition()
-        //    where baseInterface == typeof(IEndpointChannel)
-        //    select interfaceType.GetGenericArguments().First();
-        //}
-
         private IEnumerable<Type> IsEndpointChannelClass(Type objType)
         {
             return

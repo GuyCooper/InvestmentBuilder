@@ -91,6 +91,7 @@
     <Compile Include="Channels\GetPortfolioChannel.cs" />
     <Compile Include="Channels\UpdateManualPriceChannel.cs" />
     <Compile Include="Channels\UpdateValuationDateChannel.cs" />
+    <Compile Include="Dtos\CashFlowModelAndParams.cs" />
     <Compile Include="Dtos\TradeItemDto.cs" />
     <Compile Include="EndpointChannel.cs" />
     <Compile Include="EndpointManager.cs" />
