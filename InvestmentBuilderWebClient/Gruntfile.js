@@ -20,13 +20,13 @@ module.exports = function (grunt) {
                   ],
             sourcejs: [
                         "./src/Utils.js",
+                        "./src/NotifyService.js",
                         "./src/Layout.js",
                         "./src/MiddlewareService.js",
                         "./src/CashFlow.js",
                         "./src/CreateTrade.js",
                         "./src/Portfolio.js",
                         "./src/AccountList.js",
-                        "./src/AccountSummary.js",
                         "./src/RegisterModules.js"
                       ],
             jsfiles: "./legacy/index.js",
@@ -38,8 +38,7 @@ module.exports = function (grunt) {
                            "./Views/Parameters.html",
                            "./Views/RaiseAlert.html",
                            "./Views/ReportCompletion.html",
-                           "./Views/YesNoChooser.html",
-                           "./Views/AccountSummary.html"
+                           "./Views/YesNoChooser.html"
                        ],
             styles: {
                 source: "./styles/css/**/*.css",

@@ -11,13 +11,13 @@ namespace InvestmentBuilderService.Channels
         public string AccountName { get; set; }
     }
 
-    class UpdateAccountEndpointChannel : EndpointChannel<UpdateAccountRequestDto>
+    class UpdateAccountEndpointChannel : EndpointChannel<UpdateAccountRequestDto, ChannelUpdater>
     {
         public UpdateAccountEndpointChannel(AccountService accountService) :
             base("UPDATE_ACCOUNT_REQUEST", "UPDATE_ACCOUNT_RESPONSE", accountService)
         { }
 
-        public override Dto HandleEndpointRequest(UserSession userSession, UpdateAccountRequestDto payload)
+        protected override Dto HandleEndpointRequest(UserSession userSession, UpdateAccountRequestDto payload, ChannelUpdater update)
         {
             GetCurrentUserToken(userSession, payload.AccountName);
             userSession.AccountName = payload.AccountName;

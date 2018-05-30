@@ -17,7 +17,10 @@ namespace InvestmentBuilderService.Channels
         public string Location { get; set; }
     }
 
-    internal class LoadReportChannel : EndpointChannel<LoadReportRequestDto>
+    /// <summary>
+    /// handler class for loading valuation report. returns a location url to the report file
+    /// </summary>
+    internal class LoadReportChannel : EndpointChannel<LoadReportRequestDto, ChannelUpdater>
     {
         InvestmentBuilder.InvestmentBuilder _builder;
 
@@ -27,7 +30,7 @@ namespace InvestmentBuilderService.Channels
             _builder = builder;
         }
 
-        public override Dto HandleEndpointRequest(UserSession userSession, LoadReportRequestDto payload)
+        protected override Dto HandleEndpointRequest(UserSession userSession, LoadReportRequestDto payload, ChannelUpdater update)
         {
             var token = GetCurrentUserToken(userSession);
             var dtValuation = payload.ValuationDate != null ? DateTime.Parse(payload.ValuationDate) : userSession.ValuationDate;

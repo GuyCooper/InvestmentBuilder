@@ -12,7 +12,10 @@ namespace InvestmentBuilderService.Channels
         public string DateFrom { get; set; }
     }
 
-    internal class GetCashFlowChannel : EndpointChannel<GetCashFlowRequestDto>
+    /// <summary>
+    /// handler class for getting the cash flow details 
+    /// </summary>
+    internal class GetCashFlowChannel : EndpointChannel<GetCashFlowRequestDto, ChannelUpdater>
     {
         private CashFlowManager _cashFlowManager;
 
@@ -22,7 +25,7 @@ namespace InvestmentBuilderService.Channels
             _cashFlowManager = cashFlowManager;
         }
 
-        public override Dto HandleEndpointRequest(UserSession userSession, GetCashFlowRequestDto payload)
+        protected override Dto HandleEndpointRequest(UserSession userSession, GetCashFlowRequestDto payload, ChannelUpdater update)
         {
             return CashFlowModelAndParams.GenerateCashFlowModelAndParams(userSession, _cashFlowManager, payload.DateFrom);
         }

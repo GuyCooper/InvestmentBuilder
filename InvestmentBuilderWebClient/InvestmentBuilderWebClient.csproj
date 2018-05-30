@@ -27,11 +27,11 @@
     <Content Include="Index.html" />
     <Content Include="Middleware\Middleware.js" />
     <Content Include="src\AccountList.js" />
-    <Content Include="src\AccountSummary.js" />
     <Content Include="src\CashFlow.js" />
     <Content Include="src\CreateTrade.js" />
     <Content Include="src\Layout.js" />
     <Content Include="src\MiddlewareService.js" />
+    <Content Include="src\NotifyService.js" />
     <Content Include="src\Portfolio.js" />
     <Content Include="src\RegisterModules.js" />
     <Content Include="src\Utils.js" />
@@ -58,7 +58,6 @@
     <Content Include="styles\fonts\glyphicons-halflings-regular.eot" />
     <Content Include="styles\fonts\glyphicons-halflings-regular.ttf" />
     <Content Include="styles\fonts\glyphicons-halflings-regular.woff" />
-    <Content Include="views\AccountSummary.html" />
     <Content Include="views\AddModalDialog.html" />
     <Content Include="views\AddTransaction.html" />
     <Content Include="views\CashFlow.html" />

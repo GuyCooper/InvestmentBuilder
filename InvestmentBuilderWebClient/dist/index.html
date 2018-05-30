@@ -40,23 +40,29 @@
             <hr />
             <p />
             ﻿<div ng-controller="LayoutController">
-    ﻿<div class="row investmentSummary" ng-controller="AccountSummaryController as Summary">
-    <div class="pull-left">
-        <h1>{{AccountName}}</h1>
+    <div ng-show="$scope.isBuilding == true" class="showProgress" ng-cloak>
+        <h4><em>Building Report. please wait...</em></h4>
+        <h5 ng-bind="$scope.section"></h5>
+        <uib-progressbar animate="false" value="$scope.progressCount" type="success"><b>{{$scope.progressCount}}%</b></uib-progressbar>
     </div>
-    <div class="pull-right">
-        <div style="display:inline-block">
-            <div><strong>Value Per Unit</strong></div>
-            <div>{{ValuePerUnit}}</div>
+    <div ng-class="{hideLayout : $scope.isBuilding == true, showLayout : $scope.isBuilding == false}" ng-cloak>
+        <div class="row investmentSummary">
+            <div class="pull-left">
+                <h1>{{AccountName}}</h1>
+            </div>
+            <div class="pull-right">
+                <div style="display:inline-block">
+                    <div><strong>Value Per Unit</strong></div>
+                    <div>{{ValuePerUnit}}</div>
+                </div>
+                <div ng-click="showSummary()" class="btn btn-primary summaryButton">Summary</div>
+                <div ng-click="buildReport()" class="btn btn-primary summaryButton">Build Report</div>
+            </div>
         </div>
-       <div ng-click="refresh()" class="btn btn-primary summaryButton">Summary</div>
-       <div ng-click="refresh()" class="btn btn-primary summaryButton">Build Report</div>
-    </div>
-</div>
 
-    <uib-tabset active="active" justified="true">
-        <uib-tab index="0" select="onPortfolio()" heading="Portfolio">
-            ﻿
+        <uib-tabset active="active" justified="true">
+            <uib-tab index="0" select="onPortfolio()" heading="Portfolio">
+                ﻿
 <div class="container">
     <div ng-controller="PortfolioController">
         <div class="row" style="height:600px">
@@ -65,9 +71,9 @@
     </div>
 </div>
 
-        </uib-tab>
-        <uib-tab index="1" select="onAddTrade()" heading="Add Investment">
-            ﻿
+            </uib-tab>
+            <uib-tab index="1" select="onAddTrade()" heading="Add Investment">
+                ﻿
 <h2>Add Investment</h2>
 
 <p/>
@@ -127,17 +133,11 @@
 </div>
 
 
-        </uib-tab>
-        <uib-tab index="2" select="onCashFlow()" heading="Cash Flow">
-            ﻿
+            </uib-tab>
+            <uib-tab index="2" select="onCashFlow()" heading="Cash Flow">
+                ﻿
 <div class="container">
-    <div ng-controller="CashFlowController as cashFlow" id="cashflowContainer">
-        <div ng-show="cashFlow.isBuilding == true" class="showProgress" ng-cloak>
-            <h4><em>Building Report. please wait...</em></h4>
-            <h5 ng-bind="cashFlow.section"></h5>
-            <uib-progressbar animate="false" value="cashFlow.progressCount" type="success"><b>{{cashFlow.progressCount}}%</b></uib-progressbar>
-        </div>
-        <div ng-class="{hideCashFlow : cashFlow.isBuilding == true, showCashFlow : cashFlow.isBuilding == false}" ng-cloak>
+    <div ng-controller="CashFlowController as cashFlow" id="cashflowContainer">        
             <div ng-repeat="cashFlowItem in cashFlows" class="row cashFlowBlock">
                 <div class="panel panel-default investmentSummary">
                     <div class="cashItemType">
@@ -267,20 +267,19 @@
                     <input type="button" ng-click="cashFlow.reloadContents()" value="go" />
                 </div>
             </div>
-        </div>
     </div>
 </div>
 
-        </uib-tab>
-        <uib-tab index="3" select="onReports()" heading="Reports">
-            Reports content
-        </uib-tab>
-    </uib-tabset>
-    <footer>
-        <p>&copy; InvestmentBuilder</p>
-    </footer>
+            </uib-tab>
+            <uib-tab index="3" select="onReports()" heading="Reports">
+                Reports content
+            </uib-tab>
+        </uib-tabset>
+        <footer>
+            <p>&copy; InvestmentBuilder</p>
+        </footer>
+    </div>
 </div>
-
         </div>
         <script type="text/javascript" src="js/libs.js"></script>
         <script type="text/javascript" src="js/app.js"></script>

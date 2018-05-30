@@ -7,41 +7,44 @@ using NLog;
 
 namespace InvestmentBuilderService.Session
 {
-    class MiddlewareSession : IConnectionSession
+    /// <summary>
+    /// Middleware Session class. session to Middleware server 
+    /// </summary>
+    class MiddlewareSession : IConnectionSession, IDisposable
     {
-        private readonly MiddlewareManager _middleware;
-        private ISession _session;
-        private MiddlewareNetClient.ILogger _logger;
-        private SessionMessageHandler _callbackHandler;
-        private IConnection _settings;
+        #region Public Methods
 
-        public MiddlewareSession(IConnection settings)
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public MiddlewareSession(IConnection settings, string appName)
         {
             _middleware = new MiddlewareManager();
-            _logger = new ServiceLogger();
             _settings = settings;
+            _appName = appName;
         }
 
+        /// <summary>
+        /// Register callback handler for session
+        /// </summary>
         public void RegisterMessageHandler(SessionMessageHandler handler)
         {
             _callbackHandler = handler;
         }
 
+        /// <summary>
+        /// Connect to Middleware session
+        /// </summary>
         public async Task<bool> Connect()
         {
-            _session = await _middleware.CreateSession(_settings.ServerName, _settings.Username, _settings.Password, _logger);
+            _session = await _middleware.CreateSession(_settings.ServerName, _settings.Username, _settings.Password, "Investment Builder Service");
             _middleware.RegisterMessageCallbackFunction(EndpointMessageHandler);
             return _session != null;
         }
 
-        private void EndpointMessageHandler(ISession session, Middleware.Message message)
-        {
-            if(_callbackHandler != null && message != null)
-            {
-                _callbackHandler(message);
-            }
-        }
-
+        /// <summary>
+        /// Register this session as an authentication handler
+        /// </summary>
         public async Task<bool> RegisterAuthenticationServer(string identifier)
         {
             if (_session != null)
@@ -52,6 +55,9 @@ namespace InvestmentBuilderService.Session
             return false;
         }
 
+        /// <summary>
+        /// Send authentication result 
+        /// </summary>
         public void SendAuthenticationResult(bool result, string message, string requestid)
         {
             if (_session != null)
@@ -66,6 +72,9 @@ namespace InvestmentBuilderService.Session
             }
         }
 
+        /// <summary>
+        /// Send Message to Channel
+        /// </summary>
         public void SendMessageToChannel(string channel, string payload, string destination, string requestId)
         {
             if (_session != null)
@@ -74,34 +83,70 @@ namespace InvestmentBuilderService.Session
             }
         }
 
+        /// <summary>
+        /// Register Channel Listener
+        /// </summary>
         public async void RegisterChannelListener(string channel)
         {
             var response = await _middleware.AddChannelListener(_session, channel);
-            if(response.Success == false)
+            if (response.Success == false)
             {
                 //TODO add functionality to peridoically attempt the register request
                 //if it fails. For now we will just log the error
-                if(_logger != null)
-                {
-                    _logger.LogError(string.Format("unable to register listener for channel {0}. {1}", channel, response.Payload));
-                }
+                logger.Log(LogLevel.Error, $"unable to register listener for channel {channel}. {response.Payload}");
             }
         }
-    }
 
-    internal class ServiceLogger : MiddlewareNetClient.ILogger
-    {
-        private static Logger logger = LogManager.GetLogger("Middelware connection");
+        #endregion
 
-        public void LogError(string error)
+        #region Private Methods
+
+        /// <summary>
+        /// Handle message from Middleware session
+        /// </summary>
+        private void EndpointMessageHandler(ISession session, Middleware.Message message)
         {
-            logger.Log(LogLevel.Error, error);
+            if(_callbackHandler != null && message != null)
+            {
+                _callbackHandler(message);
+            }
         }
 
-        public void LogMessage(string message)
-        {
-            logger.Log(LogLevel.Info, message);
-        }
-    }
+        #endregion
 
+        #region IDisposable
+        /// <summary>
+        /// Clean up the session object
+        /// </summary>
+        public void Dispose()
+        {
+            if(IsDisposed == true)
+            {
+                return;
+            }
+
+            var dispose = _session as IDisposable;
+            if(dispose != null)
+            {
+                dispose.Dispose();
+            }
+            IsDisposed = true;
+        }
+
+        private bool IsDisposed;
+
+        #endregion
+
+        #region Private Data Members
+        private readonly MiddlewareManager _middleware;
+        private ISession _session;
+        private SessionMessageHandler _callbackHandler;
+        private IConnection _settings;
+
+        //logger instance
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+        private readonly string _appName;
+
+        #endregion
+    }
 }

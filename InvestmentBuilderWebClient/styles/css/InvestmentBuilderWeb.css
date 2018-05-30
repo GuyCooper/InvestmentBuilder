@@ -110,11 +110,11 @@ right: 1em;
   padding:5px;
 }
 
-.hideCashFlow {
+.hideLayout {
     visibility:hidden;
 }
 
-.showCashFlow {
+.showLayout {
     visibility: visible;
 }
 

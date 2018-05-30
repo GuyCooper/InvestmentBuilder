@@ -5,32 +5,8 @@ function CashFlow($scope, $uibModal, $log, $interval, NotifyService, MiddlewareS
     $scope.cashFlows = [];
     this.receiptParamTypes = null;
     this.paymentParamTypes = null;
-    this.progressCount = 0;
-    this.section = null;
-    this.isBuilding = false;
-
-    var progress;
 
     this.cashFlowFromDate = new Date();
-    this.canBuild = false;
-
-    var onCheckStatus = function (response) {
-        this.progressCount = response.data.Progress;
-
-        this.section = response.data.BuildSection;
-        if (this.isBuilding == true && response.data.IsBuilding == false) {
-            this.isBuilding = response.data.IsBuilding;
-            $interval.cancel(progress);
-            progress = null;
-            //now display a dialog to show any errors during the build
-            this.onReportFinished(response.data.Errors);
-        }
-
-    }.bind(this);
-
-    var checkStatusRequest = function () {
-        MiddlewareService.CheckBuildStatus(onCheckStatus);
-    };
 
     var onLoadContents = function (response) {
 
@@ -42,12 +18,9 @@ function CashFlow($scope, $uibModal, $log, $interval, NotifyService, MiddlewareS
 
         if ($scope.cashFlows.length > 0) {
             this.cashFlowFromDate = new Date($scope.cashFlows[$scope.cashFlows.length - 1].ValuationDate);
-            this.canBuild = $scope.cashFlows[0].CanBuild;
+            NotifyService.InvokeBuildStatusChange($scope.cashFlows[0].CanBuild);
         }
 
-        if (this.isBuilding == true && progress == null) {
-            progress = $interval(checkStatusRequest, 1000);
-        }
         $scope.$apply();
 
     }.bind(this);
@@ -55,23 +28,6 @@ function CashFlow($scope, $uibModal, $log, $interval, NotifyService, MiddlewareS
     NotifyService.RegisterCashFlowListener(function () {
         MiddlewareService.GetCashFlowContents(null, onLoadContents);
     });
-
-    this.onReportFinished = function (errors) {
-        var modalInstance = $uibModal.open({
-            animation: true,
-            ariaLabelledBy: 'modal-title',
-            ariaDescribedBy: 'modal-body',
-            templateUrl: 'ReportCompletionView',
-            controller: 'ReportCompletion',
-            controllerAs: '$report',
-            size: 'lg',
-            resolve: {
-                errors: function () {
-                    return errors;
-                }
-            }
-        });
-    };
 
     this.addTransactionDialog = function (title, paramTypes, dateFrom, updateMethod) {
         var modalInstance = $uibModal.open({
@@ -253,15 +209,5 @@ function CashTransaction($scope, $uibModalInstance, transactionType, paramTypes,
     };
 
     $transaction.changeParamType();
-};
-
-function ReportCompletion($uibModalInstance, errors) {
-    var $report = this;
-    $report.success = errors == null || errors.length == 0;
-    $report.errors = errors;
-
-    $report.ok = function () {
-        $uibModalInstance.dismiss('cancel');
-    };
 };
 

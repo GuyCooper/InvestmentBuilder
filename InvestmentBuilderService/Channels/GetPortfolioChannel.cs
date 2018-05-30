@@ -17,7 +17,10 @@ namespace InvestmentBuilderService.Channels
         }
     }
 
-    class GetPortfolioChannel : EndpointChannel<Dto>
+    /// <summary>
+    /// handler class for retreiving the portfolio
+    /// </summary>
+    class GetPortfolioChannel : EndpointChannel<Dto, ChannelUpdater>
     {
         private InvestmentBuilder.InvestmentBuilder _builder;
         public GetPortfolioChannel(AccountService accountService, InvestmentBuilder.InvestmentBuilder builder) :
@@ -26,7 +29,7 @@ namespace InvestmentBuilderService.Channels
             _builder = builder;
         }
 
-        public override Dto HandleEndpointRequest(UserSession userSession, Dto payload)
+        protected override Dto HandleEndpointRequest(UserSession userSession, Dto payload, ChannelUpdater update)
         {
             var userToken = GetCurrentUserToken(userSession);
             return new PortfolioResponseDto(_builder.GetCurrentInvestments(userToken, userSession.UserPrices).OrderBy(x => x.Name).ToList());

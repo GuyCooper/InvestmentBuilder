@@ -1,20 +1,40 @@
 ﻿<div ng-controller="LayoutController">
-    @[views/AccountSummary.html]
-    <uib-tabset active="active" justified="true">
-        <uib-tab index="0" select="onPortfolio()" heading="Portfolio">
-            @[views/Portfolio.html]
-        </uib-tab>
-        <uib-tab index="1" select="onAddTrade()" heading="Add Investment">
-            @[views/CreateTrade.html]
-        </uib-tab>
-        <uib-tab index="2" select="onCashFlow()" heading="Cash Flow">
-            @[views/CashFlow.html]
-        </uib-tab>
-        <uib-tab index="3" select="onReports()" heading="Reports">
-            Reports content
-        </uib-tab>
-    </uib-tabset>
-    <footer>
-        <p>&copy; InvestmentBuilder</p>
-    </footer>
+    <div ng-show="$scope.isBuilding == true" class="showProgress" ng-cloak>
+        <h4><em>Building Report. please wait...</em></h4>
+        <h5 ng-bind="$scope.section"></h5>
+        <uib-progressbar animate="false" value="$scope.progressCount" type="success"><b>{{$scope.progressCount}}%</b></uib-progressbar>
+    </div>
+    <div ng-class="{hideLayout : $scope.isBuilding == true, showLayout : $scope.isBuilding == false}" ng-cloak>
+        <div class="row investmentSummary">
+            <div class="pull-left">
+                <h1>{{AccountName}}</h1>
+            </div>
+            <div class="pull-right">
+                <div style="display:inline-block">
+                    <div><strong>Value Per Unit</strong></div>
+                    <div>{{ValuePerUnit}}</div>
+                </div>
+                <div ng-click="showSummary()" class="btn btn-primary summaryButton">Summary</div>
+                <div ng-click="buildReport()" class="btn btn-primary summaryButton">Build Report</div>
+            </div>
+        </div>
+
+        <uib-tabset active="active" justified="true">
+            <uib-tab index="0" select="onPortfolio()" heading="Portfolio">
+                @[views/Portfolio.html]
+            </uib-tab>
+            <uib-tab index="1" select="onAddTrade()" heading="Add Investment">
+                @[views/CreateTrade.html]
+            </uib-tab>
+            <uib-tab index="2" select="onCashFlow()" heading="Cash Flow">
+                @[views/CashFlow.html]
+            </uib-tab>
+            <uib-tab index="3" select="onReports()" heading="Reports">
+                Reports content
+            </uib-tab>
+        </uib-tabset>
+        <footer>
+            <p>&copy; InvestmentBuilder</p>
+        </footer>
+    </div>
 </div>

@@ -16,7 +16,10 @@ namespace InvestmentBuilderService.Channels
         public string Parameter { get; set; }
     }
 
-    internal class DeleteTransactionChannel : EndpointChannel<DeleteTransactionRequestDto>
+    /// <summary>
+    /// handler class for deleting transaction commands
+    /// </summary>
+    internal class DeleteTransactionChannel : EndpointChannel<DeleteTransactionRequestDto, ChannelUpdater>
     {
         private CashAccountTransactionManager _cashTransactionManager;
 
@@ -27,7 +30,7 @@ namespace InvestmentBuilderService.Channels
             _cashTransactionManager = cashTransactionManager;
         }
 
-        public override Dto HandleEndpointRequest(UserSession userSession, DeleteTransactionRequestDto payload)
+        protected override Dto HandleEndpointRequest(UserSession userSession, DeleteTransactionRequestDto payload, ChannelUpdater update)
         {
             var token = GetCurrentUserToken(userSession);
             _cashTransactionManager.RemoveTransaction(token, payload.ValuationDate,

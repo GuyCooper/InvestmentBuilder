@@ -14,7 +14,7 @@ namespace InvestmentBuilderService.Channels
         public string TradeName { get; set; }
     }
 
-    internal class SellTradeRequestChannel : EndpointChannel<SellTradeRequestDto>
+    internal class SellTradeRequestChannel : EndpointChannel<SellTradeRequestDto, ChannelUpdater>
     {
         private IClientDataInterface _clientData;
         private InvestmentBuilder.InvestmentBuilder _builder;
@@ -28,7 +28,7 @@ namespace InvestmentBuilderService.Channels
             _builder = builder;
         }
 
-        public override Dto HandleEndpointRequest(UserSession userSession, SellTradeRequestDto payload)
+        protected override Dto HandleEndpointRequest(UserSession userSession, SellTradeRequestDto payload, ChannelUpdater update)
         {
             var token = GetCurrentUserToken(userSession);
             var tradeItem = _clientData.GetTradeItem(token, payload.TradeName);

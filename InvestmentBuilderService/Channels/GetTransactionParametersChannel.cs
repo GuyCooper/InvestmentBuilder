@@ -17,7 +17,10 @@ namespace InvestmentBuilderService.Channels
         public IEnumerable<string> Parameters { get; set; }
     }
 
-    internal class GetTransactionParametersChannel : EndpointChannel<TransactionParametersRequestDto>
+    /// <summary>
+    /// handler class for retreiving a list of transaction parameters
+    /// </summary>
+    internal class GetTransactionParametersChannel : EndpointChannel<TransactionParametersRequestDto, ChannelUpdater>
     {
         private IInvestmentRecordInterface _recordData;
         private InvestmentBuilder.InvestmentBuilder _builder;
@@ -31,7 +34,7 @@ namespace InvestmentBuilderService.Channels
             _builder = builder;
         }
 
-        public override Dto HandleEndpointRequest(UserSession userSession, TransactionParametersRequestDto payload)
+        protected override Dto HandleEndpointRequest(UserSession userSession, TransactionParametersRequestDto payload, ChannelUpdater update)
         {
             var token = GetCurrentUserToken(userSession);
             var latestRecordDate = _recordData.GetLatestRecordInvestmentValuationDate(token) ?? DateTime.Today;

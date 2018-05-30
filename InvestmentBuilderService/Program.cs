@@ -1,16 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using InvestmentBuilderCore;
 using NLog;
 using MarketDataServices;
 using SQLServerDataLayer;
-using PerformanceBuilderLib;
 using Microsoft.Practices.Unity;
 using InvestmentBuilder;
-using System.IO;
 using InvestmentBuilderService.Utils;
 using InvestmentBuilderService.Session;
 using System.Threading;
@@ -44,9 +38,9 @@ namespace InvestmentBuilderService
             { 
                 var connectionSettings = new ConnectionSettings("Connections.xml");
                 var authData = new SQLAuthData(ContainerManager.ResolveValue<IConfigurationSettings>());
-                var authSession = new MiddlewareSession(connectionSettings.AuthServerConnection);
+                var authSession = new MiddlewareSession(connectionSettings.AuthServerConnection, "InvestmentBuilder-AuthService");
                 var userManager = new UserSessionManager(authSession, authData, ContainerManager.ResolveValue<AccountManager>());
-                var serverSession = new MiddlewareSession(connectionSettings.ServerConnection);
+                var serverSession = new MiddlewareSession(connectionSettings.ServerConnection, "InvestmentBuilder-Channels");
                 var endpointManager = new ChannelEndpointManager(serverSession, userManager);
 
                 //now connect to servers and wait
@@ -62,6 +56,9 @@ namespace InvestmentBuilderService
                 };
 
                 closeEvent.WaitOne();
+
+                authSession.Dispose();
+                serverSession.Dispose();
             }
         }
 

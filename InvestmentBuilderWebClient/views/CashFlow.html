@@ -1,12 +1,6 @@
 ﻿
 <div class="container">
-    <div ng-controller="CashFlowController as cashFlow" id="cashflowContainer">
-        <div ng-show="cashFlow.isBuilding == true" class="showProgress" ng-cloak>
-            <h4><em>Building Report. please wait...</em></h4>
-            <h5 ng-bind="cashFlow.section"></h5>
-            <uib-progressbar animate="false" value="cashFlow.progressCount" type="success"><b>{{cashFlow.progressCount}}%</b></uib-progressbar>
-        </div>
-        <div ng-class="{hideCashFlow : cashFlow.isBuilding == true, showCashFlow : cashFlow.isBuilding == false}" ng-cloak>
+    <div ng-controller="CashFlowController as cashFlow" id="cashflowContainer">        
             <div ng-repeat="cashFlowItem in cashFlows" class="row cashFlowBlock">
                 <div class="panel panel-default investmentSummary">
                     <div class="cashItemType">
@@ -136,6 +130,5 @@
                     <input type="button" ng-click="cashFlow.reloadContents()" value="go" />
                 </div>
             </div>
-        </div>
     </div>
 </div>

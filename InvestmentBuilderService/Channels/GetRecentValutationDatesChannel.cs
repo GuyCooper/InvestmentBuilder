@@ -12,7 +12,10 @@ namespace InvestmentBuilderService.Channels
         public IEnumerable<string> RecentDates { get; set; }
     }
 
-    internal class GetRecentValutationDatesChannel : EndpointChannel<Dto>
+    /// <summary>
+    /// handler class for retreiving list of recent valuation dates
+    /// </summary>
+    internal class GetRecentValutationDatesChannel : EndpointChannel<Dto, ChannelUpdater>
     {
         protected IClientDataInterface _clientData;
 
@@ -22,7 +25,7 @@ namespace InvestmentBuilderService.Channels
             _clientData = dataLayer.ClientData;
         }
 
-        public override Dto HandleEndpointRequest(UserSession userSession, Dto payload)
+        protected override Dto HandleEndpointRequest(UserSession userSession, Dto payload, ChannelUpdater update)
         {
             var userToken = GetCurrentUserToken(userSession);
             return new RecentValuationDates

@@ -8,7 +8,10 @@ using InvestmentBuilderService.Translators;
 
 namespace InvestmentBuilderService.Channels
 {
-    class GetInvestmentSummaryChannel : EndpointChannel<Dto>
+    /// <summary>
+    /// handler class for retreiving the investment summary
+    /// </summary>
+    class GetInvestmentSummaryChannel : EndpointChannel<Dto, ChannelUpdater>
     {
         private IClientDataInterface _clientData;
         private InvestmentBuilder.InvestmentBuilder _builder;
@@ -20,7 +23,7 @@ namespace InvestmentBuilderService.Channels
             _builder = builder;
         }
 
-        public override Dto HandleEndpointRequest(UserSession userSession, Dto payload)
+        protected override Dto HandleEndpointRequest(UserSession userSession, Dto payload, ChannelUpdater update)
         {
             var userToken = GetCurrentUserToken(userSession);
             var dtPrevious = _clientData.GetPreviousAccountValuationDate(userToken, userSession.ValuationDate);

@@ -16,7 +16,10 @@ namespace InvestmentBuilderService.Channels
         public string Parameter { get; set; }
     }
 
-    internal abstract class RemoveTransactionChannel : EndpointChannel<RemoveTransactionRequestDto>
+    /// <summary>
+    /// handler class for removing a transaction from the database
+    /// </summary>
+    internal abstract class RemoveTransactionChannel : EndpointChannel<RemoveTransactionRequestDto, ChannelUpdater>
     {
         private CashAccountTransactionManager _cashTransactionManager;
         private InvestmentBuilder.InvestmentBuilder _builder;
@@ -30,7 +33,7 @@ namespace InvestmentBuilderService.Channels
             _cashTransactionManager = cashTransactionManager;
         }
 
-        public override Dto HandleEndpointRequest(UserSession userSession, RemoveTransactionRequestDto payload)
+        protected override Dto HandleEndpointRequest(UserSession userSession, RemoveTransactionRequestDto payload, ChannelUpdater update)
         {
             var token = GetCurrentUserToken(userSession);
             var dtValuation = DateTime.Parse(payload.ValuationDate);

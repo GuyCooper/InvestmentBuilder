@@ -11,13 +11,16 @@ namespace InvestmentBuilderService.Channels
         public IEnumerable<string> AccountNames { get; set; }
     }
 
-    class GetAccountNamesChannel : EndpointChannel<Dto>
+    /// <summary>
+    /// handler class for getting list of account names for current user
+    /// </summary>
+    class GetAccountNamesChannel : EndpointChannel<Dto, ChannelUpdater>
     {
         public GetAccountNamesChannel(AccountService accountService) :
             base("GET_ACCOUNT_NAMES_REQUEST", "GET_ACCOUNT_NAMES_RESPONSE", accountService)
         { }
 
-        public override Dto HandleEndpointRequest(UserSession userSession, Dto payload)
+        protected override Dto HandleEndpointRequest(UserSession userSession, Dto payload, ChannelUpdater update)
         {
             return new AccountNamesDto
             {

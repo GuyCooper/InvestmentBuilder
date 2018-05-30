@@ -18,7 +18,10 @@ namespace InvestmentBuilderService.Channels
         public string DateRequestedFrom { get; set; }
     }
 
-    internal abstract class AddTransactionChannel : EndpointChannel<AddTransactionRequestDto>
+    /// <summary>
+    /// handler class for adding transactions
+    /// </summary>
+    internal abstract class AddTransactionChannel : EndpointChannel<AddTransactionRequestDto, ChannelUpdater>
     {
         private CashAccountTransactionManager _cashTransactionManager;
         private CashFlowManager _cashFlowManager;
@@ -33,7 +36,7 @@ namespace InvestmentBuilderService.Channels
             _cashFlowManager = cashFlowManager;
         }
 
-        public override Dto HandleEndpointRequest(UserSession userSession, AddTransactionRequestDto payload)
+        protected override Dto HandleEndpointRequest(UserSession userSession, AddTransactionRequestDto payload, ChannelUpdater updater)
         {
             var token = GetCurrentUserToken(userSession);
             if (payload.TransactionDate != null && payload.Amount > 0)
@@ -54,6 +57,9 @@ namespace InvestmentBuilderService.Channels
         }
     }
 
+    /// <summary>
+    /// handler class for adding receipt transactions
+    /// </summary>
     internal class AddRecieptTransactionChannel : AddTransactionChannel
     {
         public AddRecieptTransactionChannel(AccountService accountService, CashAccountTransactionManager cashTransactionManager, 
@@ -64,6 +70,9 @@ namespace InvestmentBuilderService.Channels
         }
     }
 
+    /// <summary>
+    /// handler class for adding payment transactions
+    /// </summary>
     internal class AddPaymentTransactionChannel : AddTransactionChannel
     {
         public AddPaymentTransactionChannel(AccountService accountService, CashAccountTransactionManager cashTransactionManager, 

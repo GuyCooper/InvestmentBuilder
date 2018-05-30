@@ -1,51 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using MiddlewareNetClient;
 using Middleware;
-using Newtonsoft.Json;
 using InvestmentBuilderCore;
-using InvestmentBuilderService.Channels;
-using InvestmentBuilderService.Utils;
 using InvestmentBuilderService.Session;
 using NLog;
-using System.Reflection;
 using Microsoft.Practices.Unity;
-using InvestmentBuilderService;
 
 namespace InvestmentBuilderService
 {
+    /// <summary>
+    /// ChannelEndpointManager class. Manages all channel endpoints. Uses reflection to
+    /// determine list of channels
+    /// </summary>
     class ChannelEndpointManager : EndpointManager
     {
-        private Dictionary<string, IEndpointChannel> _channels;
-        private ISessionManager _sessionManager;
-        private static Logger logger = LogManager.GetCurrentClassLogger();
-
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public ChannelEndpointManager(IConnectionSession session, ISessionManager sessionManager) 
             : base(session)
         {
-            _channels = new Dictionary<string, IEndpointChannel>();
             _sessionManager = sessionManager;
         }
 
-        public static bool ChannelInterfaceFilter(Type typeObj, object criteriaObj)
-        {
-            if (typeObj.ToString() == criteriaObj.ToString())
-                return true;
-            else
-                return false;
-        }
-
-        private IEnumerable<Type> IsEndpointChannelClass(Type objType)
-        {
-            return
-            from interfaceType in objType.GetInterfaces()
-            where interfaceType == typeof(IEndpointChannel)
-            select interfaceType;
-        }
-
+        /// <summary>
+        /// Use reflection to construct the list of Endpoint channels defined in this
+        /// assembly.
+        /// </summary>
         public override void RegisterChannels(IUnityContainer container )
         {
             //register and resolve all concrete classes in this module that are derived 
@@ -83,7 +66,11 @@ namespace InvestmentBuilderService
             }
         }
 
-        public void RegisterChannel(IEndpointChannel channel)
+        /// <summary>
+        /// Register an endpoint channel. add it to cache
+        /// </summary>
+        /// <param name="channel"></param>
+        private void RegisterChannel(IEndpointChannel channel)
         {
             if(channel != null)
             {
@@ -96,6 +83,10 @@ namespace InvestmentBuilderService
             }
         }
 
+        /// <summary>
+        /// Method handles an incoming message. delegates the message to the correct
+        /// endpoint
+        /// </summary>
         protected override void EndpointMessageHandler(Message message)
         {
             if (message.Type != MessageType.REQUEST)
@@ -124,5 +115,31 @@ namespace InvestmentBuilderService
                 logger.Log(LogLevel.Error, "invalid channel : {0}", message.Channel);
             }
         }
+
+        #region Private Methods
+
+        /// <summary>
+        /// Helper method for determining if an object is of type IEndpointChannel
+        /// </summary>
+        /// <param name="objType"></param>
+        /// <returns></returns>
+        private IEnumerable<Type> IsEndpointChannelClass(Type objType)
+        {
+            return
+            from interfaceType in objType.GetInterfaces()
+            where interfaceType == typeof(IEndpointChannel)
+            select interfaceType;
+        }
+
+        #endregion
+
+        #region Private Data Members
+
+        // List of channels
+        private readonly Dictionary<string, IEndpointChannel> _channels = new Dictionary<string, IEndpointChannel>();
+        private readonly ISessionManager _sessionManager;
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
+        #endregion
     }
 }

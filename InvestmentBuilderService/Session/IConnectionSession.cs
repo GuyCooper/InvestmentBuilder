@@ -9,6 +9,9 @@ namespace InvestmentBuilderService.Session
 {
     public delegate void SessionMessageHandler(Message message);
 
+    /// <summary>
+    /// Interface defines a session to a middleware layer
+    /// </summary>
     public interface IConnectionSession
     {
         Task<bool> Connect();

@@ -12,14 +12,14 @@ namespace InvestmentBuilderService.Channels
         public double Price { get; set; }
     }
 
-    internal class UpdateManualPriceChannel : EndpointChannel<InvestmentPriceUpdateDto>
+    internal class UpdateManualPriceChannel : EndpointChannel<InvestmentPriceUpdateDto, ChannelUpdater>
     {
         public UpdateManualPriceChannel(AccountService accountService) : 
             base("UPDATE_INVESTMENT_PRICE_REQUEST", "UPDATE_INVESTMENT_PRICE_RESPONSE", accountService)
         {
         }
 
-        public override Dto HandleEndpointRequest(UserSession userSession, InvestmentPriceUpdateDto payload)
+        protected override Dto HandleEndpointRequest(UserSession userSession, InvestmentPriceUpdateDto payload, ChannelUpdater update)
         {
             if(userSession.UserPrices.ContainsKey(payload.Investment) == false)
             {

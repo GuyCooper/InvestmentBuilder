@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Middleware;
-using Newtonsoft.Json;
-using InvestmentBuilderService.Channels;
 using InvestmentBuilderService.Session;
 using Microsoft.Practices.Unity;
 
 namespace InvestmentBuilderService
 {
+    /// <summary>
+    /// Abstract EndpointManager class
+    /// </summary>
     internal abstract class EndpointManager
     {
         private IConnectionSession _session;

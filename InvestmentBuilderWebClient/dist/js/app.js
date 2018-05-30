@@ -18,21 +18,21 @@ function YesNoPicker($uibModalInstance, title, description, name) {
 'use strict'
 
 function NotifyService(MiddlewareService) {
-
+    
+    //notify service acts as a broker service between the controllers. it contains
+    //several lists of listeners that need to be called when a particular view is
+    //selected.
     var PortfolioListeners = [];
     var AddTradeListeners = [];
     var CashFlowListeners = [];
+    var BuildStatusListeners = []; //this of listeners that should be invoked when the build status changes
+    var AccountListeners = []; //this is a list of listeners that should be invoked when the account is changed
+    var ConnectionListeners = []; //this list contains a list of handlers that should be called once connection to the middleware is complete
 
+    //listeners for the current view
     var listeners = null;
-    //this list contains a list of handlers that should be called once connection to the middleware
-    //is complete
-    var ConnectionListeners = [];
 
-    //this is a list of listeners that should be invoked when the account is changed
-    var AccountListeners = []
-    //var BuildReportListener = null;
-    //var ViewReportListeners = [];
-
+    //register callback methods 
     this.RegisterAccountListener = function (listener) {
         AccountListeners.push(listener);
     };
@@ -52,18 +52,26 @@ function NotifyService(MiddlewareService) {
     this.RegisterConnectionListener = function (listener) {
         ConnectionListeners.push(listener);
     };
-    //NotifyService.RegisterViewReportListener = function (listener) {
-    //    ViewReportListeners.push(listener);
-    //};
-        
-    var invokeListeners = function () {
-        if (listeners != null) {
-            for (var i = 0; i < listeners.length; i++) {
-                listeners[i]();
+
+    this.RegisterBuildStatusListener = function (listener) {
+        BuildStatusListeners.push(listener);
+    };
+
+    //helper method for invoking an array of callbacks
+    var invokeCallbacks = function (callbacks, parameter) {
+        if (callbacks != null) {
+            for (var i = 0; i < callbacks.length; i++) {
+                callbacks[i](parameter);
             }
         }
+    };
+
+    //helper method for invoking the current listeners
+    var invokeListeners = function () {
+        invokeCallbacks(listeners);
     }
 
+    //following methods called to invoke the listeners for a particjular view
     this.InvokePortfolio = function () {
         listeners = PortfolioListeners;
         invokeListeners();
@@ -79,30 +87,92 @@ function NotifyService(MiddlewareService) {
         invokeListeners();
     };
 
-    //call this method if the account is changed. Calls the exisitng view listner and all the 
+    //call this method if the account is changed. Calls the exisitng view listener and all the 
     //account listeners
     this.InvokeAccountChange = function () {
-        for (var i = 0; i < AccountListeners.length; i++) {
-            AccountListeners[i]();
-        }
+        invokeCallbacks(AccountListeners);
         invokeListeners();
     }
-    //now connect to the middleware server. once conncted inform any listeners that connection is complete
+
+    //this method is called when the build status changes and notifies all the buildstatus listeners of the new build state
+    this.InvokeBuildStatusChange = function (status) {
+        invokeCallbacks(BuildStatusListeners, status);
+    }
+
+    //now connect to the middleware server. once conncted inform any connection listeners that connection is complete
     MiddlewareService.Connect("ws://localhost:8080", "guy@guycooper.plus.com", "rangers").then(function () {
         console.log("connection to middleware succeded!");
-        for (var i = 0; i < ConnectionListeners.length; i++) {
-            ConnectionListeners[i]();
-        }
+        invokeCallbacks(ConnectionListeners);
     },
     function (error) {
         console.log("connection to middleware failed" + error);
     });
-    //NotifyService.InvokeViewReport = function () {
-    //    invokeListeners(ViewReportListeners);
-    //};
 }
 
-function Layout($scope, $log, NotifyService) {
+'use strict'
+
+//controller handles management of the build report progress and the view tab
+function Layout($scope, $log, NotifyService, MiddlewareService) {
+    $scope.progressCount = 0;
+    $scope.section = null;
+    $scope.isBuilding = false;
+    $scope.CanBuild = false;
+
+    //callback displays the account summary details
+    var onLoadAccountSummary = function (response) {
+        $scope.AccountName = response.AccountName;
+        $scope.ReportingCurrency = response.ReportingCurrency;
+        $scope.ValuePerUnit = response.ValuePerUnit;
+        $scope.NetAssets = response.NetAssets;
+
+        $scope.BankBalance = response.BankBalance;
+        $scope.MonthlyPnL = response.MonthlyPnL;
+        $scope.$apply();
+    };
+
+    var loadAccountSummary = function () {
+        MiddlewareService.GetInvestmentSummary(onLoadAccountSummary);
+    }
+
+    var onBuildStatusChanged = function (status) {
+        $scope.CanBuild = status;
+    };
+
+    var onBuildProgress = function (response) {
+
+        var buildStatus = response.Status;
+        if(buildStatus != undefined && buildStatus != null) {
+            $scope.progressCount = buildStatus.Progress;
+
+            $scope.section = buildStatus.BuildSection;
+            if ($scope.isBuilding == true && buildStatus.IsBuilding == false) {
+                $scope.isBuilding = buildStatus.IsBuilding;
+                //now display a dialog to show any errors during the build
+                onReportFinished(buildStatus.Errors);
+            }
+            else {
+                $scope.isBuilding = buildStatus.IsBuilding;
+            }
+        }
+    };
+
+    var onReportFinished = function (errors) {
+        var modalInstance = $uibModal.open({
+            animation: true,
+            ariaLabelledBy: 'modal-title',
+            ariaDescribedBy: 'modal-body',
+            templateUrl: 'ReportCompletionView',
+            controller: 'ReportCompletion',
+            controllerAs: '$report',
+            size: 'lg',
+            resolve: {
+                errors: function () {
+                    return errors;
+                }
+            }
+        });
+    };
+
     $scope.onPortfolio = function () {
         NotifyService.InvokePortfolio();
         $scope.canBuild = false;
@@ -117,15 +187,33 @@ function Layout($scope, $log, NotifyService) {
         NotifyService.InvokeCashFlow();
         $scope.canBuild = true;
     };
-     
-    //$scope.onViewReport = function () {
-    //    NotifyService.InvokeViewReport();
-    //};
 
-    $scope.BuildReport = function () {
-      //TODO  
+    $scope.buildReport = function () {
+        MiddlewareService.BuildReport(onBuildProgress);
+    };
+
+    $scope.showSummary = function () {
+        //TODO
     }
-}
+    //ensure this view is reloaded on connection
+    NotifyService.RegisterConnectionListener(loadAccountSummary);
+    //ensure this view is reloaded if the account is changed
+    NotifyService.RegisterAccountListener(loadAccountSummary);
+    //ensure this view is updated when the build status changes
+    NotifyService.RegisterBuildStatusListener(onBuildStatusChanged);
+};
+
+//controller to handle the report completion view
+function ReportCompletion($uibModalInstance, errors) {
+    var $report = this;
+    $report.success = errors == null || errors.length == 0;
+    $report.errors = errors;
+
+    $report.ok = function () {
+        $uibModalInstance.dismiss('cancel');
+    };
+};
+
 'use strict'
 
 function MiddlewareService()
@@ -258,32 +346,8 @@ function CashFlow($scope, $uibModal, $log, $interval, NotifyService, MiddlewareS
     $scope.cashFlows = [];
     this.receiptParamTypes = null;
     this.paymentParamTypes = null;
-    this.progressCount = 0;
-    this.section = null;
-    this.isBuilding = false;
-
-    var progress;
 
     this.cashFlowFromDate = new Date();
-    this.canBuild = false;
-
-    var onCheckStatus = function (response) {
-        this.progressCount = response.data.Progress;
-
-        this.section = response.data.BuildSection;
-        if (this.isBuilding == true && response.data.IsBuilding == false) {
-            this.isBuilding = response.data.IsBuilding;
-            $interval.cancel(progress);
-            progress = null;
-            //now display a dialog to show any errors during the build
-            this.onReportFinished(response.data.Errors);
-        }
-
-    }.bind(this);
-
-    var checkStatusRequest = function () {
-        MiddlewareService.CheckBuildStatus(onCheckStatus);
-    };
 
     var onLoadContents = function (response) {
 
@@ -295,12 +359,9 @@ function CashFlow($scope, $uibModal, $log, $interval, NotifyService, MiddlewareS
 
         if ($scope.cashFlows.length > 0) {
             this.cashFlowFromDate = new Date($scope.cashFlows[$scope.cashFlows.length - 1].ValuationDate);
-            this.canBuild = $scope.cashFlows[0].CanBuild;
+            NotifyService.InvokeBuildStatusChange($scope.cashFlows[0].CanBuild);
         }
 
-        if (this.isBuilding == true && progress == null) {
-            progress = $interval(checkStatusRequest, 1000);
-        }
         $scope.$apply();
 
     }.bind(this);
@@ -308,23 +369,6 @@ function CashFlow($scope, $uibModal, $log, $interval, NotifyService, MiddlewareS
     NotifyService.RegisterCashFlowListener(function () {
         MiddlewareService.GetCashFlowContents(null, onLoadContents);
     });
-
-    this.onReportFinished = function (errors) {
-        var modalInstance = $uibModal.open({
-            animation: true,
-            ariaLabelledBy: 'modal-title',
-            ariaDescribedBy: 'modal-body',
-            templateUrl: 'ReportCompletionView',
-            controller: 'ReportCompletion',
-            controllerAs: '$report',
-            size: 'lg',
-            resolve: {
-                errors: function () {
-                    return errors;
-                }
-            }
-        });
-    };
 
     this.addTransactionDialog = function (title, paramTypes, dateFrom, updateMethod) {
         var modalInstance = $uibModal.open({
@@ -506,16 +550,6 @@ function CashTransaction($scope, $uibModalInstance, transactionType, paramTypes,
     };
 
     $transaction.changeParamType();
-};
-
-function ReportCompletion($uibModalInstance, errors) {
-    var $report = this;
-    $report.success = errors == null || errors.length == 0;
-    $report.errors = errors;
-
-    $report.ok = function () {
-        $uibModalInstance.dismiss('cancel');
-    };
 };
 
 
@@ -773,33 +807,6 @@ function AccountList($scope, NotifyService, MiddlewareService) {
 
     NotifyService.RegisterConnectionListener(loadAccountList);
 }
-'use strict'
-
-function AccountSummary($scope, NotifyService, MiddlewareService) {
-
-    var onLoadAccountSummary = function (response) {
-        $scope.AccountName = response.AccountName;
-        $scope.ReportingCurrency = response.ReportingCurrency;
-        $scope.ValuePerUnit = response.ValuePerUnit;
-        $scope.NetAssets = response.NetAssets;
-
-        $scope.BankBalance = response.BankBalance;
-        $scope.MonthlyPnL = response.MonthlyPnL;
-        $scope.$apply();
-    };
-
-    $scope.refresh = function() {
-    };
-
-    var loadAccountSummary = function () {
-        MiddlewareService.GetInvestmentSummary(onLoadAccountSummary);
-    }
-
-    //ensure this view is reloaded on connection
-    NotifyService.RegisterConnectionListener(loadAccountSummary);
-    //ensure this view is reloaded if the account is changed
-    NotifyService.RegisterAccountListener(loadAccountSummary);
-};
 "use strict"
 
 var module = angular.module("InvestmentRecord", ["ui.bootstrap","agGrid"]);

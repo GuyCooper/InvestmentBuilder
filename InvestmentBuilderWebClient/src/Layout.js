@@ -1,91 +1,67 @@
 ﻿'use strict'
 
-function NotifyService(MiddlewareService) {
+//controller handles management of the build report progress and the view tab
+function Layout($scope, $log, NotifyService, MiddlewareService) {
+    $scope.progressCount = 0;
+    $scope.section = null;
+    $scope.isBuilding = false;
+    $scope.CanBuild = false;
 
-    var PortfolioListeners = [];
-    var AddTradeListeners = [];
-    var CashFlowListeners = [];
+    //callback displays the account summary details
+    var onLoadAccountSummary = function (response) {
+        $scope.AccountName = response.AccountName;
+        $scope.ReportingCurrency = response.ReportingCurrency;
+        $scope.ValuePerUnit = response.ValuePerUnit;
+        $scope.NetAssets = response.NetAssets;
 
-    var listeners = null;
-    //this list contains a list of handlers that should be called once connection to the middleware
-    //is complete
-    var ConnectionListeners = [];
-
-    //this is a list of listeners that should be invoked when the account is changed
-    var AccountListeners = []
-    //var BuildReportListener = null;
-    //var ViewReportListeners = [];
-
-    this.RegisterAccountListener = function (listener) {
-        AccountListeners.push(listener);
+        $scope.BankBalance = response.BankBalance;
+        $scope.MonthlyPnL = response.MonthlyPnL;
+        $scope.$apply();
     };
 
-    this.RegisterPortfolioListener = function (listener) {
-        PortfolioListeners.push(listener);
+    var loadAccountSummary = function () {
+        MiddlewareService.GetInvestmentSummary(onLoadAccountSummary);
+    }
+
+    var onBuildStatusChanged = function (status) {
+        $scope.CanBuild = status;
     };
 
-    this.RegisterAddTradeListener = function (listener) {
-        AddTradeListeners.push(listener);
-    };
+    var onBuildProgress = function (response) {
 
-    this.RegisterCashFlowListener = function (listener) {
-        CashFlowListeners.push(listener);
-    };
+        var buildStatus = response.Status;
+        if(buildStatus != undefined && buildStatus != null) {
+            $scope.progressCount = buildStatus.Progress;
 
-    this.RegisterConnectionListener = function (listener) {
-        ConnectionListeners.push(listener);
-    };
-    //NotifyService.RegisterViewReportListener = function (listener) {
-    //    ViewReportListeners.push(listener);
-    //};
-        
-    var invokeListeners = function () {
-        if (listeners != null) {
-            for (var i = 0; i < listeners.length; i++) {
-                listeners[i]();
+            $scope.section = buildStatus.BuildSection;
+            if ($scope.isBuilding == true && buildStatus.IsBuilding == false) {
+                $scope.isBuilding = buildStatus.IsBuilding;
+                //now display a dialog to show any errors during the build
+                onReportFinished(buildStatus.Errors);
+            }
+            else {
+                $scope.isBuilding = buildStatus.IsBuilding;
             }
         }
-    }
-
-    this.InvokePortfolio = function () {
-        listeners = PortfolioListeners;
-        invokeListeners();
     };
 
-    this.InvokeAddTrade = function () {
-        listeners = AddTradeListeners;
-        invokeListeners();
+    var onReportFinished = function (errors) {
+        var modalInstance = $uibModal.open({
+            animation: true,
+            ariaLabelledBy: 'modal-title',
+            ariaDescribedBy: 'modal-body',
+            templateUrl: 'ReportCompletionView',
+            controller: 'ReportCompletion',
+            controllerAs: '$report',
+            size: 'lg',
+            resolve: {
+                errors: function () {
+                    return errors;
+                }
+            }
+        });
     };
 
-    this.InvokeCashFlow = function () {
-        listeners = CashFlowListeners;
-        invokeListeners();
-    };
-
-    //call this method if the account is changed. Calls the exisitng view listner and all the 
-    //account listeners
-    this.InvokeAccountChange = function () {
-        for (var i = 0; i < AccountListeners.length; i++) {
-            AccountListeners[i]();
-        }
-        invokeListeners();
-    }
-    //now connect to the middleware server. once conncted inform any listeners that connection is complete
-    MiddlewareService.Connect("ws://localhost:8080", "guy@guycooper.plus.com", "rangers").then(function () {
-        console.log("connection to middleware succeded!");
-        for (var i = 0; i < ConnectionListeners.length; i++) {
-            ConnectionListeners[i]();
-        }
-    },
-    function (error) {
-        console.log("connection to middleware failed" + error);
-    });
-    //NotifyService.InvokeViewReport = function () {
-    //    invokeListeners(ViewReportListeners);
-    //};
-}
-
-function Layout($scope, $log, NotifyService) {
     $scope.onPortfolio = function () {
         NotifyService.InvokePortfolio();
         $scope.canBuild = false;
@@ -100,12 +76,29 @@ function Layout($scope, $log, NotifyService) {
         NotifyService.InvokeCashFlow();
         $scope.canBuild = true;
     };
-     
-    //$scope.onViewReport = function () {
-    //    NotifyService.InvokeViewReport();
-    //};
 
-    $scope.BuildReport = function () {
-      //TODO  
+    $scope.buildReport = function () {
+        MiddlewareService.BuildReport(onBuildProgress);
+    };
+
+    $scope.showSummary = function () {
+        //TODO
     }
-}
+    //ensure this view is reloaded on connection
+    NotifyService.RegisterConnectionListener(loadAccountSummary);
+    //ensure this view is reloaded if the account is changed
+    NotifyService.RegisterAccountListener(loadAccountSummary);
+    //ensure this view is updated when the build status changes
+    NotifyService.RegisterBuildStatusListener(onBuildStatusChanged);
+};
+
+//controller to handle the report completion view
+function ReportCompletion($uibModalInstance, errors) {
+    var $report = this;
+    $report.success = errors == null || errors.length == 0;
+    $report.errors = errors;
+
+    $report.ok = function () {
+        $uibModalInstance.dismiss('cancel');
+    };
+};
