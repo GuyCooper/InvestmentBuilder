@@ -37,9 +37,9 @@ namespace InvestmentReportGenerator
             _templateFileName = Path.Combine(templateBookLocation, TemplateBookName);
         }
 
-        public string GetReportFileName(string outputPath, DateTime ValuationDate)
+        public string GetReportFileName(DateTime ValuationDate)
         {
-            return string.Format(@"{0}\{1}-{2}.xls", outputPath, MonthlyAssetName, ValuationDate.ToString("yyyy"));
+            return $"{MonthlyAssetName}-{ValuationDate.ToString("yyyy")}.xls";
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace InvestmentReportGenerator
             var lstCompanyData = report.Assets.ToList();
 
             progress.Initialise("writing excel asset report", lstCompanyData.Count + 6);
-            _assetSheetLocation = GetReportFileName(outputPath,  report.ValuationDate);
+            _assetSheetLocation = Path.Combine(outputPath,GetReportFileName(report.ValuationDate));
             //if the asset sheet already exists,just open it,otherwise create a new one
             _Workbook assetBook = null;
             _Workbook templateBook = _app.Workbooks.Open(_templateFileName);

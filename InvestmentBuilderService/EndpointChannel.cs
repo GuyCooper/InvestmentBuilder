@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MiddlewareNetClient;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 using InvestmentBuilderCore;
 using InvestmentBuilderService.Session;
@@ -26,6 +21,10 @@ namespace InvestmentBuilderService
         public bool Status { get; set; }
     }
 
+    /// <summary>
+    /// Interface for endpoint channels. An endpoint channel can manage both a request and response channel
+    /// for the same topic. 
+    /// </summary>
     internal interface IEndpointChannel
     {
         string RequestName { get;}
@@ -33,15 +32,26 @@ namespace InvestmentBuilderService
         void ProcessMessage(IConnectionSession session, UserSession userSession, string payload, string sourceId,  string requestId);
     }
 
+    /// <summary>
+    /// Base class for an endpoint channel. These classes are instantiated using the
+    /// Unity dependency injection framework. require a channel request name and optionally
+    /// a channel response name. Concrete classes define the request and response channel
+    /// names
+    /// </summary>
     internal abstract class EndpointChannel<Request, Update> : IEndpointChannel 
         where Request : Dto, new()
         where Update : IChannelUpdater
     {
+        #region Public Properties
+
         public string RequestName { get; private set; }
         public string ResponseName { get; private set; }
 
-        private AccountService _accountService;
+        #endregion
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         protected EndpointChannel(string requestName, string responseName, AccountService accountService)
         {
             RequestName = requestName;
@@ -52,54 +62,41 @@ namespace InvestmentBuilderService
         /// <summary>
         /// abstract method for handling requests on this channel
         /// </summary>
-        /// <param name="userSession"></param>
-        /// <param name="payload"></param>
-        /// <param name="updater"></param>
-        /// <returns></returns>
         protected abstract Dto HandleEndpointRequest(UserSession userSession, Request payload, Update updater);
 
         /// <summary>
-        /// factory method for creating an updater to use for this channel. by default does not create one
+        /// Factory method for creating an updater to use for this channel. by default does not create one.
+        /// An updater is required for for sending updates on the response channel. By default, only a single response
+        /// is sent for a request.
         /// </summary>
-        /// <returns></returns>
-        public virtual Update GetUpdater(IConnectionSession session, UserSession userSession, string sourceId)
+        public virtual Update GetUpdater(IConnectionSession session, UserSession userSession, string sourceId, string requestId)
         {
             return default(Update);
         }
 
         /// <summary>
-        /// common method for converting a string payload into a request dto object
+        /// Common method for converting a string payload into a request dto object.
         /// </summary>
-        /// <param name="payload"></param>
-        /// <returns></returns>
         public Request ConvertToRequestPayload(string payload)
         {
             return payload != null ? JsonConvert.DeserializeObject<Request>(payload) : new Request();
         }
 
         /// <summary>
-        /// helper method for getting the current user token
+        /// Helper method for getting the current user token.
         /// </summary>
-        /// <param name="session"></param>
-        /// <param name="account"></param>
-        /// <returns></returns>
         protected UserAccountToken GetCurrentUserToken(UserSession session, string account = null)
         {
             return _accountService.GetUserAccountToken(session, account);
         }
 
         /// <summary>
-        /// entry method for class. called when processing a request on this channel
+        /// Process an incoming request on this endpoint
         /// </summary>
-        /// <param name="session"></param>
-        /// <param name="userSession"></param>
-        /// <param name="payload"></param>
-        /// <param name="sourceId"></param>
-        /// <param name="requestId"></param>
         public void ProcessMessage(IConnectionSession session,  UserSession userSession,  string payload, string sourceId, string requestId)
         {
             var requestPayload = ConvertToRequestPayload(payload);
-            var updater = GetUpdater(session, userSession, sourceId);
+            var updater = GetUpdater(session, userSession, sourceId, requestId);
             if(updater != null)
             {
                 //TODO. this list should be periodically cleaned up
@@ -118,7 +115,10 @@ namespace InvestmentBuilderService
         }
 
         #region Private Data Members
+
         private readonly List<IChannelUpdater> _updaterList = new List<IChannelUpdater>();
+        private readonly AccountService _accountService;
+
         #endregion
     }
 }

@@ -37,7 +37,8 @@ namespace InvestmentBuilderService.Session
         /// </summary>
         public async Task<bool> Connect()
         {
-            _session = await _middleware.CreateSession(_settings.ServerName, _settings.Username, _settings.Password, "Investment Builder Service");
+            logger.Log(LogLevel.Debug, $"Connecting {_appName} to Middleware server..");
+            _session = await _middleware.CreateSession(_settings.ServerName, _settings.Username, _settings.Password, _appName);
             _middleware.RegisterMessageCallbackFunction(EndpointMessageHandler);
             return _session != null;
         }
@@ -49,6 +50,8 @@ namespace InvestmentBuilderService.Session
         {
             if (_session != null)
             {
+                logger.Log(LogLevel.Debug, $"Registering {_appName} as an authentication server");
+
                 var response = await _middleware.RegisterAuthHandler(_session, identifier);
                 return response.Success;
             }
@@ -60,6 +63,7 @@ namespace InvestmentBuilderService.Session
         /// </summary>
         public void SendAuthenticationResult(bool result, string message, string requestid)
         {
+            logger.Log(LogLevel.Trace, $"Authentication result: {result}. {message}");
             if (_session != null)
             {
                 var authResult = new AuthResult
@@ -88,12 +92,13 @@ namespace InvestmentBuilderService.Session
         /// </summary>
         public async void RegisterChannelListener(string channel)
         {
+            logger.Log(LogLevel.Info, $"Registering as channel listener for channel {channel}");
             var response = await _middleware.AddChannelListener(_session, channel);
             if (response.Success == false)
             {
                 //TODO add functionality to peridoically attempt the register request
                 //if it fails. For now we will just log the error
-                logger.Log(LogLevel.Error, $"unable to register listener for channel {channel}. {response.Payload}");
+                logger.Log(LogLevel.Error, $"Unable to register listener for channel {channel}. {response.Payload}");
             }
         }
 

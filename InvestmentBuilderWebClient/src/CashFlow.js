@@ -1,6 +1,6 @@
 ﻿"use strict"
 
-function CashFlow($scope, $uibModal, $log, $interval, NotifyService, MiddlewareService) {
+function CashFlow($scope, $uibModal, $log, NotifyService, MiddlewareService) {
 
     $scope.cashFlows = [];
     this.receiptParamTypes = null;
@@ -112,13 +112,6 @@ function CashFlow($scope, $uibModal, $log, $interval, NotifyService, MiddlewareS
     this.datepicker = {
         opened: false
     };
-
-    this.BuildReport = function () {
-
-        this.isBuilding = true;
-        MiddlewareService.BuildReport(onLoadContents);
-
-    }.bind(this);
 
     //this.formatTransactionDate = function (transaction) {
     //    var transactionDate = Date.parse(transaction.TransactionDate);

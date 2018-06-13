@@ -27,19 +27,19 @@ namespace InvestmentBuilderService
     internal abstract class ChannelUpdater : IChannelUpdater
     {
         #region Pubic Methods
-        public ChannelUpdater(IConnectionSession session, string channel, string sourceId)
+        public ChannelUpdater(IConnectionSession session, string channel, string sourceId, string requestId)
         {
             _channel = channel;
             _session = session;
             _sourceId = sourceId;
+            _requestId = requestId;
         }
         /// <summary>
-        /// send an update to the channel
+        /// Send an update to the channel
         /// </summary>
-        /// <param name="payload"></param>
         public void SendUpdate(Dto payload)
         {
-            _session.SendMessageToChannel(_channel, JsonConvert.SerializeObject(payload), _sourceId, null);
+            _session.SendMessageToChannel(_channel, JsonConvert.SerializeObject(payload), _sourceId, _requestId);
         }
 
         public bool Completed { get; protected set; }
@@ -50,6 +50,7 @@ namespace InvestmentBuilderService
         private readonly IConnectionSession _session;
         private readonly string _sourceId;
         private readonly string _channel;
+        private readonly string _requestId;
         #endregion
     }
     /// <summary>
@@ -59,8 +60,8 @@ namespace InvestmentBuilderService
     /// </summary>
     internal abstract class TimerUpdater : ChannelUpdater,  IDisposable
     {
-        public TimerUpdater(IConnectionSession session, string channel, string sourceId, int intervalMS) 
-            : base(session,channel, sourceId)
+        public TimerUpdater(IConnectionSession session, string channel, string sourceId, string requestId, int intervalMS) 
+            : base(session,channel, sourceId, requestId)
         {
             _timer = new Timer(intervalMS); //build report timer will update every intervalMS
             _timer.Elapsed += (o, s) =>

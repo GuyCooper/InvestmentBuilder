@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using InvestmentBuilderCore;
 using System.IO;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Tables;
-using MigraDoc.DocumentObjectModel.Shapes;
 using PdfSharp;
 using PdfSharp.Pdf;
 using PdfSharp.Drawing;
@@ -55,14 +52,14 @@ namespace InvestmentReportGenerator
 
         }
 
-        public static string GetPdfReportFile(string outputPath, DateTime ValuationDate)
+        public static string GetPdfReportFile(DateTime ValuationDate)
         {
-            return string.Format(@"{0}\ValuationReport-{1}.pdf", outputPath, ValuationDate.ToString("MMM-yyyy"));
+            return $"ValuationReport-{ValuationDate.ToString("MMM-yyyy")}.pdf";
         }
 
-        public string GetReportFileName(string outputPath, DateTime ValuationDate)
+        public string GetReportFileName(DateTime ValuationDate)
         {
-            return GetPdfReportFile(outputPath, ValuationDate);
+            return GetPdfReportFile(ValuationDate);
         }
 
         public void Dispose()
@@ -172,7 +169,7 @@ namespace InvestmentReportGenerator
 
         public void WriteAssetReport(AssetReport report, double startOfYear, string outputPath, ProgressCounter progress)
         {
-            var reportFileName = GetReportFileName(outputPath, report.ValuationDate);
+            var reportFileName = Path.Combine(outputPath, GetReportFileName(report.ValuationDate));
             if (File.Exists(reportFileName))
                 File.Delete(reportFileName);
 
@@ -513,7 +510,7 @@ namespace InvestmentReportGenerator
         {
             progress.Initialise("writing performance data to pdf report", data.Count+2);
             string title = string.Format(@"{0}\Performance Report-{1}", outputPath, dtValuation);
-            var reportFileName = GetReportFileName(outputPath, dtValuation);
+            var reportFileName = Path.Combine(outputPath, GetReportFileName(dtValuation));
  
             _CreateDocument(title);
 

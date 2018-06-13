@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using InvestmentBuilder;
-using InvestmentBuilderCore;
 using InvestmentBuilderService.Dtos;
 
 namespace InvestmentBuilderService.Channels
 {
+    /// <summary>
+    /// AddTransactionRequestDto DTO class.
+    /// </summary>
     internal class AddTransactionRequestDto : Dto
     {
         public string TransactionDate { get; set; }
@@ -19,13 +18,15 @@ namespace InvestmentBuilderService.Channels
     }
 
     /// <summary>
-    /// handler class for adding transactions
+    /// Handler class for adding transactions.
     /// </summary>
     internal abstract class AddTransactionChannel : EndpointChannel<AddTransactionRequestDto, ChannelUpdater>
     {
-        private CashAccountTransactionManager _cashTransactionManager;
-        private CashFlowManager _cashFlowManager;
+        #region Public Methods
 
+        /// <summary>
+        /// Constructor. Dependencies are injected here using Unity framework.
+        /// </summary>
         public AddTransactionChannel(string requestName, string responseName, 
                                     AccountService accountService,
                                     CashAccountTransactionManager cashTransactionManager,
@@ -36,6 +37,13 @@ namespace InvestmentBuilderService.Channels
             _cashFlowManager = cashFlowManager;
         }
 
+        #endregion
+
+        #region Protected Overrides
+
+        /// <summary>
+        /// Request Handler for adding transactions.
+        /// </summary>
         protected override Dto HandleEndpointRequest(UserSession userSession, AddTransactionRequestDto payload, ChannelUpdater updater)
         {
             var token = GetCurrentUserToken(userSession);
@@ -55,13 +63,27 @@ namespace InvestmentBuilderService.Channels
             }
             return CashFlowModelAndParams.GenerateCashFlowModelAndParams(userSession, _cashFlowManager, payload.DateRequestedFrom);
         }
+
+        #endregion
+
+        #region Private Data Members
+
+        private readonly CashAccountTransactionManager _cashTransactionManager;
+        private readonly CashFlowManager _cashFlowManager;
+
+        #endregion
+
+
     }
 
     /// <summary>
-    /// handler class for adding receipt transactions
+    /// Handler class for adding receipt transactions
     /// </summary>
     internal class AddRecieptTransactionChannel : AddTransactionChannel
     {
+        /// <summary>
+        /// Constructor. Define the AddReceipt Request / Reposne channels 
+        /// </summary>
         public AddRecieptTransactionChannel(AccountService accountService, CashAccountTransactionManager cashTransactionManager, 
                         CashFlowManager cashFlowManager) 
             : base("ADD_RECEIPT_TRANSACTION_REQUEST", "ADD_RECEIPT_TRANSACTION_RESPONSE", 
@@ -71,10 +93,13 @@ namespace InvestmentBuilderService.Channels
     }
 
     /// <summary>
-    /// handler class for adding payment transactions
+    /// Handler class for adding payment transactions.
     /// </summary>
     internal class AddPaymentTransactionChannel : AddTransactionChannel
     {
+        /// <summary>
+        /// Constructor. Define the AddPayment request/response channels.
+        /// </summary>
         public AddPaymentTransactionChannel(AccountService accountService, CashAccountTransactionManager cashTransactionManager, 
             CashFlowManager cashFlowManager)
             : base("ADD_PAYMENT_TRANSACTION_REQUEST", "ADD_PAYMENT_TRANSACTION_RESPONSE",
@@ -82,5 +107,4 @@ namespace InvestmentBuilderService.Channels
         {
         }
     }
-
 }

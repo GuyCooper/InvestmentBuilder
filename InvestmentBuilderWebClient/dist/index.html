@@ -40,12 +40,13 @@
             <hr />
             <p />
             ﻿<div ng-controller="LayoutController">
-    <div ng-show="$scope.isBuilding == true" class="showProgress" ng-cloak>
+    <div ng-show="isBuilding" class="showProgress" ng-cloak>
         <h4><em>Building Report. please wait...</em></h4>
-        <h5 ng-bind="$scope.section"></h5>
-        <uib-progressbar animate="false" value="$scope.progressCount" type="success"><b>{{$scope.progressCount}}%</b></uib-progressbar>
+        <h5 ng-bind="section"></h5>
+        <uib-progressbar animate="false" value="progressCount" type="success"><b>{{progressCount}}%</b></uib-progressbar>
     </div>
-    <div ng-class="{hideLayout : $scope.isBuilding == true, showLayout : $scope.isBuilding == false}" ng-cloak>
+
+    <div ng-show="!isBuilding" ng-cloak>
         <div class="row investmentSummary">
             <div class="pull-left">
                 <h1>{{AccountName}}</h1>
@@ -55,11 +56,29 @@
                     <div><strong>Value Per Unit</strong></div>
                     <div>{{ValuePerUnit}}</div>
                 </div>
-                <div ng-click="showSummary()" class="btn btn-primary summaryButton">Summary</div>
-                <div ng-click="buildReport()" class="btn btn-primary summaryButton">Build Report</div>
+                <div style="display:inline-block">
+                    <div><strong>Net Assets</strong></div>
+                    <div>{{NetAssets}}</div>
+                </div>
+                <div style="display:inline-block">
+                    <div><strong>Bank Balance</strong></div>
+                    <div>{{BankBalance}}</div>
+                </div>
+                <div style="display:inline-block">
+                    <div><strong>Month PnL</strong></div>
+                    <div>{{MonthlyPnL}}</div>
+                </div>
+                <div style="display:inline-block">
+                    <div><strong>Build Status</strong></div>
+                    <div>{{BuildStatus}}</div>
+                </div>
+
+                <div ng-click="buildReport()" ng-disabled="!CanBuild" class="btn btn-primary summaryButton">Build Report</div>
             </div>
         </div>
 
+        <!--<div ng-class="{hideLayout : $scope.isBuilding == true, showLayout : $scope.isBuilding == false}" ng-cloak>-->
+        <!--<div class="row" ng-show="$scope.isBuilding == false" ng-cloak>-->
         <uib-tabset active="active" justified="true">
             <uib-tab index="0" select="onPortfolio()" heading="Portfolio">
                 ﻿
@@ -272,9 +291,17 @@
 
             </uib-tab>
             <uib-tab index="3" select="onReports()" heading="Reports">
-                Reports content
+                ﻿<div class="container">
+    <div ng-controller="ReportsController" id="reportsContainer" class="row">
+        <div ng-repeat="report in RecentReports">
+            <a href="{{report.FileName}}" target="_blank" rel=noopener>{{report.ValuationDate}}</a><br />
+        </div>
+    </div> 
+</div>
+
             </uib-tab>
         </uib-tabset>
+        <!--</div>-->
         <footer>
             <p>&copy; InvestmentBuilder</p>
         </footer>

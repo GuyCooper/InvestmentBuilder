@@ -81,6 +81,7 @@
     <Compile Include="AccountService.cs" />
     <Compile Include="CashFlowManager.cs" />
     <Compile Include="ChannelEndpointManager.cs" />
+    <Compile Include="Channels\GetRecentReportFiles.cs" />
     <Compile Include="Channels\RemoveTransactionChannel.cs" />
     <Compile Include="Channels\AddTransactionChannel.cs" />
     <Compile Include="Channels\BuildReportChannel.cs" />
@@ -151,7 +152,9 @@
     <Content Include="Connections.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="InvestmentBuilderConfig.xml" />
+    <Content Include="InvestmentBuilderConfig.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

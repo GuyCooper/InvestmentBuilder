@@ -1,11 +1,12 @@
 ﻿'use strict'
 
 //controller handles management of the build report progress and the view tab
-function Layout($scope, $log, NotifyService, MiddlewareService) {
+function Layout($scope, $log, $uibModal, NotifyService, MiddlewareService) {
     $scope.progressCount = 0;
     $scope.section = null;
     $scope.isBuilding = false;
     $scope.CanBuild = false;
+    $scope.BuildStatus = "Not Building";
 
     //callback displays the account summary details
     var onLoadAccountSummary = function (response) {
@@ -29,6 +30,10 @@ function Layout($scope, $log, NotifyService, MiddlewareService) {
 
     var onBuildProgress = function (response) {
 
+        if ($scope.CanBuild == true) {
+            $scope.CanBuild = false;
+        }
+
         var buildStatus = response.Status;
         if(buildStatus != undefined && buildStatus != null) {
             $scope.progressCount = buildStatus.Progress;
@@ -42,15 +47,24 @@ function Layout($scope, $log, NotifyService, MiddlewareService) {
             else {
                 $scope.isBuilding = buildStatus.IsBuilding;
             }
+
+            if ($scope.isBuilding == true) {
+                $scope.BuildStatus = "Building Report";
+            }
+            else {
+                $scope.BuildStatus = "Not Building Report";
+            }
+            
+            $scope.$apply();
         }
     };
-
+    
     var onReportFinished = function (errors) {
         var modalInstance = $uibModal.open({
             animation: true,
             ariaLabelledBy: 'modal-title',
             ariaDescribedBy: 'modal-body',
-            templateUrl: 'ReportCompletionView',
+            templateUrl: 'Views/ReportCompletion.html',
             controller: 'ReportCompletion',
             controllerAs: '$report',
             size: 'lg',
@@ -64,26 +78,24 @@ function Layout($scope, $log, NotifyService, MiddlewareService) {
 
     $scope.onPortfolio = function () {
         NotifyService.InvokePortfolio();
-        $scope.canBuild = false;
     };
 
     $scope.onAddTrade = function () {
         NotifyService.InvokeAddTrade();
-        $scope.canBuild = false;
     };
 
     $scope.onCashFlow = function () {
         NotifyService.InvokeCashFlow();
-        $scope.canBuild = true;
+    };
+
+    $scope.onReports = function () {
+        NotifyService.InvokeReports();
     };
 
     $scope.buildReport = function () {
         MiddlewareService.BuildReport(onBuildProgress);
     };
 
-    $scope.showSummary = function () {
-        //TODO
-    }
     //ensure this view is reloaded on connection
     NotifyService.RegisterConnectionListener(loadAccountSummary);
     //ensure this view is reloaded if the account is changed

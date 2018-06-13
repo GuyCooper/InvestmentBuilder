@@ -8,6 +8,7 @@ function NotifyService(MiddlewareService) {
     var PortfolioListeners = [];
     var AddTradeListeners = [];
     var CashFlowListeners = [];
+    var ReportsListeners = [];
     var BuildStatusListeners = []; //this of listeners that should be invoked when the build status changes
     var AccountListeners = []; //this is a list of listeners that should be invoked when the account is changed
     var ConnectionListeners = []; //this list contains a list of handlers that should be called once connection to the middleware is complete
@@ -30,6 +31,10 @@ function NotifyService(MiddlewareService) {
 
     this.RegisterCashFlowListener = function (listener) {
         CashFlowListeners.push(listener);
+    };
+
+    this.RegisterReportsListener = function (listener) {
+        ReportsListeners.push(listener);
     };
 
     this.RegisterConnectionListener = function (listener) {
@@ -67,6 +72,11 @@ function NotifyService(MiddlewareService) {
 
     this.InvokeCashFlow = function () {
         listeners = CashFlowListeners;
+        invokeListeners();
+    };
+
+    this.InvokeReports = function () {
+        listeners = ReportsListeners;
         invokeListeners();
     };
 

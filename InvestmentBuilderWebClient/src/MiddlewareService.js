@@ -26,8 +26,7 @@ function MiddlewareService()
         for (var i = 0; i < pendingRequestList.length; i++) {
             var request = pendingRequestList[i];
             if (request.pendingId === message.RequestId) {
-                //message found. remove it from queue
-                pendingRequestList.splice(i, 1);
+                //pendingRequestList.splice(i, 1);
                 if (isNullOrUndefined(request.callback) === false) {
                     request.callback(JSON.parse(message.Payload));
                 }
@@ -121,5 +120,9 @@ function MiddlewareService()
 
     this.GetInvestmentSummary = function (handler) {
         doCommand("GET_INVESTMENT_SUMMARY_REQUEST", "GET_INVESTMENT_SUMMARY_RESPONSE", null, handler);
+    }
+
+    this.LoadRecentReports = function (handler) {
+        doCommand("GET_RECENT_REPORTS_REQUEST", "GET_RECENT_REPORTS_RESPONSE", null, handler);
     }
 }

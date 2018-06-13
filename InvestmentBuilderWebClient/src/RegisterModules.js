@@ -25,5 +25,4 @@ module.controller('AddTradeController', CreateTrade);
 
 module.controller('LayoutController', Layout);
 
-module.controller('AccountSummaryController', AccountSummary);
-
+module.controller('ReportsController', Reports);

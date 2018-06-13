@@ -16,7 +16,7 @@ namespace InvestmentBuilderService.Channels
     internal class BuildReportUpdater : TimerUpdater
     {
         #region Public Methods
-        public BuildReportUpdater(IConnectionSession session, UserSession userSession, string channel, string sourceId, int interval) : base(session, channel, sourceId, interval)
+        public BuildReportUpdater(IConnectionSession session, UserSession userSession, string channel, string sourceId,string requestId, int interval) : base(session, channel, sourceId, requestId, interval)
         {
             _monitor = new BuildReportMonitor(userSession.UserName);
         }
@@ -31,7 +31,6 @@ namespace InvestmentBuilderService.Channels
         /// method invoked on timer callback. if the report is still building, send an update to the client
         /// and return true otherwise return false. (this will stop the timer)
         /// </summary>
-        /// <returns></returns>
         protected override bool OnUpdate()
         {
             var status = _monitor.GetReportStatus();
@@ -104,22 +103,19 @@ namespace InvestmentBuilderService.Channels
         }
 
         /// <summary>
-        /// return a buildreport updater that will update on the response channel every second
+        /// Return a buildreport updater that will update on the response channel every second
         /// </summary>
-        /// <param name="session"></param>
-        /// <param name="sourceId"></param>
-        /// <returns></returns>
-        public override BuildReportUpdater GetUpdater(IConnectionSession session, UserSession userSession, string sourceId)
+        public override BuildReportUpdater GetUpdater(IConnectionSession session, UserSession userSession, string sourceId, string requestId)
         {
-            return new BuildReportUpdater(session, userSession, ResponseName, sourceId, 1000);
+            return new BuildReportUpdater(session, userSession, ResponseName, sourceId, requestId, 1000);
         }
+
         #endregion
+
         #region Private Methods
         /// <summary>
         /// Method invoked on timer callback.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void onUpdateBuildStatus(object sender, ElapsedEventArgs e)
         {
             throw new System.NotImplementedException();
@@ -129,7 +125,6 @@ namespace InvestmentBuilderService.Channels
         /// Tester method for running a dummy run. Test the monitoring functionality
         /// is working ok.
         /// </summary>
-        /// <param name="monitor"></param>
         private void DummyBuildRun(IBuildMonitor monitor)
         {
             var waitEvent = new System.Threading.ManualResetEvent(false);

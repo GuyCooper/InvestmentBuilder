@@ -34,6 +34,7 @@
     <Content Include="src\NotifyService.js" />
     <Content Include="src\Portfolio.js" />
     <Content Include="src\RegisterModules.js" />
+    <Content Include="src\Reports.js" />
     <Content Include="src\Utils.js" />
     <Content Include="styles\css\InvestmentBuilderWeb.css" />
     <Content Include="styles\fonts\glyphicons-halflings-regular.svg" />

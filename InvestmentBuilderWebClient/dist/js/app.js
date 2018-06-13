@@ -25,6 +25,7 @@ function NotifyService(MiddlewareService) {
     var PortfolioListeners = [];
     var AddTradeListeners = [];
     var CashFlowListeners = [];
+    var ReportsListeners = [];
     var BuildStatusListeners = []; //this of listeners that should be invoked when the build status changes
     var AccountListeners = []; //this is a list of listeners that should be invoked when the account is changed
     var ConnectionListeners = []; //this list contains a list of handlers that should be called once connection to the middleware is complete
@@ -47,6 +48,10 @@ function NotifyService(MiddlewareService) {
 
     this.RegisterCashFlowListener = function (listener) {
         CashFlowListeners.push(listener);
+    };
+
+    this.RegisterReportsListener = function (listener) {
+        ReportsListeners.push(listener);
     };
 
     this.RegisterConnectionListener = function (listener) {
@@ -87,6 +92,11 @@ function NotifyService(MiddlewareService) {
         invokeListeners();
     };
 
+    this.InvokeReports = function () {
+        listeners = ReportsListeners;
+        invokeListeners();
+    };
+
     //call this method if the account is changed. Calls the exisitng view listener and all the 
     //account listeners
     this.InvokeAccountChange = function () {
@@ -112,11 +122,12 @@ function NotifyService(MiddlewareService) {
 'use strict'
 
 //controller handles management of the build report progress and the view tab
-function Layout($scope, $log, NotifyService, MiddlewareService) {
+function Layout($scope, $log, $uibModal, NotifyService, MiddlewareService) {
     $scope.progressCount = 0;
     $scope.section = null;
     $scope.isBuilding = false;
     $scope.CanBuild = false;
+    $scope.BuildStatus = "Not Building";
 
     //callback displays the account summary details
     var onLoadAccountSummary = function (response) {
@@ -140,6 +151,10 @@ function Layout($scope, $log, NotifyService, MiddlewareService) {
 
     var onBuildProgress = function (response) {
 
+        if ($scope.CanBuild == true) {
+            $scope.CanBuild = false;
+        }
+
         var buildStatus = response.Status;
         if(buildStatus != undefined && buildStatus != null) {
             $scope.progressCount = buildStatus.Progress;
@@ -153,15 +168,24 @@ function Layout($scope, $log, NotifyService, MiddlewareService) {
             else {
                 $scope.isBuilding = buildStatus.IsBuilding;
             }
+
+            if ($scope.isBuilding == true) {
+                $scope.BuildStatus = "Building Report";
+            }
+            else {
+                $scope.BuildStatus = "Not Building Report";
+            }
+            
+            $scope.$apply();
         }
     };
-
+    
     var onReportFinished = function (errors) {
         var modalInstance = $uibModal.open({
             animation: true,
             ariaLabelledBy: 'modal-title',
             ariaDescribedBy: 'modal-body',
-            templateUrl: 'ReportCompletionView',
+            templateUrl: 'Views/ReportCompletion.html',
             controller: 'ReportCompletion',
             controllerAs: '$report',
             size: 'lg',
@@ -175,26 +199,24 @@ function Layout($scope, $log, NotifyService, MiddlewareService) {
 
     $scope.onPortfolio = function () {
         NotifyService.InvokePortfolio();
-        $scope.canBuild = false;
     };
 
     $scope.onAddTrade = function () {
         NotifyService.InvokeAddTrade();
-        $scope.canBuild = false;
     };
 
     $scope.onCashFlow = function () {
         NotifyService.InvokeCashFlow();
-        $scope.canBuild = true;
+    };
+
+    $scope.onReports = function () {
+        NotifyService.InvokeReports();
     };
 
     $scope.buildReport = function () {
         MiddlewareService.BuildReport(onBuildProgress);
     };
 
-    $scope.showSummary = function () {
-        //TODO
-    }
     //ensure this view is reloaded on connection
     NotifyService.RegisterConnectionListener(loadAccountSummary);
     //ensure this view is reloaded if the account is changed
@@ -242,8 +264,7 @@ function MiddlewareService()
         for (var i = 0; i < pendingRequestList.length; i++) {
             var request = pendingRequestList[i];
             if (request.pendingId === message.RequestId) {
-                //message found. remove it from queue
-                pendingRequestList.splice(i, 1);
+                //pendingRequestList.splice(i, 1);
                 if (isNullOrUndefined(request.callback) === false) {
                     request.callback(JSON.parse(message.Payload));
                 }
@@ -338,10 +359,14 @@ function MiddlewareService()
     this.GetInvestmentSummary = function (handler) {
         doCommand("GET_INVESTMENT_SUMMARY_REQUEST", "GET_INVESTMENT_SUMMARY_RESPONSE", null, handler);
     }
+
+    this.LoadRecentReports = function (handler) {
+        doCommand("GET_RECENT_REPORTS_REQUEST", "GET_RECENT_REPORTS_RESPONSE", null, handler);
+    }
 }
 "use strict"
 
-function CashFlow($scope, $uibModal, $log, $interval, NotifyService, MiddlewareService) {
+function CashFlow($scope, $uibModal, $log, NotifyService, MiddlewareService) {
 
     $scope.cashFlows = [];
     this.receiptParamTypes = null;
@@ -453,13 +478,6 @@ function CashFlow($scope, $uibModal, $log, $interval, NotifyService, MiddlewareS
     this.datepicker = {
         opened: false
     };
-
-    this.BuildReport = function () {
-
-        this.isBuilding = true;
-        MiddlewareService.BuildReport(onLoadContents);
-
-    }.bind(this);
 
     //this.formatTransactionDate = function (transaction) {
     //    var transactionDate = Date.parse(transaction.TransactionDate);
@@ -809,6 +827,22 @@ function AccountList($scope, NotifyService, MiddlewareService) {
 }
 "use strict"
 
+function Reports($scope, NotifyService, MiddlewareService) {
+
+    $scope.RecentReports = [];
+
+    var onLoadContents = function (response) {
+        $scope.RecentReports = response.RecentReports;
+        $scope.$apply();
+    };
+
+    NotifyService.RegisterReportsListener(function () {
+        MiddlewareService.LoadRecentReports(onLoadContents);
+    });
+}
+
+"use strict"
+
 var module = angular.module("InvestmentRecord", ["ui.bootstrap","agGrid"]);
 
 module.service('NotifyService', NotifyService);
@@ -834,5 +868,4 @@ module.controller('AddTradeController', CreateTrade);
 
 module.controller('LayoutController', Layout);
 
-module.controller('AccountSummaryController', AccountSummary);
-
+module.controller('ReportsController', Reports);

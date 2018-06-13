@@ -160,6 +160,14 @@ namespace InvestmentBuilderMSTests
             get { return Enumerable.Empty<string>(); }
         }
 
+        public string OutputLinkFolder
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         public virtual string GetOutputPath(string account)
         {
             return string.Empty;
@@ -188,6 +196,11 @@ namespace InvestmentBuilderMSTests
         public virtual bool UpdateOutputFolder(string folder)
         {
             return true;
+        }
+
+        public string GetOutputLinkPath(string account)
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -272,7 +285,7 @@ namespace InvestmentBuilderMSTests
     {
         public static readonly string FileName = "testReport";
 
-        public string GetReportFileName(string outputPath, DateTime ValuationDate)
+        public string GetReportFileName(DateTime ValuationDate)
         {
             return FileName;
         }
@@ -414,6 +427,14 @@ namespace InvestmentBuilderMSTests
             get { return null; }
         }
 
+        public string OutputLinkFolder
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         public virtual string GetOutputPath(string account)
         {
             return null;
@@ -442,6 +463,11 @@ namespace InvestmentBuilderMSTests
         public virtual bool UpdateOutputFolder(string folder)
         {
             return true;
+        }
+
+        public string GetOutputLinkPath(string account)
+        {
+            throw new NotImplementedException();
         }
     }
 

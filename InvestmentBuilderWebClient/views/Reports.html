@@ -1,12 +1,7 @@
 ﻿<div class="container">
-    <div class="row">
-        <ul>
-            @foreach (var dt in ViewBag.RecentReports)
-            {
-                <li>
-                    @Html.ActionLink(dt, "LoadReport", "InvestmentRecord", new { ValuationDate = dt }, new { target = "_blank" })
-                </li>
-            }
-        </ul>
-    </div>
+    <div ng-controller="ReportsController" id="reportsContainer" class="row">
+        <div ng-repeat="report in RecentReports">
+            <a href="{{report.FileName}}" target="_blank" rel=noopener>{{report.ValuationDate}}</a><br />
+        </div>
+    </div> 
 </div>

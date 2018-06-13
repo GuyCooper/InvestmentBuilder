@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NLog;
 using InvestmentBuilderCore;
 using System.Diagnostics.Contracts;
@@ -11,23 +9,7 @@ namespace InvestmentBuilder
 {
     public sealed class InvestmentBuilder
     {
-        private static InvestmentBuilderLogger logger = new InvestmentBuilderLogger(LogManager.GetCurrentClassLogger());
-
-        private readonly IConfigurationSettings _settings;
-        private readonly IDataLayer _dataLayer;
-        private readonly IUserAccountInterface _userAccountData;
-        private readonly ICashAccountInterface _cashAccountData;
-        private readonly IClientDataInterface _clientData;
-        private readonly IInvestmentRecordInterface _investmentRecordData;
-        private readonly CashAccountTransactionManager _cashAccountManager;
-        private readonly IInvestmentReportWriter _reportWriter;
-        private readonly IInvestmentRecordDataManager _recordBuilder;
-
-        private readonly Dictionary<string, string> _typeProcedureLookup = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase)
-        {
-            {"Dividend", "GetActiveCompanies"},
-            {"Subscription", "GetAccountMembers"}
-        };
+        #region Public Methods
 
         public InvestmentBuilder(IConfigurationSettings settings,
                                  IDataLayer dataLayer,
@@ -47,7 +29,7 @@ namespace InvestmentBuilder
         }
 
         /// <summary>
-        /// generate asset report
+        /// Generate asset report.
         /// </summary>
         /// <param name="accountName">club /account name</param>
         /// <param name="valuationDate">valuation date.date for this asset report</param>
@@ -182,8 +164,6 @@ namespace InvestmentBuilder
         /// valuation date and the most recent valuation date in the database as the previous
         /// valuation date. if they are both the same date then just return previous valuation date 
         /// </summary>
-        /// <param name="accountName"></param>
-        /// <returns></returns>
         public IEnumerable<CompanyData> GetCurrentInvestments(UserAccountToken userToken, ManualPrices manualPrices)
         {
             if (userToken == null)
@@ -217,7 +197,6 @@ namespace InvestmentBuilder
         /// we need to update the database with the new date so any subsequent calls to get investment records
         /// will retrieve the new trades
         /// </summary>
-        /// <param name="trades"></param>
         public bool UpdateTrades(UserAccountToken userToken, Trades trades, ManualPrices manualPrices, ProgressCounter progress, DateTime? valuationDate = null)
         {
             if (userToken == null)
@@ -237,14 +216,9 @@ namespace InvestmentBuilder
         }
 
         /// <summary>
-        /// method redeems units for a user. checks there is sufficient funds and that it
+        /// Method redeems units for a user. checks there is sufficient funds and that it
         /// does not exceed users holding before executing 
         /// </summary>
-        /// <param name="userToken"></param>
-        /// <param name="user"></param>
-        /// <param name="dAmount"></param>
-        /// <param name="transactionDate"></param>
-        /// <returns>true if redemption successful otherwise false</returns>
         public bool RequestRedemption(UserAccountToken userToken, string user, double dAmount, DateTime transactionDate)
         {
             //the user parameter may be different from the user who is executing this method.For security 
@@ -298,6 +272,9 @@ namespace InvestmentBuilder
             return true;
         }
 
+        /// <summary>
+        /// Return the list of redempdtions for the specified valuation date.
+        /// </summary>
         public IEnumerable<Redemption> GetRedemptions(UserAccountToken userToken, DateTime dtValuationDate)
         {
             //first get the previous valuation date and return all the redemptions
@@ -310,6 +287,9 @@ namespace InvestmentBuilder
             return null;
         }
 
+        /// <summary>
+        /// Return the list of possible parameters for the specified transaction type.
+        /// </summary>
         public IEnumerable<string> GetParametersForTransactionType(UserAccountToken userToken, DateTime valuationDate, string transactionType)
         {
             if (_typeProcedureLookup.ContainsKey(transactionType))
@@ -324,9 +304,13 @@ namespace InvestmentBuilder
 
         }
 
+        /// <summary>
+        /// return the filename for the report specified by the current user token and the specfied
+        /// valuation date
+        /// </summary>
         public string GetInvestmentReport(UserAccountToken userToken, DateTime valuationDate)
         {
-            return _reportWriter.GetReportFileName(_settings.GetOutputPath(userToken.Account), valuationDate);
+            return _reportWriter.GetReportFileName(valuationDate);
         }
 
         public IEnumerable<string> GetAllCurrencies()
@@ -343,6 +327,13 @@ namespace InvestmentBuilder
             };
         }
 
+        #endregion
+
+        #region  Private Methods
+
+        /// <summary>
+        /// Generate the asset report object using the specified values.
+        /// </summary>
         private AssetReport _BuildAssetReport(
                                                 UserAccountToken userToken,
                                                 DateTime dtValuationDate,
@@ -404,6 +395,9 @@ namespace InvestmentBuilder
             return report;
         }
 
+        /// <summary>
+        /// Update the members captial account table.
+        /// </summary>
         private double _UpdateMembersCapitalAccount(
                                                     UserAccountToken userToken,
                                                     UserAccountData userData,
@@ -443,6 +437,9 @@ namespace InvestmentBuilder
             return dResult;
         }
 
+        /// <summary>
+        /// Process any redemptions that have occured since the previous valuation date
+        /// </summary>
         private AssetReport _ProcessRedemptions(UserAccountToken userToken, AssetReport report, UserAccountData accountData, DateTime previousValuation, bool bUpdate)
         {
             //now check if any redemptions have occured since the last valuation. The redemption can now
@@ -536,7 +533,7 @@ namespace InvestmentBuilder
             return report;
         }
 
-        //if the asset report is being rerun for the month then the rdemptions need to be rooled
+        //If the asset report is being rerun for the month then the rdemptions need to be rolled
         //back to reflect the correct bankbalance by adding the amounts back
         private void _RollbackRedemptions(UserAccountToken userToken, DateTime dtValuation, DateTime previousValuation)
         {
@@ -553,6 +550,9 @@ namespace InvestmentBuilder
             }
         }
 
+        /// <summary>
+        /// Contract invariance method
+        /// </summary>
         [ContractInvariantMethod]
         private void ObjectInvariantCheck()
         {
@@ -565,5 +565,28 @@ namespace InvestmentBuilder
             Contract.Invariant(_reportWriter != null);
             Contract.Invariant(_recordBuilder != null);
         }
+        #endregion
+
+        #region Private Data Members
+
+        private static InvestmentBuilderLogger logger = new InvestmentBuilderLogger(LogManager.GetCurrentClassLogger());
+
+        private readonly IConfigurationSettings _settings;
+        private readonly IDataLayer _dataLayer;
+        private readonly IUserAccountInterface _userAccountData;
+        private readonly ICashAccountInterface _cashAccountData;
+        private readonly IClientDataInterface _clientData;
+        private readonly IInvestmentRecordInterface _investmentRecordData;
+        private readonly CashAccountTransactionManager _cashAccountManager;
+        private readonly IInvestmentReportWriter _reportWriter;
+        private readonly IInvestmentRecordDataManager _recordBuilder;
+
+        private readonly Dictionary<string, string> _typeProcedureLookup = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase)
+        {
+            {"Dividend", "GetActiveCompanies"},
+            {"Subscription", "GetAccountMembers"}
+        };
+
+        #endregion
     }
 }

@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using InvestmentBuilderCore;
 
 namespace InvestmentBuilderService.Channels
 {
-    internal class RecentValuationDates : Dto
+    internal class RecentValuationDatesListDto : Dto
     {
-        public IEnumerable<string> RecentDates { get; set; }
+        public IEnumerable<string> Dates { get; set; }
     }
 
     /// <summary>
@@ -28,9 +26,9 @@ namespace InvestmentBuilderService.Channels
         protected override Dto HandleEndpointRequest(UserSession userSession, Dto payload, ChannelUpdater update)
         {
             var userToken = GetCurrentUserToken(userSession);
-            return new RecentValuationDates
+            return new RecentValuationDatesListDto
             {
-                RecentDates = _clientData.GetRecentValuationDates(userToken, DateTime.Now).Select(x =>
+                Dates = _clientData.GetRecentValuationDates(userToken, DateTime.Now).Select(x =>
                                          x.ToShortDateString()).ToList()
             };
         }
