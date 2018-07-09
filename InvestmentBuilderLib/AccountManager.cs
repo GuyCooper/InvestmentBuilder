@@ -1,26 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using InvestmentBuilderCore;
 using NLog;
 
 namespace InvestmentBuilder
 {
+    /// <summary>
+    /// AccountManager class. Manages account data
+    /// </summary>
     public sealed class AccountManager
     {
-        private static InvestmentBuilderLogger logger = new InvestmentBuilderLogger(LogManager.GetCurrentClassLogger());
+        #region Public Methods
 
-        private IUserAccountInterface _accountData;
-        private IAuthorizationManager _authorizationManager;
-
+        /// <summary>
+        /// Constructor. inject datalayer and authorization manager
+        /// </summary>
         public AccountManager(IDataLayer dataLayer, IAuthorizationManager authorizationManager)
         {
             _accountData = dataLayer.UserAccountData;
             _authorizationManager = authorizationManager;
         }
 
+        /// <summary>
+        /// Method Account details for the specified user.
+        /// </summary>
         public AccountModel GetAccountData(UserAccountToken userToken, DateTime dtValuationDate)
         {
             AccountModel data = _accountData.GetAccount(userToken);
@@ -31,6 +35,9 @@ namespace InvestmentBuilder
             return data;
         }
 
+        /// <summary>
+        /// Create an account for the specified user
+        /// </summary>
         public bool CreateUserAccount(string user, AccountModel account, DateTime dtValuationDate)
         {
             var token = new UserAccountToken(user, account.Name, AuthorizationLevel.ADMINISTRATOR);
@@ -45,6 +52,9 @@ namespace InvestmentBuilder
             return false;
         }
 
+        /// <summary>
+        /// Update / Create the account details for the specified user
+        /// </summary>
         public bool UpdateUserAccount(string user, AccountModel account, DateTime dtValuationDate)
         {
             var token = _authorizationManager.GetUserAccountToken(user, account.Name);
@@ -52,10 +62,32 @@ namespace InvestmentBuilder
             return _updateInvestmentAccount(token, account, dtValuationDate);
         }
 
-        private bool _updateInvestmentAccount(UserAccountToken token,  AccountModel account, DateTime dtValuationDate)
+        /// <summary>
+        /// Method returns the member details of the specified account
+        /// </summary>
+        public IEnumerable<AccountMember> GetAccountMembers(UserAccountToken token, DateTime dtValuationDate)
+        {
+            return _accountData.GetAccountMemberDetails(token, dtValuationDate);
+        }
+
+        /// <summary>
+        /// Method returns the member names of the specified account
+        /// </summary>
+        public IEnumerable<string> GetAccountNames(string user)
+        {
+            return _accountData.GetAccountNames(user, true);
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        /// Implementation for creating / modifiying an account
+        /// </summary>
+        private bool _updateInvestmentAccount(UserAccountToken token, AccountModel account, DateTime dtValuationDate)
         {
             logger.Log(token, LogLevel.Info, "creating/modifying account {0}", account.Name);
-            logger.Log(token, LogLevel.Info, "Password {0}", account.Password);
             logger.Log(token, LogLevel.Info, "Description {0}", account.Description);
             logger.Log(token, LogLevel.Info, "Reporting Currency {0}", account.ReportingCurrency);
             logger.Log(token, LogLevel.Info, "Account Type {0}", account.Type);
@@ -94,16 +126,6 @@ namespace InvestmentBuilder
             return true;
         }
 
-        public IEnumerable<AccountMember> GetAccountMembers(UserAccountToken token, DateTime dtValuationDate)
-        {
-            return _accountData.GetAccountMemberDetails(token, dtValuationDate);
-        }
-
-        public IEnumerable<string> GetAccountNames(string user)
-        {
-            return _accountData.GetAccountNames(user, true);
-        }
-
         private void _UpdateMemberForAccount(UserAccountToken token, string member, AuthorizationLevel level, bool bAdd)
         {
             _accountData.UpdateMemberForAccount(token, member, level, bAdd);
@@ -139,5 +161,17 @@ namespace InvestmentBuilder
 
             return hasAdmin;
         }
+
+        #endregion
+
+        #region Private Data Members
+
+        private static InvestmentBuilderLogger logger = new InvestmentBuilderLogger(LogManager.GetCurrentClassLogger());
+
+        private IUserAccountInterface _accountData;
+        private IAuthorizationManager _authorizationManager;
+
+        #endregion
+
     }
 }

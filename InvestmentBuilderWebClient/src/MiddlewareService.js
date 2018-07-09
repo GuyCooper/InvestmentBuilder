@@ -82,47 +82,64 @@ function MiddlewareService()
 
     this.GetAccountsForUser = function (handler) {
         doCommand("GET_ACCOUNT_NAMES_REQUEST", "GET_ACCOUNT_NAMES_RESPONSE", null, handler);
-    }
+    };
 
-    this.UpdateAccount = function (account, handler) {
+    this.UpdateCurrentAccount = function (account, handler) {
         var dto = { AccountName: account };
-        doCommand("UPDATE_ACCOUNT_REQUEST", "UPDATE_ACCOUNT_RESPONSE", dto, handler);
-    }
+        doCommand("UPDATE_CURRENT_ACCOUNT_REQUEST", "UPDATE_CURRENT_ACCOUNT_RESPONSE", dto, handler);
+    };
 
     this.CheckBuildStatus = function (handler) {
         doCommand("CHECK_BUILD_STATUS_REQUEST", "CHECK_BUILD_STATUS_RESPONSE", null, handler);
-    }
+    };
 
     this.GetCashFlowContents = function (dateFrom, handler) {
         var dto = { DateFrom: dateFrom };
         doCommand("GET_CASH_FLOW_REQUEST", "GET_CASH_FLOW_RESPONSE", dto, handler);
-    }
+    };
 
     this.BuildReport = function (handler) {
         doCommand("BUILD_REPORT_REQUEST", "BUILD_REPORT_RESPONSE", null, handler);
-    }
+    };
 
-    this.AddReceiptTransaction = function(transaction, handler) {
+    this.AddReceiptTransaction = function (transaction, handler) {
         doCommand("ADD_RECEIPT_TRANSACTION_REQUEST", "ADD_RECEIPT_TRANSACTION_RESPONSE", transaction, handler);
-    }
+    };
 
     this.AddPaymentTransaction = function (transaction, handler) {
         doCommand("ADD_PAYMENT_TRANSACTION_REQUEST", "ADD_PAYMENT_TRANSACTION_RESPONSE", transaction, handler);
-    }
+    };
 
     this.RemoveTransaction = function (transaction, handler) {
         doCommand("REMOVE_TRANSACTION_REQUEST", "REMOVE_TRANSACTION_RESPONSE", transaction, handler);
-    }
+    };
 
     this.GetTransactionParameters = function (type, handler) {
         doCommand("GET_TRANSACTION_PARAMETERS_REQUEST", "GET_TRANSACTION_PARAMETERS_RESPONSE", type, handler);
-    }
+    };
 
     this.GetInvestmentSummary = function (handler) {
         doCommand("GET_INVESTMENT_SUMMARY_REQUEST", "GET_INVESTMENT_SUMMARY_RESPONSE", null, handler);
-    }
+    };
 
     this.LoadRecentReports = function (handler) {
         doCommand("GET_RECENT_REPORTS_REQUEST", "GET_RECENT_REPORTS_RESPONSE", null, handler);
-    }
+    };
+
+    this.UpdateAccountDetails = function (account, handle) {
+        doCommand("UPDATE_CURRENT_ACCOUNT_REQUEST", "UPDATE_CURRENT_ACCOUNT_RESPONSE", account, handler);
+    };
+
+    this.GetAccountDetails = function (accountName, handler) {
+        var dto = { AccountName: accountName };
+        doCommand("GET_ACCOUNT_DETAILS_REQUEST", "GET_ACCOUNT_DETAILS_RESPONSE", dto, handler);
+    };
+
+    this.GetCurrencies = function (handler) {
+        doCommand("GET_CURRENCIES_REQUEST", "GET_CURRENCIES_RESPONSE", null, handler);
+    };
+
+    this.GetBrokers = function (handler) {
+        doCommand("GET_BROKERS_REQUEST", "GET_BROKERS_RESPONSE", null, handler);
+    };
 }

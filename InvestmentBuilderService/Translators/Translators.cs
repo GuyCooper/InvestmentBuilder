@@ -1,15 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using InvestmentBuilderService.Dtos;
 using InvestmentBuilderCore;
 
 namespace InvestmentBuilderService.Translators
 {
+    /// <summary>
+    /// Static Helper class for translating Dto objects into internal business objects 
+    /// and vice versa
+    /// </summary>
     internal static class Translators
     {
+        /// <summary>
+        /// Method converts an internal asset report into an investsummarymodel dto object
+        /// </summary>
         public static InvestmentSummaryModel ToInvestmentSummaryModel(this AssetReport report)
         {
             //return _CloneObject<InvestmentSummaryModel>(report.GetType(), report, () => new InvestmentSummaryModel());
@@ -27,6 +30,12 @@ namespace InvestmentBuilderService.Translators
             };
         }
 
+        /// <summary>
+        /// Translation method converts a Stock object into an internal Trades item 
+        /// A Trades item is just a container of Stock objects that contains 3 lists
+        /// of stock objects - Adds, Sells and Changes.
+        /// </summary>
+        /// <returns></returns>
         public static Trades ToInternalTrade(this Stock tradeItem, TransactionType action)
         {
             var trades = new Trades();
@@ -46,6 +55,11 @@ namespace InvestmentBuilderService.Translators
             return trades;
         }
 
+        /// <summary>
+        /// Method converts an external TradeItemDto object into an internal Trades item
+        /// </summary>
+        /// <param name="tradeItem"></param>
+        /// <returns></returns>
         public static Trades ToInternalTrade(this TradeItemDto tradeItem)
         {
             var stock = new Stock

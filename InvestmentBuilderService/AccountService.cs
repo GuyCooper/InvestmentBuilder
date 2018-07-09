@@ -1,20 +1,29 @@
 ﻿using System.Collections.Generic;
 using InvestmentBuilderCore;
 using InvestmentBuilder;
+using System;
 
 namespace InvestmentBuilderService
-{
+{ 
+    /// <summary>
+    /// AccountService class. Wrapper class for the _authroization manager and account manager
+    /// </summary>
     internal class AccountService
     {
-        private readonly IAuthorizationManager _authorizationManager;
-        private readonly AccountManager _accountManager;
+        #region Public Methods
 
+        /// <summary>
+        /// Constructor. Injects accountmanager and authorization manager
+        /// </summary>
         public AccountService(AccountManager accountManager, IAuthorizationManager authorizationManager)
         {
             _authorizationManager = authorizationManager;
             _accountManager = accountManager;
         }
 
+        /// <summary>
+        /// Method returns the usertoken for the requested user.
+        /// </summary>
         public UserAccountToken GetUserAccountToken(UserSession userSession, string selectedAccount)
         {
             UserAccountToken token = null;
@@ -26,9 +35,37 @@ namespace InvestmentBuilderService
             return token;
         }
 
+        /// <summary>
+        /// Method returns the list of configured account names for the specified user
+        /// </summary>
+        /// <param name="session"></param>
+        /// <returns></returns>
         public IEnumerable<string> GetAccountsForUser(UserSession session)
         {
             return _accountManager.GetAccountNames(session.UserName);
         }
+
+        /// <summary>
+        /// Method updates the account details for the specified user
+        /// </summary>
+        public bool UpdateUserAccount(UserSession userSession, AccountModel account)
+        {
+            return _accountManager.UpdateUserAccount(userSession.UserName, account, userSession.ValuationDate);
+        }
+
+        public AccountModel GetAccount(UserSession userSession, string accountName)
+        {
+            return _accountManager.GetAccountData(GetUserAccountToken(userSession, accountName),
+                                                                      userSession.ValuationDate);
+        }
+
+        #endregion
+
+        #region Private Data Members
+
+        private readonly IAuthorizationManager _authorizationManager;
+        private readonly AccountManager _accountManager;
+
+        #endregion
     }
 }

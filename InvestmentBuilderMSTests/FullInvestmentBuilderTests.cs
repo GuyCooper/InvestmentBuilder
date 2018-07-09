@@ -162,7 +162,6 @@ namespace InvestmentBuilderMSTests
 
             var account = new AccountModel(userToken.Account,
                                            "Unit Test Account",
-                                           "psst",
                                            "GBP",
                                            "Personal",
                                            true,

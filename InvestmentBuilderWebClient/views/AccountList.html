@@ -1,11 +1,26 @@
-﻿<div class="navbar-collapse collapse" ng-controller="AccountListController">
-    <ul class="nav navbar-nav navbar-right">
-        <li>
-            <form name="accountDetailsForm" role="form" ng-submit="UpdateAccount()">
-                <select name="AccountName" ng-model="SelectedAcount" ng-change="UpdateAccount()">
-                    <option ng-repeat="account in Accounts">{{account}}</option>
-                </select>
-            </form>
-        </li>
-    </ul>
+﻿<div ng-controller="AccountListController">
+    <div class="navbar-collapse collapse" ng-show="IsConnected">
+        <ul class="nav navbar-nav navbar-right">
+            <li>
+                <form name="accountDetailsForm" role="form" ng-submit="UpdateAccount()">
+                    <select name="AccountName" class="form-control investmentNavigator1" ng-model="SelectedAcount" ng-change="UpdateAccount()">
+                        <option ng-repeat="account in Accounts">{{account}}</option>
+                    </select>
+                </form>
+            </li>
+            <li class="dropdown">
+                <button type="button" class="btn dropdown-toggle investmentNavigator" id="dropdownMenu1" data-toggle="dropdown">
+                    Options <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                    <li role="presentation">
+                        <a role="menuitem" ng-click="addAccount()">Add Account</a>
+                    </li>
+                    <li role="presentation">
+                        <a role="menuitem" ng-click="editAccount()">Edit Account</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
 </div>

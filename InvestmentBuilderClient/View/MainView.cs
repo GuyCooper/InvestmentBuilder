@@ -277,7 +277,6 @@ namespace InvestmentBuilderClient.View
             {
                 var account = new AccountModel(view.GetAccountName(),
                                                view.GetDescription(),
-                                               view.GetPassword(),
                                                view.GetCurrency(),
                                                view.GetAccountType(),
                                                view.GetIsEnabled(),

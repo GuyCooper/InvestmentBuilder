@@ -19,6 +19,7 @@ namespace InvestmentBuilderService
     internal class ResponseDto : Dto
     {
         public bool Status { get; set; }
+        public string Error { get; set; }
     }
 
     /// <summary>

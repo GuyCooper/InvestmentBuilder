@@ -27,6 +27,7 @@
     <Content Include="Index.html" />
     <Content Include="Middleware\Middleware.js" />
     <Content Include="src\AccountList.js" />
+    <Content Include="src\AddAccount.js" />
     <Content Include="src\CashFlow.js" />
     <Content Include="src\CreateTrade.js" />
     <Content Include="src\Layout.js" />
@@ -51,6 +52,7 @@
     <Content Include="styles\thirdParty\Site.css" />
     <Content Include="tasks\scaffold.js" />
     <Content Include="views\AccountList.html" />
+    <Content Include="views\AddAccount.html" />
     <Content Include="views\Layout.html" />
     <Content Include="web.config" />
   </ItemGroup>

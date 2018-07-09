@@ -1,12 +1,7 @@
-InvestmentBuilderWeb TODO 19-10-2016
+InvestmentBuilder TODO 03-07-2018
 
-1. Wire in BuildReport button DONE
-2. Add account management page. DONE
-3  Add redemptions page 
-4. Add undo last transaction button DONE
-5. add new navbar dropdown to allow user to navigate to these pages DONE
-6. fix datetime picker display on date fields DONE
-7. add previous months cash flow in cash flow view DONE
-8. add previous months reports in reports view9. fix client side validation DONE
-9. tidy up header bar
-10. add year to date field in pdf report. tidy up report DONE
+1  Add redemptions page 
+2. tidy up header bar
+3. tidy up account summary bar
+4. refactor schema to add a userid into accounts table so account can be indexed on userid - account name
+

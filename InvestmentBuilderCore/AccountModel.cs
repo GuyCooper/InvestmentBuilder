@@ -1,19 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Diagnostics.Contracts;
 
 namespace InvestmentBuilderCore
 {
+    /// <summary>
+    /// AccountMember class. Defines an account member
+    /// </summary>
     public class AccountMember
     {
+        #region Constructor
+
         public AccountMember(string name, AuthorizationLevel level)
         {
             Name = name;
             AuthLevel = level;
         }
+
+        #endregion
+
+        #region Public Properties
 
         public string Name { get; private set; }
         public AuthorizationLevel AuthLevel { get; private set; }
@@ -24,51 +30,19 @@ namespace InvestmentBuilderCore
                 AuthLevel = (AuthorizationLevel)Enum.Parse(typeof(AuthorizationLevel), value); 
               }
          }
+
+        #endregion
     }
 
+    /// <summary>
+    /// AccountModel class. Class defines an account including all its details.
+    /// </summary>
     public class AccountModel
     {
-        private readonly IList<AccountMember> _members =
-                    new List<AccountMember> ();
-
-        public AccountModel(string name, string description, string password, 
-                            string currency, string type, bool enabled, string broker,
-                            IList<AccountMember> members)
-        {
-            Name = name;
-            Description = description ?? Name;
-            Password = password ?? "password";
-            ReportingCurrency = currency;
-            Type = type;
-            Enabled = enabled;
-            Broker = broker;
-            AddMembers(members);
-        }
-
-        public void AddMember(string name, AuthorizationLevel authLevel)
-        {
-            _members.Add(new AccountMember(name, authLevel));
-        }
-
-        public void AddMembers(IList<AccountMember> members)
-        {
-            if (members != null)
-            {
-                foreach (var member in members)
-                {
-                    _members.Add(member);
-                }
-            }
-        }
-
-        public void ClearAllMembers()
-        {
-            _members.Clear();
-        }
+        #region Public Properties
 
         public string Name { get; private set; }
         public string Description { get; private set; }
-        public string Password { get; private set; }
         public string ReportingCurrency { get; private set; }
         public string Type { get; private set; }
         public bool Enabled { get; private set; }
@@ -81,23 +55,89 @@ namespace InvestmentBuilderCore
             }
         }
 
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public AccountModel(string name, string description,
+                            string currency, string type, bool enabled, string broker,
+                            IList<AccountMember> members)
+        {
+            Name = name;
+            Description = description ?? Name;
+            ReportingCurrency = currency;
+            Type = type;
+            Enabled = enabled;
+            Broker = broker;
+            AddMembers(members);
+        }
+
+        /// <summary>
+        /// Method to add an member to the account
+        /// </summary>
+        public void AddMember(string name, AuthorizationLevel authLevel)
+        {
+            _members.Add(new AccountMember(name, authLevel));
+        }
+
+        /// <summary>
+        /// Method to add a list of existing accountmember objects to this account
+        /// </summary>
+        public void AddMembers(IList<AccountMember> members)
+        {
+            if (members != null)
+            {
+                foreach (var member in members)
+                {
+                    _members.Add(member);
+                }
+            }
+        }
+
+        /// <summary>
+        /// remove all members from this account
+        /// </summary>
+        public void ClearAllMembers()
+        {
+            _members.Clear();
+        }
+
+        /// <summary>
+        /// Method updates the account details but not the list of members.
+        /// </summary>
         public void UpdateAccountDetails(AccountModel account)
         {
             //uopdate the accunt details for this account from the 
             //account parameter. do not updaye accunt members
             Broker = account.Broker;
-            Password = account.Password;
             Type = account.Type;
         }
+
+        #endregion
+
+
+        #region Contract Invariance Methods
 
         [ContractInvariantMethod]
         protected void ObjectInvariantMethod()
         {
             Contract.Invariant(string.IsNullOrEmpty(Name) == false);
-            Contract.Invariant(string.IsNullOrEmpty(Password) == false);
             Contract.Invariant(string.IsNullOrEmpty(ReportingCurrency) == false);
             Contract.Invariant(string.IsNullOrEmpty(Type) == false);
             Contract.Invariant(Members != null);
         }
+
+        #endregion
+
+        #region Private Data Members
+
+        private readonly IList<AccountMember> _members =
+                    new List<AccountMember>();
+
+        #endregion
+
     }
 }

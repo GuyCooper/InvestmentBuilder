@@ -153,7 +153,7 @@ namespace InvestmentBuilderMSTests
         public override void CreateAccount(UserAccountToken userToken, AccountModel account)
         {
             userToken.AuthorizeUser(AuthorizationLevel.ADMINISTRATOR);
-            TestAccountData.Add(new AccountModel(account.Name, account.Description,null,
+            TestAccountData.Add(new AccountModel(account.Name, account.Description,
                 account.ReportingCurrency, account.Type, account.Enabled, account.Broker, null));
         }
 
@@ -202,7 +202,7 @@ namespace InvestmentBuilderMSTests
         public override AccountModel GetAccount(UserAccountToken userToken)
         {
             return new AccountModel(TestDataCache._TestAccount, TestDataCache._Description,
-                                    null, TestDataCache._Currency, TestDataCache._TestAccountType,
+                                    TestDataCache._Currency, TestDataCache._TestAccountType,
                                     true, TestDataCache._Broker, new List<AccountMember>
                                     {
                                         new AccountMember(TestDataCache._testUser, AuthorizationLevel.ADMINISTRATOR)

@@ -17,7 +17,7 @@ function YesNoPicker($uibModalInstance, title, description, name) {
 };
 'use strict'
 
-function NotifyService(MiddlewareService) {
+function NotifyService() {
     
     //notify service acts as a broker service between the controllers. it contains
     //several lists of listeners that need to be called when a particular view is
@@ -33,6 +33,18 @@ function NotifyService(MiddlewareService) {
     //listeners for the current view
     var listeners = null;
 
+    var busyStateChangedListener = null;
+    //flag to determine if system is busy with request / connecting etc..
+    var isBusy = false;
+    this.RegisterBusyStateChangedListener = function (listener) {
+        busyStateChangedListener = listener;
+    }
+    this.UpdateBusyState = function (busy) {
+        isBusy = busy;
+        if (busyStateChangedListener != null) {
+            busyStateChangedListener(busy);
+        }
+    }
     //register callback methods 
     this.RegisterAccountListener = function (listener) {
         AccountListeners.push(listener);
@@ -109,25 +121,34 @@ function NotifyService(MiddlewareService) {
         invokeCallbacks(BuildStatusListeners, status);
     }
 
-    //now connect to the middleware server. once conncted inform any connection listeners that connection is complete
-    MiddlewareService.Connect("ws://localhost:8080", "guy@guycooper.plus.com", "rangers").then(function () {
-        console.log("connection to middleware succeded!");
-        invokeCallbacks(ConnectionListeners);
-    },
-    function (error) {
-        console.log("connection to middleware failed" + error);
-    });
+    this.InvokeConnectionListeners = function (username) {
+        invokeCallbacks(ConnectionListeners, username);
+    };
+
+    this.SetBusyState = function (busy) {
+        IsBusy = busy;
+    };
+
+    this.GetBusyState = function () {
+        return IsBusy;
+    };
 }
 
 'use strict'
 
 //controller handles management of the build report progress and the view tab
 function Layout($scope, $log, $uibModal, NotifyService, MiddlewareService) {
-    $scope.progressCount = 0;
-    $scope.section = null;
-    $scope.isBuilding = false;
+    $scope.ProgressCount = 0;
+    $scope.Section = null;
+    $scope.IsBuilding = false;
     $scope.CanBuild = false;
+    $scope.LoggedIn = false;
     $scope.BuildStatus = "Not Building";
+    $scope.UserName = "guy@guycooper.plus.com";
+    $scope.Password = "rangers";
+    $scope.IsBusy = false;
+
+    var servername = "ws://localhost:8080";
 
     //callback displays the account summary details
     var onLoadAccountSummary = function (response) {
@@ -157,19 +178,19 @@ function Layout($scope, $log, $uibModal, NotifyService, MiddlewareService) {
 
         var buildStatus = response.Status;
         if(buildStatus != undefined && buildStatus != null) {
-            $scope.progressCount = buildStatus.Progress;
+            $scope.ProgressCount = buildStatus.Progress;
 
-            $scope.section = buildStatus.BuildSection;
-            if ($scope.isBuilding == true && buildStatus.IsBuilding == false) {
-                $scope.isBuilding = buildStatus.IsBuilding;
+            $scope.Section = buildStatus.BuildSection;
+            if ($scope.IsBuilding == true && buildStatus.IsBuilding == false) {
+                $scope.IsBuilding = buildStatus.IsBuilding;
                 //now display a dialog to show any errors during the build
                 onReportFinished(buildStatus.Errors);
             }
             else {
-                $scope.isBuilding = buildStatus.IsBuilding;
+                $scope.IsBuilding = buildStatus.IsBuilding;
             }
 
-            if ($scope.isBuilding == true) {
+            if ($scope.IsBuilding == true) {
                 $scope.BuildStatus = "Building Report";
             }
             else {
@@ -217,6 +238,28 @@ function Layout($scope, $log, $uibModal, NotifyService, MiddlewareService) {
         MiddlewareService.BuildReport(onBuildProgress);
     };
 
+    //connect to middleware layer with user supplied username and password
+    $scope.doLogin = function () {
+        NotifyService.UpdateBusyState(true);
+        //once conncted inform any connection listeners that connection is complete
+        MiddlewareService.Connect(servername, $scope.UserName, $scope.Password).then(function () {
+            console.log("connection to middleware succeded!");
+            NotifyService.UpdateBusyState(false);
+            $scope.LoggedIn = true;
+            NotifyService.InvokeConnectionListeners($scope.UserName);
+        },
+        function (error) {
+            console.log("connection to middleware failed" + error);
+        });
+    }
+
+    //method updates the isBusy state
+    var busyStateChanged = function (busy) {
+        $scope.IsBusy = busy;
+    };
+
+    //register handler to be invoked every time the isBusy state is changed
+    NotifyService.RegisterBusyStateChangedListener(busyStateChanged);
     //ensure this view is reloaded on connection
     NotifyService.RegisterConnectionListener(loadAccountSummary);
     //ensure this view is reloaded if the account is changed
@@ -320,49 +363,66 @@ function MiddlewareService()
 
     this.GetAccountsForUser = function (handler) {
         doCommand("GET_ACCOUNT_NAMES_REQUEST", "GET_ACCOUNT_NAMES_RESPONSE", null, handler);
-    }
+    };
 
-    this.UpdateAccount = function (account, handler) {
+    this.UpdateCurrentAccount = function (account, handler) {
         var dto = { AccountName: account };
-        doCommand("UPDATE_ACCOUNT_REQUEST", "UPDATE_ACCOUNT_RESPONSE", dto, handler);
-    }
+        doCommand("UPDATE_CURRENT_ACCOUNT_REQUEST", "UPDATE_CURRENT_ACCOUNT_RESPONSE", dto, handler);
+    };
 
     this.CheckBuildStatus = function (handler) {
         doCommand("CHECK_BUILD_STATUS_REQUEST", "CHECK_BUILD_STATUS_RESPONSE", null, handler);
-    }
+    };
 
     this.GetCashFlowContents = function (dateFrom, handler) {
         var dto = { DateFrom: dateFrom };
         doCommand("GET_CASH_FLOW_REQUEST", "GET_CASH_FLOW_RESPONSE", dto, handler);
-    }
+    };
 
     this.BuildReport = function (handler) {
         doCommand("BUILD_REPORT_REQUEST", "BUILD_REPORT_RESPONSE", null, handler);
-    }
+    };
 
-    this.AddReceiptTransaction = function(transaction, handler) {
+    this.AddReceiptTransaction = function (transaction, handler) {
         doCommand("ADD_RECEIPT_TRANSACTION_REQUEST", "ADD_RECEIPT_TRANSACTION_RESPONSE", transaction, handler);
-    }
+    };
 
     this.AddPaymentTransaction = function (transaction, handler) {
         doCommand("ADD_PAYMENT_TRANSACTION_REQUEST", "ADD_PAYMENT_TRANSACTION_RESPONSE", transaction, handler);
-    }
+    };
 
     this.RemoveTransaction = function (transaction, handler) {
         doCommand("REMOVE_TRANSACTION_REQUEST", "REMOVE_TRANSACTION_RESPONSE", transaction, handler);
-    }
+    };
 
     this.GetTransactionParameters = function (type, handler) {
         doCommand("GET_TRANSACTION_PARAMETERS_REQUEST", "GET_TRANSACTION_PARAMETERS_RESPONSE", type, handler);
-    }
+    };
 
     this.GetInvestmentSummary = function (handler) {
         doCommand("GET_INVESTMENT_SUMMARY_REQUEST", "GET_INVESTMENT_SUMMARY_RESPONSE", null, handler);
-    }
+    };
 
     this.LoadRecentReports = function (handler) {
         doCommand("GET_RECENT_REPORTS_REQUEST", "GET_RECENT_REPORTS_RESPONSE", null, handler);
-    }
+    };
+
+    this.UpdateAccountDetails = function (account, handle) {
+        doCommand("UPDATE_CURRENT_ACCOUNT_REQUEST", "UPDATE_CURRENT_ACCOUNT_RESPONSE", account, handler);
+    };
+
+    this.GetAccountDetails = function (accountName, handler) {
+        var dto = { AccountName: accountName };
+        doCommand("GET_ACCOUNT_DETAILS_REQUEST", "GET_ACCOUNT_DETAILS_RESPONSE", dto, handler);
+    };
+
+    this.GetCurrencies = function (handler) {
+        doCommand("GET_CURRENCIES_REQUEST", "GET_CURRENCIES_RESPONSE", null, handler);
+    };
+
+    this.GetBrokers = function (handler) {
+        doCommand("GET_BROKERS_REQUEST", "GET_BROKERS_RESPONSE", null, handler);
+    };
 }
 "use strict"
 
@@ -628,8 +688,6 @@ function CreateTrade(NotifyService, MiddlewareService) {
 }
 "use strict"
 
-agGrid.initialiseAgGridWithAngular1(angular);
-
 //var module = angular.module("example", ["agGrid"]);
 
 function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
@@ -647,14 +705,13 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
         { headerName: "Options", cellRenderer:editTradeRenderer }
     ];
 
-    this.portfolioData = []; //[{Name:"bob", Quantity:256, TotalCost:354.76 }];
-
     var onLoadContents = function (data) {
 
         if (data && data.Portfolio) {
             $scope.gridOptions.api.setRowData(data.Portfolio);
             $scope.gridOptions.api.sizeColumnsToFit();
         }
+        NotifyService.UpdateBusyState(false);
     }.bind(this);
 
     function editTradeRenderer() {
@@ -667,12 +724,13 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
     }
 
     function loadPortfolio() {
+        NotifyService.UpdateBusyState(true);
         MiddlewareService.LoadPortfolio(onLoadContents);
     };
 
     $scope.gridOptions = {
         columnDefs: columnDefs,
-        rowData: null,// this.portfolioData,
+        rowData: null,
         angularCompileRows: true,
         enableColResize: true,
         enableSorting: true,
@@ -803,27 +861,212 @@ function TradeEditor($uibModalInstance, name) {
 //agGrid.initialiseAgGridWithAngular1(angular)
 
 
+"use strict"
+
+// controller for add / edit account
+function AddAccount($scope, $uibModalInstance, user, currencies, account, brokers, MiddlewareService) {
+
+    //set the default values
+    $scope.AccountName = "";
+    $scope.AccountDescription;
+    $scope.Currencies = currencies;
+    $scope.Brokers = brokers;
+    $scope.ReportingCurrency = currencies[0];
+    $scope.SelectedBroker = brokers[0];
+    $scope.AccountType = "Club";
+
+    var members = [];
+
+    if (account != null) {
+        $scope.Title = "Edit Account";
+        $scope.AccountName = account.AccountName;
+        $scope.AccountDescription = account.Description;
+        $scope.ReportingCurrency = account.ReportingCurrency;
+        $scope.AccountType = account.AccountType;
+        $scope.SelectedBroker = account.Broker;
+        for(var index = 0; index < account.Members.length; index++)
+        {
+            members.push({ Name: account.Members[index].Name, Permission: account.Members[index].AuthorizationLevel });
+        }
+    }
+    else {
+        $scope.Title = "Add Account";
+         members.push({ Name: user, Permission: "ADMINISTRATOR" });
+    }
+    
+    $scope.EditAccount = account != null;
+
+    $scope.gridOptions = {
+        columnDefs: [
+            { headerName: "Name", field: "Name", editable: true },
+            {
+                headerName: "Permission", field: "Permission", editable: true,
+                cellEditor: 'select',
+                cellEditorParams : { values : ["ADMINISTRATOR", "READ", "WRITE"] }
+            }
+        ],
+        rowData: members,
+        angularCompileRows: true,
+        enableColResize: true,
+        enableSorting: true,
+        enableFilter: true,
+        suppressRowClickSelection: true,
+        singleClickEdit: true,
+        rowSelection: 'multiple',
+        defaultColDef: {
+            width: 100,
+            headerCheckboxSelection: isFirstColumn,
+            checkboxSelection: isFirstColumn
+        },
+        //cellValueChanged : onCellValueChanged 
+    };
+
+    function isFirstColumn(params) {
+        var displayedColumns = params.columnApi.getAllDisplayedColumns();
+        var thisIsFirstColumn = displayedColumns[0] === params.column;
+        return thisIsFirstColumn;
+    };
+
+    $scope.gridOptions.onCellValueChanged = function (data) {
+        console.log(data);
+    };
+
+    $scope.onTypeChange = function () {
+        $scope.IsClubTypeAccount = $scope.AccountType === "Club";
+    };
+
+    $scope.onTypeChange();
+
+    $scope.accountNameChanged = function () {
+        $scope.CanSubmit = $scope.AccountName != "";
+    };
+
+    $scope.accountNameChanged();
+
+    $scope.addMember = function () {
+        members.push({ Name: "", Permission: "READ"});
+        $scope.gridOptions.api.setRowData(members);
+    };
+
+    $scope.removeMembers = function () {
+        var selectedNodes = $scope.gridOptions.api.getSelectedNodes();
+        console.log("removing nodes: " + selectedNodes.length);
+        
+        var updated = members.filter((member, index) => {
+            return selectedNodes.find(node => node.rowIndex === index) === undefined;
+        });
+        members = updated;
+        $scope.gridOptions.api.setRowData(members);
+    };
+
+    $scope.ok = function () {
+        console.log("name: " + $scope.AccountName + ", AccountType: " + $scope.AccountType);
+        $uibModalInstance.close({
+            Name : $scope.AccountName,
+            Description:  $scope.AccountDescription,
+            ReportingCurrency: $scope.ReportingCurrency,
+            Broker: $scope.SelectedBroker,
+            AccountType: $scope.AccountType,
+            Members : members
+            });
+    };
+
+    $scope.cancel = function () {
+        $uibModalInstance.dismiss('cancel');
+    };
+};
 'use strict'
 
-function AccountList($scope, NotifyService, MiddlewareService) {
+function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) {
 
-    var loadAccountList = function() {
+    $scope.IsConnected = false;
+
+    var loggedInUser;
+    var currencies = null;
+    var brokers = null;
+
+    //method called when web app has successfully connected and logged in
+    var onConnected = function (username) {
+        $scope.IsConnected = true;
+        loggedInUser = username;
+        //retrieve the list of account names for logged in user
         MiddlewareService.GetAccountsForUser(function (data) {
             $scope.Accounts = data.AccountNames;
             if ($scope.Accounts.length > 0) {
                 $scope.SelectedAcount = $scope.Accounts[0];
             }
         });
+
+        //get list of available currencies
+        MiddlewareService.GetCurrencies(function (data) {
+            currencies = data.Currencies;
+        });
+
+        //get list of available brokers
+        MiddlewareService.GetBrokers(function (data) {
+            brokers = data.Brokers;
+        });
     };
 
     $scope.SelectedAcount = "";
     $scope.UpdateAccount = function () {
-        MiddlewareService.UpdateAccount($scope.SelectedAcount, function (data) {
+        MiddlewareService.UpdateCurrentAccount($scope.SelectedAcount, function (data) {
             NotifyService.InvokeAccountChange(); //this will also reload data for the current page
         });
     };
 
-    NotifyService.RegisterConnectionListener(loadAccountList);
+   //invoke the add account dialog view
+    var showAccountPopup = function (title, account) {
+        var modalInstance = $uibModal.open({
+            animation: true,
+            ariaLabelledBy: 'modal-title',
+            ariaDescribedBy: 'modal-body',
+            templateUrl: 'views/AddAccount.html',
+            controller: 'AddAccount',
+            controllerAs: '$account',
+            size: 'lg',
+            resolve: {
+                user: function () {
+                    return loggedInUser;
+                },
+                currencies: function () {
+                    return currencies;
+                },
+                account: function () {
+                    return account;
+                },
+                brokers: function () {
+                    return brokers;
+                }
+            }
+        });
+
+        modalInstance.result.then(function (account) {
+            //$ctrl.selected = selectedItem;
+            //user has clicked ok , we need to update the account information for this user
+            MiddlewareService.UpdateAccountDetails(account, function (data) {
+                if (data.Status === false) {
+                    alert("update account failed: " + data.Error);
+                }
+            });
+
+            //updateMethod(transaction);
+        }, function () {
+            $log.info('Modal dismissed at: ' + new Date());
+        });
+    };
+
+    $scope.editAccount = function () {
+        MiddlewareService.GetAccountDetails($scope.SelectedAcount, (account) => {
+            showAccountPopup("Edit Account", account);
+        });
+    };
+
+    $scope.addAccount = function () {
+        showAccountPopup("Add Account", null);
+    }
+
+    NotifyService.RegisterConnectionListener(onConnected);
 }
 "use strict"
 
@@ -844,6 +1087,8 @@ function Reports($scope, NotifyService, MiddlewareService) {
 "use strict"
 
 var module = angular.module("InvestmentRecord", ["ui.bootstrap","agGrid"]);
+
+agGrid.initialiseAgGridWithAngular1(angular);
 
 module.service('NotifyService', NotifyService);
 
@@ -869,3 +1114,5 @@ module.controller('AddTradeController', CreateTrade);
 module.controller('LayoutController', Layout);
 
 module.controller('ReportsController', Reports);
+
+module.controller('AddAccount', AddAccount);

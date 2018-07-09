@@ -1,7 +1,5 @@
 ﻿"use strict"
 
-agGrid.initialiseAgGridWithAngular1(angular);
-
 //var module = angular.module("example", ["agGrid"]);
 
 function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
@@ -19,14 +17,13 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
         { headerName: "Options", cellRenderer:editTradeRenderer }
     ];
 
-    this.portfolioData = []; //[{Name:"bob", Quantity:256, TotalCost:354.76 }];
-
     var onLoadContents = function (data) {
 
         if (data && data.Portfolio) {
             $scope.gridOptions.api.setRowData(data.Portfolio);
             $scope.gridOptions.api.sizeColumnsToFit();
         }
+        NotifyService.UpdateBusyState(false);
     }.bind(this);
 
     function editTradeRenderer() {
@@ -39,12 +36,13 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
     }
 
     function loadPortfolio() {
+        NotifyService.UpdateBusyState(true);
         MiddlewareService.LoadPortfolio(onLoadContents);
     };
 
     $scope.gridOptions = {
         columnDefs: columnDefs,
-        rowData: null,// this.portfolioData,
+        rowData: null,
         angularCompileRows: true,
         enableColResize: true,
         enableSorting: true,

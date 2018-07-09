@@ -365,7 +365,6 @@ namespace SQLServerDataLayer
                             //var obj = reader["Enabled"];
                             return new AccountModel(GetDBValue<string>("Name", reader),
                                                     GetDBValue<string>("Description", reader),
-                                                    null,
                                                     GetDBValue<string>("Currency", reader),
                                                     GetDBValue<string>("Type", reader),
                                                     (byte)reader["Enabled"] != 0 ? true : false,

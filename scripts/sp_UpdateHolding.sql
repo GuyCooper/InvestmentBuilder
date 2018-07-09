@@ -17,7 +17,9 @@ BEGIN
 UPDATE	
 	 IR
 SET
-	IR.Shares_Bought = @holding
+	IR.Shares_Bought = @holding,
+	IR.[Bonus_Shares issued] = 0,
+	IR.Shares_Sold = 0
 FROM InvestmentRecord AS IR 
 INNER JOIN
 	 Companies C 

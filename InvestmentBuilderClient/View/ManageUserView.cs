@@ -126,7 +126,7 @@ namespace InvestmentBuilderClient.View
                     txtAccountName.Text = modelData.Name;
                 }
                 txtDescription.Text = modelData.Description;
-                txtPassword.Text = modelData.Password;
+                //txtPassword.Text = modelData.Password;
                 txtCurrency.Text = modelData.ReportingCurrency;
                 chkEnableAccount.Checked = modelData.Enabled;
                 cmboType.SelectedItem = modelData.Type;

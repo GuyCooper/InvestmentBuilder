@@ -1,60 +1,79 @@
 ﻿<div ng-controller="LayoutController">
-    <div ng-show="isBuilding" class="showProgress" ng-cloak>
-        <h4><em>Building Report. please wait...</em></h4>
-        <h5 ng-bind="section"></h5>
-        <uib-progressbar animate="false" value="progressCount" type="success"><b>{{progressCount}}%</b></uib-progressbar>
-    </div>
-
-    <div ng-show="!isBuilding" ng-cloak>
-        <div class="row investmentSummary">
-            <div class="pull-left">
-                <h1>{{AccountName}}</h1>
+    <div ng-hide="IsBusy">
+        <div ng-show="!LoggedIn" class="loginBox" ng-cloak>
+            <form ng-submit="doLogin()">
+                <strong>Login</strong>
+                <br />
+                <div class="form-group">
+                    <label>User Name</label>
+                    <input name="username" type="text" class="form-control" ng-model="UserName" />
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input name="password" type="password" class="form-control" ng-model="Password" />
+                </div>
+                <button class="btn btn-primary pull-right" type="submit">submit</button>
+            </form>
+        </div>
+        <div ng-show="LoggedIn" ng-cloak>
+            <div ng-show="IsBuilding" class="showProgress" ng-cloak>
+                <h4><em>Building Report. please wait...</em></h4>
+                <h5 ng-bind="Section"></h5>
+                <uib-progressbar animate="false" value="ProgressCount" type="success"><b>{{ProgressCount}}%</b></uib-progressbar>
             </div>
-            <div class="pull-right">
-                <div style="display:inline-block">
-                    <div><strong>Value Per Unit</strong></div>
-                    <div>{{ValuePerUnit}}</div>
-                </div>
-                <div style="display:inline-block">
-                    <div><strong>Net Assets</strong></div>
-                    <div>{{NetAssets}}</div>
-                </div>
-                <div style="display:inline-block">
-                    <div><strong>Bank Balance</strong></div>
-                    <div>{{BankBalance}}</div>
-                </div>
-                <div style="display:inline-block">
-                    <div><strong>Month PnL</strong></div>
-                    <div>{{MonthlyPnL}}</div>
-                </div>
-                <div style="display:inline-block">
-                    <div><strong>Build Status</strong></div>
-                    <div>{{BuildStatus}}</div>
+
+            <div ng-show="!IsBuilding" ng-cloak>
+                <div class="row investmentSummary">
+                    <div class="pull-left">
+                        <h1>{{AccountName}}</h1>
+                    </div>
+                    <div class="pull-right">
+                        <div style="display:inline-block">
+                            <div><strong>Value Per Unit</strong></div>
+                            <div>{{ValuePerUnit}}</div>
+                        </div>
+                        <div style="display:inline-block">
+                            <div><strong>Net Assets</strong></div>
+                            <div>{{NetAssets}}</div>
+                        </div>
+                        <div style="display:inline-block">
+                            <div><strong>Bank Balance</strong></div>
+                            <div>{{BankBalance}}</div>
+                        </div>
+                        <div style="display:inline-block">
+                            <div><strong>Month PnL</strong></div>
+                            <div>{{MonthlyPnL}}</div>
+                        </div>
+                        <div style="display:inline-block">
+                            <div><strong>Build Status</strong></div>
+                            <div>{{BuildStatus}}</div>
+                        </div>
+
+                        <div ng-click="buildReport()" ng-disabled="!CanBuild" class="btn btn-primary summaryButton">Build Report</div>
+                    </div>
                 </div>
 
-                <div ng-click="buildReport()" ng-disabled="!CanBuild" class="btn btn-primary summaryButton">Build Report</div>
+                <uib-tabset active="active" justified="true">
+                    <uib-tab index="0" select="onPortfolio()" heading="Portfolio">
+                        @[views/Portfolio.html]
+                    </uib-tab>
+                    <uib-tab index="1" select="onAddTrade()" heading="Add Investment">
+                        @[views/CreateTrade.html]
+                    </uib-tab>
+                    <uib-tab index="2" select="onCashFlow()" heading="Cash Flow">
+                        @[views/CashFlow.html]
+                    </uib-tab>
+                    <uib-tab index="3" select="onReports()" heading="Reports">
+                        @[views/Reports.html]
+                    </uib-tab>
+                </uib-tabset>
+                <!--</div>-->
+                <footer>
+                    <p>&copy; InvestmentBuilder</p>
+                </footer>
             </div>
         </div>
-
-        <!--<div ng-class="{hideLayout : $scope.isBuilding == true, showLayout : $scope.isBuilding == false}" ng-cloak>-->
-        <!--<div class="row" ng-show="$scope.isBuilding == false" ng-cloak>-->
-        <uib-tabset active="active" justified="true">
-            <uib-tab index="0" select="onPortfolio()" heading="Portfolio">
-                @[views/Portfolio.html]
-            </uib-tab>
-            <uib-tab index="1" select="onAddTrade()" heading="Add Investment">
-                @[views/CreateTrade.html]
-            </uib-tab>
-            <uib-tab index="2" select="onCashFlow()" heading="Cash Flow">
-                @[views/CashFlow.html]
-            </uib-tab>
-            <uib-tab index="3" select="onReports()" heading="Reports">
-                @[views/Reports.html]
-            </uib-tab>
-        </uib-tabset>
-        <!--</div>-->
-        <footer>
-            <p>&copy; InvestmentBuilder</p>
-        </footer>
+    </div>
+    <div ng-show="IsBusy" class="loader">
     </div>
 </div>

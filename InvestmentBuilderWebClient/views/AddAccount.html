@@ -1,0 +1,57 @@
+﻿<div class="modal-header">
+    <h3 class="modal-title" id="modal-title">{{Title}}</h3>
+</div>
+
+<div class="modal-body" id="modal-body">
+    <div class="editor">
+        <form name="investmentAccountForm" role="form" ng-submit="addInvestmentAccount()">
+            <div class="form-group">
+                <label>Account Name</label>
+                <input ng-disabled="EditAccount" class="form-control" ng-model="AccountName" name="AccountName" placeholder="name of account" ng-change="accountNameChanged()" />
+            </div>
+
+            <div class="form-group">
+                <label for="AccountDescription">Description</label>
+                <input ng-disabled="EditAccount" class="form-control" ng-model="AccountDescription" name="AccountDescription" placeholder="description of account" />
+            </div>
+
+            <div class="form-group">
+                <label>Reporting Currency</label>
+                <select name="currency" class="form-control" ng-model="ReportingCurrency">
+                    <option ng-repeat="currency in Currencies">{{currency}}</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Broker</label>
+                <select name="broker" class="form-control" ng-model="SelectedBroker">
+                    <option ng-repeat="broker in Brokers">{{broker}}</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Account Type</label>
+                <div class="checkbox-inline">
+                    <small>Club</small><input ng-disabled="EditAccount" type="radio" ng-model="AccountType" name="AccountType" ng-checked="IsClubTypeAccount" value="Club" ng-click="onTypeChange()" />
+                    <small>Personal</small><input ng-disabled="EditAccount" type="radio" ng-model="AccountType" name="AccountType" value="Personal" ng-click="onTypeChange()"/>
+                </div>
+            </div>
+
+            <div class="form-group" ng-show="IsClubTypeAccount">
+                <label>Members</label>
+                <div class="row" style="height:200px;width:100%">
+                    <div ag-grid="gridOptions" style="height: 100%" class="ag-blue form-control"></div>
+                </div>
+                <div>
+                    <input type="button" value="Add" ng-click="addMember()" />
+                    <input type="button" value="Remove" ng-click="removeMembers()" />
+                </div>
+            </div>
+        </form>
+    </div>
+ </div>
+
+<div class="modal-footer">
+    <button class="btn btn-primary" type="button" ng-click="ok()" ng-disabled="!CanSubmit">Submit</button>
+    <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+</div>

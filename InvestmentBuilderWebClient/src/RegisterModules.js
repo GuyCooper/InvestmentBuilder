@@ -2,6 +2,8 @@
 
 var module = angular.module("InvestmentRecord", ["ui.bootstrap","agGrid"]);
 
+agGrid.initialiseAgGridWithAngular1(angular);
+
 module.service('NotifyService', NotifyService);
 
 module.service('MiddlewareService', MiddlewareService);
@@ -26,3 +28,5 @@ module.controller('AddTradeController', CreateTrade);
 module.controller('LayoutController', Layout);
 
 module.controller('ReportsController', Reports);
+
+module.controller('AddAccount', AddAccount);

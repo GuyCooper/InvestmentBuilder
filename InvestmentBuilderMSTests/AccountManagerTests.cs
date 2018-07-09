@@ -52,7 +52,7 @@ namespace InvestmentBuilderMSTests
                                                            null, null, testClientInterface, null), new TestAuthorizationManager());
 
             var account = new AccountModel(TestDataCache._TestAccount, TestDataCache._Description,
-                                         null, TestDataCache._Currency, TestDataCache._TestAccountType, true,
+                                         TestDataCache._Currency, TestDataCache._TestAccountType, true,
                                          TestDataCache._Broker, new List<AccountMember>{
                                              new AccountMember(TestDataCache._testUser, AuthorizationLevel.ADMINISTRATOR)
                                          });
@@ -75,7 +75,7 @@ namespace InvestmentBuilderMSTests
                                                            null, null, testClientInterface, null), new TestAuthorizationManager());
 
             var account = new AccountModel(TestDataCache._TestAccount, TestDataCache._Description,
-                                         null, TestDataCache._Currency, TestDataCache._TestAccountType, true,
+                                          TestDataCache._Currency, TestDataCache._TestAccountType, true,
                                          TestDataCache._Broker, new List<AccountMember>{
                                              new AccountMember(TestDataCache._testUser, AuthorizationLevel.ADMINISTRATOR)
                                          });
@@ -98,7 +98,7 @@ namespace InvestmentBuilderMSTests
                                                            null, null, testClientInterface, null), new TestAuthorizationManager());
 
             var account = new AccountModel(TestDataCache._TestAccount, TestDataCache._Description,
-                                         null, TestDataCache._Currency, TestDataCache._TestAccountType, true,
+                                         TestDataCache._Currency, TestDataCache._TestAccountType, true,
                                          TestDataCache._Broker, new List<AccountMember>{
                                              new AccountMember(TestDataCache._testUser, AuthorizationLevel.ADMINISTRATOR)
                                          });
@@ -127,7 +127,7 @@ namespace InvestmentBuilderMSTests
                                                            null, null, testClientInterface, null), new TestAuthorizationManager());
 
             var account = new AccountModel(TestDataCache._TestAccount, TestDataCache._Description,
-                                         null, TestDataCache._Currency, TestDataCache._TestAccountType, true,
+                                          TestDataCache._Currency, TestDataCache._TestAccountType, true,
                                          TestDataCache._Broker, new List<AccountMember>{
                                              new AccountMember(TestDataCache._testUser, AuthorizationLevel.ADMINISTRATOR)
                                          });
@@ -153,7 +153,7 @@ namespace InvestmentBuilderMSTests
                                                            null, null, testClientInterface, null), new TestAuthorizationManager());
 
             var account = new AccountModel(TestDataCache._TestAccount, TestDataCache._Description,
-                                         null, TestDataCache._Currency, TestDataCache._TestAccountType, true,
+                                         TestDataCache._Currency, TestDataCache._TestAccountType, true,
                                          TestDataCache._Broker, new List<AccountMember>{
                                              new AccountMember(TestDataCache._testUser, AuthorizationLevel.READ)
                                          });
@@ -171,7 +171,7 @@ namespace InvestmentBuilderMSTests
                                                            null, null, testClientInterface, null), new TestAuthorizationManager());
 
             var account = new AccountModel(TestDataCache._TestAccount, TestDataCache._Description,
-                                         null, TestDataCache._Currency, TestDataCache._TestAccountType, true,
+                                         TestDataCache._Currency, TestDataCache._TestAccountType, true,
                                          TestDataCache._Broker, new List<AccountMember>{
                                              new AccountMember(TestDataCache._testUser, AuthorizationLevel.READ)
                                          });
@@ -189,7 +189,7 @@ namespace InvestmentBuilderMSTests
                                                            null, null, testClientInterface, null), new TestAuthorizationManager());
 
             var account = new AccountModel(TestDataCache._TestAccount, TestDataCache._Description,
-                                         null, TestDataCache._Currency, TestDataCache._TestAccountType, true,
+                                         TestDataCache._Currency, TestDataCache._TestAccountType, true,
                                          TestDataCache._Broker, new List<AccountMember>{
                                              new AccountMember(TestDataCache._testUser, AuthorizationLevel.ADMINISTRATOR)
                                          });

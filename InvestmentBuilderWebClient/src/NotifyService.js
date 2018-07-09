@@ -1,6 +1,6 @@
 ﻿'use strict'
 
-function NotifyService(MiddlewareService) {
+function NotifyService() {
     
     //notify service acts as a broker service between the controllers. it contains
     //several lists of listeners that need to be called when a particular view is
@@ -16,6 +16,18 @@ function NotifyService(MiddlewareService) {
     //listeners for the current view
     var listeners = null;
 
+    var busyStateChangedListener = null;
+    //flag to determine if system is busy with request / connecting etc..
+    var isBusy = false;
+    this.RegisterBusyStateChangedListener = function (listener) {
+        busyStateChangedListener = listener;
+    }
+    this.UpdateBusyState = function (busy) {
+        isBusy = busy;
+        if (busyStateChangedListener != null) {
+            busyStateChangedListener(busy);
+        }
+    }
     //register callback methods 
     this.RegisterAccountListener = function (listener) {
         AccountListeners.push(listener);
@@ -92,12 +104,15 @@ function NotifyService(MiddlewareService) {
         invokeCallbacks(BuildStatusListeners, status);
     }
 
-    //now connect to the middleware server. once conncted inform any connection listeners that connection is complete
-    MiddlewareService.Connect("ws://localhost:8080", "guy@guycooper.plus.com", "rangers").then(function () {
-        console.log("connection to middleware succeded!");
-        invokeCallbacks(ConnectionListeners);
-    },
-    function (error) {
-        console.log("connection to middleware failed" + error);
-    });
+    this.InvokeConnectionListeners = function (username) {
+        invokeCallbacks(ConnectionListeners, username);
+    };
+
+    this.SetBusyState = function (busy) {
+        IsBusy = busy;
+    };
+
+    this.GetBusyState = function () {
+        return IsBusy;
+    };
 }

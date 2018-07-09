@@ -163,7 +163,7 @@ namespace InvestmentBuilderMSTests
             Console.WriteLine("When_adding_a_new_account");
             var member = new AccountMember(_TestUser, AuthorizationLevel.ADMINISTRATOR);
             var members = new List<AccountMember> { member };
-            var account = new AccountModel(_TestAccount, _TestAccount, "", _TestCurrency, "Club", true, "ShareCentre", members);
+            var account = new AccountModel(_TestAccount, _TestAccount, _TestCurrency, "Club", true, "ShareCentre", members);
 
             bool added =_interfaces.AccountManager.CreateUserAccount(userToken.User, account, _dtValuationDate1);
             Assert.IsTrue(added);
