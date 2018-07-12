@@ -1,7 +1,7 @@
 ﻿"use strict"
 
 // controller for add / edit account
-function AddAccount($scope, $uibModalInstance, user, currencies, account, brokers, MiddlewareService) {
+function AddAccount($scope, $uibModalInstance, user, currencies, account, brokers) {
 
     //set the default values
     $scope.AccountName = "";
@@ -23,7 +23,7 @@ function AddAccount($scope, $uibModalInstance, user, currencies, account, broker
         $scope.SelectedBroker = account.Broker;
         for(var index = 0; index < account.Members.length; index++)
         {
-            members.push({ Name: account.Members[index].Name, Permission: account.Members[index].AuthorizationLevel });
+            members.push({ Name: account.Members[index].Name, Permission: account.Members[index].Permission });
         }
     }
     else {
@@ -39,7 +39,7 @@ function AddAccount($scope, $uibModalInstance, user, currencies, account, broker
             {
                 headerName: "Permission", field: "Permission", editable: true,
                 cellEditor: 'select',
-                cellEditorParams : { values : ["ADMINISTRATOR", "READ", "WRITE"] }
+                cellEditorParams : { values : ["ADMINISTRATOR", "NONE", "READ", "UPDATE"] }
             }
         ],
         rowData: members,
@@ -99,11 +99,12 @@ function AddAccount($scope, $uibModalInstance, user, currencies, account, broker
     $scope.ok = function () {
         console.log("name: " + $scope.AccountName + ", AccountType: " + $scope.AccountType);
         $uibModalInstance.close({
-            Name : $scope.AccountName,
+            AccountName : $scope.AccountName,
             Description:  $scope.AccountDescription,
             ReportingCurrency: $scope.ReportingCurrency,
             Broker: $scope.SelectedBroker,
             AccountType: $scope.AccountType,
+            Enabled : true,
             Members : members
             });
     };

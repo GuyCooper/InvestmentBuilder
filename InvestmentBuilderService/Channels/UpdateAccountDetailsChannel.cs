@@ -9,7 +9,7 @@ namespace InvestmentBuilderService.Channels
     internal class AccountMemberDto
     {
         public string Name { get; set; }
-        public string AuthorizationLevel { get; set; }
+        public string Permission { get; set; }
     }
     /// <summary>
     /// UpdateAccountRequestDto Dto.
@@ -23,6 +23,17 @@ namespace InvestmentBuilderService.Channels
         public bool Enabled { get; set; }
         public string Broker { get; set; }
         public IList<AccountMemberDto> Members { get; set; }
+    }
+
+    /// <summary>
+    /// Response to update account details. status flag indicates failure / success.
+    /// if success, returns new list of accounts for user
+    /// </summary>
+    internal class UpdateAccountResponseDto : Dto
+    {
+        public bool Status { get; set; }
+        public string Error { get; set; }
+        public IEnumerable<string> AccountNames { get; set; }
     }
 
     /// <summary>
@@ -57,7 +68,12 @@ namespace InvestmentBuilderService.Channels
                 error = ex.Message;
             }
 
-            return new ResponseDto { Status = success, Error = error };
+            return new UpdateAccountResponseDto
+            {
+                Status = success,
+                Error = error,
+                AccountNames = GetAccountService().GetAccountsForUser(userSession).ToList()
+            };
         }
 
         #endregion
@@ -73,7 +89,7 @@ namespace InvestmentBuilderService.Channels
             return new AccountModel(dto.AccountName, dto.Description, dto.ReportingCurrency,
                 dto.AccountType, true, dto.Broker, dto.Members.Select(x =>
                 {
-                    return new AccountMember(x.Name, ToInternalAuthorizationLevel(x.AuthorizationLevel));
+                    return new AccountMember(x.Name, ToInternalAuthorizationLevel(x.Permission));
                 }).ToList());
         }
 

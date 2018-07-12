@@ -96,7 +96,8 @@ namespace InvestmentBuilderCore
         }
 
         /// <summary>
-        /// each user is only ever allowed a single useraccount token at any time
+        /// each user is only ever allowed a single useraccount token at any time. 
+        /// NOTE: This method must be thread safe
         /// </summary>
         /// <param name="user"></param>
         /// <param name="account"></param>
@@ -117,7 +118,12 @@ namespace InvestmentBuilderCore
             if(existingToken == null)
             {
                 existingToken = GetUserAccountToken(user, account);
-                _userTokenlookup.Add(user, existingToken);
+                try
+                {
+                    _userTokenlookup.Add(user, existingToken);
+                }
+                catch(Exception)
+                { /*insertion may have been preempted by another thread */ }
             }
             return existingToken;
         }

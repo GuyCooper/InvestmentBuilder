@@ -7,7 +7,7 @@
         <form name="investmentAccountForm" role="form" ng-submit="addInvestmentAccount()">
             <div class="form-group">
                 <label>Account Name</label>
-                <input ng-disabled="EditAccount" class="form-control" ng-model="AccountName" name="AccountName" placeholder="name of account" ng-change="accountNameChanged()" />
+                <input ng-disabled="EditAccount" class="form-control" ng-model="AccountName" name="AccountName" placeholder="name of account" ng-keyup="accountNameChanged()" />
             </div>
 
             <div class="form-group">

@@ -65,7 +65,7 @@ namespace InvestmentBuilderService.Channels
             return new AccountMemberDto
             {
                 Name = member.Name,
-                AuthorizationLevel = member.AuthLevel.ToString()
+                Permission = member.AuthLevel.ToString()
             };
         }
 

@@ -126,8 +126,8 @@ function MiddlewareService()
         doCommand("GET_RECENT_REPORTS_REQUEST", "GET_RECENT_REPORTS_RESPONSE", null, handler);
     };
 
-    this.UpdateAccountDetails = function (account, handle) {
-        doCommand("UPDATE_CURRENT_ACCOUNT_REQUEST", "UPDATE_CURRENT_ACCOUNT_RESPONSE", account, handler);
+    this.UpdateAccountDetails = function (account, handler) {
+        doCommand("UPDATE_ACCOUNT_DETAILS_REQUEST", "UPDATE_ACCOUNT_DETAILS_RESPONSE", account, handler);
     };
 
     this.GetAccountDetails = function (accountName, handler) {

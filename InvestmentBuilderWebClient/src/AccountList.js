@@ -8,17 +8,22 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
     var currencies = null;
     var brokers = null;
 
+    var onLoadAccountNames = function (data) {
+
+        $scope.Accounts = data.AccountNames;
+        if ($scope.Accounts.length > 0) {
+            $scope.SelectedAcount = $scope.Accounts[0];
+        }
+        $scope.$apply();
+    };
+
     //method called when web app has successfully connected and logged in
     var onConnected = function (username) {
         $scope.IsConnected = true;
         loggedInUser = username;
+
         //retrieve the list of account names for logged in user
-        MiddlewareService.GetAccountsForUser(function (data) {
-            $scope.Accounts = data.AccountNames;
-            if ($scope.Accounts.length > 0) {
-                $scope.SelectedAcount = $scope.Accounts[0];
-            }
-        });
+        MiddlewareService.GetAccountsForUser(onLoadAccountNames);
 
         //get list of available currencies
         MiddlewareService.GetCurrencies(function (data) {
@@ -70,6 +75,10 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
             MiddlewareService.UpdateAccountDetails(account, function (data) {
                 if (data.Status === false) {
                     alert("update account failed: " + data.Error);
+                }
+                else {
+                    //successfull, reload the account names
+                    onLoadAccountNames(data);
                 }
             });
 
