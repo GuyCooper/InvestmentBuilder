@@ -118,7 +118,8 @@ namespace InvestmentBuilderMSTests
     }
 
     internal class CurrentInvestmentsClientData : ClientDataInterfaceTest
-    {        
+    {
+        public override DateTime? GetLatestValuationDate(UserAccountToken userToken) { return null; }
         public override DateTime? GetPreviousAccountValuationDate(UserAccountToken userToken, DateTime dtValuation)
         {
             return TestDataCache._previousValutionDate;

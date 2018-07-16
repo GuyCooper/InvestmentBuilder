@@ -49,6 +49,20 @@ namespace InvestmentBuilder
             logger.Log(userToken,LogLevel.Info, string.Format("update: {0}", bUpdate));
             logger.Log(userToken,LogLevel.Info, string.Format("valuation date: {0}", valuationDate.ToShortDateString()));
 
+            //do not allow an account to be rebuilt more than once a day as this corrupts
+            //the dividend amount and the allocated units as transactions are counted for 
+            //the current day. In this case just return current report
+            var dtLatestValution = _clientData.GetLatestValuationDate(userToken);
+            if(bUpdate && dtLatestValution.HasValue)
+            {
+                var latestDate = dtLatestValution.Value.Date;
+                var currentDate = valuationDate.Date;
+                if(currentDate <= latestDate)
+                {
+                    logger.Log(userToken, LogLevel.Error, $"cannot build account for report more than once a day. Returning previous report.");
+                    bUpdate = false;
+                }
+            }
             //var factory = BuildFactory(format, path, connectionstr, valuationDate, bUpdate);
             if (userToken == null)
             {
@@ -71,12 +85,6 @@ namespace InvestmentBuilder
                 logger.Log(userToken, LogLevel.Error, "no accounts for user", userToken.User);
                 return assetReport;
             }
-
-            //rollback any previous updates made for this valuation date
-            //if (bUpdate)
-            //{
-            //    _userAccountData.RollbackValuationDate(userToken, valuationDate);
-            //}
 
             var dtPreviousValuation = _clientData.GetPreviousAccountValuationDate(userToken, valuationDate);
             //first extract the cash account data

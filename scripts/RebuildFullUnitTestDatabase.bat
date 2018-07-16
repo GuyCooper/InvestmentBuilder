@@ -5,6 +5,7 @@ set DBName=InvestmentBuilderUnitTest
 
 echo rebuild full unit test database, server name: %ServerName%, db name: %DBName%
 
+sqlcmd -S %ServerName% -E -d %DBName% -i ConvertUserTableToAccount.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddCashAccountData.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddNewShares.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddNewUnitValuation.sql
@@ -65,4 +66,4 @@ sqlcmd -S %ServerName% -E -d %DBName% -i sp_UpdateValuationTable.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddHistoricalData.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_GetHistoricalData.sql
 popd
-pause
+
