@@ -26,8 +26,12 @@ BEGIN
 		 [Members] M
 	ON
 		A.[Account_id] = M.[Account_Id]
+	INNER JOIN
+		[Users] U
+	ON 
+		U.UserId = M.[UserId]
 	WHERE
-		M.[Name] = @User
+		U.[UserName] = @User
 	AND
 		A.[Enabled] = 1
 END

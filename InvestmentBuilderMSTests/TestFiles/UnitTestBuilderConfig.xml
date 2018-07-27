@@ -10,4 +10,5 @@
   </formats>
   <marketDataSource>C:\Projects\InvestmentBuilder\InvestmentBuilderMSTests\TestFiles\UnitTestMarketData.txt</marketDataSource>
   <outputCachedMarketDataFile>C:\Projects\TestData\InvestmentBuilder\output\CachedData.txt</outputCachedMarketDataFile>
+  <maxAccountsPerUser>5</maxAccountsPerUser>
 </configuration>

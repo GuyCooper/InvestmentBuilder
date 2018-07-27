@@ -11,8 +11,12 @@ END
 
 GO
 
-CREATE PROCEDURE sp_UpdateMemberForAccount(@Account AS VARCHAR(30), @Member AS VARCHAR(50), @Level as INT, @Add as TINYINT) AS
+CREATE PROCEDURE sp_UpdateMemberForAccount(@Account AS VARCHAR(30), @Member AS NVARCHAR(256), @Level as INT, @Add as TINYINT) AS
 BEGIN
+
+    DECLARE @UserId INT
+
+	SELECT @UserID = UserId FROM [Users] WHERE UserName = @Member
 
 	--if user does not exist in database then add them  
 	IF NOT EXISTS(SELECT
@@ -24,13 +28,13 @@ BEGIN
 				  ON
 					 M.account_id = A.[Account_Id]
 				  WHERE 
-					 M.Name = @Member AND
+					 M.UserID = @UserID AND
 					 A.Name = @Account
 				  	 )
 	BEGIN
-		INSERT INTO MEMBERS(Name, account_id, [Authorization])
+		INSERT INTO MEMBERS([UserId], account_id, [Authorization])
 		SELECT 
-			@Member,
+			@UserID,
 			[Account_Id],
 			@Level
 		FROM
@@ -51,7 +55,7 @@ BEGIN
 	ON
 		M.account_id = A.[Account_Id]
 	WHERE
-		M.Name = @Member AND
+		M.[UserID] = @UserID AND
 		A.Name = @Account
 		
 END

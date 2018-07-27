@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using InvestmentBuilderCore;
 using System.Data.SqlClient;
 using System.Data;
@@ -232,7 +230,7 @@ namespace SQLServerDataLayer
                         {
                             yield return new Redemption
                             (
-                                GetDBValue<string>("Name", reader),
+                                GetDBValue<string>("UserName", reader),
                                 GetDBValue<double>("amount", reader),
                                 GetDBValue<DateTime>("transaction_date", reader),
                                 (RedemptionStatus)Enum.Parse(typeof(RedemptionStatus), (string)reader["status"])
@@ -304,7 +302,7 @@ namespace SQLServerDataLayer
                         while (reader.Read())
                         {
                             yield return new AccountMember(
-                                GetDBValue<string>("Name", reader),
+                                GetDBValue<string>("UserName", reader),
                                 (AuthorizationLevel)reader["Authorization"]
                             );
                         }
@@ -460,6 +458,44 @@ namespace SQLServerDataLayer
                 }
             }
             return ret;
+        }
+
+        /// <summary>
+        /// return the user id for the specified user. throws an exception if the user does not exist.
+        /// </summary>
+        public int GetUserId(string userName)
+        {
+            using (var connection = OpenConnection())
+            {
+                using (var command = new SqlCommand("sp_GetUserId", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@UserName", userName));
+                    var objResult = command.ExecuteScalar();
+                    if (objResult != null)
+                    {
+                        return (int)objResult;
+                    }
+                 }
+            }
+            return -1;
+        }
+
+        /// <summary>
+        /// Add a new user to the database
+        /// </summary>
+        public void AddUser(string userName, string description)
+        {
+            using (var connection = OpenConnection())
+            {
+                using (var command = new SqlCommand("sp_AddNewUser", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@UserName", userName));
+                    command.Parameters.Add(new SqlParameter("@Description", description));
+                    command.ExecuteNonQuery();
+                }
+            }
         }
     }
 }

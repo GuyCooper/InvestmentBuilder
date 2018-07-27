@@ -6,6 +6,7 @@
   <outputLinkFolder>Reports</outputLinkFolder>
   <marketDataSource>C:\Users\guy\AppData\Roaming\InvestmentRecordBuilder\yahooMarketData.txt</marketDataSource>
   <outputCachedMarketDataFile>C:\Users\guy\AppData\Roaming\InvestmentRecordBuilder\CachedData.txt</outputCachedMarketDataFile>
+  <maxAccountsPerUser>5</maxAccountsPerUser>
   <indexes>
 		<index>
 			<name>FTSE 100</name>

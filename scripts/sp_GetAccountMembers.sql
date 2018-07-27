@@ -15,13 +15,16 @@ CREATE PROCEDURE sp_GetAccountMembers(@Account as VARCHAR(30), @ValuationDate as
 BEGIN
 
 SELECT
-	 M.Name, M.[Authorization]
+	 U.UserName, M.[Authorization]
 FROM 
 	Members M
 INNER JOIN
 	Accounts A
 ON
 	M.account_id = A.[Account_Id]
+INNER JOIN 
+	[Users] U
+ON U.[UserId] = M.[UserId]
 WHERE 
 	A.Name = @Account AND
 	M.[Enabled] = 1

@@ -22,10 +22,14 @@ INNER JOIN
 	Accounts a
 ON
 	m.account_id = a.[Account_Id]
+INNER JOIN
+	[Users] u
+ON
+	u.[UserId] = m.[UserId]
 WHERE
 	a.[Name] = @Account
 AND
-	m.[Name] = @User
+	u.[UserName] = @User
 
 END
 	

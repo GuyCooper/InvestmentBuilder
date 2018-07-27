@@ -143,6 +143,7 @@ namespace InvestmentBuilderMSTests
 
             if (m_bOk == true)
             {
+                When_adding_new_user();
                 When_adding_a_new_account(_newTestToken);
                 When_adding_a_new_trade(_newTestToken);
                 When_undoing_last_transaction(_newTestToken);
@@ -154,6 +155,11 @@ namespace InvestmentBuilderMSTests
                 When_building_asset_report_next_month(_newTestToken, _TransactionDateNextMonth, _ValuationDateNextMonth);
                 When_building_asset_report_next_month_repeat(_newTestToken, _TransactionDateNextMonth, _ValuationDateNextMonth);
             }
+        }
+
+        private void When_adding_new_user()
+        {
+            ContainerManager.ResolveValueOnContainer<SQLServerDataLayer.SQLServerDataLayer>(_childContainer).UserAccountData.AddUser(_NewTestUser, "test user");
         }
 
         private void When_adding_a_new_account(UserAccountToken userToken)

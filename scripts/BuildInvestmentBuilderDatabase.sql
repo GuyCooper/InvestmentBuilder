@@ -2,6 +2,8 @@ use master
 
 if exists(select 1 from sysdatabases where name = 'InvestmentBuilderUnitTest1')
 begin
+	alter database InvestmentBuilderUnitTest1 set single_user with
+	rollback immediate
 	drop database InvestmentBuilderUnitTest1
 end
 
@@ -27,6 +29,15 @@ create table dbo.AccountTypes
 	constraint UN_UserTypeName unique([Type])
 )
 
+create table dbo.[Users]
+(
+	[UserId] int identity primary key clustered,
+	[UserName]	 nvarchar(256) not null,
+	[Description] nvarchar(256) default(null)
+	
+	constraint UN_UserName unique([UserName])
+)
+
 create table dbo.Accounts
 (
 	[Account_Id] int identity primary key clustered,
@@ -37,7 +48,7 @@ create table dbo.Accounts
 	[Enabled]		  tinyint not null,
 	[Broker] varchar(30) default(null), 
 
-	constraint UN_UserName unique([Name]),
+	constraint UN_AccountName unique([Name]),
 
 	constraint FK_AccountType_User foreign key
 	([Type_Id]) references AccountTypes([Type_Id])
@@ -58,7 +69,7 @@ create table dbo.CashAccount
 	[valuation_date] datetime not null,
 	[transaction_date] datetime not null,
 	[type_id]		   int not null,
-	[parameter]        varchar(50),
+	[parameter]        nvarchar(256),
 	[amount]		   float,
 	[account_id]	   int not null default(0) ,
 	constraint FK_transactionType_CashAccount foreign key
@@ -118,10 +129,13 @@ go
 create table dbo.Members
 (
 	[Member_Id] int identity primary key clustered,
-	[Name] varchar(50),
+	[UserId] int,
 	[account_id] int not null default(0),
 	[enabled] tinyint not null default(1),
-	[Authorization] int not null default(0)
+	[Authorization] int not null default(0),
+
+	constraint FK_members_UserID_Users_UserID foreign key
+	([UserId]) references [Users]([UserId])
 )
 go
 
@@ -130,7 +144,7 @@ dbo.Members([account_id])
 go
 
 create unique index UN_MemberAccount
-on Members([Name],[account_id])
+on Members([UserId],[account_id])
 go
 
 create table dbo.MembersCapitalAccount

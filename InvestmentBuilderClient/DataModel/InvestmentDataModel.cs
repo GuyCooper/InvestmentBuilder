@@ -203,7 +203,7 @@ namespace InvestmentBuilderClient.DataModel
         public AssetReport BuildAssetReport(DateTime dtValuation, bool update)
         {
             var  report = _investmentBuilder.BuildAssetReport(_userToken, dtValuation, update, GetManualPrices(),null);
-            if(report != null)
+            if(update == true && report != null)
             {
                 _performanceBuilder.Run(_userToken, dtValuation, null);
             }

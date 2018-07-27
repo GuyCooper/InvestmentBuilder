@@ -16,10 +16,11 @@ namespace InvestmentBuilder
         /// <summary>
         /// Constructor. inject datalayer and authorization manager
         /// </summary>
-        public AccountManager(IDataLayer dataLayer, IAuthorizationManager authorizationManager)
+        public AccountManager(IDataLayer dataLayer, IAuthorizationManager authorizationManager, IConfigurationSettings settings)
         {
             _accountData = dataLayer.UserAccountData;
             _authorizationManager = authorizationManager;
+            _maximumAccountsPerUser = settings.MaxAccountsPerUser;
         }
 
         /// <summary>
@@ -108,7 +109,7 @@ namespace InvestmentBuilder
             //GetAccountMembers(tmpToken).ToList();
             foreach (var member in existingMembers)
             {
-                if (account.Members.Where(x => string.Equals(x.Name, member, StringComparison.InvariantCultureIgnoreCase)).Count() == 0)
+                if (account.Members.FirstOrDefault(x => string.Equals(x.Name, member, StringComparison.InvariantCultureIgnoreCase)) == null)
                 {
                     //remove this member
                     logger.Log(token, LogLevel.Info, "removing member {0} from account {1}", member, account.Name);
@@ -144,14 +145,23 @@ namespace InvestmentBuilder
                 account.AddMember(token.User, AuthorizationLevel.ADMINISTRATOR);
             }
 
+            //each account must have at least one administrator. 
+            //check no user has gone beyond the max accounts per user setting
+            //ensure all members are valid users
             foreach (var member in account.Members)
             {
                 var userAccounts = _accountData.GetAccountNames(member.Name, false).ToList();
-                if(userAccounts.Count >= 5)
+                if(userAccounts.Count >= _maximumAccountsPerUser)
                 {
                     logger.Log(token, LogLevel.Error, "user {0} hs exceeded maximum group allowance!", member.Name);
                     return false;
                 }
+
+                if(_accountData.GetUserId(member.Name) == -1)
+                {
+                    logger.Log(token, LogLevel.Error, $" Invalid user: {member.Name}");
+                }
+
                 hasAdmin |= member.AuthLevel == AuthorizationLevel.ADMINISTRATOR;
             }
             if(hasAdmin == false)
@@ -170,6 +180,7 @@ namespace InvestmentBuilder
 
         private IUserAccountInterface _accountData;
         private IAuthorizationManager _authorizationManager;
+        private readonly int _maximumAccountsPerUser;
 
         #endregion
 

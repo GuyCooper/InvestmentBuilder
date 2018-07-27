@@ -54,6 +54,7 @@ namespace InvestmentBuilderMSTests
         private static string _TestUser = "TestUser";
         private static string _TestUser1 = "TestUser1";
         private static string _TestUser2 = "TestUser2";
+        private static string _InvalidUser = "xxxxxx";
         private static string _TestCurrency = "GBP";
         private static string _TestValuationDate1 = "11/09/2015";
         private static string _TestValuationDate2 = "14/10/2015";
@@ -149,13 +150,32 @@ namespace InvestmentBuilderMSTests
 
             if (m_bOk == true)
             {
+                AddUsers();
                 Console.WriteLine("setup successful");
+                When_getting_users();
                 When_adding_a_new_account(_userToken);
                 When_adding_members_to_account(_userToken);
                 When_adding_subscription_amounts(_userToken);
                 When_generating_first_Asset_report(_userToken);
                 When_adding_an_investment_1(_userToken);
             }
+        }
+
+        private void AddUsers()
+        {
+            Console.WriteLine($"adding users  to database");
+            _interfaces.DataLayer.UserAccountData.AddUser(_TestUser, "test user");
+            _interfaces.DataLayer.UserAccountData.AddUser(_TestUser1, "test user 1");
+            _interfaces.DataLayer.UserAccountData.AddUser(_TestUser2, "test user 2");
+        }
+
+        private void When_getting_users()
+        {
+            Console.WriteLine("Validating users...");
+            Assert.IsTrue(_interfaces.DataLayer.UserAccountData.GetUserId(_TestUser) > 0);
+            Assert.IsTrue(_interfaces.DataLayer.UserAccountData.GetUserId(_TestUser1) > 0);
+            Assert.IsTrue(_interfaces.DataLayer.UserAccountData.GetUserId(_TestUser2) > 0);
+            Assert.IsTrue(_interfaces.DataLayer.UserAccountData.GetUserId(_InvalidUser) == -1);
         }
 
         private void When_adding_a_new_account(UserAccountToken userToken)

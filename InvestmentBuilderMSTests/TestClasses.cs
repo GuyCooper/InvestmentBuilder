@@ -121,6 +121,8 @@ namespace InvestmentBuilderMSTests
         public virtual IEnumerable<string> GetActiveCompanies(UserAccountToken userToken, DateTime valuationDate) { throw new NotImplementedException(); }
         public virtual bool InvestmentAccountExists(string accountName) { return false; }
         public virtual IEnumerable<double> GetUnitValuationRange(UserAccountToken userToken, DateTime dateFrom, DateTime dateTo) { throw new NotImplementedException(); }
+        public virtual int GetUserId(string userName) { throw new NotImplementedException(); }
+        public virtual void AddUser(string userName, string description) { }
     }
 
     internal class HistoricalDataReaderTest : IHistoricalDataReader
@@ -167,6 +169,8 @@ namespace InvestmentBuilderMSTests
                 throw new NotImplementedException();
             }
         }
+
+        public int MaxAccountsPerUser { get { return 5; } }
 
         public virtual string GetOutputPath(string account)
         {
@@ -323,6 +327,9 @@ namespace InvestmentBuilderMSTests
         public virtual IEnumerable<string> GetActiveCompanies(UserAccountToken userToken, DateTime valuationDate) { return Enumerable.Empty<string>(); }
         public virtual bool InvestmentAccountExists(string accountName) { return false; }
         public IEnumerable<double> GetUnitValuationRange(UserAccountToken userToken, DateTime dateFrom, DateTime dateTo) { return null; }
+        public virtual int GetUserId(string userName) { return 0; }
+        public virtual void AddUser(string userName, string description) { }
+
     }
 
     internal class InvestmentRecordEmptyInterfaceTest : IInvestmentRecordInterface
@@ -434,6 +441,8 @@ namespace InvestmentBuilderMSTests
                 throw new NotImplementedException();
             }
         }
+
+        public virtual int MaxAccountsPerUser {get { return 0; } }
 
         public virtual string GetOutputPath(string account)
         {

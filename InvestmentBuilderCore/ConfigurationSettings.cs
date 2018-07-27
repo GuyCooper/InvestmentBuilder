@@ -46,6 +46,10 @@ namespace InvestmentBuilderCore
         /// </summary>
         string OutputCachedMarketData { get; }
         /// <summary>
+        /// Maximum number of accounts each user is allowed to be a member of
+        /// </summary>
+        int MaxAccountsPerUser { get; }
+        /// <summary>
         /// Update datasource methnod
         /// </summary>
         bool UpdateDatasource(string dataSource);
@@ -108,6 +112,8 @@ namespace InvestmentBuilderCore
         public string MarketDatasourceString { get; set; }
         [XmlElement("outputCachedMarketDataFile")]
         public string OutputCachedMarketData { get; set; }
+        [XmlElement("maxAccountsPerUser")]
+        public int MaxAccountsPerUser { get; set; }
     }
 
     public class ConfigurationSettings : IConfigurationSettings
@@ -124,12 +130,14 @@ namespace InvestmentBuilderCore
         }
 
         public string DatasourceString { get { return _configuration.DatasourceString; } }
-
+         
         public string AuthDatasourceString { get { return _configuration.AuthDatasourceString; } }
 
         public string MarketDatasource { get { return _configuration.MarketDatasourceString; } }
 
         public string OutputCachedMarketData { get { return _configuration.OutputCachedMarketData; } }
+
+        public int MaxAccountsPerUser { get { return _configuration.MaxAccountsPerUser; } }
 
         public string OutputFolder { get { return _configuration.OutputFolder; } }
 

@@ -180,6 +180,16 @@ namespace InvestmentBuilderMSTests
         {
             return TestAccountData.Select(x => x.Name);
         }
+
+        public override int GetUserId(string userName)
+        {
+            return 1;
+        }
+
+        public override void AddUser(string userName, string description)
+        {
+
+        }
     }
 
     internal class UserAccountDataTest1 : UserAccountDataTest

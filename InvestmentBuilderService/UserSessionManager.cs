@@ -36,6 +36,8 @@ namespace InvestmentBuilderService
             _accountManager = accountManager;
         }
 
+        //return the usersession for this session. If it returns null then
+        //this session has not been authenticated.
         public UserSession GetUserSession(Middleware.Message message)
         {
             UserSession userSession = null;
@@ -46,6 +48,7 @@ namespace InvestmentBuilderService
             return userSession;
         }
 
+        //remove the specifed session from the list of valid usersessions
         public void RemoveUserSession(string sessionId)
         {
             _userSessions.Remove(sessionId);
@@ -70,9 +73,10 @@ namespace InvestmentBuilderService
                 return;
             }
 
-            //todo...
             if (message.Command == HandlerNames.LOGIN)
             {
+                //request to authenticate a login request. authentication process could be
+                //quite slow so marshall onto a separate thread and let that respond when it is ready
                 Task.Factory.StartNew(() =>
                 {
                     var login = JsonConvert.DeserializeObject<LoginPayload>(message.Payload);

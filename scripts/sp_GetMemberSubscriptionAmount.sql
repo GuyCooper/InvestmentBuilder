@@ -13,7 +13,7 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_GetMemberSubscriptionAmount](@Member as varchar(50), @ValuationDate as DATETIME, @Account as VARCHAR(30)) AS
+CREATE PROCEDURE [dbo].[sp_GetMemberSubscriptionAmount](@Member as nvarchar(256), @ValuationDate as DATETIME, @Account as VARCHAR(30)) AS
 BEGIN
 
 SELECT ca.amount 
