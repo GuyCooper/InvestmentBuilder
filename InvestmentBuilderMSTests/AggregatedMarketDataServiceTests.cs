@@ -66,7 +66,13 @@ namespace InvestmentBuilderMSTests
             return false;
         }
 
-        public IMarketDataReader DataReader { get; set; }
+        public void Initialise(IConfigurationSettings settings) { }
+
+        public Task<MarketDataPrice> RequestPrice(string symbol, string exchange, string source)
+        {
+            return null;
+        }
+
     }
 
     internal class TestMarketSource2 : IMarketDataSource
@@ -97,7 +103,12 @@ namespace InvestmentBuilderMSTests
             return true;
         }
 
-        public IMarketDataReader DataReader { get; set; }
+        public void Initialise(IConfigurationSettings settings) { }
+
+        public Task<MarketDataPrice> RequestPrice(string symbol, string exchange, string source)
+        {
+            return null;
+        }
     }
 
     internal class TestMarketSourceLocater : IMarketSourceLocator

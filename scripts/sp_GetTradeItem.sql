@@ -20,8 +20,8 @@ BEGIN
 DECLARE @latestDate DATETIME
 DECLARE @AccountID INT
 
-SELECT @AccountID = [USER_ID]
-FROM [Users]
+SELECT @AccountID = [Account_Id]
+FROM [Accounts]
 WHERE [Name] = @Account
 
 SELECT @latestDate = MAX(Valuation_Date) FROM InvestmentRecord

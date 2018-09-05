@@ -22,13 +22,17 @@ SELECT
 FROM 
 	Members M
 INNER JOIN
-	Users U
+	Accounts A
 ON
-	U.[user_id] = M.[account_id]
+	A.[Account_id] = M.[account_id]
+INNER JOIN
+	[Users] U
+ON 
+	M.[UserId] = U.[UserId]
 WHERE
-	M.[Name] = @User
+	U.UserName = @User
 AND
-	U.[Name]= @Account
+	A.[Name]= @Account
 
 UPDATE
 	 Redemptions				  

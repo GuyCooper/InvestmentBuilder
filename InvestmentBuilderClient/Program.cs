@@ -10,6 +10,7 @@ using SQLServerDataLayer;
 using PerformanceBuilderLib;
 using Microsoft.Practices.Unity;
 using InvestmentBuilder;
+using System.IO;
 
 namespace InvestmentBuilderClient
 {
@@ -28,7 +29,8 @@ namespace InvestmentBuilderClient
             ContainerManager.RegisterType(typeof(IMarketDataService), typeof(MarketDataService), true);
             if (UseTestDatasource == true)
             {
-                ContainerManager.RegisterType(typeof(IMarketDataSource), typeof(TestFileMarketDataSource), true, "testMarketData.txt");
+                string testDataFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "InvestmentRecordBuilder", "testMarketData.txt");
+                ContainerManager.RegisterType(typeof(IMarketDataSource), typeof(TestFileMarketDataSource), true, testDataFile);
             }
             else
             {

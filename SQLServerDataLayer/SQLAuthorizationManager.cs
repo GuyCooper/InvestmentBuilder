@@ -9,24 +9,33 @@ namespace SQLServerDataLayer
     //implementation class returns the authorization level for a user  
     public class SQLAuthorizationManager : AuthorizationManager,IDisposable
     {
-        private SqlConnection _connection;
+        private string _connectionStr;
+
+        private SqlConnection OpenConnection()
+        {
+            var connection = new SqlConnection(_connectionStr);
+            connection.Open();
+            return connection;
+        }
 
         public SQLAuthorizationManager(IConfigurationSettings settings)
         {
-            _connection = new SqlConnection(settings.DatasourceString);
-            _connection.Open();
+            _connectionStr = settings.DatasourceString;
         }
 
         protected override bool IsGlobalAdministrator(string user)
         {
-            using (var command = new SqlCommand("sp_IsAdministrator", _connection))
+            using (var connection = OpenConnection())
             {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@User", user));
-                var objResult = command.ExecuteScalar();
-                if (objResult != null)
+                using (var command = new SqlCommand("sp_IsAdministrator", connection))
                 {
-                    return string.Equals((string)objResult, user, StringComparison.InvariantCultureIgnoreCase);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@User", user));
+                    var objResult = command.ExecuteScalar();
+                    if (objResult != null)
+                    {
+                        return string.Equals((string)objResult, user, StringComparison.InvariantCultureIgnoreCase);
+                    }
                 }
             }
             return false;
@@ -34,30 +43,31 @@ namespace SQLServerDataLayer
 
         protected override AuthorizationLevel GetUserAuthorizationLevel(string user, string account)
         {
-            using (var command = new SqlCommand("sp_GetAuthorizationLevel", _connection))
+            using (var connection = OpenConnection())
             {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@User", user));
-                command.Parameters.Add(new SqlParameter("@Account", account));
-                var objResult = command.ExecuteScalar();
-               if(objResult != null)
-               {
-                   return (AuthorizationLevel)objResult;
-               }
+                using (var command = new SqlCommand("sp_GetAuthorizationLevel", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@User", user));
+                    command.Parameters.Add(new SqlParameter("@Account", account));
+                    var objResult = command.ExecuteScalar();
+                    if (objResult != null)
+                    {
+                        return (AuthorizationLevel)objResult;
+                    }
+                }
             }
             return AuthorizationLevel.NONE;
         }
 
         public void ConnectNewDatasource(string datasource)
         {
-            _connection.Close();
-            _connection = new SqlConnection(datasource);
-            _connection.Open();
+            _connectionStr = datasource;
         }
 
         public void Dispose()
         {
-            _connection.Close();
+            //_connection.Close();
         }
     }
 }

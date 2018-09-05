@@ -15,19 +15,18 @@ CREATE PROCEDURE sp_GetAccountData(@Account AS VARCHAR(30)) AS
 BEGIN
 
 SELECT
-	U.Name,
-	U.[Password],
-	U.[Description],
-	U.Currency,
-	U.[Enabled],
-	U.[Broker],
+	A.Name,
+	A.[Description],
+	A.Currency,
+	A.[Enabled],
+	A.[Broker],
 	T.[Type]
 FROM
-	Users U
+	Accounts A
 INNER JOIN
-	UserTypes T
+	AccountTypes T
 ON
-	U.[Type_Id] = T.[Type_Id]
+	A.[Type_Id] = T.[Type_Id]
 WHERE
 	Name = @Account
 END

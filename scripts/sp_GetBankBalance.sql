@@ -1,5 +1,3 @@
-USE [InvestmentBuilderTest2]
-GO
 
 /****** Object:  StoredProcedure [dbo].[sp_GetBankBalance]    Script Date: 04/02/2016 17:47:46 ******/
 SET ANSI_NULLS ON
@@ -22,11 +20,11 @@ BEGIN
 select sum(ca.amount) from dbo.CashAccount ca
 inner join TransactionType tt
 on ca.type_id = tt.type_id
-inner join Users u
-on ca.account_id = u.[User_Id]
+inner join Accounts a
+on ca.account_id = a.[Account_Id]
 and tt.type = 'BalanceInHandCF'
 and ca.valuation_date = @ValuationDate
-and u.Name = @Account
+and a.Name = @Account
 END
 
 GO

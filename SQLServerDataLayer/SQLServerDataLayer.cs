@@ -10,7 +10,8 @@ namespace SQLServerDataLayer
 {
     public class SQLServerBase
     {
-        public SqlConnection Connection { get; set; }
+        //public SqlConnection Connection { get; set; }
+        public string ConnectionStr { get; set; }
 
         protected T GetDBValue<T>(string name, SqlDataReader reader, T defaultVal = default(T))
         {
@@ -21,6 +22,13 @@ namespace SQLServerDataLayer
             }
 
             return defaultVal;
+        }
+
+        protected SqlConnection OpenConnection()
+        {
+            var connection = new SqlConnection(ConnectionStr);
+            connection.Open();
+            return connection;
         }
     }
 
@@ -34,13 +42,14 @@ namespace SQLServerDataLayer
 
         public SQLServerDataLayer(IConfigurationSettings settings)
         {
-            Connection = new SqlConnection(settings.DatasourceString);
-            Connection.Open();
-            _cashAccountData = new SQLServerCashAccountData(Connection);
-            _clientData = new SQLServerClientData(Connection);
-            _investmentRecordData = new SQLServerInvestmentRecordData(Connection);
-            _userAccountData = new SQLServerUserAccountData(Connection);
-            _historicalData = new SQLServerHistoricalData(Connection);
+            ConnectionStr = settings.DatasourceString;
+            //Connection = new SqlConnection(settings.DatasourceString);
+            //Connection.Open();
+            _cashAccountData = new SQLServerCashAccountData(ConnectionStr);
+            _clientData = new SQLServerClientData(ConnectionStr);
+            _investmentRecordData = new SQLServerInvestmentRecordData(ConnectionStr);
+            _userAccountData = new SQLServerUserAccountData(ConnectionStr);
+            _historicalData = new SQLServerHistoricalData(ConnectionStr);
         }
 
         public IClientDataInterface ClientData
@@ -70,19 +79,20 @@ namespace SQLServerDataLayer
 
         public void ConnectNewDatasource(string datasource)
         {
-            Connection.Close();
-            Connection = new SqlConnection(datasource);
-            Connection.Open();
-            _clientData.Connection = Connection;
-            _cashAccountData.Connection = Connection;
-            _investmentRecordData.Connection = Connection;
-            _userAccountData.Connection = Connection;
-            _historicalData.Connection = Connection;
+            ConnectionStr = datasource;
+            //Connection.Close();
+            //Connection = new SqlConnection(datasource);
+            //Connection.Open();
+            _clientData.ConnectionStr = ConnectionStr;
+            _cashAccountData.ConnectionStr = ConnectionStr;
+            _investmentRecordData.ConnectionStr = ConnectionStr;
+            _userAccountData.ConnectionStr = ConnectionStr;
+            _historicalData.ConnectionStr = ConnectionStr;
         }
 
         public void Dispose()
         {
-            Connection.Close();
+            //Connection.Close();
         }
     }
 }

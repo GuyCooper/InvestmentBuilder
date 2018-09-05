@@ -62,14 +62,19 @@ namespace InvestmentBuilderWeb.App_Start
             //container.RegisterType<IMarketDataSource, AggregatedMarketDataSource>(new ContainerControlledLifetimeManager());
             container.RegisterType<IMarketDataService, MarketDataService>(new ContainerControlledLifetimeManager());
 
-            string testDataFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "InvestmentRecordBuilder", "testMarketData.txt");
-            container.RegisterType<IMarketDataSource, TestFileMarketDataSource>(new ContainerControlledLifetimeManager(), new InjectionConstructor(testDataFile));
+            //container.RegisterType<IMarketDataSource, MarketDataServices.YahooMarketDataSource>(new ContainerControlledLifetimeManager());
+            
+            //MarketDataRegisterService.RegisterServices();
 
             //%userprofile%\documents\iisexpress\config\applcicationhost.config
 
             string configFile= Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),"InvestmentRecordBuilder", "InvestmentBuilderWebConfig.xml");
             container.RegisterType<IConfigurationSettings, ConfigurationSettings>(new ContainerControlledLifetimeManager(), new InjectionConstructor(configFile));
             //todo,use servicelocator
+            container.RegisterType<IMarketDataSource, TestFileMarketDataSource>(new ContainerControlledLifetimeManager(), new InjectionConstructor(
+                container.Resolve<IConfigurationSettings>().MarketDatasource)
+                );
+
             container.RegisterType<IDataLayer, SQLServerDataLayer.SQLServerDataLayer>(new ContainerControlledLifetimeManager());
             container.RegisterType<InvestmentBuilder.InvestmentBuilder>(new ContainerControlledLifetimeManager());
             container.RegisterType<PerformanceBuilder>(new ContainerControlledLifetimeManager());

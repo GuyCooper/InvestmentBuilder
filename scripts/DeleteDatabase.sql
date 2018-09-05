@@ -1,5 +1,5 @@
-alter database investmentbuildertest2 set single_user with
+alter database investmentbuilderunittest set single_user with
 rollback immediate
 
-drop database InvestmentBuilderTest2
+drop database investmentbuilderunittest
 

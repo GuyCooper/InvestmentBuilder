@@ -15,7 +15,7 @@ namespace InvestmentBuilderWeb.Translators
         {
             var trades = new  Trades();
             var arrStock = new List<Stock>{stock}.ToArray();
-            switch(transactionType)
+            switch(transactionType)ToReceiptCashFlowModel
             {
                 case TransactionType.BUY:
                     trades.Buys = arrStock;

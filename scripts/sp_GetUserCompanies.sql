@@ -28,15 +28,15 @@ INNER JOIN
 ON
 	IR.Company_id = C.Company_Id
 INNER JOIN
-	Users U
+	Accounts A
 ON 
-	IR.account_id = U.[User_Id]
+	IR.account_id = A.[Account_Id]
 WHERE
     IR.Valuation_Date = @ValuationDate
 AND
 	IR.is_active = 1
 AND
-	U.Name = @Account
+	A.Name = @Account
 END
 
 GO

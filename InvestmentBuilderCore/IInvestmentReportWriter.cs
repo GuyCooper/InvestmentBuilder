@@ -10,15 +10,14 @@ namespace InvestmentBuilderCore
         void WriteAssetReport(AssetReport report, double startOfYear, string outputPath, ProgressCounter progress);
         void WritePerformanceData(IList<IndexedRangeData> data, string outputPath, DateTime dtValuation, ProgressCounter progress);
 
-        string GetReportFileName(string outputPath, DateTime dtValuation);
+        string GetReportFileName(DateTime dtValuation);
     }
 
     [ContractClassFor(typeof(IInvestmentReportWriter))]
     internal abstract class IInvestmentReportWriterContract : IInvestmentReportWriter
     {
-        public string GetReportFileName(string outputPath, DateTime dtValuation)
+        public string GetReportFileName(DateTime dtValuation)
         {
-            Contract.Requires(string.IsNullOrEmpty(outputPath) == false);
             Contract.Ensures(string.IsNullOrEmpty(Contract.Result<string>()) == false);
             return null;
         }

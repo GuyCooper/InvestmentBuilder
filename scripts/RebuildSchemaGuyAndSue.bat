@@ -1,1 +1,0 @@
-call RebuildSchema.bat GUYANDSUE\GUYC InvestmentBuilderTest

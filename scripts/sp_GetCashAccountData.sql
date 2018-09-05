@@ -26,12 +26,12 @@ INNER JOIN
 ON
 	ca.type_id = tt.type_id
 INNER JOIN
-	Users u
+	Accounts a
 ON 
-	ca.account_id = u.User_Id
+	ca.account_id = a.[Account_Id]
 WHERE
 	ca.valuation_date = @ValuationDate AND
 	tt.side = @Side AND
-	u.Name = @Account
+	a.Name = @Account
 	
 END

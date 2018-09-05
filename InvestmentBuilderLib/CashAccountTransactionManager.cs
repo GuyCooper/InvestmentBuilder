@@ -40,6 +40,20 @@ namespace InvestmentBuilder
 
     public sealed class CashAccountTransactionManager
     {
+        public static readonly string SUBSCRIPTION = "Subscription";
+        public static readonly string BALANCEINHAND = "BalanceInHand";
+        public static readonly string SALE = "Sale";
+        public static readonly string DIVIDEND = "Dividend";
+        public static readonly string INTEREST = "Interest";
+        public static readonly string OTHER = "Other";
+        public static readonly string ADMINFEE = "Admin Fee";
+        public static readonly string PURCHASE = "Purchase";
+        public static readonly string PURCHASES = "Purchases";
+        public static readonly string REDEMPTION = "Redemption";
+        public static readonly string WITHDRAWLS = "Withdrawls";
+        public static readonly string BALANCEINHANDCF = "BalanceInHandCF";
+        public static readonly string TOTAL = "TOTAL";
+
         private readonly ICashAccountInterface _cashAccountData;
 
         private static InvestmentBuilderLogger logger = new InvestmentBuilderLogger(LogManager.GetCurrentClassLogger());
@@ -47,19 +61,19 @@ namespace InvestmentBuilder
         //this structure maps a transaction type onto its transaction property
         private readonly Dictionary<string, string> _receiptTransactionLookup =
                 new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase) {
-                {"Subscription", "Subscription"}, 
-                {"BalanceInHand", "Subscription"},
-                {"Sale", "Sale"},
-                {"Dividend", "Dividend"},
-                {"Interest", "Other"}
+                {SUBSCRIPTION, SUBSCRIPTION}, 
+                {BALANCEINHAND, SUBSCRIPTION},
+                {SALE, SALE},
+                {DIVIDEND, DIVIDEND},
+                {INTEREST, OTHER}
             };
 
         private readonly Dictionary<string, string> _paymentTransactionLookup =
                 new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase) {
-                {"Admin Fee", "Other"},
-                {"Purchase", "Purchases"},
-                {"Redemption", "Withdrawls"},
-                {"BalanceInHandCF", "Other"}
+                {ADMINFEE, OTHER},
+                {PURCHASE, PURCHASES},
+                {REDEMPTION, WITHDRAWLS},
+                {BALANCEINHANDCF, OTHER}
             };
 
         private Dictionary<string, Dictionary<string, string>> _transactionLookup;
@@ -103,17 +117,17 @@ namespace InvestmentBuilder
             //add the balance in handfrom the previous monthif it is not already there
             if (dtPreviousValuationDate.HasValue && dtValuationDate > dtPreviousValuationDate)
             {
-                var balanceInHand = transactions.FirstOrDefault(r => r.TransactionType == "BalanceInHand");
+                var balanceInHand = transactions.FirstOrDefault(r => r.TransactionType == BALANCEINHAND);
                 if (balanceInHand == null)
                 {
                     var dAmount = _cashAccountData.GetBalanceInHand(userToken, dtPreviousValuationDate.Value);
                     
                     var transaction = new ReceiptTransaction
                     {
-                        Parameter = "BalanceInHand",
+                        Parameter = BALANCEINHAND,
                         Added = true,
                         TransactionDate = dtValuationDate,
-                        TransactionType = "BalanceInHand",
+                        TransactionType = BALANCEINHAND,
                         Subscription = dAmount,
                         Amount = dAmount
                     };
@@ -180,7 +194,7 @@ namespace InvestmentBuilder
                 }
                 return agg;
             });
-            total.Parameter = "TOTAL";
+            total.Parameter = TOTAL;
             total.IsTotal = true;
             total.TransactionDate = dtValuationDate;
             transactions.Add(total);

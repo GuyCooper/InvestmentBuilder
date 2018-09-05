@@ -370,6 +370,17 @@ namespace InvestmentBuilderCore
             Contract.Ensures(Contract.Result<IEnumerable<string>>().Count() > 0);
             return null;
         }
+
+        public int GetUserId(string userName)
+        {
+            Contract.Requires(string.IsNullOrEmpty(userName) == false);
+            return 0;
+        }
+        public void AddUser(string userName, string description)
+        {
+            Contract.Requires(string.IsNullOrEmpty(userName) == false);
+        }
+
     }
 
     internal abstract class IHistoricalDataContract : IHistoricalDataReader
@@ -378,6 +389,14 @@ namespace InvestmentBuilderCore
         {
             Contract.Requires(userToken != null);
             Contract.Ensures(Contract.Result<IEnumerable<HistoricalData>>() != null);
+            return null;
+        }
+
+        public string GetIndexHistoricalData(UserAccountToken userToken, string symbol)
+        {
+            Contract.Requires(userToken != null);
+            Contract.Requires(string.IsNullOrEmpty(symbol) == false);
+            Contract.Ensures(Contract.Result<string>() != null);
             return null;
         }
     }

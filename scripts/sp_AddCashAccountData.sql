@@ -1,5 +1,3 @@
-USE [InvestmentBuilderTest2]
-GO
 
 /****** Object:  StoredProcedure [dbo].[sp_AddCashAccountData]    Script Date: 04/02/2016 17:50:42 ******/
 SET ANSI_NULLS ON
@@ -26,13 +24,13 @@ SELECT
 	t.[type_id],
 	@Parameter,
 	@Amount,
-	u.[user_id]
+	a.[Account_Id]
 FROM
-	TransactionType t, Users u 
+	TransactionType t, Accounts a
 WHERE
 	t.[type] = @TransactionType 
 AND
-	u.Name = @Account		
+	a.Name = @Account		
 
 
 

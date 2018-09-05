@@ -21,7 +21,8 @@ namespace InvestmentBuilderMSTests
         public void When_Getting_Empty_User_Accounts()
         {
             var UoT = new AccountManager(new DataLayerTest(new ClientDataEmptyInterfaceTest(),
-                                                           null, null, new UserAccountEmptyInterfaceTest(), null), new TestAuthorizationManager());
+                                                           null, null, new UserAccountEmptyInterfaceTest(), null), new TestAuthorizationManager(),
+                                                           new ConfigurationSettingsTest());
 
             var result = UoT.GetAccountData(_userToken, TestDataCache._currentValuationDate);
             Assert.IsNull(result);
@@ -31,7 +32,8 @@ namespace InvestmentBuilderMSTests
         public void When_Getting_User_Accounts()
         {
             var UoT = new AccountManager(new DataLayerTest(new CurrentInvestmentsClientData(),
-                                                           null, null, new UserAccountDataTest2(), null), new TestAuthorizationManager());
+                                                           null, null, new UserAccountDataTest2(), null), new TestAuthorizationManager(),
+                                                           new ConfigurationSettingsTest());
 
             var result = UoT.GetAccountData(_userToken, TestDataCache._currentValuationDate);
 
@@ -49,10 +51,11 @@ namespace InvestmentBuilderMSTests
         {
             var testClientInterface = new UserAccountDataTest();
             var UoT = new AccountManager(new DataLayerTest(null,
-                                                           null, null, testClientInterface, null), new TestAuthorizationManager());
+                                                           null, null, testClientInterface, null), new TestAuthorizationManager(),
+                                                           new ConfigurationSettingsTest());
 
             var account = new AccountModel(TestDataCache._TestAccount, TestDataCache._Description,
-                                         null, TestDataCache._Currency, TestDataCache._TestAccountType, true,
+                                         TestDataCache._Currency, TestDataCache._TestAccountType, true,
                                          TestDataCache._Broker, new List<AccountMember>{
                                              new AccountMember(TestDataCache._testUser, AuthorizationLevel.ADMINISTRATOR)
                                          });
@@ -72,10 +75,11 @@ namespace InvestmentBuilderMSTests
         {
             var testClientInterface = new UserAccountDataTest();
             var UoT = new AccountManager(new DataLayerTest(null,
-                                                           null, null, testClientInterface, null), new TestAuthorizationManager());
+                                                           null, null, testClientInterface, null), new TestAuthorizationManager(),
+                                                           new ConfigurationSettingsTest());
 
             var account = new AccountModel(TestDataCache._TestAccount, TestDataCache._Description,
-                                         null, TestDataCache._Currency, TestDataCache._TestAccountType, true,
+                                          TestDataCache._Currency, TestDataCache._TestAccountType, true,
                                          TestDataCache._Broker, new List<AccountMember>{
                                              new AccountMember(TestDataCache._testUser, AuthorizationLevel.ADMINISTRATOR)
                                          });
@@ -95,10 +99,11 @@ namespace InvestmentBuilderMSTests
         {
             var testClientInterface = new UserAccountDataTest();
             var UoT = new AccountManager(new DataLayerTest(null,
-                                                           null, null, testClientInterface, null), new TestAuthorizationManager());
+                                                           null, null, testClientInterface, null), new TestAuthorizationManager(),
+                                                           new ConfigurationSettingsTest());
 
             var account = new AccountModel(TestDataCache._TestAccount, TestDataCache._Description,
-                                         null, TestDataCache._Currency, TestDataCache._TestAccountType, true,
+                                         TestDataCache._Currency, TestDataCache._TestAccountType, true,
                                          TestDataCache._Broker, new List<AccountMember>{
                                              new AccountMember(TestDataCache._testUser, AuthorizationLevel.ADMINISTRATOR)
                                          });
@@ -124,10 +129,11 @@ namespace InvestmentBuilderMSTests
         {
             var testClientInterface = new UserAccountDataTest();
             var UoT = new AccountManager(new DataLayerTest(null,
-                                                           null, null, testClientInterface, null), new TestAuthorizationManager());
+                                                           null, null, testClientInterface, null), new TestAuthorizationManager(),
+                                                           new ConfigurationSettingsTest());
 
             var account = new AccountModel(TestDataCache._TestAccount, TestDataCache._Description,
-                                         null, TestDataCache._Currency, TestDataCache._TestAccountType, true,
+                                          TestDataCache._Currency, TestDataCache._TestAccountType, true,
                                          TestDataCache._Broker, new List<AccountMember>{
                                              new AccountMember(TestDataCache._testUser, AuthorizationLevel.ADMINISTRATOR)
                                          });
@@ -150,10 +156,11 @@ namespace InvestmentBuilderMSTests
         {
             var testClientInterface = new UserAccountDataTest();
             var UoT = new AccountManager(new DataLayerTest(null,
-                                                           null, null, testClientInterface, null), new TestAuthorizationManager());
+                                                           null, null, testClientInterface, null), new TestAuthorizationManager(),
+                                                           new ConfigurationSettingsTest());
 
             var account = new AccountModel(TestDataCache._TestAccount, TestDataCache._Description,
-                                         null, TestDataCache._Currency, TestDataCache._TestAccountType, true,
+                                         TestDataCache._Currency, TestDataCache._TestAccountType, true,
                                          TestDataCache._Broker, new List<AccountMember>{
                                              new AccountMember(TestDataCache._testUser, AuthorizationLevel.READ)
                                          });
@@ -168,10 +175,11 @@ namespace InvestmentBuilderMSTests
         {
             var testClientInterface = new UserAccountDataTest1();
             var UoT = new AccountManager(new DataLayerTest(null,
-                                                           null, null, testClientInterface, null), new TestAuthorizationManager());
+                                                           null, null, testClientInterface, null), new TestAuthorizationManager(),
+                                                           new ConfigurationSettingsTest());
 
             var account = new AccountModel(TestDataCache._TestAccount, TestDataCache._Description,
-                                         null, TestDataCache._Currency, TestDataCache._TestAccountType, true,
+                                         TestDataCache._Currency, TestDataCache._TestAccountType, true,
                                          TestDataCache._Broker, new List<AccountMember>{
                                              new AccountMember(TestDataCache._testUser, AuthorizationLevel.READ)
                                          });
@@ -186,10 +194,11 @@ namespace InvestmentBuilderMSTests
         {
             var testClientInterface = new UserAccountDataTest3();
             var UoT = new AccountManager(new DataLayerTest(null,
-                                                           null, null, testClientInterface, null), new TestAuthorizationManager());
+                                                           null, null, testClientInterface, null), new TestAuthorizationManager(),
+                                                           new ConfigurationSettingsTest());
 
             var account = new AccountModel(TestDataCache._TestAccount, TestDataCache._Description,
-                                         null, TestDataCache._Currency, TestDataCache._TestAccountType, true,
+                                         TestDataCache._Currency, TestDataCache._TestAccountType, true,
                                          TestDataCache._Broker, new List<AccountMember>{
                                              new AccountMember(TestDataCache._testUser, AuthorizationLevel.ADMINISTRATOR)
                                          });

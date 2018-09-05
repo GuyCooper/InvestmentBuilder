@@ -1,0 +1,351 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment Builder</title>
+    <link rel="stylesheet" href="styles/jquery-ui.css" type="text/css">
+    <link rel="stylesheet" href="styles/jquery-ui.structure.css" type="text/css">
+    <link rel="stylesheet" href="styles/jquery-ui.theme.css" type="text/css">
+    <link rel="stylesheet" href="styles/bootstrap.css" type="text/css">
+    <link rel="stylesheet" href="styles/investmentBuilder.css" type="text/css">
+</head>
+<body>
+    <div ng-app="InvestmentRecord">
+        <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="Index.html">Investment Builder</a>
+                </div>
+                ﻿<div ng-controller="AccountListController">
+    <div class="navbar-collapse collapse" ng-show="IsConnected">
+        <ul class="nav navbar-nav navbar-right">
+            <li>
+                <form name="accountDetailsForm" role="form" ng-submit="UpdateAccount()">
+                    <!--<select name="AccountName" class="form-control investmentNavigator1" ng-model="SelectedAcount" ng-change="UpdateAccount()">
+                        <option ng-repeat="account in Accounts">{{account}}</option>
+                    </select>-->
+                    <select name="AccountName" class="form-control investmentNavigator1" ng-model="SelectedAcount" ng-options="account for account in Accounts" ng-change="UpdateAccount()">
+                    </select>
+                </form>
+            </li>
+            <li class="dropdown">
+                <button type="button" class="btn dropdown-toggle investmentNavigator" id="dropdownMenu1" data-toggle="dropdown">
+                    Options <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                    <li role="presentation">
+                        <a role="menuitem" ng-click="addAccount()">Add Account</a>
+                    </li>
+                    <li role="presentation">
+                        <a role="menuitem" ng-click="editAccount()">Edit Account</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>
+            </div>
+        </div>
+        <div class="container body-content">
+            <hr />
+            <p />
+            ﻿<div ng-controller="LayoutController">
+    <div ng-hide="IsBusy">
+        <div ng-show="!LoggedIn" class="loginBox" ng-cloak>
+            <form ng-submit="doLogin()">
+                <strong>Login</strong>
+                <br />
+                <div class="form-group">
+                    <label>User Name</label>
+                    <input name="username" type="text" class="form-control" ng-model="UserName" />
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input name="password" type="password" class="form-control" ng-model="Password" />
+                </div>
+                <button class="btn btn-primary pull-right" type="submit">submit</button>
+            </form>
+        </div>
+        <div ng-show="LoggedIn" ng-cloak>
+            <div ng-show="IsBuilding" class="showProgress" ng-cloak>
+                <h4><em>Building Report. please wait...</em></h4>
+                <h5 ng-bind="Section"></h5>
+                <uib-progressbar animate="false" value="ProgressCount" type="success"><b>{{ProgressCount}}%</b></uib-progressbar>
+            </div>
+
+            <div ng-show="!IsBuilding" ng-cloak>
+                <div class="row investmentSummary">
+                    <div class="pull-left">
+                        <h1>{{AccountName}}</h1>
+                    </div>
+                    <div class="pull-right">
+                        <div style="display:inline-block">
+                            <div><strong>Value Per Unit</strong></div>
+                            <div>{{ValuePerUnit}}</div>
+                        </div>
+                        <div style="display:inline-block">
+                            <div><strong>Net Assets</strong></div>
+                            <div>{{NetAssets}}</div>
+                        </div>
+                        <div style="display:inline-block">
+                            <div><strong>Bank Balance</strong></div>
+                            <div>{{BankBalance}}</div>
+                        </div>
+                        <div style="display:inline-block">
+                            <div><strong>Month PnL</strong></div>
+                            <div>{{MonthlyPnL}}</div>
+                        </div>
+                        <div style="display:inline-block">
+                            <div><strong>Build Status</strong></div>
+                            <div>{{BuildStatus}}</div>
+                        </div>
+
+                        <div ng-click="buildReport()" ng-disabled="!CanBuild" class="btn btn-primary summaryButton">Build Report</div>
+                    </div>
+                </div>
+
+                <uib-tabset active="active" justified="true">
+                    <uib-tab index="0" select="onPortfolio()" heading="Portfolio">
+                        ﻿
+<div class="container">
+    <div ng-controller="PortfolioController">
+        <div class="row" style="height:600px">
+            <div ag-grid="gridOptions" style="height: 100%" class="ag-fresh"></div>
+        </div>
+    </div>
+</div>
+
+                    </uib-tab>
+                    <uib-tab index="1" select="onAddTrade()" heading="Add Investment">
+                        ﻿
+<h2>Add Investment</h2>
+
+<p/>
+<div class="editor">
+    <div ng-controller="AddTradeController as addTrade">
+        <form name="AddInvestment" role="form">
+            <div class="form-group">
+                <label>Name</label>
+                <input class="form-control" ng-model="addTrade.Name" placeholder="name of investment" />
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Transaction Date</label>
+                        <p class="input-group">
+                            <input type="text" name="transactionDate" class="form-control" uib-datepicker-popup="{{addTrade.format}}" ng-model="addTrade.dt" is-open="addTrade.datepicker.opened" datepicker-options="addTrade.dateOptions" ng-required="true" close-text="Close" alt-input-formats="addTrade.altInputFormats" />
+                            <span class="input-group-btn">
+                                <button type="button" class="btn btn-default" ng-click="addTrade.openDatePicker()"><i class="glyphicon glyphicon-calendar"></i></button>
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Quantity</label>
+                <input class="form-control" type="number" ng-model="addTrade.Quantity" placeholder="amount bought" />
+            </div>
+
+            <div class="form-group">
+                <label>Symbol</label>
+                <input class="form-control" ng-model="addTrade.Symbol" placeholder="ticker symbol" />
+            </div>
+            <div class="form-group">
+                <label>Exchange</label>
+                <input class="form-control" ng-model="addTrade.Exchange" placeholder="optional" />
+            </div>
+            <div class="form-group">
+                <label>Investment Currency</label>
+                <input class="form-control" ng-model="addTrade.Currency" />
+            </div>
+            <div class="form-group">
+                <label>Scaling Factor</label>
+                <input class="form-control" type="number" ng-model="addTrade.ScalingFactor" />
+            </div>
+
+            <div class="form-group">
+                <label>Total Cost</label>
+                <input class="form-control" type="number" ng-model="addTrade.TotalCost" />
+            </div>
+
+            <div class="form-group">
+                <button class="btn btn-primary" type="button" ng-click="addTrade.submitTrade()">Submit</button>
+                <button class="btn btn-warning" type="button" ng-click="addTrade.cancel()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+                    </uib-tab>
+                    <uib-tab index="2" select="onCashFlow()" heading="Cash Flow">
+                        ﻿
+<div class="container">
+    <div ng-controller="CashFlowController as cashFlow" id="cashflowContainer">        
+            <div ng-repeat="cashFlowItem in cashFlows" class="row cashFlowBlock">
+                <div class="panel panel-default investmentSummary">
+                    <div class="cashItemType">
+                        <div class="navbar navbar-default">
+                            <div class="navbar-header">
+                                <a class="navbar-brand">Receipts</a>
+                            </div>
+                            <ul class="nav navbar-nav navbar-right">
+                                <li><p class="navbar-text">Valuation Date: {{cashFlowItem.ValuationDate}}</p> </li>
+                                <li><p class="navbar-text">Total: {{cashFlowItem.ReceiptsTotal}}</p></li>
+                                <li>
+                                    <div ng-show="$index == 0" ng-click="cashFlow.addReceipt()" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Add Receipt</div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <table class="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>Transaction Date</th>
+                                    <th>Parameter</th>
+                                    <th>Subscription</th>
+                                    <th>Sale</th>
+                                    <th>Dividend</th>
+                                    <th>Other Receipts</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="receipt in cashFlowItem.Receipts" ng-class="{
+                                        active: receipt.IsTotal == true,
+                                        cashTotal: receipt.IsTotal == true
+                                    }">
+                                    <td>
+                                        <p>{{receipt.TransactionDate}}</p>
+                                    </td>
+                                    <td>
+                                        <p>{{receipt.Parameter}}</p>
+                                    </td>
+                                    <td>
+                                        <p>{{receipt.Subscription}}</p>
+                                    </td>
+                                    <td>
+                                        <p>{{receipt.Sale}}</p>
+                                    </td>
+                                    <td>
+                                        <p>{{receipt.Dividend}}</p>
+                                    </td>
+                                    <td>
+                                        <p>{{receipt.Other}}</p>
+                                    </td>
+                                    <td ng-if="receipt.IsTotal == false">
+                                        <ul class="nav nav-tabs">
+                                            <li><a href="#" ng-show="cashFlowItem.CanEdit == true" ng-click="cashFlow.deleteReceipt($index)" class="btn btn-sm">Delete</a></li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="panel panel-default investmentSummary">
+                    <div class="cashItemType">
+                        <div class="navbar navbar-default">
+                            <div class="navbar-header">
+                                <a class="navbar-brand">Payments</a>
+                            </div>
+                            <ul class="nav navbar-nav navbar-right">
+                                <li><p class="navbar-text">Valuation Date: {{cashFlowItem.ValuationDate}}</p> </li>
+                                <li><p class="navbar-text">Total: {{cashFlowItem.PaymentsTotal}}</p></li>
+                                <li>
+                                    <div ng-show="$index == 0" ng-click="cashFlow.addPayment()" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Add Payment</div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <table class="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>Transaction Date</th>
+                                    <th>Parameter</th>
+                                    <th>Withdrawls</th>
+                                    <th>Purchases</th>
+                                    <th>Other Payments</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="payment in cashFlowItem.Payments" ng-class="{
+                                        active: payment.IsTotal == true,
+                                        cashTotal: payment.IsTotal == true
+                                    }">
+                                    <td>
+                                        <p>{{payment.TransactionDate}}</p>
+                                    </td>
+                                    <td>
+                                        <p>{{payment.Parameter}}</p>
+                                    </td>
+                                    <td>
+                                        <p>{{payment.Withdrawls}}</p>
+                                    </td>
+                                    <td>
+                                        <p>{{payment.Purchases}}</p>
+                                    </td>
+                                    <td>
+                                        <p>{{payment.Other}}</p>
+                                    </td>
+                                    <td ng-if="payment.IsTotal == false">
+                                        <ul class="nav nav-tabs">
+                                            <li><a href="#" ng-show="cashFlowItem.CanEdit == true" ng-click="cashFlow.deletePayment($index)" class="btn btn-sm">Delete</a></li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label>Cash Flow From</label>
+                    <div class="input-group">
+                        <input type="text" name="transactionDate" uib-datepicker-popup="{{cashFlow.format}}" ng-model="cashFlow.cashFlowFromDate" is-open="cashFlow.datepicker.opened" datepicker-options="cashFlow.dateOptions" ng-required="true" close-text="Close" />
+                        <span class="input-group-btn">
+                            <button type="button" class="btn btn-default" ng-click="cashFlow.openDatePicker()"><i class="glyphicon glyphicon-calendar"></i></button>
+                        </span>
+                    </div>
+                    <input type="button" ng-click="cashFlow.reloadContents()" value="go" />
+                </div>
+            </div>
+    </div>
+</div>
+
+                    </uib-tab>
+                    <uib-tab index="3" select="onReports()" heading="Reports">
+                        ﻿<div class="container">
+    <div ng-controller="ReportsController" id="reportsContainer" class="row">
+        <div ng-repeat="report in RecentReports">
+            <a href="{{report.FileName}}" target="_blank" rel=noopener>{{report.ValuationDate}}</a><br />
+        </div>
+    </div> 
+</div>
+
+                    </uib-tab>
+                </uib-tabset>
+                <!--</div>-->
+                <footer>
+                    <p>&copy; InvestmentBuilder</p>
+                </footer>
+            </div>
+        </div>
+    </div>
+    <div ng-show="IsBusy" class="loader">
+    </div>
+</div>
+
+        </div>
+        <script type="text/javascript" src="js/libs.js"></script>
+        <script type="text/javascript" src="js/app.js"></script>
+    </div>
+</body>
+</html>

@@ -195,6 +195,7 @@ namespace InvestmentBuilderMSTests
                                               , _cashData
                                               , InvestmentRecordStaticTestData.dtValuation
                                               , null
+                                              , null 
                                               , null);
 
             Assert.IsTrue(result);
@@ -268,6 +269,7 @@ namespace InvestmentBuilderMSTests
                                               , trades
                                               , _cashData
                                               , InvestmentRecordStaticTestData.dtValuation
+                                              , null
                                               , null
                                               , null);
 

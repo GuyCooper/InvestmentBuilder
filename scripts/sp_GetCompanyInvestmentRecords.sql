@@ -29,9 +29,9 @@ SELECT
 FROM InvestmentRecord IR 
 INNER JOIN Companies C
 ON IR.Company_id = C.Company_Id 
-INNER JOIN Users U
-ON IR.account_id = U.[User_Id]
-WHERE U.[Name] = @Account
+INNER JOIN Accounts A
+ON IR.account_id = A.[Account_Id]
+WHERE A.[Name] = @Account
 AND C.[Name] = @Company
 AND IR.is_active = 1
 ORDER BY ValuationDate ASC

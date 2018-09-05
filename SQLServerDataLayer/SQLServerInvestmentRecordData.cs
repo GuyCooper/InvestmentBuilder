@@ -11,119 +11,139 @@ namespace SQLServerDataLayer
 {
     public class SQLServerInvestmentRecordData : SQLServerBase, IInvestmentRecordInterface
     {
-        public SQLServerInvestmentRecordData(SqlConnection connection)
+        public SQLServerInvestmentRecordData(string connectionStr)
         {
-            Connection = connection;
+            ConnectionStr = connectionStr;
         }
 
         public void RollInvestment(UserAccountToken userToken, string investment, DateTime dtValuation, DateTime dtPreviousValaution)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
-            using (var command = new SqlCommand("sp_RollInvestment", Connection))
+            using (var connection = OpenConnection())
             {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
-                command.Parameters.Add(new SqlParameter("@previousDate", dtPreviousValaution));
-                command.Parameters.Add(new SqlParameter("@company", investment));
-                command.Parameters.Add(new SqlParameter("@account", userToken.Account));
-                command.ExecuteNonQuery();
+                using (var command = new SqlCommand("sp_RollInvestment", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
+                    command.Parameters.Add(new SqlParameter("@previousDate", dtPreviousValaution));
+                    command.Parameters.Add(new SqlParameter("@company", investment));
+                    command.Parameters.Add(new SqlParameter("@account", userToken.Account));
+                    command.ExecuteNonQuery();
+                }
             }
         }
 
         public void UpdateInvestmentQuantity(UserAccountToken userToken, string investment, DateTime dtValuation, int quantity)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
-            using (var command = new SqlCommand("sp_UpdateHolding", Connection))
+            using (var connection = OpenConnection())
             {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@holding", quantity));
-                command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
-                command.Parameters.Add(new SqlParameter("@company", investment));
-                command.Parameters.Add(new SqlParameter("@account", userToken.Account));
-                command.ExecuteNonQuery();
+                using (var command = new SqlCommand("sp_UpdateHolding", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@holding", quantity));
+                    command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
+                    command.Parameters.Add(new SqlParameter("@company", investment));
+                    command.Parameters.Add(new SqlParameter("@account", userToken.Account));
+                    command.ExecuteNonQuery();
+                }
             }
         }
 
         public void AddNewShares(UserAccountToken userToken, string investment, int quantity, DateTime dtValaution, double dTotalCost)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
-            using (var command = new SqlCommand("sp_AddNewShares", Connection))
+            using (var connection = OpenConnection())
             {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@valuationDate", dtValaution));
-                command.Parameters.Add(new SqlParameter("@company", investment));
-                command.Parameters.Add(new SqlParameter("@shares", quantity));
-                command.Parameters.Add(new SqlParameter("@totalCost", dTotalCost));
-                command.Parameters.Add(new SqlParameter("@account", userToken.Account));
-                command.ExecuteNonQuery();
+                using (var command = new SqlCommand("sp_AddNewShares", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@valuationDate", dtValaution));
+                    command.Parameters.Add(new SqlParameter("@company", investment));
+                    command.Parameters.Add(new SqlParameter("@shares", quantity));
+                    command.Parameters.Add(new SqlParameter("@totalCost", dTotalCost));
+                    command.Parameters.Add(new SqlParameter("@account", userToken.Account));
+                    command.ExecuteNonQuery();
+                }
             }
-
         }
 
         public void SellShares(UserAccountToken userToken, string investment, int quantity, DateTime dtValuation)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
-            using (var command = new SqlCommand("sp_SellShares", Connection))
+            using (var connection = OpenConnection())
             {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
-                command.Parameters.Add(new SqlParameter("@company", investment));
-                command.Parameters.Add(new SqlParameter("@shares", quantity));
-                command.Parameters.Add(new SqlParameter("@account", userToken.Account));
-                command.ExecuteNonQuery();
+                using (var command = new SqlCommand("sp_SellShares", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
+                    command.Parameters.Add(new SqlParameter("@company", investment));
+                    command.Parameters.Add(new SqlParameter("@shares", quantity));
+                    command.Parameters.Add(new SqlParameter("@account", userToken.Account));
+                    command.ExecuteNonQuery();
+                }
             }
         }
 
         public void UpdateClosingPrice(UserAccountToken userToken, string investment, DateTime dtValuation, double price)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
-            using (var updateCommand = new SqlCommand("sp_UpdateClosingPrice", Connection))
+            using (var connection = OpenConnection())
             {
-                updateCommand.CommandType = System.Data.CommandType.StoredProcedure;
-                updateCommand.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
-                updateCommand.Parameters.Add(new SqlParameter("@investment", investment));
-                updateCommand.Parameters.Add(new SqlParameter("@closingPrice", price));
-                updateCommand.Parameters.Add(new SqlParameter("@account", userToken.Account));
-                updateCommand.ExecuteNonQuery();
+                using (var updateCommand = new SqlCommand("sp_UpdateClosingPrice", connection))
+                {
+                    updateCommand.CommandType = System.Data.CommandType.StoredProcedure;
+                    updateCommand.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
+                    updateCommand.Parameters.Add(new SqlParameter("@investment", investment));
+                    updateCommand.Parameters.Add(new SqlParameter("@closingPrice", price));
+                    updateCommand.Parameters.Add(new SqlParameter("@account", userToken.Account));
+                    updateCommand.ExecuteNonQuery();
+                }
             }
         }
 
         public void UpdateDividend(UserAccountToken userToken, string investment, DateTime dtValuation, double dividend)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
-            using (var updateCommand = new SqlCommand("sp_UpdateDividend", Connection))
+            using (var connection = OpenConnection())
             {
-                updateCommand.CommandType = System.Data.CommandType.StoredProcedure;
-                updateCommand.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
-                updateCommand.Parameters.Add(new SqlParameter("@company", investment));
-                updateCommand.Parameters.Add(new SqlParameter("@dividend", dividend));
-                updateCommand.Parameters.Add(new SqlParameter("@account", userToken.Account));
-                updateCommand.ExecuteNonQuery();
+                using (var updateCommand = new SqlCommand("sp_UpdateDividend", connection))
+                {
+                    updateCommand.CommandType = System.Data.CommandType.StoredProcedure;
+                    updateCommand.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
+                    updateCommand.Parameters.Add(new SqlParameter("@company", investment));
+                    updateCommand.Parameters.Add(new SqlParameter("@dividend", dividend));
+                    updateCommand.Parameters.Add(new SqlParameter("@account", userToken.Account));
+                    updateCommand.ExecuteNonQuery();
+                }
             }
         }
 
         public InvestmentInformation GetInvestmentDetails(string investment)
         {
             InvestmentInformation data = null;
-            using (var command = new SqlCommand("sp_GetCompanyData", Connection))
+            using (var connection = OpenConnection())
             {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@Name", investment));
-                using (var reader = command.ExecuteReader())
+                using (var command = new SqlCommand("sp_GetCompanyData", connection))
                 {
-                    if (reader.Read())
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@Name", investment));
+                    using (var reader = command.ExecuteReader())
                     {
-                        var symbol = GetDBValue<string>("Symbol", reader, string.Empty);
-                        var ccy = GetDBValue<string>("Currency", reader, string.Empty);
-                        var exchange = GetDBValue<string>("Exchange", reader, string.Empty);
-                        data = new InvestmentInformation(
-                            symbol.Trim(),
-                            exchange.Trim(),
-                            ccy.Trim(),
-                            GetDBValue<double>("ScalingFactor", reader)
-                        );
+                        if (reader.Read())
+                        {
+                            var symbol = GetDBValue<string>("Symbol", reader, string.Empty);
+                            var ccy = GetDBValue<string>("Currency", reader, string.Empty);
+                            var exchange = GetDBValue<string>("Exchange", reader, string.Empty);
+                            data = new InvestmentInformation(
+                                symbol.Trim(),
+                                exchange.Trim(),
+                                ccy.Trim(),
+                                GetDBValue<double>("ScalingFactor", reader)
+                            );
+                        }
+                        reader.Close();
                     }
-                    reader.Close();
                 }
             }
             return data;
@@ -132,111 +152,129 @@ namespace SQLServerDataLayer
         public IEnumerable<KeyValuePair<string, double>> GetInvestments(UserAccountToken userToken, DateTime dtValuation)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
-            using (var command = new SqlCommand("sp_GetUserCompanies", Connection))
+            using (var connection = OpenConnection())
             {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
-                command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
-                var reader = command.ExecuteReader();
-                while (reader.Read())
+                using (var command = new SqlCommand("sp_GetUserCompanies", connection))
                 {
-                    yield return new KeyValuePair<string, double>(
-                                                            GetDBValue<string>("Name", reader),
-                                                            GetDBValue<double>("Price", reader));
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
+                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        yield return new KeyValuePair<string, double>(
+                                                                GetDBValue<string>("Name", reader),
+                                                                GetDBValue<double>("Price", reader));
+                    }
+                    reader.Close();
                 }
-                reader.Close();
             }
         }
 
         public void CreateNewInvestment(UserAccountToken userToken, string investment, string symbol, string currency, int quantity, double scalingFactor, double totalCost, double price, string exchange, DateTime dtValuation)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
-            using (var command = new SqlCommand("sp_CreateNewInvestment", Connection))
+            using (var connection = OpenConnection())
             {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
-                command.Parameters.Add(new SqlParameter("@investment", investment));
-                command.Parameters.Add(new SqlParameter("@symbol", symbol));
-                command.Parameters.Add(new SqlParameter("@currency", currency));
-                command.Parameters.Add(new SqlParameter("@scalingFactor", scalingFactor));
-                command.Parameters.Add(new SqlParameter("@shares", quantity));
-                command.Parameters.Add(new SqlParameter("@totalCost", totalCost));
-                command.Parameters.Add(new SqlParameter("@closingPrice", price));
-                command.Parameters.Add(new SqlParameter("@account", userToken.Account));
-                command.Parameters.Add(new SqlParameter("@exchange", exchange ?? string.Empty));
+                using (var command = new SqlCommand("sp_CreateNewInvestment", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
+                    command.Parameters.Add(new SqlParameter("@investment", investment));
+                    command.Parameters.Add(new SqlParameter("@symbol", symbol));
+                    command.Parameters.Add(new SqlParameter("@currency", currency));
+                    command.Parameters.Add(new SqlParameter("@scalingFactor", scalingFactor));
+                    command.Parameters.Add(new SqlParameter("@shares", quantity));
+                    command.Parameters.Add(new SqlParameter("@totalCost", totalCost));
+                    command.Parameters.Add(new SqlParameter("@closingPrice", price));
+                    command.Parameters.Add(new SqlParameter("@account", userToken.Account));
+                    command.Parameters.Add(new SqlParameter("@exchange", exchange ?? string.Empty));
 
-                command.ExecuteNonQuery();
+                    command.ExecuteNonQuery();
+                }
             }
         }
 
         public IEnumerable<CompanyData> GetInvestmentRecordData(UserAccountToken userToken, DateTime dtValuation)
         {
             userToken.AuthorizeUser(AuthorizationLevel.READ);
-            using (var command = new SqlCommand("sp_GetLatestInvestmentRecords", Connection))
+            using (var connection = OpenConnection())
             {
-                command.CommandType = CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
-                command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
-                var reader = command.ExecuteReader();
-                while (reader.Read())
+                using (var command = new SqlCommand("sp_GetLatestInvestmentRecords", connection))
                 {
-                    double dTotalCost = GetDBValue<double>("TotalCost", reader);
-                    int dSharesHeld = GetDBValue<int>("Bought", reader) + GetDBValue<int>("Bonus", reader) - GetDBValue<int>("Sold", reader);
-                    double dAveragePrice = dTotalCost / dSharesHeld;
-                    double dSharePrice = GetDBValue<double>("Price", reader);
-                    double dDividend = GetDBValue<double>("Dividends", reader);
-
-                    yield return new CompanyData
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
+                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
                     {
-                        Name = GetDBValue<string>("Name", reader),
-                        ValuationDate = dtValuation,
-                        LastBrought = GetDBValue<DateTime>("LastBoughtDate", reader),
-                        Quantity = dSharesHeld,
-                        AveragePricePaid = dAveragePrice,
-                        TotalCost = dTotalCost,
-                        SharePrice = dSharePrice,
-                        //dNetSellingValue = _GetNetSellingValue(dSharesHeld, dSharePrice),
-                        Dividend = dDividend
-                    };
+                        double dTotalCost = GetDBValue<double>("TotalCost", reader);
+                        int dSharesHeld = GetDBValue<int>("Bought", reader) + GetDBValue<int>("Bonus", reader) - GetDBValue<int>("Sold", reader);
+                        double dAveragePrice = dTotalCost / dSharesHeld;
+                        double dSharePrice = GetDBValue<double>("Price", reader);
+                        double dDividend = GetDBValue<double>("Dividends", reader);
+
+                        yield return new CompanyData
+                        {
+                            Name = GetDBValue<string>("Name", reader),
+                            ValuationDate = dtValuation,
+                            LastBrought = GetDBValue<DateTime>("LastBoughtDate", reader),
+                            Quantity = dSharesHeld,
+                            AveragePricePaid = dAveragePrice,
+                            TotalCost = dTotalCost,
+                            SharePrice = dSharePrice,
+                            //dNetSellingValue = _GetNetSellingValue(dSharesHeld, dSharePrice),
+                            Dividend = dDividend
+                        };
+                    }
+                    reader.Close();
                 }
-                reader.Close();
             }
         }
 
         public void DeactivateInvestment(UserAccountToken userToken, string investment)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
-            using (var command = new SqlCommand("sp_DeactivateCompany", Connection))
+            using (var connection = OpenConnection())
             {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@Name", investment));
-                command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
-                command.ExecuteNonQuery();
+                using (var command = new SqlCommand("sp_DeactivateCompany", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@Name", investment));
+                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    command.ExecuteNonQuery();
+                }
             }
         }
 
         public DateTime? GetLatestRecordInvestmentValuationDate(UserAccountToken userToken)
         {
             userToken.AuthorizeUser(AuthorizationLevel.READ);
-            using (var command = new SqlCommand("sp_GetLatestRecordValuationDate", Connection))
+            using (var connection = OpenConnection())
             {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
-                var objResult = command.ExecuteScalar();
-                return objResult is DateTime ? (DateTime?)objResult : null;
+                using (var command = new SqlCommand("sp_GetLatestRecordValuationDate", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    var objResult = command.ExecuteScalar();
+                    return objResult is DateTime ? (DateTime?)objResult : null;
+                }
             }
         }
 
         public DateTime? GetPreviousRecordInvestmentValuationDate(UserAccountToken userToken, DateTime dtValuation)
         {
             userToken.AuthorizeUser(AuthorizationLevel.READ);
-            using (var command = new SqlCommand("sp_GetPreviousRecordValuationDate", Connection))
+            using (var connection = OpenConnection())
             {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
-                command.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
-                var objResult = command.ExecuteScalar();
-                return objResult is DateTime ? (DateTime?)objResult : null;
+                using (var command = new SqlCommand("sp_GetPreviousRecordValuationDate", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    command.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
+                    var objResult = command.ExecuteScalar();
+                    return objResult is DateTime ? (DateTime?)objResult : null;
+                }
             }
         }
 
@@ -252,21 +290,24 @@ namespace SQLServerDataLayer
                 return;
 
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
-            foreach (var trade in trades)
+            using (var connection = OpenConnection())
             {
-                var dtTransaction = trade.TransactionDate ?? DateTime.Today;
-                using (var command = new SqlCommand("sp_AddTransactionHistory", Connection))
+                foreach (var trade in trades)
                 {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
-                    command.Parameters.Add(new SqlParameter("@transactionDate", dtTransaction));
-                    command.Parameters.Add(new SqlParameter("@company", trade.Name));
-                    command.Parameters.Add(new SqlParameter("@action", action.ToString()));
-                    command.Parameters.Add(new SqlParameter("@quantity", trade.Quantity));
-                    command.Parameters.Add(new SqlParameter("@total_cost", trade.TotalCost));
-                    command.Parameters.Add(new SqlParameter("@account", userToken.Account));
-                    command.Parameters.Add(new SqlParameter("@user", userToken.User));
-                    command.ExecuteNonQuery();
+                    var dtTransaction = trade.TransactionDate ?? DateTime.Today;
+                    using (var command = new SqlCommand("sp_AddTransactionHistory", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
+                        command.Parameters.Add(new SqlParameter("@transactionDate", dtTransaction));
+                        command.Parameters.Add(new SqlParameter("@company", trade.Name));
+                        command.Parameters.Add(new SqlParameter("@action", action.ToString()));
+                        command.Parameters.Add(new SqlParameter("@quantity", trade.Quantity));
+                        command.Parameters.Add(new SqlParameter("@total_cost", trade.TotalCost));
+                        command.Parameters.Add(new SqlParameter("@account", userToken.Account));
+                        command.Parameters.Add(new SqlParameter("@user", userToken.User));
+                        command.ExecuteNonQuery();
+                    }
                 }
             }
         }
@@ -281,39 +322,40 @@ namespace SQLServerDataLayer
             List<Stock> changed = new List<Stock>();
 
             userToken.AuthorizeUser(AuthorizationLevel.READ);
-            using (var command = new SqlCommand("sp_GetTransactionHistory", Connection))
+            using (var connection = OpenConnection())
             {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@dateFrom", dtFrom));
-                command.Parameters.Add(new SqlParameter("@dateTo", dtTo));
-                command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
-                var reader = command.ExecuteReader();
-                while (reader.Read())
+                using (var command = new SqlCommand("sp_GetTransactionHistory", connection))
                 {
-                    var action = (TradeType)Enum.Parse(typeof(TradeType), (string)reader["trade_action"]);
-                    var trade = new Stock
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@dateFrom", dtFrom));
+                    command.Parameters.Add(new SqlParameter("@dateTo", dtTo));
+                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
                     {
-                        Name = GetDBValue<string>("Name", reader),
-                        Quantity = GetDBValue<int>("quantity", reader),
-                        TotalCost = GetDBValue<double>("total_cost", reader)
-                    };
-                    switch (action)
-                    {
-                        case TradeType.BUY:
-                            buys.Add(trade);
-                            break;
-                        case TradeType.SELL:
-                            sells.Add(trade);
-                            break;
-                        case TradeType.MODIFY:
-                            changed.Add(trade);
-                            break;
+                        var action = (TradeType)Enum.Parse(typeof(TradeType), (string)reader["trade_action"]);
+                        var trade = new Stock
+                        {
+                            Name = GetDBValue<string>("Name", reader),
+                            Quantity = GetDBValue<int>("quantity", reader),
+                            TotalCost = GetDBValue<double>("total_cost", reader)
+                        };
+                        switch (action)
+                        {
+                            case TradeType.BUY:
+                                buys.Add(trade);
+                                break;
+                            case TradeType.SELL:
+                                sells.Add(trade);
+                                break;
+                            case TradeType.MODIFY:
+                                changed.Add(trade);
+                                break;
+                        }
                     }
+                    reader.Close();
                 }
-                reader.Close();
-
             }
-
             return new Trades
             {
                 Buys = buys.ToArray(),
@@ -326,48 +368,53 @@ namespace SQLServerDataLayer
         public IEnumerable<CompanyData> GetFullInvestmentRecordData(UserAccountToken userToken)
         {
             userToken.AuthorizeUser(AuthorizationLevel.READ);
-            using (var command = new SqlCommand("sp_GetFullInvestmentRecordData", Connection))
+            using (var connection = OpenConnection())
             {
-                command.CommandType = CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
-                var reader = command.ExecuteReader();
-                while (reader.Read())
+                using (var command = new SqlCommand("sp_GetFullInvestmentRecordData", connection))
                 {
-                    double dTotalCost = GetDBValue<double>("TotalCost", reader);
-                    int dSharesHeld = GetDBValue<int>("Bought", reader) + GetDBValue<int>("Bonus", reader) - GetDBValue<int>("Sold", reader);
-                    double dAveragePrice = dTotalCost / dSharesHeld;
-                    double dSharePrice = GetDBValue<double>("Price", reader);
-                    double dDividend = GetDBValue<double>("Dividends", reader);
-
-                    yield return new CompanyData
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
                     {
-                        Name = GetDBValue<string>("Name", reader),
-                        ValuationDate = GetDBValue<DateTime>("ValuationDate", reader),
-                        LastBrought = GetDBValue<DateTime>("LastBoughtDate", reader),
-                        Quantity = dSharesHeld,
-                        AveragePricePaid = dAveragePrice,
-                        TotalCost = dTotalCost,
-                        SharePrice = dSharePrice,
-                        //dNetSellingValue = _GetNetSellingValue(dSharesHeld, dSharePrice),
-                        Dividend = dDividend
-                    };
+                        double dTotalCost = GetDBValue<double>("TotalCost", reader);
+                        int dSharesHeld = GetDBValue<int>("Bought", reader) + GetDBValue<int>("Bonus", reader) - GetDBValue<int>("Sold", reader);
+                        double dAveragePrice = dTotalCost / dSharesHeld;
+                        double dSharePrice = GetDBValue<double>("Price", reader);
+                        double dDividend = GetDBValue<double>("Dividends", reader);
+
+                        yield return new CompanyData
+                        {
+                            Name = GetDBValue<string>("Name", reader),
+                            ValuationDate = GetDBValue<DateTime>("ValuationDate", reader),
+                            LastBrought = GetDBValue<DateTime>("LastBoughtDate", reader),
+                            Quantity = dSharesHeld,
+                            AveragePricePaid = dAveragePrice,
+                            TotalCost = dTotalCost,
+                            SharePrice = dSharePrice,
+                            //dNetSellingValue = _GetNetSellingValue(dSharesHeld, dSharePrice),
+                            Dividend = dDividend
+                        };
+                    }
+                    reader.Close();
                 }
-                reader.Close();
             }
         }
 
         public bool IsExistingRecordValuationDate(UserAccountToken userToken, DateTime dtValuation)
         {
             userToken.AuthorizeUser(AuthorizationLevel.READ);
-            using (var sqlCommand = new SqlCommand("sp_IsExistingRecordValuationDate", Connection))
+            using (var connection = OpenConnection())
             {
-                sqlCommand.CommandType = CommandType.StoredProcedure;
-                sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
-                sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account));
-                var result = sqlCommand.ExecuteScalar();
-                return result != null;
+                using (var sqlCommand = new SqlCommand("sp_IsExistingRecordValuationDate", connection))
+                {
+                    sqlCommand.CommandType = CommandType.StoredProcedure;
+                    sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
+                    sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    var result = sqlCommand.ExecuteScalar();
+                    return result != null;
+                }
             }
-
         }
     }
 }

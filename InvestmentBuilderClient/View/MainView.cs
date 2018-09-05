@@ -277,7 +277,6 @@ namespace InvestmentBuilderClient.View
             {
                 var account = new AccountModel(view.GetAccountName(),
                                                view.GetDescription(),
-                                               view.GetPassword(),
                                                view.GetCurrency(),
                                                view.GetAccountType(),
                                                view.GetIsEnabled(),
@@ -323,6 +322,11 @@ namespace InvestmentBuilderClient.View
             if (addView.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 _dataModel.UpdateTrade(addView.GetTrade());
+                DateTime dtValuation = _GetSelectedValuationDate();
+                DateTime dtTransactionDate = addView.GetTransactionDate();
+
+                _dataModel.AddCashTransaction(dtValuation, dtTransactionDate, "Purchase",
+                                              addView.GetTrade().Name, addView.GetTrade().TotalCost);
                 //force all views to reload
                 UpdateAccountName();
             }

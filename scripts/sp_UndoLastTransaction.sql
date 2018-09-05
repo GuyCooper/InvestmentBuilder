@@ -17,8 +17,8 @@ BEGIN
 DECLARE @AccountId INT
 DECLARE @ValuationDate DATETIME
 
-SELECT @AccountId = [User_Id]
-FROM [Users]
+SELECT @AccountId = [Account_Id]
+FROM [Accounts]
 WHERE [Name] = @account
 
 SELECT TOP 1 @ValuationDate = [Valuation_Date]

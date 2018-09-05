@@ -71,6 +71,10 @@
     <Reference Include="Microsoft.Practices.Unity.RegistrationByConvention">
       <HintPath>..\packages\Unity.3.5.1404.0\lib\net45\Microsoft.Practices.Unity.RegistrationByConvention.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\NLog.4.3.0\lib\net45\NLog.dll</HintPath>
@@ -149,9 +153,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="EntityFramework">
       <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
@@ -240,6 +241,12 @@
     <Compile Include="Utils\BuildReportMonitor.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\ag-Grid\ag-grid.css" />
+    <Content Include="Content\ag-Grid\theme-blue.css" />
+    <Content Include="Content\ag-Grid\theme-bootstrap.css" />
+    <Content Include="Content\ag-Grid\theme-dark.css" />
+    <Content Include="Content\ag-Grid\theme-fresh.css" />
+    <Content Include="Content\ag-Grid\theme-material.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\calendar.png" />
@@ -256,6 +263,8 @@
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="InvestmentBuilderWebConfig.xml" />
+    <Content Include="Scripts\ag-Grid\ag-grid.js" />
+    <Content Include="Scripts\ag-Grid\ag-grid.min.js" />
     <Content Include="Scripts\angular-animate.js" />
     <Content Include="Scripts\angular-animate.min.js" />
     <Content Include="Scripts\angular-aria.js" />
@@ -316,8 +325,14 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
+    <Content Include="Scripts\MyApp\CreateTrade.js" />
     <Content Include="Scripts\MyApp\DemoCode.js" />
+    <Content Include="Scripts\MyApp\Index.js" />
     <Content Include="Scripts\MyApp\InvestmentAccount.js" />
+    <Content Include="Scripts\MyApp\Layout.js" />
+    <Content Include="Scripts\MyApp\Portfolio.js" />
+    <Content Include="Scripts\MyApp\RegisterModules.js" />
+    <Content Include="Scripts\MyApp\Utils.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\ui-bootstrap-tpls-2.5.0.js" />
@@ -364,7 +379,6 @@
     <Content Include="Views\Itinerary\Create.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\DateTime.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\Phone.cshtml" />
-    <Content Include="Views\InvestmentRecord\Index.cshtml" />
     <Content Include="Views\InvestmentRecord\CreateTrade.cshtml" />
     <Content Include="Views\Shared\_LayoutInvestmentRecord.cshtml" />
     <Content Include="Views\Sample\PartialViewDemo.cshtml" />
@@ -373,14 +387,9 @@
     <Content Include="Views\Sample\Index.cshtml" />
     <Content Include="Views\Example\Index.cshtml" />
     <Content Include="Views\Shared\AccountPartial.cshtml" />
-    <Content Include="Views\InvestmentRecord\EditTrade.cshtml" />
     <Content Include="Views\InvestmentRecord\Parameters.cshtml" />
-    <Content Include="Views\InvestmentRecord\View.cshtml" />
     <Content Include="Views\InvestmentRecord\Reports.cshtml" />
-    <Content Include="Views\InvestmentRecord\ValuationReport.cshtml" />
     <Content Include="Views\InvestmentRecord\AccountSummary.cshtml" />
-    <Content Include="Views\InvestmentRecord\ReceiptCashFlowItem.cshtml" />
-    <Content Include="Views\InvestmentRecord\PaymentCashFlowItem.cshtml" />
     <Content Include="Views\InvestmentRecord\AddModalDialog.cshtml" />
     <Content Include="Views\InvestmentAccount\EditAccount.cshtml" />
     <Content Include="Views\Shared\_LoginPartialTestUser.cshtml" />
@@ -390,6 +399,10 @@
     <Content Include="Views\InvestmentRecord\CashFlow.cshtml" />
     <Content Include="Views\InvestmentRecord\AddTransaction.cshtml" />
     <Content Include="Views\InvestmentRecord\ReportCompletion.cshtml" />
+    <Content Include="Views\InvestmentRecord\Index.cshtml" />
+    <Content Include="Views\InvestmentRecord\EditTrade.cshtml" />
+    <Content Include="Views\InvestmentRecord\YesNoChooser.cshtml" />
+    <Content Include="Views\InvestmentRecord\Portfolio.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -436,7 +449,7 @@
   <PropertyGroup>
     <PostBuildEvent>mkdir %25APPDATA%25\InvestmentRecordBuilder
 copy $(ProjectDir)InvestmentBuilderWebConfig.xml %25APPDATA%25\InvestmentRecordBuilder
-copy $(ProjectDir)TestMarketData.txt %25APPDATA%25\InvestmentRecordBuilder</PostBuildEvent>
+</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

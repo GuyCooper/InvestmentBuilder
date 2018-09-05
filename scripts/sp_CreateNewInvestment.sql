@@ -32,8 +32,8 @@ BEGIN
 	FROM Companies
 	WHERE Name = @investment
 
-	SELECT @AccountId = [User_Id]
-	FROM Users
+	SELECT @AccountId = [Account_Id]
+	FROM Accounts
 	WHERE Name = @Account
 
 	INSERT INTO InvestmentRecord

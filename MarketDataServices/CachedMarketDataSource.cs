@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NLog;
 using InvestmentBuilderCore;
+using System.Threading.Tasks;
 
 namespace MarketDataServices
 {
@@ -35,6 +36,35 @@ namespace MarketDataServices
             _marketDataPriceCache = new Dictionary<string, MarketDataPrice>();
             _fxPriceCache = new Dictionary<string, double>();
             _historicalDataCache = new Dictionary<string, IList<HistoricalData>>();
+        }
+
+        private void LoadSerialisedData()
+        {
+            //now load in any serialised data
+            if (_dataSerialiser != null)
+            {
+                _dataSerialiser.LoadData((record) =>
+                {
+                    var elems = record.Split(',');
+                    if (elems.Length > 1)
+                    {
+                        var ch = elems[0];
+                        var symbol = elems[1];
+                        if (ch == "M")
+                        {
+                            //_marketDataPriceCache
+                        }
+                        else if (ch == "F")
+                        {
+
+                        }
+                        else if (ch == "H")
+                        {
+
+                        }
+                    }
+                });
+            }
         }
 
         public string Name
@@ -142,6 +172,18 @@ namespace MarketDataServices
 
         public int Priority { get { return 0; } }
 
-        public IMarketDataReader DataReader { get; set; }
+        public void Initialise(IConfigurationSettings settings) { }
+
+        //public IMarketDataReader DataReader { get; set; }
+        public async Task<MarketDataPrice> RequestPrice(string symbol, string exchange, string source)
+        {
+            var marketData = await _sourceMarketData.RequestPrice(symbol, exchange, source);
+            if(marketData != null)
+            {
+                _marketDataPriceCache.Add(symbol + exchange, marketData);
+            }
+            return marketData;
+        }
     }
+
 }

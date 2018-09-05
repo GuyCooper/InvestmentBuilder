@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-
+using System.Linq;
 namespace InvestmentBuilderCore
 {
     public enum AuthorizationLevel
@@ -37,6 +37,14 @@ namespace InvestmentBuilderCore
             }
         }
 
+        public void UpdateAccount(string account)
+        {
+            if(string.IsNullOrEmpty(account) == false)
+            {
+                Account = account;
+            }
+        }
+
         [ContractInvariantMethod]
         protected void ObjectInvariantMethod()
         {
@@ -53,7 +61,7 @@ namespace InvestmentBuilderCore
     public interface IAuthorizationManager
     {
         UserAccountToken GetUserAccountToken(string user, string account);
-        void SetUserAccountToken(string user, string account);
+        UserAccountToken SetUserAccountToken(string user, string account);
         UserAccountToken GetCurrentTokenForUser(string user);
     }
 
@@ -88,15 +96,38 @@ namespace InvestmentBuilderCore
         }
 
         /// <summary>
-        /// each user is only ever allowed a single useraccount token at any time
+        /// each user is only ever allowed a single useraccount token at any time. 
+        /// NOTE: This method must be thread safe
         /// </summary>
         /// <param name="user"></param>
         /// <param name="account"></param>
-        public void SetUserAccountToken(string user, string account)
+        public UserAccountToken SetUserAccountToken(string user, string account)
         {
-            _userTokenlookup.Remove(user);
-            _userTokenlookup.Add(user, GetUserAccountToken(user, account));
+            UserAccountToken existingToken;
+            if (IsGlobalAdministrator(user) || account == null)
+            {
+                _userTokenlookup.TryGetValue(user, out existingToken);
+                if(existingToken != null)
+                {
+                    existingToken.UpdateAccount(account);
+                }
+            }
+            else
+                existingToken = _userTokenlookup.Values.FirstOrDefault(t => t.Account == account && t.User == user);
+
+            if(existingToken == null)
+            {
+                existingToken = GetUserAccountToken(user, account);
+                try
+                {
+                    _userTokenlookup.Add(user, existingToken);
+                }
+                catch(Exception)
+                { /*insertion may have been preempted by another thread */ }
+            }
+            return existingToken;
         }
+
         public UserAccountToken GetCurrentTokenForUser(string user)
         {
             UserAccountToken token;

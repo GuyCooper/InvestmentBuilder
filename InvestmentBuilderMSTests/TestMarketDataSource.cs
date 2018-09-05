@@ -54,6 +54,11 @@ namespace InvestmentBuilderMSTests
             };
         }
 
-        public IMarketDataReader DataReader { get; set; }
+        public void Initialise(IConfigurationSettings settings) { }
+
+        public Task<MarketDataPrice> RequestPrice(string symbol, string exchange, string source)
+        {
+            return null;
+        }
     }
 }

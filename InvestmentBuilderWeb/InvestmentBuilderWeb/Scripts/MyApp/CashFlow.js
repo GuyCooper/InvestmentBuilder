@@ -1,6 +1,6 @@
 ﻿"use strict"
 
-function CashFlow($http, $uibModal, $log, $interval) {
+function CashFlow($http, $uibModal, $log, $interval, NotifyService) {
 
     this.cashFlows = null;
     this.receiptParamTypes = null;
@@ -52,8 +52,10 @@ function CashFlow($http, $uibModal, $log, $interval) {
 
     }.bind(this);
 
-    $http.get('CashFlowContents')
-    .then(onLoadContents);
+    NotifyService.RegisterCashFlowListener(function () {
+        $http.get('CashFlowContents')
+        .then(onLoadContents);
+    });
 
     this.onReportFinished = function (errors) {
         var modalInstance = $uibModal.open({
@@ -106,11 +108,11 @@ function CashFlow($http, $uibModal, $log, $interval) {
     }.bind(this);
 
     this.addReceipt = function () {
-        this.addTransactionDialog('receipt', this.receiptParamTypes, 'AddReceiptTransactionAngular');
+        this.addTransactionDialog('receipt', this.receiptParamTypes, 'AddReceiptTransaction');
     }.bind(this);
 
     this.addPayment = function () {
-        this.addTransactionDialog('payment', this.paymentParamTypes, 'AddPaymentTransactionAngular');
+        this.addTransactionDialog('payment', this.paymentParamTypes, 'AddPaymentTransaction');
     };
 
     this.deleteTransaction = function (transaction) {
@@ -276,14 +278,3 @@ function ReportCompletion($uibModalInstance, errors) {
     };
 };
 
-//inject everything angular needs here
-angular.module('InvestmentRecord', ['ui.bootstrap']);
-
-angular.module('InvestmentRecord')
-.controller('CashFlowController', CashFlow);
-
-angular.module('InvestmentRecord')
-.controller('CashTransaction', CashTransaction);
-
-angular.module('InvestmentRecord')
-.controller('ReportCompletion', ReportCompletion);

@@ -1,0 +1,17 @@
+download and install php (64 bit)
+
+install the sql server drivers:
+
+download:
+MICROSOFT DRIVERS 4.0 FOR PHP FOR MICROSOFT SQL SERVER
+
+copy the binaries to the ext folder under php root
+
+edit the php.ini file in the root folder. add this line:
+
+extension=php_sqlsrv_7_ts_x64.dll
+
+in the dynamic extensions section
+
+
+

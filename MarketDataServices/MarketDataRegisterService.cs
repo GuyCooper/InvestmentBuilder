@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using InvestmentBuilderCore;
+using System.IO;
 
 namespace MarketDataServices
 {
@@ -14,8 +15,8 @@ namespace MarketDataServices
     {
         public static void RegisterServices()
         {
-            ContainerManager.RegisterType(typeof(IMarketDataReader), typeof(WebMarketDataReader), true);
-            ContainerManager.RegisterType(typeof(IMarketDataSerialiser), typeof(MarketDataFileSerialiser), true, "testMarketData.txt");
+            //ContainerManager.RegisterType(typeof(IMarketDataReader), typeof(WebMarketDataReader), true);
+            ContainerManager.RegisterType(typeof(IMarketDataSerialiser), typeof(MarketDataFileSerialiser), true);
             ContainerManager.RegisterType(typeof(IMarketSourceLocator), typeof(MefMarketSourceLocator), true);
             ContainerManager.RegisterType(typeof(IMarketDataSource), typeof(CachedMarketDataSource), true);
         }

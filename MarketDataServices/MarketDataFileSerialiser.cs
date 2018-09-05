@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using InvestmentBuilderCore;
 
 namespace MarketDataServices
 {
@@ -15,9 +16,9 @@ namespace MarketDataServices
         private string _fileName;
         private StreamWriter _writer;
 
-        public MarketDataFileSerialiser(string fileName)
+        public MarketDataFileSerialiser(IConfigurationSettings settings)
         {
-            _fileName = fileName;
+            _fileName = settings.OutputCachedMarketData;
         }
 
         public void EndSerialiser()
@@ -39,9 +40,29 @@ namespace MarketDataServices
 
         public void StartSerialiser()
         {
-            if (_writer == null)
+            if (_fileName != null &&_writer == null)
             {
                 _writer = new StreamWriter(_fileName);
+            }
+        }
+
+        public void LoadData(Action<string> processRecord)
+        {
+            if(_fileName == null)
+            {
+                return;
+            }
+
+            using (var reader = new StreamReader(_fileName))
+            {
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    if(processRecord != null)
+                    {
+                        processRecord(line);
+                    }
+                }
             }
         }
     }

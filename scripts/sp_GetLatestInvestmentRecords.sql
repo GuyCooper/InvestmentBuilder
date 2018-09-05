@@ -28,11 +28,11 @@ SELECT
 FROM InvestmentRecord IR 
 INNER JOIN Companies C
 ON IR.Company_id = C.Company_Id 
-INNER JOIN Users U
-ON IR.account_id = U.[User_Id]
+INNER JOIN Accounts A
+ON IR.account_id = A.[Account_Id]
 WHERE IR.Valuation_Date = @valuationDate
 AND IR.is_active = 1
-AND U.Name = @Account
+AND A.Name = @Account
 ORDER BY LastBoughtDate ASC
  
 END

@@ -113,69 +113,69 @@ namespace InvestmentBuilderMSTests
             }
         }
 
-        [TestMethod]
-        public void When_getting_historical_data_from_barchart_source()
-        {
-            var datasource = new BarChartMarketDataSource(new TestBarChartHistoricalDataReader());
-            var result = datasource.GetHistoricalData(null, null, null, DateTime.Now).ToList();
-            Assert.AreEqual(25, result.Count);
-            Assert.AreEqual(DateTime.Parse("2014-08-01"), result[0].Date);
-            Assert.AreEqual(23.81971, result[0].Price);
-        }
+        //[TestMethod]
+        //public void When_getting_historical_data_from_barchart_source()
+        //{
+        //    var datasource = new BarChartMarketDataSource(new TestBarChartHistoricalDataReader());
+        //    var result = datasource.GetHistoricalData(null, null, null, DateTime.Now).ToList();
+        //    Assert.AreEqual(25, result.Count);
+        //    Assert.AreEqual(DateTime.Parse("2014-08-01"), result[0].Date);
+        //    Assert.AreEqual(23.81971, result[0].Price);
+        //}
 
-        [TestMethod]
-        public void When_getting_fxrate_from_barchart_source()
-        {
-            var datasource = new BarChartMarketDataSource(new TestBarChartFxPriceDataReader());
-            double fxrate;
-            var result = datasource.TryGetFxRate(null, null, null, null, out fxrate);
-            Assert.IsTrue(result);
-            Assert.AreEqual(MarketDataSourceTestData.Source2FxRate, fxrate);
-        }
+        //[TestMethod]
+        //public void When_getting_fxrate_from_barchart_source()
+        //{
+        //    var datasource = new BarChartMarketDataSource(new TestBarChartFxPriceDataReader());
+        //    double fxrate;
+        //    var result = datasource.TryGetFxRate(null, null, null, null, out fxrate);
+        //    Assert.IsTrue(result);
+        //    Assert.AreEqual(MarketDataSourceTestData.Source2FxRate, fxrate);
+        //}
 
-        [TestMethod]
-        public void When_getting_marketprice_from_barchart_source()
-        {
-            var datasource = new BarChartMarketDataSource(new TestBarChartMarketPriceDataReader());
-            MarketDataPrice marketPrice;
-            var result = datasource.TryGetMarketData(null, null, null, out marketPrice);
-            Assert.IsTrue(result);
-            Assert.AreEqual("BP", marketPrice.Symbol);
-            Assert.AreEqual(34.27, marketPrice.Price);
-            Assert.IsNull(marketPrice.Currency); //barchart does not return currency
-        }
+        //[TestMethod]
+        //public void When_getting_marketprice_from_barchart_source()
+        //{
+        //    var datasource = new BarChartMarketDataSource(new TestBarChartMarketPriceDataReader());
+        //    MarketDataPrice marketPrice;
+        //    var result = datasource.TryGetMarketData(null, null, null, out marketPrice);
+        //    Assert.IsTrue(result);
+        //    Assert.AreEqual("BP", marketPrice.Symbol);
+        //    Assert.AreEqual(34.27, marketPrice.Price);
+        //    Assert.IsNull(marketPrice.Currency); //barchart does not return currency
+        //}
 
-        [TestMethod]
-        public void When_getting_historical_data_from_yahoo_source()
-        {
-            var datasource = new YahooMarketDataSource(new TestYahooHistoricalPriceDataReader());
-            var result = datasource.GetHistoricalData(null, null, null, DateTime.Now).ToList();
-            Assert.AreEqual(5, result.Count);
-            Assert.AreEqual(DateTime.Parse("02/01/2016"), result[0].Date);
-            Assert.AreEqual(21.65, result[0].Price);
-            Assert.AreEqual(DateTime.Parse("05/04/2016"), result[4].Date);
-            Assert.AreEqual(21.22, result[4].Price);
-        }
+        //[TestMethod]
+        //public void When_getting_historical_data_from_yahoo_source()
+        //{
+        //    var datasource = new YahooMarketDataSource(new TestYahooHistoricalPriceDataReader());
+        //    var result = datasource.GetHistoricalData(null, null, null, DateTime.Now).ToList();
+        //    Assert.AreEqual(5, result.Count);
+        //    Assert.AreEqual(DateTime.Parse("02/01/2016"), result[0].Date);
+        //    Assert.AreEqual(21.65, result[0].Price);
+        //    Assert.AreEqual(DateTime.Parse("05/04/2016"), result[4].Date);
+        //    Assert.AreEqual(21.22, result[4].Price);
+        //}
 
-        [TestMethod]
-        public void When_getting_fxrate_from_yahoo_source()
-        {
-            var datasource = new YahooMarketDataSource(new TestYahooFxRateDataReader());
-            double fxrate;
-            var result = datasource.TryGetFxRate("EUR", "USD", null, null, out fxrate);
-            Assert.IsTrue(result);
-            Assert.AreEqual(MarketDataSourceTestData.Source2FxRate, fxrate);
-        }
+        //[TestMethod]
+        //public void When_getting_fxrate_from_yahoo_source()
+        //{
+        //    var datasource = new YahooMarketDataSource(new TestYahooFxRateDataReader());
+        //    double fxrate;
+        //    var result = datasource.TryGetFxRate("EUR", "USD", null, null, out fxrate);
+        //    Assert.IsTrue(result);
+        //    Assert.AreEqual(MarketDataSourceTestData.Source2FxRate, fxrate);
+        //}
 
-        [TestMethod]
-        public void When_getting_marketprice_from_yahoo_source()
-        {
-            var datasource = new YahooMarketDataSource(new TestYahooMarketPriceDataReader());
-            MarketDataPrice marketPrice;
-            var result = datasource.TryGetMarketData(null, null, null, out marketPrice);
-            Assert.IsTrue(result);
-            Assert.AreEqual(3.5467, marketPrice.Price);
-            Assert.AreEqual("GBP", marketPrice.Currency);
-        }
+        //[TestMethod]
+        //public void When_getting_marketprice_from_yahoo_source()
+        //{
+        //    var datasource = new YahooMarketDataSource(new TestYahooMarketPriceDataReader());
+        //    MarketDataPrice marketPrice;
+        //    var result = datasource.TryGetMarketData(null, null, null, out marketPrice);
+        //    Assert.IsTrue(result);
+        //    Assert.AreEqual(3.5467, marketPrice.Price);
+        //    Assert.AreEqual("GBP", marketPrice.Currency);
+        //}
     }
 }

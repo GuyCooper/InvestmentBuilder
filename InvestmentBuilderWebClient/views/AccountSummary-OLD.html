@@ -1,0 +1,33 @@
+﻿
+<div class="row investmentSummary" ng-controller="AccountSummaryController">
+    <div class="pull-left">
+        <ul class="list-inline">
+            <li>
+                <ul class="list-unstyled">
+                    <li><h3 ng-model="AccountName"></h3></li>
+                    <li ng-model="ReportingCurrency"></li>
+                </ul>
+            </li>
+            <li>
+                <dl class="dl-horizontal">
+                    <dt>Unit Price</dt>
+                    <dd ng-model="ValuePerUnit"></dd>
+                    <dt>Net Asset Value</dt>
+                    <dd ng-model="NetAssets"></dd>
+                </dl>
+            </li>
+            <li>
+                <dl class="dl-horizontal">
+                    <dt>Bank Balance</dt>
+                    <dd>{{BankBalance}}</dd>
+                    <dt>Latest PnL</dt>
+                    <dd>{{MonthlyPnL}}</dd>
+                </dl>
+            </li>
+
+        </ul>
+    </div>
+    <!--<div class="pull-right">
+        <div ng-show="$scope.canBuild == true" ng-click="$scope.BuildReport()" class="btn btn-primary summaryButton">Build Report </div>        
+    </div>-->
+</div>

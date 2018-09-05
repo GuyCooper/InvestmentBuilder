@@ -26,7 +26,7 @@ namespace InvestmentBuilderMSTests
             return null;
         }
 
-        public virtual bool UpdateInvestmentRecords(UserAccountToken userToken, UserAccountData account, Trades trades, CashAccountData cashData, DateTime valuationDate,  ManualPrices manualPrices, ProgressCounter progress)
+        public virtual bool UpdateInvestmentRecords(UserAccountToken userToken, UserAccountData account, Trades trades, CashAccountData cashData, DateTime valuationDate,  ManualPrices manualPrices, DateTime? dtPreviousValuation, ProgressCounter progress)
         {
             return true;
         }

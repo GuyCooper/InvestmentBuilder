@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <ProjectGuid>{22EE3A8B-3982-424E-8151-8192BAED2A4E}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <OutputPath>bin</OutputPath>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <TypeScriptToolsVersion>1.8</TypeScriptToolsVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+  </PropertyGroup>
+  <ItemGroup>
+    <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Gruntfile.js" />
+    <Content Include="gulpfile.js" />
+    <Content Include="Index.html" />
+    <Content Include="Middleware\Middleware.js" />
+    <Content Include="src\AccountList.js" />
+    <Content Include="src\AddAccount.js" />
+    <Content Include="src\CashFlow.js" />
+    <Content Include="src\CreateTrade.js" />
+    <Content Include="src\Layout.js" />
+    <Content Include="src\MiddlewareService.js" />
+    <Content Include="src\NotifyService.js" />
+    <Content Include="src\Portfolio.js" />
+    <Content Include="src\RegisterModules.js" />
+    <Content Include="src\Reports.js" />
+    <Content Include="src\Utils.js" />
+    <Content Include="styles\css\InvestmentBuilderWeb.css" />
+    <Content Include="styles\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="styles\images\calendar.png" />
+    <Content Include="styles\images\help.png" />
+    <Content Include="styles\thirdParty\bootstrap.css" />
+    <Content Include="styles\thirdParty\bootstrap.min.css" />
+    <Content Include="styles\thirdParty\jquery-ui.css" />
+    <Content Include="styles\thirdParty\jquery-ui.min.css" />
+    <Content Include="styles\thirdParty\jquery-ui.structure.css" />
+    <Content Include="styles\thirdParty\jquery-ui.structure.min.css" />
+    <Content Include="styles\thirdParty\jquery-ui.theme.css" />
+    <Content Include="styles\thirdParty\jquery-ui.theme.min.css" />
+    <Content Include="styles\thirdParty\Site.css" />
+    <Content Include="tasks\scaffold.js" />
+    <Content Include="views\AccountList.html" />
+    <Content Include="views\AddAccount.html" />
+    <Content Include="views\Layout.html" />
+    <Content Include="web.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="tsconfig.json" />
+    <Content Include="styles\fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="styles\fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="styles\fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="views\AddModalDialog.html" />
+    <Content Include="views\AddTransaction.html" />
+    <Content Include="views\CashFlow.html" />
+    <Content Include="views\CreateTrade.html" />
+    <Content Include="views\EditTrade.html" />
+    <Content Include="views\Parameters.html" />
+    <Content Include="views\Portfolio.html" />
+    <Content Include="views\RaiseAlert.html" />
+    <Content Include="views\ReportCompletion.html" />
+    <Content Include="views\Reports.html" />
+    <Content Include="views\YesNoChooser.html" />
+    <Content Include="package.json" />
+    <None Include="web.Debug.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+    <None Include="web.Release.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="dist\" />
+    <Folder Include="libs\" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>InvestmentBuilderWebClient</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets')" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>64939</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:64939/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
+    <TypeScriptSourceMap>true</TypeScriptSourceMap>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
+    <TypeScriptSourceMap>false</TypeScriptSourceMap>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
+</Project>

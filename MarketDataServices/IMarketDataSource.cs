@@ -90,9 +90,17 @@ namespace MarketDataServices
         /// </summary>
         int Priority { get; }
         /// <summary>
-        /// property setter for injecting datasource 
+        /// initialise method because of using MEF
         /// </summary>
-        IMarketDataReader DataReader { get; set; }
+        void Initialise(IConfigurationSettings settings);
+        /// <summary>
+        /// asynchronously request a price from the data source
+        /// </summary>
+        /// <param name="symbol"></param>
+        /// <param name="exchange"></param>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        Task<MarketDataPrice> RequestPrice(string symbol, string exchange, string source);
     }
 
     [ContractClassFor(typeof(IMarketDataSource))]
@@ -139,6 +147,16 @@ namespace MarketDataServices
             Contract.Requires(string.IsNullOrEmpty(symbol) == false);
             marketData = null;
             return false;
+        }
+
+        public void Initialise(IConfigurationSettings settings)
+        {
+            Contract.Requires(settings != null);
+        }
+
+        public Task<MarketDataPrice> RequestPrice(string symbol, string exchange, string source)
+        {
+            return null;
         }
     }
 

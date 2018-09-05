@@ -19,11 +19,11 @@ SELECT
 FROM
 	 Valuations V
 INNER JOIN
-	 Users U
+	 Accounts A
 ON	
-	V.[account_id] = U.[User_Id]
+	V.[account_id] = A.[Account_Id]
 WHERE
-	U.Name = @Account
+	A.Name = @Account
 AND
 	v.[Valuation_Date] < @DateFrom
 ORDER BY

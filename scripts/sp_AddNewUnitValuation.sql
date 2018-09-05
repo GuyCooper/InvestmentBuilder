@@ -17,8 +17,8 @@ BEGIN
 
 DECLARE @accountID INT
 
-SELECT @accountID = [User_Id]
-FROM Users
+SELECT @accountID = [Account_Id]
+FROM Accounts
 WHERE [Name] = @Account
 
 IF EXISTS(SELECT [Unit_Price] FROM [Valuations] 

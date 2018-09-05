@@ -47,7 +47,7 @@ namespace MarketDataServices
         public IList<BarchartMarketPrice> results { get; set; }
     }
 
-    [Export(typeof(IMarketDataSource))]
+    //[Export(typeof(IMarketDataSource))]
     internal class BarChartMarketDataSource :  IMarketDataSource
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
@@ -62,12 +62,8 @@ namespace MarketDataServices
 
         //default constructor for MEF instantiation. requires property injection of datareader
         public BarChartMarketDataSource()
-        { 
-        }
-
-        public BarChartMarketDataSource(IMarketDataReader dataReader)
         {
-            DataReader = dataReader;
+            DataReader = new WebMarketDataReader();
         }
 
         //responses. GetQuote()
@@ -90,12 +86,12 @@ namespace MarketDataServices
         public IEnumerable<HistoricalData> GetHistoricalData(string instrument, string exchange, string source, DateTime dtFrom)
         {
             var url = string.Format(GetHistoryUrl, AccessKey, instrument, dtFrom.ToString("yyyyMMdd"), exchange);
-            var data = DataReader.GetData(url, SourceDataFormat.JSON);
+            var data = DataReader.GetData(url, SourceDataFormat.JSON).ToList();
             //TODO convert into historical data (use JSON.net)
-            if (data != null)
+            if (data != null && data.Count > 0)
             {
                 var result = JsonConvert.DeserializeObject<BarchartHistoricalData>(data.First());
-                if (result != null)
+                if (result != null && result.results != null)
                 {
                     return result.results.Select(x => new HistoricalData
                     (
@@ -166,6 +162,12 @@ namespace MarketDataServices
             return false;
         }
 
-        public IMarketDataReader DataReader { get; set; }
+        private IMarketDataReader DataReader { get; set; }
+        public void Initialise(IConfigurationSettings settings) { }
+
+        public Task<MarketDataPrice> RequestPrice(string symbol, string exchange, string source)
+        {
+            return null;
+        }
     }
 }

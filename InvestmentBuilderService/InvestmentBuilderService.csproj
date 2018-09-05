@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{77D2520C-6C3E-4D55-B20A-9FCD5714A97D}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>InvestmentBuilderService</RootNamespace>
+    <AssemblyName>InvestmentBuilderService</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Practices.Unity, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unity.3.5.1404.0\lib\net45\Microsoft.Practices.Unity.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity.Configuration, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unity.3.5.1404.0\lib\net45\Microsoft.Practices.Unity.Configuration.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity.RegistrationByConvention, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unity.3.5.1404.0\lib\net45\Microsoft.Practices.Unity.RegistrationByConvention.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="MiddlewareInterfaces, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Middleware\Middleware\bin\Debug\MiddlewareInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="MiddlewareNetClient, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Middleware\Middleware\bin\Debug\MiddlewareNetClient.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.4.5.5\lib\net45\NLog.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AccountService.cs" />
+    <Compile Include="CashFlowManager.cs" />
+    <Compile Include="ChannelEndpointManager.cs" />
+    <Compile Include="Channels\GetAccountDetailsChannel.cs" />
+    <Compile Include="Channels\GetCurrenciesChannel.cs" />
+    <Compile Include="Channels\GetRecentReportFiles.cs" />
+    <Compile Include="Channels\RemoveTransactionChannel.cs" />
+    <Compile Include="Channels\AddTransactionChannel.cs" />
+    <Compile Include="Channels\BuildReportChannel.cs" />
+    <Compile Include="Channels\DeleteTransactionChannel.cs" />
+    <Compile Include="Channels\GetAccountNamesChannel.cs" />
+    <Compile Include="Channels\GetCashFlowChannel.cs" />
+    <Compile Include="Channels\GetRecentValutationDatesChannel.cs" />
+    <Compile Include="Channels\GetTransactionParametersChannel.cs" />
+    <Compile Include="Channels\LoadReportChannel.cs" />
+    <Compile Include="Channels\SellTradeRequestChannel.cs" />
+    <Compile Include="Channels\UpdateAccountDetailsChannel.cs" />
+    <Compile Include="Channels\UpdateTradeChannel.cs" />
+    <Compile Include="Channels\GetInvestmentSummaryChannel.cs" />
+    <Compile Include="Channels\GetPortfolioChannel.cs" />
+    <Compile Include="Channels\UpdateManualPriceChannel.cs" />
+    <Compile Include="Channels\UpdateValuationDateChannel.cs" />
+    <Compile Include="ChannelUpdater.cs" />
+    <Compile Include="Dtos\CashFlowModelAndParams.cs" />
+    <Compile Include="Dtos\TradeItemDto.cs" />
+    <Compile Include="EndpointChannel.cs" />
+    <Compile Include="EndpointManager.cs" />
+    <Compile Include="Channels\GetBrokersChannel.cs" />
+    <Compile Include="Session\IConnectionSession.cs" />
+    <Compile Include="Dtos\InvestmentSummaryModel.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Channels\UpdateCurrentAccountChannel.cs" />
+    <Compile Include="Session\MiddlewareSession.cs" />
+    <Compile Include="Translators\Translators.cs" />
+    <Compile Include="UserSession.cs" />
+    <Compile Include="UserSessionManager.cs" />
+    <Compile Include="Utils\BuildReportMonitor.cs" />
+    <Compile Include="Utils\ConnectionSettings.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\InvestmentBuilderCore\InvestmentBuilderCore.csproj">
+      <Project>{a1b060c6-10fa-443b-8191-556d1b03102f}</Project>
+      <Name>InvestmentBuilderCore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\InvestmentBuilderLib\InvestmentBuilderLib.csproj">
+      <Project>{9fa7e2cc-b5c6-463b-856a-e0e21eff93e4}</Project>
+      <Name>InvestmentBuilderLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\InvestmentReportGenerator\InvestmentReportGenerator.csproj">
+      <Project>{67e92f66-3a85-4122-8d1e-dcfd499c64bf}</Project>
+      <Name>InvestmentReportGenerator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MarketDataServices\MarketDataServices.csproj">
+      <Project>{13bae8cd-2876-44c4-a39a-74f7313fba80}</Project>
+      <Name>MarketDataServices</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PerformanceBuilderLib\PerformanceBuilderLib.csproj">
+      <Project>{a69b4e7e-44c1-4c52-9c86-5c1148131c79}</Project>
+      <Name>PerformanceBuilderLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PerformanceBuilder\PerformanceBuilder.csproj">
+      <Project>{bca240b5-1bac-4bff-af1d-32a17adda1f6}</Project>
+      <Name>PerformanceBuilder</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SQLServerDataLayer\SQLServerDataLayer.csproj">
+      <Project>{674585e8-84aa-4111-b675-47f7e13c8cb7}</Project>
+      <Name>SQLServerDataLayer</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Connections.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="InvestmentBuilderConfig.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

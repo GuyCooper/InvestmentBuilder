@@ -121,11 +121,14 @@ namespace InvestmentBuilderMSTests
         public virtual IEnumerable<string> GetActiveCompanies(UserAccountToken userToken, DateTime valuationDate) { throw new NotImplementedException(); }
         public virtual bool InvestmentAccountExists(string accountName) { return false; }
         public virtual IEnumerable<double> GetUnitValuationRange(UserAccountToken userToken, DateTime dateFrom, DateTime dateTo) { throw new NotImplementedException(); }
+        public virtual int GetUserId(string userName) { throw new NotImplementedException(); }
+        public virtual void AddUser(string userName, string description) { }
     }
 
     internal class HistoricalDataReaderTest : IHistoricalDataReader
     {
         public virtual IEnumerable<HistoricalData> GetHistoricalAccountData(UserAccountToken userToken) { throw new NotImplementedException(); }
+        public virtual string GetIndexHistoricalData(UserAccountToken userToken, string symbol) { throw new NotImplementedException(); }
     }
 
     internal class ConfigurationSettingsTest : IConfigurationSettings
@@ -140,15 +143,34 @@ namespace InvestmentBuilderMSTests
             get { return string.Empty; }
         }
 
+        public virtual string AuthDatasourceString
+        {
+            get { return string.Empty; }
+        }
+
         public virtual string OutputFolder
         {
             get { return string.Empty; }
         }
 
+        public virtual string MarketDatasource { get { return string.Empty; } }
+
+        public virtual string OutputCachedMarketData { get { return string.Empty; } }
+
         public virtual IEnumerable<string> ReportFormats
         {
             get { return Enumerable.Empty<string>(); }
         }
+
+        public string OutputLinkFolder
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public int MaxAccountsPerUser { get { return 5; } }
 
         public virtual string GetOutputPath(string account)
         {
@@ -178,6 +200,11 @@ namespace InvestmentBuilderMSTests
         public virtual bool UpdateOutputFolder(string folder)
         {
             return true;
+        }
+
+        public string GetOutputLinkPath(string account)
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -210,7 +237,12 @@ namespace InvestmentBuilderMSTests
             throw new NotImplementedException();
         }
 
-        public IMarketDataReader DataReader { get; set; }
+        public void Initialise(IConfigurationSettings settings) { }
+
+        public Task<MarketDataPrice> RequestPrice(string symbol, string exchange, string source)
+        {
+            return null;
+        }
     }
 
     #endregion
@@ -257,7 +289,7 @@ namespace InvestmentBuilderMSTests
     {
         public static readonly string FileName = "testReport";
 
-        public string GetReportFileName(string outputPath, DateTime ValuationDate)
+        public string GetReportFileName(DateTime ValuationDate)
         {
             return FileName;
         }
@@ -295,6 +327,9 @@ namespace InvestmentBuilderMSTests
         public virtual IEnumerable<string> GetActiveCompanies(UserAccountToken userToken, DateTime valuationDate) { return Enumerable.Empty<string>(); }
         public virtual bool InvestmentAccountExists(string accountName) { return false; }
         public IEnumerable<double> GetUnitValuationRange(UserAccountToken userToken, DateTime dateFrom, DateTime dateTo) { return null; }
+        public virtual int GetUserId(string userName) { return 0; }
+        public virtual void AddUser(string userName, string description) { }
+
     }
 
     internal class InvestmentRecordEmptyInterfaceTest : IInvestmentRecordInterface
@@ -353,6 +388,7 @@ namespace InvestmentBuilderMSTests
     internal class EmptyHistoricalDataReaderTest : IHistoricalDataReader
     {
         public virtual IEnumerable<HistoricalData> GetHistoricalAccountData(UserAccountToken userToken) { return null; }
+        public virtual string GetIndexHistoricalData(UserAccountToken userToken, string symbol) { return null; }
     }
 
     internal class EmptyConfigurationSettingsTest : IConfigurationSettings
@@ -373,6 +409,14 @@ namespace InvestmentBuilderMSTests
             }
         }
 
+        public virtual string AuthDatasourceString
+        {
+            get
+            {
+                return null;
+            }
+        }
+
         public virtual string OutputFolder
         {
             get
@@ -381,10 +425,24 @@ namespace InvestmentBuilderMSTests
             }
         }
 
+        public virtual string MarketDatasource { get { return null; } }
+
+        public virtual string OutputCachedMarketData { get { return null; } }
+
         public virtual IEnumerable<string> ReportFormats
         {
             get { return null; }
         }
+
+        public string OutputLinkFolder
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public virtual int MaxAccountsPerUser {get { return 0; } }
 
         public virtual string GetOutputPath(string account)
         {
@@ -414,6 +472,11 @@ namespace InvestmentBuilderMSTests
         public virtual bool UpdateOutputFolder(string folder)
         {
             return true;
+        }
+
+        public string GetOutputLinkPath(string account)
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -451,7 +514,12 @@ namespace InvestmentBuilderMSTests
             return false;
         }
 
-        public IMarketDataReader DataReader { get; set; }
+        public void Initialise(IConfigurationSettings settings) { }
+
+        public Task<MarketDataPrice> RequestPrice(string symbol, string exchange, string source)
+        {
+            return null;
+        }
     }
 
     #endregion

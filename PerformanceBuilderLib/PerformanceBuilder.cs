@@ -15,14 +15,12 @@ namespace PerformanceBuilderLib
         private static Logger logger = LogManager.GetCurrentClassLogger();
         private IConfigurationSettings _settings;
         private IDataLayer _dataLayer;
-        private IMarketDataSource _marketDataSource;
         private IInvestmentReportWriter _reportWriter;
 
         public PerformanceBuilder(IConfigurationSettings settings, IDataLayer dataLayer,
-                                IMarketDataSource marketDataSource, IInvestmentReportWriter reportWriter)
+                                IInvestmentReportWriter reportWriter)
         {
             _dataLayer = dataLayer;
-            _marketDataSource = marketDataSource;
             _settings = settings;
             _reportWriter = reportWriter;
         }
@@ -36,11 +34,11 @@ namespace PerformanceBuilderLib
             logger.Log(LogLevel.Info, "output path: {0}", _settings.GetOutputPath(userToken.Account));
             logger.Log(LogLevel.Info, "valuation date {0}", dtValuation);
 
-            var ladderBuilder = new PerformanceLaddersBuilder(_settings, _dataLayer, _marketDataSource);
-            var allLadders = ladderBuilder.BuildPerformanceLadders(userToken, dtValuation, progress);
+            var ladderBuilder = new PerformanceLaddersBuilder(_settings, _dataLayer);
+            var allLadders = ladderBuilder.BuildPerformanceLadders(userToken, dtValuation, progress).ToList();
 
-            //now build the individual company performance ladders
-            allLadders.Insert(0, ladderBuilder.BuildCompanyPerformanceLadders(userToken, progress));
+            //now insert the individual company company
+            allLadders.InsertRange(0, ladderBuilder.BuildCompanyPerformanceLadders(userToken, progress));
 
             //now build the company dividend ladders
             allLadders.Insert(0, ladderBuilder.BuildAccountDividendPerformanceLadder(userToken, progress));

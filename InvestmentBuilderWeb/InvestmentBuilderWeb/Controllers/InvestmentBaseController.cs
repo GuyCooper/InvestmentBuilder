@@ -40,12 +40,12 @@ namespace InvestmentBuilderWeb.Controllers
 
         protected string _GetThisUserName()
         {
-            //return "bob@bob.com"; //just for testing!!
-            if (User != null && User.Identity != null)
-            {
-                return User.Identity.Name;
-            }
-            return null;
+            return "bob@bob.com"; //just for testing!!
+            //if (User != null && User.Identity != null)
+            //{
+            //    return User.Identity.Name;
+            //}
+            //return null;
         }
         //setup the user account accounttoken and populate accounts list for user. if selectedAccount is null then just uses
         //first account for user if no usertoken setup for user otherwise just uses existing token 
@@ -108,9 +108,8 @@ namespace InvestmentBuilderWeb.Controllers
         }
 
         //needs to be called before time one of the main views are displayed
-        protected void _GenerateSummary()
+        protected void _GenerateSummary(UserAccountToken token)
         {
-            var token = _SetupAccounts(null);
             var dtValuation = _sessionService.GetValuationDate(SessionId);
             var dtPrevious = _clientData.GetPreviousAccountValuationDate(token, dtValuation);
             ViewBag.SummaryData = _GetSummaryModel(token, dtPrevious);
@@ -119,7 +118,11 @@ namespace InvestmentBuilderWeb.Controllers
 
         protected ViewResult _CreateMainView(string name, object model)
         {
-            _GenerateSummary();
+            var token = _SetupAccounts(null);
+            ViewBag.RecentReports = _clientData.GetRecentValuationDates(token, DateTime.Now).Select(x =>
+                                        x.ToShortDateString()).ToList();
+
+            _GenerateSummary(token);
             return View(name, model);
         }
 

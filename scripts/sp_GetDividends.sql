@@ -20,11 +20,11 @@ select ca.parameter as Company, ca.amount as Dividend
 from dbo.CashAccount ca
 inner join TransactionType tt
 on ca.type_id = tt.type_id
-inner join Users u
-on ca.account_id = u.[User_Id]
+inner join Accounts a
+on ca.account_id = a.[Account_Id]
 where tt.type = 'Dividend'
 and ca.valuation_date = @ValuationDate
-and u.Name = @Account
+and a.Name = @Account
 order by ca.valuation_date desc 
  
 END

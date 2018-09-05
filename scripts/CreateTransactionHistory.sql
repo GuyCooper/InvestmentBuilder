@@ -12,7 +12,7 @@ create table dbo.TransactionHistory
 	[user] varchar(50)
 
 	constraint FK_accountid_TransactionHistory foreign key
-	([account_id]) references Users([User_Id]),
+	([account_id]) references Accounts([Account_Id]),
 
 	constraint FK_companyid_TransactionHistory foreign key
 	([company_id]) references Companies([Company_Id])

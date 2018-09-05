@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using InvestmentBuilderCore;
-using System.IO;
 
 namespace InvestmentReportGenerator
 {
+    /// <summary>
+    /// Container class for INvestmentreport generators. Contains a reference to an Excel
+    /// and pdf report generator. Uses the IConfigurationSettings to determine which generator 
+    /// to use.
+    /// </summary>
     public class InvestmentReportWriter : IInvestmentReportWriter, IDisposable
     {
-        private ExcelInvestmentReportWriter _excelReport;
-        private PdfInvestmentReportWriter _pdfReport;
-        private readonly IConfigurationSettings _settings;
+        #region Public Methods
 
         public InvestmentReportWriter(IConfigurationSettings settings)
         {
@@ -32,9 +32,9 @@ namespace InvestmentReportGenerator
         /// get the name of the report file used to generate the report
         /// if pdf available use that one otherwise use the excel one
         /// </summary>
-        public string GetReportFileName(string outputPath, DateTime ValuationDate)
+        public string GetReportFileName(DateTime ValuationDate)
         {
-            return PdfInvestmentReportWriter.GetPdfReportFile(outputPath, ValuationDate);
+            return PdfInvestmentReportWriter.GetPdfReportFile(ValuationDate);
         }
 
         public void WriteAssetReport(AssetReport report, double startOfYear, string outputPath, ProgressCounter progress)
@@ -54,6 +54,10 @@ namespace InvestmentReportGenerator
             }
         }
 
+        #endregion
+
+        #region Private Methods
+
         private IEnumerable<IInvestmentReportWriter> _InitReports()
         {
             if (_settings.ReportFormats != null)
@@ -72,5 +76,15 @@ namespace InvestmentReportGenerator
                 }
             }
         }
+
+        #endregion
+
+        #region Private Data Members
+
+        private ExcelInvestmentReportWriter _excelReport;
+        private PdfInvestmentReportWriter _pdfReport;
+        private readonly IConfigurationSettings _settings;
+
+        #endregion
     }
 }

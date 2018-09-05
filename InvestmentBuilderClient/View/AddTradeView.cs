@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using InvestmentBuilderClient.ViewModel;
@@ -18,12 +19,15 @@ namespace InvestmentBuilderClient.View
     {
         private IMarketDataSource _marketDataSource;
         private InvestmentDataModel _dataModel;
+        private static SynchronizationContext _displayContext;
 
         public AddTradeView(InvestmentDataModel dataModel, IMarketDataSource marketDataSource, TradeDetails trade)
         {
             _marketDataSource = marketDataSource;
             _dataModel = dataModel;
             InitializeComponent();
+
+            _displayContext = SynchronizationContext.Current;
 
             //populate investment names combo
             cmboName.Items.AddRange(_dataModel.GetAllCompanies().ToArray());
@@ -131,15 +135,23 @@ namespace InvestmentBuilderClient.View
         }
         private void btnCheck_Click(object sender, EventArgs e)
         {
-            MarketDataPrice marketData;
-            if(_marketDataSource.TryGetMarketData(GetSymbol(), GetExchange(), txtSource.Text, out marketData))
+            _marketDataSource.RequestPrice(GetSymbol(), GetExchange(), txtSource.Text).ContinueWith((price) =>
             {
-                lblCheckResult.Text = "Success. Valid Symbol!";
-            }
-            else
-            {
-                lblCheckResult.Text = "Fail. Invalid Symbol!";
-            }
+                _displayContext.Post(o =>
+                {
+                    if(o == null)
+                    {
+                        lblCheckResult.Text = "Fail. Invalid Symbol!";
+                    }
+                    else
+                    {
+                        lblCheckResult.Text = "Success. Valid Symbol!";
+                    }
+                    UseWaitCursor = false;
+                }, price);
+            });
+
+            UseWaitCursor = true;
         }
 
         private void cmboType_SelectedIndexChanged(object sender, EventArgs e)

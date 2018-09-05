@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data;
 using System.Diagnostics.Contracts;
 
 namespace InvestmentBuilderCore
@@ -103,10 +99,13 @@ namespace InvestmentBuilderCore
         IEnumerable<string> GetActiveCompanies(UserAccountToken userToken, DateTime valuationDate);
         bool InvestmentAccountExists(string accountName);
         IEnumerable<double> GetUnitValuationRange(UserAccountToken userToken, DateTime dateFrom, DateTime dateTo);
+        int GetUserId(string userName);
+        void AddUser(string userName, string description);
     }
 
     public interface IHistoricalDataReader
     {
         IEnumerable<HistoricalData> GetHistoricalAccountData(UserAccountToken userToken);
+        string GetIndexHistoricalData(UserAccountToken userToken, string symbol);
     }
 }

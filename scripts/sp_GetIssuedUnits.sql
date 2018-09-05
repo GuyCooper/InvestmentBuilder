@@ -22,11 +22,11 @@ BEGIN
 	ON 
 		m.Member_Id = mca.Member_Id
 	INNER JOIN
-		Users U
+		Accounts A
 	ON
-		m.account_id = U.[User_Id]
+		m.account_id = A.[Account_Id]
 	WHERE
 		mca.Valuation_Date = @ValuationDate
 	AND
-		U.Name = @AccountName
+		A.Name = @AccountName
 END

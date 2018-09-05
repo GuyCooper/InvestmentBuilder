@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using InvestmentBuilderCore;
+using NLog;
 
 namespace MarketDataServices
 {
@@ -19,16 +20,26 @@ namespace MarketDataServices
     /// </summary>
     public class TestFileMarketDataSource : IMarketDataSource, IDisposable
     {
-   
         private Dictionary<string, MarketDataPrice> _marketDataLookup = new Dictionary<string, MarketDataPrice>();
         private Dictionary<string, double> _fxDataLookup = new Dictionary<string, double>();
         private Dictionary<string, IList<HistoricalData>> _historicalDataLookup = new Dictionary<string, IList<HistoricalData>>();
 
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
         //private const string _testDataPath = @"C:\Projects\TestData\InvestmentBuilder";
         //private const string _testDataFile = "testMarketData.txt";
+        private static Dictionary<string, string> _currencyMapper = new Dictionary<string, string>()
+            {
+                {"NYQ", "USD"}
+            };
 
         private void _addMarketDataToLookup(string name, string strPrice, string strCurrency, Dictionary<string, MarketDataPrice> lookup)
         {
+            if(lookup.ContainsKey(name) == true)
+            {
+                return;
+            }
+
             double dPrice;
             if (double.TryParse(strPrice, out dPrice))
             {
@@ -66,16 +77,35 @@ namespace MarketDataServices
                 }).ToList());
         }
 
-        public TestFileMarketDataSource(string fileName)
+        public TestFileMarketDataSource()
         {
-            //var fileName = Path.Combine(_testDataPath, _testDataFile);//Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "testMarketData.txt";
-            using (var reader = new StreamReader(fileName))
+        }
+
+        public TestFileMarketDataSource(string filename)
+        {
+            InitialiseFromFile(filename);
+        }
+
+        public virtual void Initialise(IConfigurationSettings settings)
+        {
+            InitialiseFromFile(settings.MarketDatasource);
+        }
+
+        protected void ProcessFileName(string filename)
+        {
+            if(File.Exists(filename) == false)
+            {
+                logger.Log(LogLevel.Error, "file does not exist: {0}", filename);
+                return;
+            }
+
+            using (var reader = new StreamReader(filename))
             {
                 string line;
-                while((line = reader.ReadLine()) != null)
+                while ((line = reader.ReadLine()) != null)
                 {
-                    var elems = line.Split(',');
-                    if(elems.Length > 2)
+                    var elems = line.Split(';');
+                    if (elems.Length > 2)
                     {
                         if (elems[0].Equals("M", StringComparison.CurrentCultureIgnoreCase) == true)
                         {
@@ -88,12 +118,20 @@ namespace MarketDataServices
                         {
                             _addDataToLookup(elems[1], elems[2], _fxDataLookup);
                         }
-                        else if(elems[0].Equals("H", StringComparison.CurrentCultureIgnoreCase) == true)
+                        else if (elems[0].Equals("H", StringComparison.CurrentCultureIgnoreCase) == true)
                         {
                             _AddDataToHistoricalLookup(elems[1], elems[2]);
                         }
                     }
                 }
+            }
+        }
+
+        private void InitialiseFromFile(string filename)
+        {
+            if (_marketDataLookup.Count == 0)
+            {
+                ProcessFileName(filename);
             }
         }
 
@@ -114,7 +152,8 @@ namespace MarketDataServices
 
         public bool TryGetFxRate(string baseCurrency, string contraCurrency, string exchange, string source, out double dFxRate)
         {
-            return _fxDataLookup.TryGetValue(baseCurrency + contraCurrency, out dFxRate);
+            var ccypair = _mapCurrency(baseCurrency) + _mapCurrency(contraCurrency);
+            return _fxDataLookup.TryGetValue(ccypair, out dFxRate);
         }
 
         private IEnumerable<HistoricalData> _GenerateHistoricalData(DateTime dtFrom, double dIncrement)
@@ -168,13 +207,36 @@ namespace MarketDataServices
             Console.WriteLine("disposing TestDataSource...");
         }
 
-        public string Name
+        public virtual string Name
         {
             get { return "TestFileMarketDataSource"; }
         }
 
-        public int Priority { get { return 1; } }
+        public virtual int Priority { get { return 5; } }
 
-        public IMarketDataReader DataReader { get; set; }
+        public virtual Task<MarketDataPrice> RequestPrice(string symbol, string exchange, string source)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                MarketDataPrice price;
+                if (TryGetMarketData(symbol, exchange, source, out price) == true)
+                {
+                    return price;
+                }
+                return null;
+            });
+        }
+
+        //public IMarketDataReader DataReader { get; set; }
+
+        private string _mapCurrency(string ccy)
+        {
+            if (_currencyMapper.ContainsKey(ccy) == true)
+            {
+                return _currencyMapper[ccy];
+            }
+            return ccy;
+        }
+
     }
 }

@@ -17,7 +17,7 @@ BEGIN
 SELECT
 	 1 
 FROM 
-	Users
+	Accounts
 WHERE
 	[Name] = @Name
 END
