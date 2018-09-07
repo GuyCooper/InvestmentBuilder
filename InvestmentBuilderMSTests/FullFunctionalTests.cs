@@ -43,7 +43,7 @@ namespace InvestmentBuilderMSTests
     }
     ///  <summary>
     /// This class contains full acceptance tests of InvestmentBuilder
-    /// suite. not unit tests. Requires a db restore
+    /// suite. not unit tests. Requires a db restore. starts from an empty database
     /// </summary>
     [TestClass]
     public class FullFunctionalTests
@@ -136,7 +136,7 @@ namespace InvestmentBuilderMSTests
                 return;
             }
 
-            Console.WriteLine("run full tests...");
+            Console.WriteLine("run functional tests...");
 
             //first remove any generated files from previous tests
 

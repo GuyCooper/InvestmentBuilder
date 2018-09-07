@@ -48,11 +48,13 @@ create table dbo.Accounts
 	[Enabled]		  tinyint not null,
 	[Broker] varchar(30) default(null), 
 
-	constraint UN_AccountName unique([Name]),
-
 	constraint FK_AccountType_User foreign key
 	([Type_Id]) references AccountTypes([Type_Id])
 )
+
+create index IDX_AccountName on
+dbo.Accounts([Name])
+go
 
 insert into dbo.AccountTypes ([Type]) values ('Club')
 insert into dbo.AccountTypes ([Type]) values ('Personal')

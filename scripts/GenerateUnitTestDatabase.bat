@@ -6,7 +6,7 @@ set DBName=master
 echo rebuild unit test database, server name: %ServerName%, db name: %DBName%
 
 sqlcmd -S %ServerName% -E -d %DBName% -i BuildInvestmentBuilderDatabase.sql
-pause
+
 set DBName=InvestmentBuilderUnitTest1
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddCashAccountData.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddNewShares.sql
@@ -14,6 +14,7 @@ sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddNewUnitValuation.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddRedemption.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddTransactionHistory.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_CreateAccount.sql
+sqlcmd -S %ServerName% -E -d %DBName% -i sp_UpdateAccount.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_CreateNewInvestment.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_DeactivateCompany.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_GetAccountData.sql
@@ -69,6 +70,6 @@ sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddHistoricalData.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_GetHistoricalData.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddNewUser.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_GetUserId.sql
-pause
+
 popd
 
