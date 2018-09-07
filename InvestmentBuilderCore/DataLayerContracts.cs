@@ -332,6 +332,11 @@ namespace InvestmentBuilderCore
             Contract.Requires(string.IsNullOrEmpty(member) == false);
         }
 
+        public void UpdateAccount(UserAccountToken userToken, AccountModel account)
+        {
+            Contract.Requires(userToken != null);
+        }
+
         public void CreateAccount(UserAccountToken userToken, AccountModel account)
         {
             Contract.Requires(userToken != null);

@@ -42,25 +42,25 @@ namespace InvestmentBuilder
         public bool CreateUserAccount(string user, AccountModel account, DateTime dtValuationDate)
         {
             var token = new UserAccountToken(user, account.Name, AuthorizationLevel.ADMINISTRATOR);
-            if (_accountData.InvestmentAccountExists(account.Name) == false)
-            {
-                //if account does not exist then create a temporary administrator token
-                //for the user so they can add the account 
-                return _updateInvestmentAccount(token, account, dtValuationDate);
-            }
-
-            logger.Log(token, LogLevel.Error, "account {0} already exists!!", account.Name);
-            return false;
+            logger.Log(token, LogLevel.Info, "creating account {0}", account.Name);
+            return _updateInvestmentAccount(token, account, dtValuationDate, true);
         }
 
         /// <summary>
-        /// Update / Create the account details for the specified user
+        /// Update an account for the specified user
         /// </summary>
         public bool UpdateUserAccount(string user, AccountModel account, DateTime dtValuationDate)
         {
             var token = _authorizationManager.GetUserAccountToken(user, account.Name);
+            if (_accountData.InvestmentAccountExists(account.Name) == true)
+            {
+                logger.Log(token, LogLevel.Info, "updating account {0}", account.Name);
+                return _updateInvestmentAccount(token, account, dtValuationDate, false);
+            }
 
-            return _updateInvestmentAccount(token, account, dtValuationDate);
+            logger.Log(token, LogLevel.Error, "account {0} does not exist", account.Name);
+            return false;
+
         }
 
         /// <summary>
@@ -86,9 +86,8 @@ namespace InvestmentBuilder
         /// <summary>
         /// Implementation for creating / modifiying an account
         /// </summary>
-        private bool _updateInvestmentAccount(UserAccountToken token, AccountModel account, DateTime dtValuationDate)
+        private bool _updateInvestmentAccount(UserAccountToken token, AccountModel account, DateTime dtValuationDate, bool create)
         {
-            logger.Log(token, LogLevel.Info, "creating/modifying account {0}", account.Name);
             logger.Log(token, LogLevel.Info, "Description {0}", account.Description);
             logger.Log(token, LogLevel.Info, "Reporting Currency {0}", account.ReportingCurrency);
             logger.Log(token, LogLevel.Info, "Account Type {0}", account.Type);
@@ -103,8 +102,15 @@ namespace InvestmentBuilder
 
             //the group must already exist otherwise the user will not be grnted permission to
             //modify it
+            if(create == true)
+            {
+                _accountData.CreateAccount(token, account);
+            }
+            else
+            {
+                _accountData.UpdateAccount(token, account);
+            }
 
-            _accountData.CreateAccount(token, account);
             var existingMembers = _accountData.GetAccountMembers(token, dtValuationDate).ToList();
             //GetAccountMembers(tmpToken).ToList();
             foreach (var member in existingMembers)
@@ -127,11 +133,22 @@ namespace InvestmentBuilder
             return true;
         }
 
+        /// <summary>
+        /// Update the account with the specified member
+        /// </summary>
         private void _UpdateMemberForAccount(UserAccountToken token, string member, AuthorizationLevel level, bool bAdd)
         {
+            if(bAdd == true)
+            {
+
+            }
             _accountData.UpdateMemberForAccount(token, member, level, bAdd);
         }
 
+        /// <summary>
+        /// Pre Validate the account before creating it. Checks that the account meets the
+        /// minimum criteria for a valid account.
+        /// </summary>
         private bool _ValidateAccount(AccountModel account, UserAccountToken token)
         {
             //account must have at least one administrator and no user can be a 

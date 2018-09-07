@@ -69,19 +69,25 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
             }
         });
 
-        modalInstance.result.then(function (account) {
+        var onAccountUpdated = function (data) {
+            if (data.Status === false) {
+                alert("update account failed: " + data.Error);
+            }
+            else {
+                //successfull, reload the account names
+                onLoadAccountNames(data);
+            }
+        };
+
+        modalInstance.result.then(function (account, edit) {
             //$ctrl.selected = selectedItem;
             //user has clicked ok , we need to update the account information for this user
-            MiddlewareService.UpdateAccountDetails(account, function (data) {
-                if (data.Status === false) {
-                    alert("update account failed: " + data.Error);
-                }
-                else {
-                    //successfull, reload the account names
-                    onLoadAccountNames(data);
-                }
-            });
-
+            if (edit === true) {
+                MiddlewareService.UpdateAccountDetails(account, onAccountUpdated);
+            }
+            else {
+                MiddlewareService.CreateAccount(account, onAccountUpdated);
+            }
             //updateMethod(transaction);
         }, function () {
             $log.info('Modal dismissed at: ' + new Date());

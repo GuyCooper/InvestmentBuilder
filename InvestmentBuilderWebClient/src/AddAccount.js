@@ -106,7 +106,7 @@ function AddAccount($scope, $uibModalInstance, user, currencies, account, broker
             AccountType: $scope.AccountType,
             Enabled : true,
             Members : members
-            });
+        }, $scope.EditAccount);
     };
 
     $scope.cancel = function () {

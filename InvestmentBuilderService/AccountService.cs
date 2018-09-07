@@ -53,6 +53,14 @@ namespace InvestmentBuilderService
             return _accountManager.UpdateUserAccount(userSession.UserName, account, userSession.ValuationDate);
         }
 
+        /// <summary>
+        /// Method creates a new account for the specified user
+        /// </summary>
+        public bool CreateUserAccount(UserSession userSession, AccountModel account)
+        {
+            return _accountManager.CreateUserAccount(userSession.UserName, account, userSession.ValuationDate);
+        }
+
         public AccountModel GetAccount(UserSession userSession, string accountName)
         {
             return _accountManager.GetAccountData(GetUserAccountToken(userSession, accountName),

@@ -115,6 +115,7 @@ namespace InvestmentBuilderMSTests
         public virtual IEnumerable<string> GetAccountMembers(UserAccountToken userToken, DateTime valuationDate) { throw new NotImplementedException(); }
         public virtual IEnumerable<AccountMember> GetAccountMemberDetails(UserAccountToken userToken, DateTime valuationDate) { throw new NotImplementedException(); }
         public virtual void UpdateMemberForAccount(UserAccountToken userToken, string member, AuthorizationLevel level, bool add) { throw new NotImplementedException(); }
+        public virtual void UpdateAccount(UserAccountToken userToken, AccountModel account) { throw new NotImplementedException(); }
         public virtual void CreateAccount(UserAccountToken userToken, AccountModel account) { throw new NotImplementedException(); }
         public virtual AccountModel GetAccount(UserAccountToken userToken) { throw new NotImplementedException(); }
         public virtual IEnumerable<string> GetAccountNames(string user, bool bCheckAdmin) { throw new NotImplementedException(); }
@@ -319,6 +320,7 @@ namespace InvestmentBuilderMSTests
         public virtual void AddRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount) { }
         public virtual void UpdateRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount, double units) { }
         public void UpdateMemberForAccount(UserAccountToken userToken, string member, AuthorizationLevel level, bool add) { }
+        public virtual void UpdateAccount(UserAccountToken userToken, AccountModel account) { }
         public virtual void CreateAccount(UserAccountToken userToken, AccountModel account) { }
         public virtual AccountModel GetAccount(UserAccountToken userToken) { return null; }
         public virtual IEnumerable<string> GetAccountMembers(UserAccountToken userToken, DateTime valuationDate) { return null; }

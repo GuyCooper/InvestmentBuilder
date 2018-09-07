@@ -35,13 +35,5 @@ BEGIN
 		   [Type] = @AccountType
 END
 
-	UPDATE dbo.Accounts
-	SET 
-		[Description] = @Description,
-		[Currency] = @Currency,
-		[Enabled] = @Enabled,
-		[Broker]  = @Broker
-	WHERE  Name = @Name
-	 
 END
 GO

@@ -411,6 +411,10 @@ function MiddlewareService()
         doCommand("UPDATE_ACCOUNT_DETAILS_REQUEST", "UPDATE_ACCOUNT_DETAILS_RESPONSE", account, handler);
     };
 
+    this.CreateAccount = function (account, handler) {
+        doCommand("CREATE_ACCOUNT_REQUEST", "CREATE_ACCOUNT_RESPONSE", account, handler);
+    };
+
     this.GetAccountDetails = function (accountName, handler) {
         var dto = { AccountName: accountName };
         doCommand("GET_ACCOUNT_DETAILS_REQUEST", "GET_ACCOUNT_DETAILS_RESPONSE", dto, handler);
@@ -969,7 +973,7 @@ function AddAccount($scope, $uibModalInstance, user, currencies, account, broker
             AccountType: $scope.AccountType,
             Enabled : true,
             Members : members
-            });
+        }, $scope.EditAccount);
     };
 
     $scope.cancel = function () {
@@ -1047,19 +1051,25 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
             }
         });
 
-        modalInstance.result.then(function (account) {
+        var onAccountUpdated = function (data) {
+            if (data.Status === false) {
+                alert("update account failed: " + data.Error);
+            }
+            else {
+                //successfull, reload the account names
+                onLoadAccountNames(data);
+            }
+        };
+
+        modalInstance.result.then(function (account, edit) {
             //$ctrl.selected = selectedItem;
             //user has clicked ok , we need to update the account information for this user
-            MiddlewareService.UpdateAccountDetails(account, function (data) {
-                if (data.Status === false) {
-                    alert("update account failed: " + data.Error);
-                }
-                else {
-                    //successfull, reload the account names
-                    onLoadAccountNames(data);
-                }
-            });
-
+            if (edit === true) {
+                MiddlewareService.UpdateAccountDetails(account, onAccountUpdated);
+            }
+            else {
+                MiddlewareService.CreateAccount(account, onAccountUpdated);
+            }
             //updateMethod(transaction);
         }, function () {
             $log.info('Modal dismissed at: ' + new Date());

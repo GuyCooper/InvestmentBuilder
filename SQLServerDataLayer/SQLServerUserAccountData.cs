@@ -311,6 +311,9 @@ namespace SQLServerDataLayer
             }
         }
 
+        /// <summary>
+        /// Add or update a member for an account
+        /// </summary>
         public void UpdateMemberForAccount(UserAccountToken userToken, string member, AuthorizationLevel level, bool add)
         {
             userToken.AuthorizeUser(AuthorizationLevel.ADMINISTRATOR);
@@ -328,6 +331,32 @@ namespace SQLServerDataLayer
             }
         }
 
+        /// <summary>
+        /// Update an existing account
+        /// </summary>
+        public void UpdateAccount(UserAccountToken userToken, AccountModel account)
+        {
+            userToken.AuthorizeUser(AuthorizationLevel.ADMINISTRATOR);
+            using (var connection = OpenConnection())
+            {
+                using (var sqlCommand = new SqlCommand("sp_UpdateAccount", connection))
+                {
+                    sqlCommand.CommandType = CommandType.StoredProcedure;
+                    sqlCommand.Parameters.Add(new SqlParameter("@Name", account.Name));
+                    sqlCommand.Parameters.Add(new SqlParameter("@Currency", account.ReportingCurrency));
+                    sqlCommand.Parameters.Add(new SqlParameter("@AccountType", account.Type));
+                    sqlCommand.Parameters.Add(new SqlParameter("@Enabled", account.Enabled));
+                    sqlCommand.Parameters.Add(new SqlParameter("@Description", account.Description));
+                    sqlCommand.Parameters.Add(new SqlParameter("@Broker", account.Broker));
+                    sqlCommand.ExecuteNonQuery();
+                }
+            }
+
+        }
+
+        /// <summary>
+        /// Create a new account.
+        /// </summary>
         public void CreateAccount(UserAccountToken userToken, AccountModel account)
         {
             userToken.AuthorizeUser(AuthorizationLevel.ADMINISTRATOR);
@@ -347,6 +376,9 @@ namespace SQLServerDataLayer
             }
         }
 
+        /// <summary>
+        /// Return the account details for the specified account.
+        /// </summary>
         public AccountModel GetAccount(UserAccountToken userToken)
         {
             userToken.AuthorizeUser(AuthorizationLevel.ADMINISTRATOR);
@@ -376,6 +408,9 @@ namespace SQLServerDataLayer
             return null;
         }
 
+        /// <summary>
+        /// returns a list of accounts that this user is a member of.
+        /// </summary>
         public IEnumerable<string> GetAccountNames(string user, bool bCheckAdmin)
         {
             //return the list of accounts that this user is able to see
@@ -397,6 +432,10 @@ namespace SQLServerDataLayer
             }
         }
 
+        /// <summary>
+        /// Return the list of active investments for this account.
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<string> GetActiveCompanies(UserAccountToken userToken, DateTime valuationDate)
         {
             userToken.AuthorizeUser(AuthorizationLevel.READ);
@@ -418,6 +457,10 @@ namespace SQLServerDataLayer
             }
         }
 
+        /// <summary>
+        /// Return true if this account already exists otherwise return false
+        /// </summary>
+        /// <returns></returns>
         public bool InvestmentAccountExists(string accountName)
         {
             using (var connection = OpenConnection())

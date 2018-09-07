@@ -130,6 +130,10 @@ function MiddlewareService()
         doCommand("UPDATE_ACCOUNT_DETAILS_REQUEST", "UPDATE_ACCOUNT_DETAILS_RESPONSE", account, handler);
     };
 
+    this.CreateAccount = function (account, handler) {
+        doCommand("CREATE_ACCOUNT_REQUEST", "CREATE_ACCOUNT_RESPONSE", account, handler);
+    };
+
     this.GetAccountDetails = function (accountName, handler) {
         var dto = { AccountName: accountName };
         doCommand("GET_ACCOUNT_DETAILS_REQUEST", "GET_ACCOUNT_DETAILS_RESPONSE", dto, handler);

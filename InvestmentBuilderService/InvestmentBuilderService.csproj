@@ -81,6 +81,7 @@
     <Compile Include="AccountService.cs" />
     <Compile Include="CashFlowManager.cs" />
     <Compile Include="ChannelEndpointManager.cs" />
+    <Compile Include="Channels\CreateAccountChannel.cs" />
     <Compile Include="Channels\GetAccountDetailsChannel.cs" />
     <Compile Include="Channels\GetCurrenciesChannel.cs" />
     <Compile Include="Channels\GetRecentReportFiles.cs" />
