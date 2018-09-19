@@ -93,7 +93,7 @@ namespace InvestmentReportGenerator
                 newSheet.EnableCalculation = true;
                 newSheet.Name = newSheetName;
 
-                newSheet.get_Range("A1").Value = report.AccountName;
+                newSheet.get_Range("A1").Value = report.AccountName.Name;
                 newSheet.get_Range("C4").Value = report.ValuationDate;
 
                 newSheet.get_Range("B16").Value = report.ReportingCurrency;

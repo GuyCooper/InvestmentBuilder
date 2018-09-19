@@ -11,7 +11,7 @@ END
 
 GO
 
-CREATE PROCEDURE sp_GetActiveCompanies(@Account as VARCHAR(30), @ValuationDate as DATETIME) AS
+CREATE PROCEDURE sp_GetActiveCompanies(@Account as INT, @ValuationDate as DATETIME) AS
 BEGIN
 
 SELECT
@@ -22,14 +22,10 @@ INNER JOIN
 	Companies C
 ON 
 	IR.company_id = C.Company_Id
-INNER JOIN
-	Accounts A
-ON
-	IR.account_id = A.[Account_Id]
 WHERE 
 	IR.is_active = 1
 AND
 	IR.Valuation_Date = @ValuationDate
 AND
-	A.Name = @Account
+	IR.account_id = @Account
 END

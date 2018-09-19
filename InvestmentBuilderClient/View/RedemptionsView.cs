@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using InvestmentBuilderClient.DataModel;
+using InvestmentBuilderCore;
 
 namespace InvestmentBuilderClient.View
 {
@@ -71,7 +72,7 @@ namespace InvestmentBuilderClient.View
             gridRedemptions.DataSource = _dataModel.GetRedemptions(_dtValuation);
         }
 
-        public void UpdateAccountName(string account)
+        public void UpdateAccountName(AccountIdentifier account)
         {
             //throw new NotImplementedException();
         }

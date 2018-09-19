@@ -13,7 +13,7 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_GetMembersCapitalAccount](@ValuationDate as DATETIME, @Account as VARCHAR(30)) AS
+CREATE PROCEDURE [dbo].[sp_GetMembersCapitalAccount](@ValuationDate as DATETIME, @Account as INT) AS
 BEGIN
 
 SELECT
@@ -22,13 +22,11 @@ FROM
 	MembersCapitalAccount MCA
 INNER JOIN	 Members M
 ON MCA.Member_Id =M.Member_Id
-INNER JOIN Accounts A
-ON M.account_id = A.[Account_Id]
 INNER JOIN [Users] U
 ON U.[UserId] = M.[UserId]
 WHERE
 	Valuation_Date = @valuationDate
-	and A.[Name] = @Account
+	and M.account_id = @Account
 END
 GO
 

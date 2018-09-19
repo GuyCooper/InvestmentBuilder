@@ -56,7 +56,12 @@ namespace InvestmentBuilderMSTests
             }
         };
 
-        public static readonly  string TestAccount = "TestAcc";
+        public static readonly AccountIdentifier TestAccount = new AccountIdentifier
+        {
+            Name = "TestAcc",
+            AccountId = 123
+        };
+
         public static readonly  string TestUser = "TestUser";
         public static readonly  DateTime ValuationDate = DateTime.Parse("12/04/2016");
 

@@ -82,7 +82,7 @@ namespace InvestmentBuilderClient.View
             try
             {
                 UseWaitCursor = true;
-                var accountName = cmboAccountName.SelectedItem as string;
+                var accountName = cmboAccountName.SelectedItem as AccountIdentifier;
                 foreach (var view in _views)
                 {
                     view.UpdateAccountName(accountName);
@@ -145,7 +145,7 @@ namespace InvestmentBuilderClient.View
             cmboAccountName.Items.AddRange(_dataModel.GetAccountNames().Cast<object>().ToArray());
             cmboAccountName.SelectedIndex = 0;
 
-            _dataModel.UpdateAccountName(cmboAccountName.SelectedItem as string);
+            _dataModel.UpdateAccountName(cmboAccountName.SelectedItem as AccountIdentifier);
 
             //PopulateValuationDates();        
         }
@@ -219,7 +219,7 @@ namespace InvestmentBuilderClient.View
 
         private void cmboAccountName_SelectedIndexChanged(object sender, EventArgs e)
         {
-            _dataModel.UpdateAccountName(cmboAccountName.SelectedItem as string);
+            _dataModel.UpdateAccountName(cmboAccountName.SelectedItem as AccountIdentifier);
             PopulateValuationDates();
             UpdateValuationDate();
             UpdateAccountName();
@@ -272,10 +272,10 @@ namespace InvestmentBuilderClient.View
 
         private void btnManageUsers_Click(object sender, EventArgs e)
         {
-            var view = new ManageUserView(cmboAccountName.SelectedItem as string, _dataModel);
+            var view = new ManageUserView(cmboAccountName.SelectedItem as AccountIdentifier, _dataModel);
             if(view.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                var account = new AccountModel(view.GetAccountName(),
+                var account = new AccountModel(view.GetAccountIdentifer(),
                                                view.GetDescription(),
                                                view.GetCurrency(),
                                                view.GetAccountType(),
@@ -283,9 +283,9 @@ namespace InvestmentBuilderClient.View
                                                view.GetBroker(),
                                                view.GetMembers());
 
-                logger.Log(LogLevel.Info, "updating account {0}", account.Name);
+                logger.Log(LogLevel.Info, "updating account {0}", account.Identifier.Name);
                 //ensure the account folder has been created 
-                _settings.GetOutputPath(account.Name);
+                _settings.GetOutputPath(account.Identifier.GetPathName());
                 _dataModel.UpdateUserAccount(account);
                 
                 InitialiseValues();
@@ -311,7 +311,8 @@ namespace InvestmentBuilderClient.View
         {
             var process = new System.Diagnostics.Process();
             process.StartInfo.FileName = "explorer.exe";
-            process.StartInfo.Arguments = _settings.GetOutputPath(cmboAccountName.SelectedItem as string);
+            var identifier = cmboAccountName.SelectedItem as AccountIdentifier;
+            process.StartInfo.Arguments = _settings.GetOutputPath(identifier.GetPathName());
             process.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
             process.Start();
         }

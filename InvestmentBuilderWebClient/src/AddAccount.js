@@ -4,7 +4,7 @@
 function AddAccount($scope, $uibModalInstance, user, currencies, account, brokers) {
 
     //set the default values
-    $scope.AccountName = "";
+    $scope.AccountName = {};
     $scope.AccountDescription;
     $scope.Currencies = currencies;
     $scope.Brokers = brokers;
@@ -75,7 +75,7 @@ function AddAccount($scope, $uibModalInstance, user, currencies, account, broker
     $scope.onTypeChange();
 
     $scope.accountNameChanged = function () {
-        $scope.CanSubmit = $scope.AccountName != "";
+        $scope.CanSubmit = $scope.AccountName.Name != "";
     };
 
     $scope.accountNameChanged();

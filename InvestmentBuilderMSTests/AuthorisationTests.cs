@@ -12,7 +12,7 @@ namespace InvestmentBuilderMSTests
     {
         public const string TestUser = "TestAuthUser1";
 
-        protected override AuthorizationLevel GetUserAuthorizationLevel(string user, string account)
+        protected override AuthorizationLevel GetUserAuthorizationLevel(string user, AccountIdentifier account)
         {
             if(user == TestUser)
                 return AuthorizationLevel.ADMINISTRATOR;
@@ -28,7 +28,11 @@ namespace InvestmentBuilderMSTests
     [TestClass]
     public class AuthorisationTests
     {
-        private static string _TestAccount = "Guy SIPP";
+        private static AccountIdentifier _TestAccount = new AccountIdentifier
+        {
+            Name = "Guy SIPP",
+            AccountId = 53
+        };
 
         [TestMethod]
         public void When_Authorizing_Windows_User()

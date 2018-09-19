@@ -27,10 +27,7 @@
         <ul class="nav navbar-nav navbar-right">
             <li>
                 <form name="accountDetailsForm" role="form" ng-submit="UpdateAccount()">
-                    <!--<select name="AccountName" class="form-control investmentNavigator1" ng-model="SelectedAcount" ng-change="UpdateAccount()">
-                        <option ng-repeat="account in Accounts">{{account}}</option>
-                    </select>-->
-                    <select name="AccountName" class="form-control investmentNavigator1" ng-model="SelectedAcount" ng-options="account for account in Accounts" ng-change="UpdateAccount()">
+                    <select name="AccountName" class="form-control investmentNavigator1" ng-model="SelectedAcount" ng-options="account.Name for account in Accounts" ng-change="UpdateAccount()">
                     </select>
                 </form>
             </li>
@@ -82,7 +79,7 @@
             <div ng-show="!IsBuilding" ng-cloak>
                 <div class="row investmentSummary">
                     <div class="pull-left">
-                        <h1>{{AccountName}}</h1>
+                        <h1>{{AccountName.Name}}</h1>
                     </div>
                     <div class="pull-right">
                         <div style="display:inline-block">

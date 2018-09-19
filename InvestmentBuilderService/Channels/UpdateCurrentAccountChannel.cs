@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using InvestmentBuilderCore;
 
 namespace InvestmentBuilderService.Channels
 {
     internal class UpdateCurrentAccountRequestDto : Dto
     {
-        public string AccountName { get; set; }
+        public AccountIdentifier AccountName { get; set; }
     }
 
     class UpdateCurrentAccountChannel : EndpointChannel<UpdateCurrentAccountRequestDto, ChannelUpdater>

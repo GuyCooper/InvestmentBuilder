@@ -16,7 +16,7 @@ namespace InvestmentBuilderService.Channels
     /// </summary>
     internal class AccountDetailsDto : Dto
     {
-        public string AccountName { get; set; }
+        public AccountIdentifier AccountName { get; set; }
         public string Description { get; set; }
         public string ReportingCurrency { get; set; }
         public string AccountType { get; set; }
@@ -33,7 +33,7 @@ namespace InvestmentBuilderService.Channels
     {
         public bool Status { get; set; }
         public string Error { get; set; }
-        public IEnumerable<string> AccountNames { get; set; }
+        public IEnumerable<AccountIdentifier> AccountNames { get; set; }
     }
 
     /// <summary>

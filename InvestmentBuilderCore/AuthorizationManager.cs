@@ -4,12 +4,15 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 namespace InvestmentBuilderCore
 {
+    /// <summary>
+    /// Enum specifies the possibe levels of authorisation on an account
+    /// </summary>
     public enum AuthorizationLevel
     {
-        NONE = 0,
-        READ,
-        UPDATE,
-        ADMINISTRATOR
+        NONE = 0, //No permssions
+        READ, //read only permissions
+        UPDATE, //read and update permssions
+        ADMINISTRATOR //read, update and special administrator privilleges such as adding / removing users
     }
 
     /// <summary>
@@ -17,18 +20,29 @@ namespace InvestmentBuilderCore
     /// </summary>
     public class UserAccountToken
     {
+        #region Public Properties
+
         public string User { get; private set; }
-        public string Account { get; private set; }
 
-        private AuthorizationLevel _authorization;
+        public AccountIdentifier Account { get; private set; }
 
-        public UserAccountToken(string user, string account,AuthorizationLevel authorization)
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public UserAccountToken(string user, AccountIdentifier account,AuthorizationLevel authorization)
         {
             User = user;
             Account = account;
             _authorization = authorization;
         }
 
+        /// <summary>
+        /// Authorizes the user specified by this token against the authorisation level.
+        /// </summary>
         public void AuthorizeUser(AuthorizationLevel level)
         {
             if(_authorization < level)
@@ -37,20 +51,36 @@ namespace InvestmentBuilderCore
             }
         }
 
-        public void UpdateAccount(string account)
+        /// <summary>
+        /// Updates the account for this token
+        /// </summary>
+        public void UpdateAccount(AccountIdentifier account)
         {
-            if(string.IsNullOrEmpty(account) == false)
+            if(account != null && string.IsNullOrEmpty(account.Name) == false)
             {
                 Account = account;
             }
         }
 
+        #endregion
+
+        #region Contract Invariance Methods
+
         [ContractInvariantMethod]
         protected void ObjectInvariantMethod()
         {
             Contract.Invariant(string.IsNullOrEmpty(User) == false);
-            Contract.Invariant(string.IsNullOrEmpty(Account) == false);
+            Contract.Invariant(Account != null);
+            Contract.Invariant(string.IsNullOrEmpty(Account.Name) == false);
         }
+
+        #endregion
+
+        #region Private Members Data
+
+        private AuthorizationLevel _authorization;
+
+        #endregion
     }
     /// <summary>
     /// interface defines an authorization manager. user can have any of the levels in
@@ -60,51 +90,50 @@ namespace InvestmentBuilderCore
     /// </summary>
     public interface IAuthorizationManager
     {
-        UserAccountToken GetUserAccountToken(string user, string account);
-        UserAccountToken SetUserAccountToken(string user, string account);
+        UserAccountToken GetUserAccountToken(string user, AccountIdentifier account);
+        UserAccountToken SetUserAccountToken(string user, AccountIdentifier account);
         UserAccountToken GetCurrentTokenForUser(string user);
     }
 
     public abstract class AuthorizationManager : IAuthorizationManager
     {
-        //private static string GLOBAL_ADMINISTRATOR = "GLOBAL ADMINISTRATOR";
-        //private static string GLOBAL_ACCOUNT = "GLOBAL ACCOUNT";
+        #region Public Methods
 
-        //private static UserAccountToken GlobalAdministrator =
-        //    new UserAccountToken(GLOBAL_ADMINISTRATOR, GLOBAL_ACCOUNT, AuthorizationLevel.ADMINISTRATOR);
-        private Dictionary<string, UserAccountToken> _userTokenlookup;
-
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public AuthorizationManager()
         {
             _userTokenlookup = new Dictionary<string, UserAccountToken>();
         }
 
-        public UserAccountToken GetUserAccountToken(string user, string account)
+        /// <summary>
+        /// Factory method returns a UserToken for a user
+        /// </summary>
+        public UserAccountToken GetUserAccountToken(string user, AccountIdentifier account)
         {
             if(IsGlobalAdministrator(user) == true)
             {
                 return new UserAccountToken(user, account, AuthorizationLevel.ADMINISTRATOR);
             }
 
-            if (string.IsNullOrEmpty(account) == false)
+            if(account != null & string.IsNullOrEmpty(account.Name) == false)
             {
                 return new UserAccountToken(user, account,
                     GetUserAuthorizationLevel(user, account));
             }
 
-            return new UserAccountToken(user, account, AuthorizationLevel.NONE);
+            return new UserAccountToken(user, new AccountIdentifier { Name=""}, AuthorizationLevel.NONE);
         }
 
         /// <summary>
         /// each user is only ever allowed a single useraccount token at any time. 
         /// NOTE: This method must be thread safe
         /// </summary>
-        /// <param name="user"></param>
-        /// <param name="account"></param>
-        public UserAccountToken SetUserAccountToken(string user, string account)
+        public UserAccountToken SetUserAccountToken(string user, AccountIdentifier account)
         {
             UserAccountToken existingToken;
-            if (IsGlobalAdministrator(user) || account == null)
+            if (IsGlobalAdministrator(user) || account.Name == null)
             {
                 _userTokenlookup.TryGetValue(user, out existingToken);
                 if(existingToken != null)
@@ -128,6 +157,9 @@ namespace InvestmentBuilderCore
             return existingToken;
         }
 
+        /// <summary>
+        /// Returns the current token for a user if there is one.
+        /// </summary>
         public UserAccountToken GetCurrentTokenForUser(string user)
         {
             UserAccountToken token;
@@ -138,8 +170,21 @@ namespace InvestmentBuilderCore
             return null;
         }
 
-        protected abstract AuthorizationLevel GetUserAuthorizationLevel(string user, string account);
+        #endregion
+
+        #region Protected Abstract Methods
+
+        protected abstract AuthorizationLevel GetUserAuthorizationLevel(string user, AccountIdentifier account);
 
         protected abstract bool IsGlobalAdministrator(string user);
+
+        #endregion
+
+        #region Private Data Members
+
+        private Dictionary<string, UserAccountToken> _userTokenlookup;
+
+        #endregion
+
     }
 }

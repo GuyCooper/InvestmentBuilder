@@ -11,18 +11,10 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_UpdateMembersCapitalAccount](@ValuationDate as DATETIME, @Member as nvarchar(256), @Units as float, @Account as VARCHAR(30)) AS
+CREATE PROCEDURE [dbo].[sp_UpdateMembersCapitalAccount](@ValuationDate as DATETIME, @Member as nvarchar(256), @Units as float, @Account as INT) AS
 BEGIN
-	DECLARE @AccountID INT
 	DECLARE @MemberID INT
 
-	SELECT
-		 @AccountID = [Account_Id]
-	FROM 
-		Accounts
-	WHERE
-		Name = @Account
-	
 	SELECT
 		 @MemberID = M.[Member_Id]
 	FROM 
@@ -33,7 +25,7 @@ BEGIN
 	WHERE
 		U.UserName = @Member
 		AND 
-		M.account_id = @AccountID
+		M.account_id = @Account
 
 	if EXISTS(SELECT [Units] FROM MembersCapitalAccount 
 			  WHERE [Member_Id] = @MemberID

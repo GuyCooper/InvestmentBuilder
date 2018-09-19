@@ -15,7 +15,7 @@ namespace InvestmentBuilderClient.ViewModel
 
         public List<CompanyData> ItemsList { get { return _dataModel.PortfolioItemsList; } }
 
-        private string _account;
+        private AccountIdentifier _account;
 
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -24,7 +24,7 @@ namespace InvestmentBuilderClient.ViewModel
             _dataModel = dataModel;
         }
 
-        public string Account
+        public AccountIdentifier Account
         {
             get { return _account; }
             set

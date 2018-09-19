@@ -279,7 +279,7 @@ namespace PerformanceBuilderLib
         /// <param name="startDate"></param>
         /// <param name="indexes"></param>
         /// <returns></returns>
-        private IList<IndexData> _BuildIndexLadders(UserAccountToken userToken, DateTime? startDate, IEnumerable<HistoricalData> historicalData, string account)
+        private IList<IndexData> _BuildIndexLadders(UserAccountToken userToken, DateTime? startDate, IEnumerable<HistoricalData> historicalData, AccountIdentifier account)
         {
             //first get club history
             //var clubData = _GetClubData().OrderBy(x => x.Date).ToList();
@@ -298,7 +298,7 @@ namespace PerformanceBuilderLib
 
             result.Add(new IndexData
             {
-                Name = account,
+                Name = account.Name,
                 StartDate = dtFirstDate,
                 Data = rebasedClubData
             });
@@ -486,7 +486,7 @@ namespace PerformanceBuilderLib
 
             index.Add(new HistoricalData
             (
-                key: userToken.Account,
+                key: userToken.Account.Name,
                 price: average
             ));
 

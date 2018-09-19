@@ -11,6 +11,7 @@ using InvestmentBuilderClient.ViewModel;
 using InvestmentBuilderClient.DataModel;
 using InvestmentBuilder;
 using NLog;
+using InvestmentBuilderCore;
 
 namespace InvestmentBuilderClient.View
 {
@@ -142,7 +143,7 @@ namespace InvestmentBuilderClient.View
             }
         }
 
-        public void UpdateAccountName(string account)
+        public void UpdateAccountName(AccountIdentifier account)
         {
         }
     }

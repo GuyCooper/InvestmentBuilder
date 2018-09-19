@@ -23,6 +23,9 @@ namespace InvestmentBuilderService.Channels
             _builder = builder;
         }
 
+        /// <summary>
+        /// Method called when a request for an investnent summary is received.
+        /// </summary>
         protected override Dto HandleEndpointRequest(UserSession userSession, Dto payload, ChannelUpdater update)
         {
             var userToken = GetCurrentUserToken(userSession);

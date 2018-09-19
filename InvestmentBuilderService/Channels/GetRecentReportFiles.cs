@@ -54,7 +54,7 @@ namespace InvestmentBuilderService.Channels
                 RecentReports = _clientData.GetRecentValuationDates(userToken, DateTime.Now).Select(x =>
                     new RecentReportFile
                     {
-                        FileName = $"{_m_settings.GetOutputLinkPath(userToken.Account)}/{_builder.GetInvestmentReport(userToken, x)}",
+                        FileName = $"{_m_settings.GetOutputLinkPath(userToken.Account.GetPathName())}/{_builder.GetInvestmentReport(userToken, x)}",
                         ValuationDate = x.ToShortDateString()
                     }).ToList()
             };

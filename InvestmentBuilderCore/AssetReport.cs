@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace InvestmentBuilderCore
 {
+    /// <summary>
+    /// AssetReport Class. A full account valuation on a specified date.
+    /// </summary>
     public class AssetReport
     {
-        public string AccountName { get;  set; }
+        public AccountIdentifier AccountName { get;  set; }
         public string ReportingCurrency { get; set; }
         public DateTime ValuationDate { get; set; }
         public IEnumerable<CompanyData> Assets { get; set; }

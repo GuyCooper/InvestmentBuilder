@@ -12,21 +12,17 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_GetUnitValuation](@valuationDate as DATETIME, @Account as VARCHAR(30)) AS
+CREATE PROCEDURE [dbo].[sp_GetUnitValuation](@valuationDate as DATETIME, @Account as INT) AS
 BEGIN
 
 SELECT  
 	Unit_Price 
 FROM
 	Valuations V
-INNER JOIN
-	Accounts A
-ON 
-	V.account_id = A.[Account_Id]
 WHERE
 	Valuation_Date = @valuationDate
 AND
-	A.Name = @Account
+	V.account_id = @Account
 END
 GO
 

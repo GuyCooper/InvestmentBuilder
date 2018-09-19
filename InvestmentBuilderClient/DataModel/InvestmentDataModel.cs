@@ -103,7 +103,7 @@ namespace InvestmentBuilderClient.DataModel
             logger.Log(LogLevel.Info, "reload from datasource {0}", dataSource);
         }
 
-        public IEnumerable<string> GetAccountNames()
+        public IEnumerable<AccountIdentifier> GetAccountNames()
         {
             return _accountManager.GetAccountNames(_userName);
         }
@@ -128,14 +128,14 @@ namespace InvestmentBuilderClient.DataModel
             return _clientData.GetAccountTypes();
         }
 
-        public AccountModel GetAccountData(string account)
+        public AccountModel GetAccountData(AccountIdentifier account)
         {
           
             var tmpToken = _authorizationManager.GetUserAccountToken(_userName, account);
             return _accountManager.GetAccountData(tmpToken, LatestValuationDate ?? DateTime.Today);
         }
 
-        public void UpdateAccountName(string account)
+        public void UpdateAccountName(AccountIdentifier account)
         {
             logger.Log(LogLevel.Info, "updating to account {0} ", account);
             _userToken = _authorizationManager.GetUserAccountToken(_userName, account);

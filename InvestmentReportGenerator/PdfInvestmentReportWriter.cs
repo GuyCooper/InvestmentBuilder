@@ -173,7 +173,7 @@ namespace InvestmentReportGenerator
             if (File.Exists(reportFileName))
                 File.Delete(reportFileName);
 
-            string title = string.Format("Valuation Report For {0} - {1}", report.AccountName, report.ValuationDate.ToShortDateString());
+            string title = string.Format("Valuation Report For {0} - {1}", report.AccountName.Name, report.ValuationDate.ToShortDateString());
             _CreateDocument(title);
 
             //before we can render the table, we need to break down the
@@ -194,7 +194,7 @@ namespace InvestmentReportGenerator
                 Paragraph heading = section.AddParagraph();
                 heading.Format.SpaceBefore = Unit.FromCentimeter(1);
                 heading.Format.SpaceAfter = Unit.FromCentimeter(1);
-                heading.AddFormattedText(report.AccountName, TextFormat.Bold);
+                heading.AddFormattedText(report.AccountName.Name, TextFormat.Bold);
                 heading.AddLineBreak();
                 heading.AddFormattedText(string.Format("Valuation Date: {0}", report.ValuationDate.ToShortDateString()));
                 heading.AddLineBreak();

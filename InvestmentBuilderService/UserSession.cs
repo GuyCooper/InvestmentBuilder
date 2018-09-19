@@ -13,7 +13,7 @@ namespace InvestmentBuilderService
         public string UserName { get; private set; }
         public string SessionId { get; private set; }
         public DateTime ValuationDate { get; set; }
-        public string AccountName { get; set; }
+        public AccountIdentifier AccountName { get; set; }
         public ManualPrices UserPrices { get; set; }
 
         public UserSession(string username, string usersessionid)

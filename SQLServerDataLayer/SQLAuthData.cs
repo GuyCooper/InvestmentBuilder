@@ -1,16 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using InvestmentBuilderCore;
+﻿using InvestmentBuilderCore;
 using System.Data.SqlClient;
 
 namespace SQLServerDataLayer
 {
     public class SQLAuthData : IAuthDataLayer
     {
+        #region Private Member Data
+
         private string _connectionStr;
+
+        #endregion
+
+        #region Public Methods
 
         private SqlConnection OpenConnection()
         {
@@ -127,5 +128,8 @@ namespace SQLServerDataLayer
             }
             return null;
         }
+
+        #endregion
+
     }
 }

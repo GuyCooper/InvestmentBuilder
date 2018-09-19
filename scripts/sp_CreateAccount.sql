@@ -20,20 +20,19 @@ CREATE PROCEDURE sp_CreateAccount(@Name AS VARCHAR(30)
 								  ) AS
 BEGIN
 
-IF NOT EXISTS (SELECT 1 FROM Accounts WHERE Name = @Name)
-BEGIN
 	INSERT INTO dbo.Accounts 
 	SELECT @Name,
 		   @Description,
 		   @Currency,
 		   [Type_Id],
-		   0,
+		   @Enabled,
 		   @Broker
 	FROM
 		   dbo.AccountTypes
 	WHERE
 		   [Type] = @AccountType
+
+	SELECT @@IDENTITY
 END
 
-END
 GO

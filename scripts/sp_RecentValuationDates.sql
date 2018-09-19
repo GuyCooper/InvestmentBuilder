@@ -11,19 +11,15 @@ END
 
 GO
 
-CREATE PROCEDURE sp_RecentValuationDates(@Account as VARCHAR(30), @DateFrom as DATETIME ) AS
+CREATE PROCEDURE sp_RecentValuationDates(@Account as INT, @DateFrom as DATETIME ) AS
 BEGIN
 
 SELECT
 	 TOP 5 V.Valuation_Date 
 FROM
 	 Valuations V
-INNER JOIN
-	 Accounts A
-ON	
-	V.[account_id] = A.[Account_Id]
 WHERE
-	A.Name = @Account
+	V.[account_id] = @Account
 AND
 	v.[Valuation_Date] < @DateFrom
 ORDER BY

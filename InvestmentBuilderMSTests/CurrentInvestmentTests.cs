@@ -9,7 +9,11 @@ namespace InvestmentBuilderMSTests
 {
     internal static class TestDataCache
     {
-        public static readonly string _TestAccount = "TestAccount";
+        public static readonly AccountIdentifier _TestAccount = new AccountIdentifier
+        {
+            Name = "TestAccount",
+            AccountId = 123
+        };
         public static readonly string _Currency = "GBP";
         public static readonly string _TestAccountType = "Club";
         public static readonly string _Description = "Test account";
@@ -55,14 +59,17 @@ namespace InvestmentBuilderMSTests
     }
     internal class CurrentInvestmentsUserAccountData : UserAccountInterfaceTest
     {
-        public override UserAccountData GetUserAccountData(UserAccountToken userToken)
+        public override AccountModel GetUserAccountData(UserAccountToken userToken)
         {
-            return new UserAccountData
+            return new AccountModel
             (
                 TestDataCache._TestAccount,
-                TestDataCache._Currency,
                 TestDataCache._Description,
-                TestDataCache._Broker
+                TestDataCache._Currency,
+                "",
+                true,
+                TestDataCache._Broker,
+                null
             );
         }
 
@@ -132,12 +139,12 @@ namespace InvestmentBuilderMSTests
 
         public override AccountModel GetAccount(UserAccountToken userToken)
         {
-            return TestAccountData.FirstOrDefault(x => x.Name == userToken.Account);
+            return TestAccountData.FirstOrDefault(x => x.Identifier.Name == userToken.Account.Name && x.Identifier.AccountId == userToken.Account.AccountId);
         }
 
         public override IEnumerable<AccountMember> GetAccountMemberDetails(UserAccountToken userToken, DateTime valuationDate)
         {
-            var account = TestAccountData.FirstOrDefault(x => x.Name == userToken.Account);
+            var account = TestAccountData.FirstOrDefault(x => x.Identifier.Name == userToken.Account.Name);
             if(account != null)
             {
                 return account.Members;
@@ -151,16 +158,17 @@ namespace InvestmentBuilderMSTests
             return GetAccountMemberDetails(userToken, valuationDate).Select(x => x.Name);
         }
 
-        public override void CreateAccount(UserAccountToken userToken, AccountModel account)
+        public override int CreateAccount(UserAccountToken userToken, AccountModel account)
         {
             userToken.AuthorizeUser(AuthorizationLevel.ADMINISTRATOR);
-            TestAccountData.Add(new AccountModel(account.Name, account.Description,
+            TestAccountData.Add(new AccountModel(account.Identifier, account.Description,
                 account.ReportingCurrency, account.Type, account.Enabled, account.Broker, null));
+            return account.Identifier.AccountId;
         }
 
         public override void UpdateMemberForAccount(UserAccountToken userToken, string member, AuthorizationLevel level, bool add)
         {
-            var account = TestAccountData.FirstOrDefault(x => x.Name == userToken.Account);
+            var account = TestAccountData.FirstOrDefault(x => x.Identifier.Name == userToken.Account.Name);
             if (account != null)
             {
                 if (add)
@@ -176,13 +184,16 @@ namespace InvestmentBuilderMSTests
             }
         }
 
-        public override IEnumerable<string> GetAccountNames(string user, bool bCheckAdmin)
+        public override IEnumerable<AccountIdentifier> GetAccountNames(string user, bool bCheckAdmin)
         {
-            return TestAccountData.Select(x => x.Name);
+            return TestAccountData.Select(x => x.Identifier);
         }
 
         public override int GetUserId(string userName)
         {
+            if (userName == TestDataCache._dodgyUser)
+                return -1;
+
             return 1;
         }
 
@@ -194,15 +205,15 @@ namespace InvestmentBuilderMSTests
 
     internal class UserAccountDataTest1 : UserAccountDataTest
     {
-        public override IEnumerable<string> GetAccountNames(string user, bool bCheckAdmin)
+        public override IEnumerable<AccountIdentifier> GetAccountNames(string user, bool bCheckAdmin)
         {
-            return new List<string>
+            return new List<AccountIdentifier>
             {
-                "Acme",
-                "ABC",
-                "DEF",
-                "HIJ",
-                "KLM"
+                new AccountIdentifier { Name = "Acme", AccountId = 1 },
+                new AccountIdentifier { Name = "ABC", AccountId = 1 },
+                new AccountIdentifier { Name = "DEF", AccountId = 1 },
+                new AccountIdentifier { Name = "HIJ", AccountId = 1 },
+                new AccountIdentifier { Name = "KLM", AccountId = 1 }
             };
         }
 
@@ -223,7 +234,7 @@ namespace InvestmentBuilderMSTests
 
     internal class UserAccountDataTest3 : UserAccountDataTest
     {
-        public override bool InvestmentAccountExists(string accountName)
+        public override bool InvestmentAccountExists(AccountIdentifier account)
         {
             return true;
         }
@@ -281,7 +292,12 @@ namespace InvestmentBuilderMSTests
 
     public class CurrentInvestmentTestsBase
     {
-        protected static string _TestAccount = "Guy SIPP";
+        protected static AccountIdentifier _TestAccount = new AccountIdentifier
+        {
+            Name = "Guy SIPP",
+            AccountId = 123
+        };
+
         protected static string _TestUser = "TestUser";
 
         protected UserAccountToken _userToken = new UserAccountToken(

@@ -8,6 +8,7 @@ echo rebuild unit test database, server name: %ServerName%, db name: %DBName%
 sqlcmd -S %ServerName% -E -d %DBName% -i BuildInvestmentBuilderDatabase.sql
 
 set DBName=InvestmentBuilderUnitTest1
+
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddCashAccountData.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddNewShares.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddNewUnitValuation.sql
@@ -47,7 +48,6 @@ sqlcmd -S %ServerName% -E -d %DBName% -i sp_GetUnitPriceData.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_GetUnitValuation.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_GetUnitValuationRange.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_GetUserCompanies.sql
-sqlcmd -S %ServerName% -E -d %DBName% -i sp_GetUserData.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_InvestmentAccountExists.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_IsAdministrator.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_IsExistingRecordValuationDate.sql

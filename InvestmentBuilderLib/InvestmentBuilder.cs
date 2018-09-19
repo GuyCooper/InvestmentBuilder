@@ -160,7 +160,7 @@ namespace InvestmentBuilder
             //finally, build the asset statement
             if (bUpdate == true)
             {
-                _reportWriter.WriteAssetReport(updatedReport, _userAccountData.GetStartOfYearValuation(userToken, valuationDate), _settings.GetOutputPath(accountData.Name), progress);
+                _reportWriter.WriteAssetReport(updatedReport, _userAccountData.GetStartOfYearValuation(userToken, valuationDate), _settings.GetOutputPath(accountData.Identifier.GetPathName()), progress);
             }
 
             logger.Log(userToken, LogLevel.Info, "Report Generated, Account Builder Complete");
@@ -346,7 +346,7 @@ namespace InvestmentBuilder
                                                 UserAccountToken userToken,
                                                 DateTime dtValuationDate,
                                                 DateTime? dtPreviousValution,
-                                                UserAccountData userData,
+                                                AccountModel accountData,
                                                 IEnumerable<CompanyData> companyData,
                                                 double dBankBalance,
                                                 bool bUpdate)
@@ -354,8 +354,8 @@ namespace InvestmentBuilder
             logger.Log(userToken, LogLevel.Info, "building asset report...");
             AssetReport report = new AssetReport
             {
-                AccountName = userData.Name,
-                ReportingCurrency = userData.Currency,
+                AccountName = accountData.Identifier,
+                ReportingCurrency = accountData.ReportingCurrency,
                 ValuationDate = dtValuationDate.Date,
                 Assets = companyData,
                 BankBalance = dBankBalance
@@ -369,7 +369,7 @@ namespace InvestmentBuilder
 
             if (bUpdate)
             {
-                report.IssuedUnits = _UpdateMembersCapitalAccount(userToken, userData, dtPreviousValution, dtValuationDate, report.NetAssets);
+                report.IssuedUnits = _UpdateMembersCapitalAccount(userToken, accountData, dtPreviousValution, dtValuationDate, report.NetAssets);
             }
             else
             {
@@ -408,7 +408,7 @@ namespace InvestmentBuilder
         /// </summary>
         private double _UpdateMembersCapitalAccount(
                                                     UserAccountToken userToken,
-                                                    UserAccountData userData,
+                                                    AccountModel accountData,
                                                     DateTime? dtPreviousValution,
                                                     DateTime dtValuationDate,
                                                     double dNetAssets)
@@ -448,7 +448,7 @@ namespace InvestmentBuilder
         /// <summary>
         /// Process any redemptions that have occured since the previous valuation date
         /// </summary>
-        private AssetReport _ProcessRedemptions(UserAccountToken userToken, AssetReport report, UserAccountData accountData, DateTime previousValuation, bool bUpdate)
+        private AssetReport _ProcessRedemptions(UserAccountToken userToken, AssetReport report, AccountModel accountData, DateTime previousValuation, bool bUpdate)
         {
             //now check if any redemptions have occured since the last valuation. The redemption can now
             //take place using the newly generated unit price. The redemption amount will need to be checked 

@@ -31,7 +31,7 @@ namespace PerformanceBuilderLib
             Contract.Ensures(Contract.Result<IList<IndexedRangeData>>() != null);
 
             logger.Log(LogLevel.Info, "starting performance builder...");
-            logger.Log(LogLevel.Info, "output path: {0}", _settings.GetOutputPath(userToken.Account));
+            logger.Log(LogLevel.Info, "output path: {0}", _settings.GetOutputPath(userToken.Account.GetPathName()));
             logger.Log(LogLevel.Info, "valuation date {0}", dtValuation);
 
             var ladderBuilder = new PerformanceLaddersBuilder(_settings, _dataLayer);
@@ -48,7 +48,7 @@ namespace PerformanceBuilderLib
 
             logger.Log(LogLevel.Info, "data ladders building complete...");
             //now persist it to the spreadsheet, TODO, make configurable, allow persist to pdf
-            _reportWriter.WritePerformanceData(allLadders, _settings.GetOutputPath(userToken.Account), dtValuation, progress);
+            _reportWriter.WritePerformanceData(allLadders, _settings.GetOutputPath(userToken.Account.GetPathName()), dtValuation, progress);
 
             logger.Log(LogLevel.Info, "performance chartbuilder complete");
             return allLadders;

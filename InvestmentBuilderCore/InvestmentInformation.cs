@@ -7,6 +7,10 @@ using System.Diagnostics.Contracts;
 
 namespace InvestmentBuilderCore
 {
+    /// <summary>
+    /// Class defines  a single instrument (i.e. company) including the details of its source
+    /// information
+    /// </summary>
     public class InvestmentInformation
     {
         public InvestmentInformation(string symbol, 
@@ -33,6 +37,9 @@ namespace InvestmentBuilderCore
         }
     }
 
+    /// <summary>
+    /// CashAccountData class. Defines the cash flow for an account.
+    /// </summary>
     public class CashAccountData
     {
         public CashAccountData()
@@ -43,6 +50,9 @@ namespace InvestmentBuilderCore
         public double BankBalance { get; set; }
     }
 
+    /// <summary>
+    /// Class defines the valuation of a single instrument (company) on a specific date
+    /// </summary>
     public class CompanyData
     {
         public string Name { get; set; }
@@ -58,30 +68,6 @@ namespace InvestmentBuilderCore
         public double MonthChangeRatio { get; set; }
         public double Dividend { get; set; }
         public string ManualPrice { get; set; }
-    }
-
-    public class UserAccountData
-    {
-        public UserAccountData(string name, string currency, string description, string broker)
-        {
-            Name = name;
-            Currency = currency;
-            Description = description;
-            Broker = broker;
-        }
-
-        public string Name { get; private set; }
-        public string Currency { get; private set; }
-        public string Description { get; private set; }
-        public string Broker { get; private set; }
-
-        [ContractInvariantMethod]
-        protected void ObjectInvariantMethod()
-        {
-            Contract.Invariant(string.IsNullOrEmpty(Name) == false);
-            Contract.Invariant(string.IsNullOrEmpty(Currency) == false);
-        }
-
     }
 
     //this class represents a data point in a performance graph. the

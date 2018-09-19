@@ -24,7 +24,7 @@ namespace InvestmentBuilderService
         /// <summary>
         /// Method returns the usertoken for the requested user.
         /// </summary>
-        public UserAccountToken GetUserAccountToken(UserSession userSession, string selectedAccount)
+        public UserAccountToken GetUserAccountToken(UserSession userSession, AccountIdentifier selectedAccount)
         {
             UserAccountToken token = null;
             var username = userSession.UserName;
@@ -40,7 +40,7 @@ namespace InvestmentBuilderService
         /// </summary>
         /// <param name="session"></param>
         /// <returns></returns>
-        public IEnumerable<string> GetAccountsForUser(UserSession session)
+        public IEnumerable<AccountIdentifier> GetAccountsForUser(UserSession session)
         {
             return _accountManager.GetAccountNames(session.UserName);
         }
@@ -61,7 +61,7 @@ namespace InvestmentBuilderService
             return _accountManager.CreateUserAccount(userSession.UserName, account, userSession.ValuationDate);
         }
 
-        public AccountModel GetAccount(UserSession userSession, string accountName)
+        public AccountModel GetAccount(UserSession userSession, AccountIdentifier accountName)
         {
             return _accountManager.GetAccountData(GetUserAccountToken(userSession, accountName),
                                                                       userSession.ValuationDate);

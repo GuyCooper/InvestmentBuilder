@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using InvestmentBuilderClient.ViewModel;
 using InvestmentBuilderClient.DataModel;
+using InvestmentBuilderCore;
 
 namespace InvestmentBuilderClient.View
 {
@@ -89,7 +90,7 @@ namespace InvestmentBuilderClient.View
             //throw new NotImplementedException();
         }
 
-        public void UpdateAccountName(string account)
+        public void UpdateAccountName(AccountIdentifier account)
         {
             _vm.Account = account;
             gridPortfolio.DataSource = _vm.ItemsList; 

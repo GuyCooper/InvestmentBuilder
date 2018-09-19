@@ -11,7 +11,7 @@ END
 
 GO
 
-CREATE PROCEDURE sp_SellShares(@ValuationDate as DATETIME, @company as VARCHAR(50), @shares as INT, @account as varchar(30)) AS
+CREATE PROCEDURE sp_SellShares(@ValuationDate as DATETIME, @company as VARCHAR(50), @shares as INT, @account as int) AS
 BEGIN
 
 DECLARE @CompanyId INT
@@ -24,16 +24,11 @@ SELECT @CompanyId = [Company_Id]
 FROM Companies
 WHERE [Name] = @company
 
---get the accountid
-SELECT @AccountID = [Account_Id]
-FROM [Accounts]
-WHERE [Name] = @account
-
 --get the current quantity of shares
 SELECT @Shares_Bought = Shares_Bought
 FROM InvestmentRecord
 WHERE [Company_id] = @CompanyId
-AND [account_id] = @AccountID
+AND [account_id] = @Account
 AND [Valuation_Date] = @ValuationDate
 
 --if current quantity is less than or equal to the number of shares being sold
@@ -52,7 +47,7 @@ SET
 FROM 
 	investmentRecord
 WHERE [Company_id] = @CompanyId
-	AND [account_id] = @AccountID
+	AND [account_id] = @Account
 	AND [Valuation_Date] = @ValuationDate
 
 END

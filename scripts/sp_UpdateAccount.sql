@@ -11,7 +11,7 @@ END
 
 GO
 
-CREATE PROCEDURE sp_UpdateAccount(@Name AS VARCHAR(30)
+CREATE PROCEDURE sp_UpdateAccount(@Account AS INT
 								  ,@Currency AS CHAR(3)
 								  ,@AccountType AS VARCHAR(50)
 								  ,@Enabled AS TINYINT					   
@@ -20,7 +20,7 @@ CREATE PROCEDURE sp_UpdateAccount(@Name AS VARCHAR(30)
 								  ) AS
 BEGIN
 
-IF EXISTS (SELECT 1 FROM Accounts WHERE Name = @Name)
+IF EXISTS (SELECT 1 FROM Accounts WHERE Account_Id = @Account)
 BEGIN
 	UPDATE dbo.Accounts
 	SET 
@@ -28,7 +28,7 @@ BEGIN
 		[Currency] = @Currency,
 		[Enabled] = @Enabled,
 		[Broker]  = @Broker
-	WHERE  Name = @Name	 
+	WHERE  Account_Id = @Account
 END
 END
 GO

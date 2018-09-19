@@ -11,12 +11,12 @@ namespace InvestmentBuilderMSTests
 {
     internal class EmptyTestInvestmentRecordBuilder : IInvestmentRecordDataManager
     {
-        public virtual IEnumerable<CompanyData> GetInvestmentRecords(UserAccountToken userToken, UserAccountData account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate, ManualPrices manualPrices, bool bSnapshot)
+        public virtual IEnumerable<CompanyData> GetInvestmentRecords(UserAccountToken userToken, AccountModel account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate, ManualPrices manualPrices, bool bSnapshot)
         {
             return Enumerable.Empty<CompanyData>();
         }
 
-        public virtual IEnumerable<CompanyData> GetInvestmentRecordSnapshot(UserAccountToken userToken, UserAccountData account, ManualPrices manualPrices)
+        public virtual IEnumerable<CompanyData> GetInvestmentRecordSnapshot(UserAccountToken userToken, AccountModel account, ManualPrices manualPrices)
         {
             return Enumerable.Empty<CompanyData>();
         }
@@ -26,7 +26,7 @@ namespace InvestmentBuilderMSTests
             return null;
         }
 
-        public virtual bool UpdateInvestmentRecords(UserAccountToken userToken, UserAccountData account, Trades trades, CashAccountData cashData, DateTime valuationDate,  ManualPrices manualPrices, DateTime? dtPreviousValuation, ProgressCounter progress)
+        public virtual bool UpdateInvestmentRecords(UserAccountToken userToken, AccountModel account, Trades trades, CashAccountData cashData, DateTime valuationDate,  ManualPrices manualPrices, DateTime? dtPreviousValuation, ProgressCounter progress)
         {
             return true;
         }
@@ -34,7 +34,7 @@ namespace InvestmentBuilderMSTests
 
     internal class SimpleTestInvestmentRecordBuilder : EmptyTestInvestmentRecordBuilder
     {
-        public override IEnumerable<CompanyData> GetInvestmentRecords(UserAccountToken userToken, UserAccountData account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate, ManualPrices manualPrices, bool bSnapshot)
+        public override IEnumerable<CompanyData> GetInvestmentRecords(UserAccountToken userToken, AccountModel account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate, ManualPrices manualPrices, bool bSnapshot)
         {
             return new List<CompanyData>
             {
@@ -42,7 +42,7 @@ namespace InvestmentBuilderMSTests
             };
         }
 
-        public override IEnumerable<CompanyData> GetInvestmentRecordSnapshot(UserAccountToken userToken, UserAccountData account, ManualPrices manualPrices)
+        public override IEnumerable<CompanyData> GetInvestmentRecordSnapshot(UserAccountToken userToken, AccountModel account, ManualPrices manualPrices)
         {
             return new List<CompanyData>
             {

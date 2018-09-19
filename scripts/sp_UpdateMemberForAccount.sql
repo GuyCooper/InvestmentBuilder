@@ -11,7 +11,7 @@ END
 
 GO
 
-CREATE PROCEDURE sp_UpdateMemberForAccount(@Account AS VARCHAR(30), @Member AS NVARCHAR(256), @Level as INT, @Add as TINYINT) AS
+CREATE PROCEDURE sp_UpdateMemberForAccount(@Account AS INT, @Member AS NVARCHAR(256), @Level as INT, @Add as TINYINT) AS
 BEGIN
 
     DECLARE @UserId INT
@@ -23,24 +23,13 @@ BEGIN
 					 1 
 				  FROM 
 					 Members M
-				  INNER JOIN
-					 Accounts A
-				  ON
-					 M.account_id = A.[Account_Id]
 				  WHERE 
 					 M.UserID = @UserID AND
-					 A.Name = @Account
+					 M.account_id = @Account
 				  	 )
 	BEGIN
 		INSERT INTO MEMBERS([UserId], account_id, [Authorization])
-		SELECT 
-			@UserID,
-			[Account_Id],
-			@Level
-		FROM
-			Accounts
-		WHERE
-			Name = @Account		 
+		VALUES (@UserID, @Account, @Level)		
 	END
 
 	--now set the enabled flag and user level
@@ -50,12 +39,8 @@ BEGIN
 		   [Authorization] = @Level
 	FROM
 		Members M
-	INNER JOIN
-		Accounts A
-	ON
-		M.account_id = A.[Account_Id]
 	WHERE
 		M.[UserID] = @UserID AND
-		A.Name = @Account
+		M.account_id = @Account
 		
 END

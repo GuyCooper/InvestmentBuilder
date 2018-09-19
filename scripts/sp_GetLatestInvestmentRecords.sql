@@ -13,7 +13,7 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_GetLatestInvestmentRecords](@ValuationDate as DATETIME, @Account as VARCHAR(30)) AS
+CREATE PROCEDURE [dbo].[sp_GetLatestInvestmentRecords](@ValuationDate as DATETIME, @Account as INT) AS
 BEGIN
 
 SELECT 
@@ -28,11 +28,9 @@ SELECT
 FROM InvestmentRecord IR 
 INNER JOIN Companies C
 ON IR.Company_id = C.Company_Id 
-INNER JOIN Accounts A
-ON IR.account_id = A.[Account_Id]
 WHERE IR.Valuation_Date = @valuationDate
 AND IR.is_active = 1
-AND A.Name = @Account
+AND IR.account_id = @Account
 ORDER BY LastBoughtDate ASC
  
 END

@@ -11,7 +11,7 @@ END
 
 GO
 
-CREATE PROCEDURE sp_GetBalanceInHand(@ValuationDate as DATETIME, @Account AS VARCHAR(30)) AS
+CREATE PROCEDURE sp_GetBalanceInHand(@ValuationDate as DATETIME, @Account AS int) AS
 BEGIN
 
 SELECT
@@ -22,14 +22,10 @@ INNER JOIN
 	TransactionType tt
 ON 
 	ca.[type_id] = tt.[type_id]
-INNER JOIN
-	Accounts a
-ON
-	ca.[account_id] = a.[Account_Id]
 WHERE 
 	ca.valuation_date = @ValuationDate
 AND 
 	tt.[type] = 'BalanceInHandCF'
 AND
-	a.Name = @Account
+	ca.[account_id] = @Account
 END

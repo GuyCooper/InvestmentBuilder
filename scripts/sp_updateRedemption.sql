@@ -11,7 +11,7 @@ END
 
 GO
 
-CREATE PROCEDURE sp_UpdateRedemption(@Account as varchar(30), @User as varchar(50), @TransactionDate as DateTime, @Amount as float,
+CREATE PROCEDURE sp_UpdateRedemption(@Account as int, @User as varchar(50), @TransactionDate as DateTime, @Amount as float,
 						@UnitsRedeemed as float,  @Status as varchar(10)) AS
 BEGIN
 
@@ -22,17 +22,13 @@ SELECT
 FROM 
 	Members M
 INNER JOIN
-	Accounts A
-ON
-	A.[Account_id] = M.[account_id]
-INNER JOIN
 	[Users] U
 ON 
 	M.[UserId] = U.[UserId]
 WHERE
 	U.UserName = @User
 AND
-	A.[Name]= @Account
+	M.[Account_id]= @Account
 
 UPDATE
 	 Redemptions				  

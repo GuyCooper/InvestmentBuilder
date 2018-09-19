@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using InvestmentBuilderCore;
 using System.Data.SqlClient;
 using System.Data;
@@ -14,11 +11,18 @@ namespace SQLServerDataLayer
     /// </summary>
     public class SQLServerClientData : SQLServerBase, IClientDataInterface
     {
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public SQLServerClientData(string connectionStr)
         {
             ConnectionStr = connectionStr;
         }
 
+        /// <summary>
+        /// Retuns a list of the most recent valuation dates to the specified date for the account specified in the
+        /// user token.
+        /// </summary>
         public IEnumerable<DateTime> GetRecentValuationDates(UserAccountToken userToken, DateTime dtDateFrom)
         {
             userToken.AuthorizeUser(AuthorizationLevel.READ);
@@ -28,7 +32,7 @@ namespace SQLServerDataLayer
                 using (var command = new SqlCommand("sp_RecentValuationDates", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
                     command.Parameters.Add(new SqlParameter("@DateFrom", dtDateFrom));
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
@@ -41,6 +45,11 @@ namespace SQLServerDataLayer
             }
         }
 
+        /// <summary>
+        /// Returns a list of the possible transaction types for the side (receipt or payment)
+        /// </summary>
+        /// <param name="side"></param>
+        /// <returns></returns>
         public IEnumerable<string> GetTransactionTypes(string side)
         {
             using (var connection = OpenConnection())
@@ -60,6 +69,9 @@ namespace SQLServerDataLayer
             }
         }
 
+        /// <summary>
+        /// Returns the latest valuation date for the account specified in the user token
+        /// </summary>
         public DateTime? GetLatestValuationDate(UserAccountToken userToken)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
@@ -68,7 +80,7 @@ namespace SQLServerDataLayer
                 using (var sqlCommand = new SqlCommand("sp_GetLatestValuationDate", connection))
                 {
                     sqlCommand.CommandType = CommandType.StoredProcedure;
-                    sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
                     using (var reader = sqlCommand.ExecuteReader())
                     {
                         if (reader.Read())
@@ -81,6 +93,10 @@ namespace SQLServerDataLayer
             return null;
         }
 
+        /// <summary>
+        /// Returns true if the specified valuation date is a valid valuation date for the account
+        /// specified in user token.
+        /// </summary>
         public bool IsExistingValuationDate(UserAccountToken userToken, DateTime valuationDate)
         {
             userToken.AuthorizeUser(AuthorizationLevel.READ);
@@ -90,18 +106,21 @@ namespace SQLServerDataLayer
                 {
                     sqlCommand.CommandType = CommandType.StoredProcedure;
                     sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
-                    sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
                     var result = sqlCommand.ExecuteScalar();
                     return result != null;
                 }
             }
         }
 
+        /// <summary>
+        /// Returns alist of the possible account types (personal or club)
+        /// </summary>
         public IEnumerable<string> GetAccountTypes()
         {
             using (var connection = OpenConnection())
             {
-                using (var sqlCommand = new SqlCommand("SELECT [Type] FROM UserTypes", connection))
+                using (var sqlCommand = new SqlCommand("SELECT [Type] FROM AccountTypes", connection))
                 {
                     using (var reader = sqlCommand.ExecuteReader())
                     {
@@ -114,6 +133,9 @@ namespace SQLServerDataLayer
             }
         }
 
+        /// <summary>
+        /// Returns a list of all instruments (companies stored in the database.
+        /// </summary>
         public IEnumerable<string> GetAllCompanies()
         {
             using (var connection = OpenConnection())
@@ -131,6 +153,9 @@ namespace SQLServerDataLayer
             }
         }
 
+        /// <summary>
+        /// Retuns the instrument details for the spcified instrument (TradeItem or Company)
+        /// </summary>
         public Stock GetTradeItem(UserAccountToken userToken, string name)
         {
             if(string.IsNullOrEmpty(name))
@@ -145,7 +170,7 @@ namespace SQLServerDataLayer
                 {
                     sqlCommand.CommandType = CommandType.StoredProcedure;
                     sqlCommand.Parameters.Add(new SqlParameter("@Company", name));
-                    sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
                     using (var reader = sqlCommand.ExecuteReader())
                     {
                         if (reader.Read())
@@ -170,6 +195,9 @@ namespace SQLServerDataLayer
             return null;
         }
 
+        /// <summary>
+        /// Undo the last transaction for the account specified in the user token.
+        /// </summary>
         public void UndoLastTransaction(UserAccountToken userToken)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
@@ -178,12 +206,15 @@ namespace SQLServerDataLayer
                 using (var sqlCommand = new SqlCommand("sp_UndoLastTransaction", connection))
                 {
                     sqlCommand.CommandType = CommandType.StoredProcedure;
-                    sqlCommand.Parameters.Add(new SqlParameter("@account", userToken.Account));
+                    sqlCommand.Parameters.Add(new SqlParameter("@account", userToken.Account.AccountId));
                     int rowsUpdated = sqlCommand.ExecuteNonQuery();
                 }
             }
         }
 
+        /// <summary>
+        /// Return a list of the previous account valuation dates for the spcified account to the date specified.
+        /// </summary>
         public DateTime? GetPreviousAccountValuationDate(UserAccountToken userToken, DateTime dtValuation)
         {
             if(userToken.Account == null)
@@ -199,7 +230,7 @@ namespace SQLServerDataLayer
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation.Date));
-                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
                     var result = command.ExecuteScalar();
                     if (result != null)
                     {

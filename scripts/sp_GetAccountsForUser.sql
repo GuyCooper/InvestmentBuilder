@@ -15,11 +15,12 @@ CREATE PROCEDURE sp_GetAccountsForUser(@User AS VARCHAR(50), @CheckAdmin AS BIT)
 BEGIN
 
 IF @CheckAdmin = 1 AND EXISTS (SELECT [Name] FROM [Administrators] WHERE Name = @User)
-	SELECT Name FROM [Accounts] WHERE [Enabled] = 1
+	SELECT Name, Account_Id FROM [Accounts] WHERE [Enabled] = 1
 ELSE
 BEGIN
 	SELECT
-		 A.[Name]
+		 A.[Name],
+		 A.[Account_Id]
 	FROM
 		 [Accounts] A
 	INNER JOIN

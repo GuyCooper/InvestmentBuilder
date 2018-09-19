@@ -11,22 +11,18 @@ END
 
 GO
 
-CREATE PROCEDURE sp_AddRedemption(@Account as varchar(30), @User as nvarchar(256), @TransactionDate as DateTime, @Amount as float, @Status as varchar(10)) AS
+CREATE PROCEDURE sp_AddRedemption(@Account as int, @User as nvarchar(256), @TransactionDate as DateTime, @Amount as float, @Status as varchar(10)) AS
 BEGIN
 
 INSERT INTO Redemptions ([member_id], [transaction_date], [amount], [status])
 SELECT member_id, @TransactionDate, @Amount, @Status
 FROM
 	Members M
-INNER JOIN 
-	Accounts A
-ON
-	M.[account_id] = A.[Account_Id]
 INNER JOIN [Users] U
 ON U.[UserId] = M.[UserId]
 WHERE
 	U.[UserName] = @User
 AND
-	A.[Name] = @Account
+	M.[account_id] = @Account
 
 END

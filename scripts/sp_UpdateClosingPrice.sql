@@ -11,7 +11,7 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_UpdateClosingPrice](@valuationDate as DATETIME, @investment as VARCHAR(50), @closingPrice as float, @account as VARCHAR(30)) AS
+CREATE PROCEDURE [dbo].[sp_UpdateClosingPrice](@valuationDate as DATETIME, @investment as VARCHAR(50), @closingPrice as float, @account as int) AS
 BEGIN
 
 UPDATE
@@ -24,12 +24,8 @@ INNER JOIN
 	 Companies C 
 ON
 	 IR.Company_Id = C.Company_Id
-INNER JOIN 
-	Accounts A
-ON
-	IR.account_id = A.[Account_Id]	 
 WHERE
 	 C.Name = @investment
 	 AND IR.Valuation_Date = @valuationDate
-	 AND A.Name = @account
+	 AND IR.account_id = @account
 END

@@ -64,6 +64,9 @@ namespace InvestmentBuilderCore
         void UndoLastTransaction(UserAccountToken userToken);
     }
 
+    /// <summary>
+    /// Defines the set of operations on the Investment Record table
+    /// </summary>
     [ContractClass(typeof(IInvestmentRecordContract))]
     public interface IInvestmentRecordInterface
     {
@@ -116,13 +119,13 @@ namespace InvestmentBuilderCore
         double GetPreviousUnitValuation(UserAccountToken userToken, DateTime? previousDate);
         void SaveNewUnitValue(UserAccountToken userToken, DateTime dtValuation, double dUnitValue);
         double GetIssuedUnits(UserAccountToken userToken, DateTime dtValuation);
-        UserAccountData GetUserAccountData(UserAccountToken userToken);
+        AccountModel GetUserAccountData(UserAccountToken userToken);
         double GetStartOfYearValuation(UserAccountToken userToken, DateTime valuationDate);
         IEnumerable<Redemption> GetRedemptions(UserAccountToken userToken, DateTime valuationDate);
         void AddRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount);
         void UpdateRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount, double units);
         void UpdateMemberForAccount(UserAccountToken userToken, string member, AuthorizationLevel level, bool add);
-        void CreateAccount(UserAccountToken userToken, AccountModel account);
+        int CreateAccount(UserAccountToken userToken, AccountModel account);
         void UpdateAccount(UserAccountToken userToken, AccountModel account);
         AccountModel GetAccount(UserAccountToken userToken);
         IEnumerable<string> GetAccountMembers(UserAccountToken userToken, DateTime valuationDate);
@@ -131,9 +134,9 @@ namespace InvestmentBuilderCore
         /// returns a list of accounts that this user is a member of.
         /// </summary>
         IEnumerable<AccountMember> GetAccountMemberDetails(UserAccountToken userToken, DateTime valuationDate);
-        IEnumerable<string> GetAccountNames(string user, bool bCheckAdmin);
+        IEnumerable<AccountIdentifier> GetAccountNames(string user, bool bCheckAdmin);
         IEnumerable<string> GetActiveCompanies(UserAccountToken userToken, DateTime valuationDate);
-        bool InvestmentAccountExists(string accountName);
+        bool InvestmentAccountExists(AccountIdentifier accountID);
         IEnumerable<double> GetUnitValuationRange(UserAccountToken userToken, DateTime dateFrom, DateTime dateTo);
         int GetUserId(string userName);
         void AddUser(string userName, string description);

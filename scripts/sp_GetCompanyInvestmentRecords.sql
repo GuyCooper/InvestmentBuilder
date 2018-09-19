@@ -13,7 +13,7 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_GetCompanyInvestmentRecords](@Company as VARCHAR(50), @Account as VARCHAR(30)) AS
+CREATE PROCEDURE [dbo].[sp_GetCompanyInvestmentRecords](@Company as VARCHAR(50), @Account as INT) AS
 BEGIN
 
 SELECT 
@@ -26,15 +26,20 @@ SELECT
 	IR.Total_Cost as TotalCost,
 	IR.Selling_Price as Price,
 	IR.Dividends_Received as Dividends	
-FROM InvestmentRecord IR 
-INNER JOIN Companies C
-ON IR.Company_id = C.Company_Id 
-INNER JOIN Accounts A
-ON IR.account_id = A.[Account_Id]
-WHERE A.[Name] = @Account
-AND C.[Name] = @Company
-AND IR.is_active = 1
-ORDER BY ValuationDate ASC
+FROM 
+	InvestmentRecord IR 
+INNER JOIN
+	Companies C
+ON 
+	IR.Company_id = C.Company_Id 
+WHERE 
+	IR.account_id = @Account
+AND 
+	C.[Name] = @Company
+AND 
+	IR.is_active = 1
+ORDER BY
+	ValuationDate ASC
  
 END
 GO

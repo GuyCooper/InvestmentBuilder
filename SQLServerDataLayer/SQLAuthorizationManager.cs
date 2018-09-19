@@ -7,7 +7,7 @@ using System.Data.SqlClient;
 namespace SQLServerDataLayer
 {
     //implementation class returns the authorization level for a user  
-    public class SQLAuthorizationManager : AuthorizationManager,IDisposable
+    public class SQLAuthorizationManager : AuthorizationManager, IDisposable
     {
         private string _connectionStr;
 
@@ -41,7 +41,7 @@ namespace SQLServerDataLayer
             return false;
         }
 
-        protected override AuthorizationLevel GetUserAuthorizationLevel(string user, string account)
+        protected override AuthorizationLevel GetUserAuthorizationLevel(string user, AccountIdentifier account)
         {
             using (var connection = OpenConnection())
             {
@@ -49,7 +49,7 @@ namespace SQLServerDataLayer
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@User", user));
-                    command.Parameters.Add(new SqlParameter("@Account", account));
+                    command.Parameters.Add(new SqlParameter("@Account", account.AccountId));
                     var objResult = command.ExecuteScalar();
                     if (objResult != null)
                     {

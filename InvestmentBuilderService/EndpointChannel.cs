@@ -86,7 +86,7 @@ namespace InvestmentBuilderService
         /// <summary>
         /// Helper method for getting the current user token.
         /// </summary>
-        protected UserAccountToken GetCurrentUserToken(UserSession session, string account = null)
+        protected UserAccountToken GetCurrentUserToken(UserSession session, AccountIdentifier account = null)
         {
             return _accountService.GetUserAccountToken(session, account);
         }

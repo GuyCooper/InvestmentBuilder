@@ -41,8 +41,10 @@ namespace InvestmentBuilder
         /// </summary>
         public bool CreateUserAccount(string user, AccountModel account, DateTime dtValuationDate)
         {
-            var token = new UserAccountToken(user, account.Name, AuthorizationLevel.ADMINISTRATOR);
-            logger.Log(token, LogLevel.Info, "creating account {0}", account.Name);
+            //we have to create a temporary token for this user to create this account. This is because any
+            //registered user is allowed to create an account.
+            var token = new UserAccountToken(user, null, AuthorizationLevel.ADMINISTRATOR);
+            logger.Log(token, LogLevel.Info, "creating account {0}", account.Identifier.Name);
             return _updateInvestmentAccount(token, account, dtValuationDate, true);
         }
 
@@ -51,14 +53,14 @@ namespace InvestmentBuilder
         /// </summary>
         public bool UpdateUserAccount(string user, AccountModel account, DateTime dtValuationDate)
         {
-            var token = _authorizationManager.GetUserAccountToken(user, account.Name);
-            if (_accountData.InvestmentAccountExists(account.Name) == true)
+            var token = _authorizationManager.GetUserAccountToken(user, account.Identifier);
+            if (_accountData.InvestmentAccountExists(account.Identifier) == true)
             {
-                logger.Log(token, LogLevel.Info, "updating account {0}", account.Name);
+                logger.Log(token, LogLevel.Info, "updating account {0}", account.Identifier.Name);
                 return _updateInvestmentAccount(token, account, dtValuationDate, false);
             }
 
-            logger.Log(token, LogLevel.Error, "account {0} does not exist", account.Name);
+            logger.Log(token, LogLevel.Error, "account {0} does not exist", account.Identifier.Name);
             return false;
 
         }
@@ -74,7 +76,7 @@ namespace InvestmentBuilder
         /// <summary>
         /// Method returns the member names of the specified account
         /// </summary>
-        public IEnumerable<string> GetAccountNames(string user)
+        public IEnumerable<AccountIdentifier> GetAccountNames(string user)
         {
             return _accountData.GetAccountNames(user, true);
         }
@@ -104,7 +106,8 @@ namespace InvestmentBuilder
             //modify it
             if(create == true)
             {
-                _accountData.CreateAccount(token, account);
+                account.Identifier.AccountId = _accountData.CreateAccount(token, account);
+                token.UpdateAccount(account.Identifier);
             }
             else
             {
@@ -118,7 +121,7 @@ namespace InvestmentBuilder
                 if (account.Members.FirstOrDefault(x => string.Equals(x.Name, member, StringComparison.InvariantCultureIgnoreCase)) == null)
                 {
                     //remove this member
-                    logger.Log(token, LogLevel.Info, "removing member {0} from account {1}", member, account.Name);
+                    logger.Log(token, LogLevel.Info, "removing member {0} from account {1}", member, account.Identifier.Name);
                     _UpdateMemberForAccount(token, member, AuthorizationLevel.NONE, false);
                 }
             }
@@ -126,7 +129,7 @@ namespace InvestmentBuilder
             //now add the members
             foreach (var member in account.Members)
             {
-                logger.Log(token, LogLevel.Info, "adding member {0} to account {1}", member, account.Name);
+                logger.Log(token, LogLevel.Info, "adding member {0} to account {1}", member, account.Identifier.Name);
                 _UpdateMemberForAccount(token, member.Name, member.AuthLevel, true);
             }
 
@@ -177,13 +180,14 @@ namespace InvestmentBuilder
                 if(_accountData.GetUserId(member.Name) == -1)
                 {
                     logger.Log(token, LogLevel.Error, $" Invalid user: {member.Name}");
+                    return false;
                 }
 
                 hasAdmin |= member.AuthLevel == AuthorizationLevel.ADMINISTRATOR;
             }
             if(hasAdmin == false)
             {
-                logger.Log(token, LogLevel.Error, "account {0} must have at least one administrator", account.Name);
+                logger.Log(token, LogLevel.Error, "account {0} must have at least one administrator", account.Identifier.Name);
             }
 
             return hasAdmin;

@@ -57,7 +57,7 @@ namespace InvestmentBuilderMSTests
 
     public class CashAccountTestsBase
     {
-        protected static readonly UserAccountToken _usertoken = new UserAccountToken("testUser", "testAccount", AuthorizationLevel.UPDATE);
+        protected static readonly UserAccountToken _usertoken = new UserAccountToken("testUser", new AccountIdentifier { Name = "testAccount", AccountId = 2 }, AuthorizationLevel.UPDATE);
         protected static readonly DateTime _dtValuation = DateTime.Parse("10/12/2015");
 
         protected CashAccountTransactionManager _manager;

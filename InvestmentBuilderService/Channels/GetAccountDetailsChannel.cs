@@ -9,7 +9,7 @@ namespace InvestmentBuilderService.Channels
     /// </summary>
     internal class GetAccountDetailsRequestDto : Dto
     {
-        public string AccountName { get; set; }
+        public AccountIdentifier AccountName { get; set; }
     }
 
     /// <summary>
@@ -47,7 +47,7 @@ namespace InvestmentBuilderService.Channels
         {
             return new AccountDetailsDto
             {
-                AccountName = account.Name,
+                AccountName = account.Identifier,
                 AccountType = account.Type,
                 Broker = account.Broker,
                 Description = account.Description,

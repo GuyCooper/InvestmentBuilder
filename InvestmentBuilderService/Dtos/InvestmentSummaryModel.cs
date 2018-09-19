@@ -1,14 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using InvestmentBuilderCore;
 
 namespace InvestmentBuilderService.Dtos
 {
+    /// <summary>
+    /// Class identifies an account including its details
+    /// </summary>
     internal class InvestmentSummaryModel : Dto
     {
-        public string AccountName { get; set; }
+        public AccountIdentifier AccountName { get; set; }
         public string ReportingCurrency { get; set; }
         public DateTime ValuationDate { get; set; }
         public string TotalAssetValue { get; set; }

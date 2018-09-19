@@ -11,7 +11,7 @@ END
 
 GO
 
-CREATE PROCEDURE sp_AddNewShares(@ValuationDate as DATETIME, @company as VARCHAR(50), @shares as INT, @totalCost as float, @account as varchar(30)) AS
+CREATE PROCEDURE sp_AddNewShares(@ValuationDate as DATETIME, @company as VARCHAR(50), @shares as INT, @totalCost as float, @account as int) AS
 BEGIN
 
 UPDATE 
@@ -25,10 +25,8 @@ FROM
 INNER JOIN 
 	Companies C 
 ON IR.Company_Id = C.Company_Id
-INNER JOIN Accounts A
-ON IR.account_id = A.[Account_Id]
-AND C.Name = @company
+WHERE C.Name = @company
 AND IR.Valuation_Date = @ValuationDate
-AND A.Name = @account
+AND IR.account_id = @account
 
 END

@@ -11,7 +11,7 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].sp_GetIssuedUnits(@ValuationDate as DateTime, @AccountName as varchar(30)) AS
+CREATE PROCEDURE [dbo].sp_GetIssuedUnits(@ValuationDate as DateTime, @Account as int) AS
 BEGIN
 	SELECT 
 		SUM(mca.Units)
@@ -21,12 +21,8 @@ BEGIN
 		MembersCapitalAccount mca
 	ON 
 		m.Member_Id = mca.Member_Id
-	INNER JOIN
-		Accounts A
-	ON
-		m.account_id = A.[Account_Id]
 	WHERE
 		mca.Valuation_Date = @ValuationDate
 	AND
-		A.Name = @AccountName
+		m.account_id = @Account
 END
