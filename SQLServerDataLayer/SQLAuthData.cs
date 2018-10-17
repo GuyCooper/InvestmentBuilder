@@ -20,9 +20,9 @@ namespace SQLServerDataLayer
             return connection;
         }
 
-        public SQLAuthData(IConfigurationSettings settings)
+        public SQLAuthData(string datasource)
         {
-            _connectionStr = settings.AuthDatasourceString;
+            _connectionStr = datasource;
         }
 
         /// <summary>

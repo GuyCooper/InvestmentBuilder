@@ -44,18 +44,32 @@ module.exports = function (grunt) {
 
         grunt.verbose.writeln('scaffold called  ');
 
+        //var options = this.options({
+        //    sourceFile: '',
+        //    outputFile: '',
+        //});
+
         var options = this.options({
-            sourceFile: '',
-            outputFile: '',
+            tasks: [
+                {
+                    sourceFile: '',
+                    outputFile: '',
+                }
+            ]
         });
 
-        var expandedFile = parseFile(options.sourceFile);
+        console.log('scaffold task count: ' + options.tasks.length);
 
-        grunt.verbose.writeln('writing file ' + options.outputFile);
-        fs.writeFileSync(options.outputFile, expandedFile, {
-            encoding: 'utf8',
-            flag: 'w+'
-        });
+        for (var i = 0; i < options.tasks.length; i++) {
+
+            var expandedFile = parseFile(options.tasks[i].sourceFile);
+
+            grunt.verbose.writeln('writing file ' + options.tasks[i].outputFile);
+            fs.writeFileSync(options.tasks[i].outputFile, expandedFile, {
+                encoding: 'utf8',
+                flag: 'w+'
+            });
+        }
     });
 };
 

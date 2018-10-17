@@ -55,7 +55,6 @@ sqlcmd -S %ServerName% -E -d %DBName% -i sp_UndoLastTransaction.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_UpdateClosingPrice.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_UpdateDividend.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_UpdateHolding.sql
-sqlcmd -S %ServerName% -E -d %DBName% -i sp_UpdateInvesmentState.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_UpdateMemberForAccount.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_UpdateMembersCapitalAccount.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_updateRedemption.sql

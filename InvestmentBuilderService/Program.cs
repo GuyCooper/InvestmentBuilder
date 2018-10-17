@@ -37,7 +37,7 @@ namespace InvestmentBuilderService
             using (var child = ContainerManager.CreateChildContainer())
             { 
                 var connectionSettings = new ConnectionSettings("Connections.xml");
-                var authData = new SQLAuthData(ContainerManager.ResolveValue<IConfigurationSettings>());
+                var authData = new SQLAuthData(ContainerManager.ResolveValue<IConfigurationSettings>().AuthDatasourceString);
                 var authSession = new MiddlewareSession(connectionSettings.AuthServerConnection, "InvestmentBuilder-AuthService");
                 var userManager = new UserSessionManager(authSession, authData, ContainerManager.ResolveValue<AccountManager>());
                 var serverSession = new MiddlewareSession(connectionSettings.ServerConnection, "InvestmentBuilder-Channels");

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <connections>
   <serverConnection>
-    <server>ws://localhost:8080</server>
+    <server>ws://localhost:8080/MWARE</server>
     <username>admin</username>
     <password>password</password>
   </serverConnection>

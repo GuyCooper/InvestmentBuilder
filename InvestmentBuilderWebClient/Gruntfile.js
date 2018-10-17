@@ -7,7 +7,10 @@ module.exports = function (grunt) {
                 folder: "./dist"
             },
 
+            config: "Config.json",
+
             index: "index.html",
+            register: "register.html",
             libs: [
                     "./libs/modernizr-2.6.2.js",
                     "./libs/jquery-1.10.2.js",
@@ -17,7 +20,19 @@ module.exports = function (grunt) {
                     "./libs/ag-grid.js",
                     "./libs/ui-bootstrap-tpls-2.5.0.js",
                     "./Middleware/Middleware.js"
-                  ],
+            ],
+            registerlibs: [
+                    "./libs/modernizr-2.6.2.js",
+                    "./libs/jquery-1.10.2.js",
+                    "./libs/jquery-ui.js",
+                    "./libs/bootstrap.js",
+                    "./libs/angular.js"
+            ],
+
+            registersourcejs : [
+                        "./src/Register.js",
+            ],
+
             sourcejs: [
                         "./src/Utils.js",
                         "./src/NotifyService.js",
@@ -55,10 +70,19 @@ module.exports = function (grunt) {
                 src: ['<%= app.libs %>'],
                 dest: '<%= app.output.folder %>/js/libs.js'
             },
+            registerlibsjs: {
+                src: ['<%= app.registerlibs %>'],
+                dest: '<%= app.output.folder %>/js/registerlibs.js'
+            },
             appjs: {
                 src: ['<%= app.sourcejs %>'],
                 dest: '<%= app.output.folder %>/js/app.js'
             },
+            registerappjs: {
+                src: ['<%= app.registersourcejs %>'],
+                dest: '<%= app.output.folder %>/js/register.js'
+            },
+            
             css: {
                 src: ['<%= app.styles.source %>'],
                 dest: '<%= app.output.folder %>/styles/investmentBuilder.css'
@@ -72,6 +96,13 @@ module.exports = function (grunt) {
                     { expand: true, flatten: true, src: '<%= app.viewfiles %>', dest: '<%= app.output.folder%>/views', filter: 'isFile' }
                 ]
             },
+            config: {
+                files: [
+                    // flattens results to a single level
+                    { expand: true, flatten: true, src: '<%= app.config %>', dest: '<%= app.output.folder%>', filter: 'isFile' }
+                ]
+            },
+
             css: {
                 files: [
                     // flattens results to a single level
@@ -110,11 +141,19 @@ module.exports = function (grunt) {
         },
 
         scaffold: {
-            options: {    
-                "sourceFile": '<%= app.index %>',
-                "outputFile": '<%= app.output.folder %>/index.html'
+            options: {
+                tasks: [
+                    {
+                        "sourceFile": '<%= app.index %>',
+                        "outputFile": '<%= app.output.folder %>/index.html'
+                    },
+                    {
+                        "sourceFile": '<%= app.register %>',
+                        "outputFile": '<%= app.output.folder %>/register.html'
+                    },
+                ]
             }
-        }, 
+        }
     });
 
     grunt.loadNpmTasks('grunt-contrib-watch');
@@ -126,11 +165,13 @@ module.exports = function (grunt) {
 
     grunt.registerTask('cleandist', ['clean:packaging']);
     grunt.registerTask('buildlib', ['concat:libjs']);
-    grunt.registerTask('buildapp', ['concat:appjs']);
+    grunt.registerTask('buildregisterlib', ['concat:registerlibsjs']);
+    grunt.registerTask('buildapp', ['concat:appjs', 'concat:registerappjs']);
     grunt.registerTask('copyviews', ['copy:views']);
+    grunt.registerTask('copyconfig', ['copy:config']);
     grunt.registerTask('buildviews', ['scaffold']);
 
     grunt.registerTask('buildstyles', ['concat:css', 'copy:css', 'copy:images', 'copy:fonts']);
 
-    grunt.registerTask('default', ['cleandist','buildlib','buildapp', 'buildviews', 'copyviews', 'buildstyles']);
+    grunt.registerTask('default', ['cleandist', 'buildlib', 'buildregisterlib', 'buildapp', 'buildviews', 'copyviews', 'copyconfig', 'buildstyles']);
 };

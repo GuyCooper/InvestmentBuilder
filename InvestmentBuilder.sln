@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerformanceBuilder", "PerformanceBuilder\PerformanceBuilder.csproj", "{BCA240B5-1BAC-4BFF-AF1D-32A17ADDA1F6}"
 EndProject
@@ -34,6 +34,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestmentBuilderService", "InvestmentBuilderService\InvestmentBuilderService.csproj", "{77D2520C-6C3E-4D55-B20A-9FCD5714A97D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManageUsersApp", "ManageUsersApp\ManageUsersApp.csproj", "{C2BE8B9D-4E44-41A5-B6C1-FC0207D2BA61}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserManagementService", "UserManagementService\UserManagementService.csproj", "{001B4897-2A19-4CCC-B531-3C6F0C61D5ED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -89,6 +91,10 @@ Global
 		{C2BE8B9D-4E44-41A5-B6C1-FC0207D2BA61}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C2BE8B9D-4E44-41A5-B6C1-FC0207D2BA61}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C2BE8B9D-4E44-41A5-B6C1-FC0207D2BA61}.Release|Any CPU.Build.0 = Release|Any CPU
+		{001B4897-2A19-4CCC-B531-3C6F0C61D5ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{001B4897-2A19-4CCC-B531-3C6F0C61D5ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{001B4897-2A19-4CCC-B531-3C6F0C61D5ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{001B4897-2A19-4CCC-B531-3C6F0C61D5ED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

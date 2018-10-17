@@ -137,7 +137,7 @@ function NotifyService() {
 'use strict'
 
 //controller handles management of the build report progress and the view tab
-function Layout($scope, $log, $uibModal, NotifyService, MiddlewareService) {
+function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService) {
     $scope.ProgressCount = 0;
     $scope.Section = null;
     $scope.IsBuilding = false;
@@ -148,7 +148,7 @@ function Layout($scope, $log, $uibModal, NotifyService, MiddlewareService) {
     $scope.Password = "rangers";
     $scope.IsBusy = false;
 
-    var servername = "ws://localhost:8080";
+    var servername = ""; //"ws://localhost:8080/MWARE";
 
     //callback displays the account summary details
     var onLoadAccountSummary = function (response) {
@@ -258,14 +258,22 @@ function Layout($scope, $log, $uibModal, NotifyService, MiddlewareService) {
         $scope.IsBusy = busy;
     };
 
-    //register handler to be invoked every time the isBusy state is changed
-    NotifyService.RegisterBusyStateChangedListener(busyStateChanged);
-    //ensure this view is reloaded on connection
-    NotifyService.RegisterConnectionListener(loadAccountSummary);
-    //ensure this view is reloaded if the account is changed
-    NotifyService.RegisterAccountListener(loadAccountSummary);
-    //ensure this view is updated when the build status changes
-    NotifyService.RegisterBuildStatusListener(onBuildStatusChanged);
+    //load the config
+    $http.get("/config.json").then(function (data) {
+        servername = data.data.url;
+        console.log('config loaded. url: ' + servername);
+        //register handler to be invoked every time the isBusy state is changed
+        NotifyService.RegisterBusyStateChangedListener(busyStateChanged);
+        //ensure this view is reloaded on connection
+        NotifyService.RegisterConnectionListener(loadAccountSummary);
+        //ensure this view is reloaded if the account is changed
+        NotifyService.RegisterAccountListener(loadAccountSummary);
+        //ensure this view is updated when the build status changes
+        NotifyService.RegisterBuildStatusListener(onBuildStatusChanged);
+
+    },function (error) {
+        alert("unable to load config file: " + error);
+    });
 };
 
 //controller to handle the report completion view

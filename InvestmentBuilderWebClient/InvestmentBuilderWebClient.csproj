@@ -26,6 +26,7 @@
     <Content Include="gulpfile.js" />
     <Content Include="Index.html" />
     <Content Include="Middleware\Middleware.js" />
+    <Content Include="Register.html" />
     <Content Include="src\AccountList.js" />
     <Content Include="src\AddAccount.js" />
     <Content Include="src\CashFlow.js" />
@@ -35,6 +36,7 @@
     <Content Include="src\NotifyService.js" />
     <Content Include="src\Portfolio.js" />
     <Content Include="src\RegisterModules.js" />
+    <Content Include="src\Register.js" />
     <Content Include="src\Reports.js" />
     <Content Include="src\Utils.js" />
     <Content Include="styles\css\InvestmentBuilderWeb.css" />
@@ -73,6 +75,7 @@
     <Content Include="views\Reports.html" />
     <Content Include="views\YesNoChooser.html" />
     <Content Include="package.json" />
+    <Content Include="Config.json" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
