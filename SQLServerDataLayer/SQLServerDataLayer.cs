@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using InvestmentBuilderCore;
 using System.Data.SqlClient;
+using NLog;
 
 namespace SQLServerDataLayer
 {
@@ -43,10 +44,24 @@ namespace SQLServerDataLayer
         /// </summary>
         protected SqlConnection OpenConnection()
         {
-            var connection = new SqlConnection(ConnectionStr);
-            connection.Open();
-            return connection;
+            try
+            {
+                var connection = new SqlConnection(ConnectionStr);
+                connection.Open();
+                return connection;
+            }
+            catch(Exception ex)
+            {
+                logger.Error(ex.Message);
+                throw;
+            }
         }
+
+        #endregion
+
+        #region Private Data
+
+        private static Logger logger = LogManager.GetCurrentClassLogger();
 
         #endregion
     }
@@ -91,6 +106,9 @@ namespace SQLServerDataLayer
         public SQLServerDataLayer(IConfigurationSettings settings)
         {
             ConnectionStr = settings.DatasourceString;
+
+            logger.Info($"creating SQLServerDataLayer with connection string {ConnectionStr}");
+
             //Connection = new SqlConnection(settings.DatasourceString);
             //Connection.Open();
             _cashAccountData = new SQLServerCashAccountData(ConnectionStr);
@@ -103,6 +121,8 @@ namespace SQLServerDataLayer
         public void ConnectNewDatasource(string datasource)
         {
             ConnectionStr = datasource;
+
+            logger.Info($"calling ConnectNewDatasource with connectionstr {ConnectionStr}");
             //Connection.Close();
             //Connection = new SqlConnection(datasource);
             //Connection.Open();
@@ -128,6 +148,7 @@ namespace SQLServerDataLayer
         private SQLServerUserAccountData _userAccountData;
         private SQLServerHistoricalData _historicalData;
 
+        private static Logger logger = LogManager.GetCurrentClassLogger();
         #endregion
     }
 }

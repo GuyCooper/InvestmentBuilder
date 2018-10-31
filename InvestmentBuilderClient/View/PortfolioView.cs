@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using InvestmentBuilderClient.ViewModel;
 using InvestmentBuilderClient.DataModel;
 using InvestmentBuilderCore;
+using NLog;
 
 namespace InvestmentBuilderClient.View
 {
@@ -18,8 +19,11 @@ namespace InvestmentBuilderClient.View
         private PortfolioViewModel _vm;
         private InvestmentDataModel _dataModel;
 
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
         public PortfolioView(InvestmentDataModel dataModel)
         {
+            logger.Info("creating portfolio view");
             InitializeComponent();
             _vm = new PortfolioViewModel(dataModel);
             _dataModel = dataModel;

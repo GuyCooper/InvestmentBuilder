@@ -4,6 +4,7 @@ using System.Linq;
 using InvestmentBuilderCore;
 using System.Data.SqlClient;
 using System.Data;
+using NLog;
 
 namespace SQLServerDataLayer
 {
@@ -470,6 +471,7 @@ namespace SQLServerDataLayer
         /// </summary>
         public IEnumerable<AccountIdentifier> GetAccountNames(string user, bool bCheckAdmin)
         {
+            logger.Info($"GetAccountNames for user {user}");
             //return the list of accounts that this user is able to see
             using (var connection = OpenConnection())
             {
@@ -604,5 +606,7 @@ namespace SQLServerDataLayer
                 }
             }
         }
+
+        private static Logger logger = LogManager.GetCurrentClassLogger();
     }
 }

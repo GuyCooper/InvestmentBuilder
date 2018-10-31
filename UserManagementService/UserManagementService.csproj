@@ -61,6 +61,7 @@
     <Compile Include="Endpoint.cs" />
     <Compile Include="FileServer.cs" />
     <Compile Include="Handler.cs" />
+    <Compile Include="Handlers\ForgottonPasswordHandler.cs" />
     <Compile Include="Handlers\RegisterNewUserHandler.cs" />
     <Compile Include="Serialiser.cs" />
     <Compile Include="UserManagementService.cs" />
@@ -81,6 +82,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Template.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="UserManagementConfiguration.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>

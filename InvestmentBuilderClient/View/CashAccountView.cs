@@ -26,6 +26,7 @@ namespace InvestmentBuilderClient.View
 
         public CashAccountView(InvestmentDataModel dataModel)
         {
+            logger.Info("creating cash account view");
             InitializeComponent();
             SetupGrid();
             _dataModel = dataModel;

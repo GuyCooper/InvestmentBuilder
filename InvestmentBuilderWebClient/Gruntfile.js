@@ -10,7 +10,11 @@ module.exports = function (grunt) {
             config: "Config.json",
 
             index: "index.html",
-            register: "register.html",
+            topviewfiles: [
+                "register.html",
+                "password.html"
+            ],
+
             libs: [
                     "./libs/modernizr-2.6.2.js",
                     "./libs/jquery-1.10.2.js",
@@ -96,6 +100,13 @@ module.exports = function (grunt) {
                     { expand: true, flatten: true, src: '<%= app.viewfiles %>', dest: '<%= app.output.folder%>/views', filter: 'isFile' }
                 ]
             },
+            topViews: {
+                files: [
+                    // flattens results to a single level
+                    { expand: true, flatten: true, src: '<%= app.topviewfiles %>', dest: '<%= app.output.folder%>', filter: 'isFile' }
+                ]
+            },
+
             config: {
                 files: [
                     // flattens results to a single level
@@ -147,10 +158,6 @@ module.exports = function (grunt) {
                         "sourceFile": '<%= app.index %>',
                         "outputFile": '<%= app.output.folder %>/index.html'
                     },
-                    {
-                        "sourceFile": '<%= app.register %>',
-                        "outputFile": '<%= app.output.folder %>/register.html'
-                    },
                 ]
             }
         }
@@ -167,7 +174,7 @@ module.exports = function (grunt) {
     grunt.registerTask('buildlib', ['concat:libjs']);
     grunt.registerTask('buildregisterlib', ['concat:registerlibsjs']);
     grunt.registerTask('buildapp', ['concat:appjs', 'concat:registerappjs']);
-    grunt.registerTask('copyviews', ['copy:views']);
+    grunt.registerTask('copyviews', ['copy:views', 'copy:topViews']);
     grunt.registerTask('copyconfig', ['copy:config']);
     grunt.registerTask('buildviews', ['scaffold']);
 

@@ -4,7 +4,8 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
 
     $scope.IsConnected = false;
 
-    var loggedInUser;
+    $scope.LoggedInUser = "";
+
     var currencies = null;
     var brokers = null;
 
@@ -20,7 +21,7 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
     //method called when web app has successfully connected and logged in
     var onConnected = function (username) {
         $scope.IsConnected = true;
-        loggedInUser = username;
+        $scope.LoggedInUser = username;
 
         //retrieve the list of account names for logged in user
         MiddlewareService.GetAccountsForUser(onLoadAccountNames);
@@ -55,7 +56,7 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
             size: 'lg',
             resolve: {
                 user: function () {
-                    return loggedInUser;
+                    return $scope.LoggedInUser;
                 },
                 currencies: function () {
                     return currencies;

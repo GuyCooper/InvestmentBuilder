@@ -1,12 +1,16 @@
 ﻿<div ng-controller="AccountListController">
-    <div class="navbar-collapse collapse" ng-show="IsConnected">
-        <ul class="nav navbar-nav navbar-right">
+    <div class="navbar-collapse collapse" ng-cloak>
+        <ul class="nav navbar-nav navbar-right" ng-show="IsConnected">
+            <li>
+                <p class="investmentNavigatorUser">{{LoggedInUser}}</p>
+            </li>
             <li>
                 <form name="accountDetailsForm" role="form" ng-submit="UpdateAccount()">
                     <select name="AccountName" class="form-control investmentNavigator1" ng-model="SelectedAcount" ng-options="account.Name for account in Accounts" ng-change="UpdateAccount()">
                     </select>
                 </form>
             </li>
+
             <li class="dropdown">
                 <button type="button" class="btn dropdown-toggle investmentNavigator" id="dropdownMenu1" data-toggle="dropdown">
                     Options <span class="caret"></span>

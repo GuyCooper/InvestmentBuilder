@@ -8,16 +8,19 @@ using InvestmentBuilderClient.ViewModel;
 using InvestmentBuilder;
 using System.ComponentModel;
 using System.Windows.Forms;
+using NLog;
 
 namespace InvestmentBuilderClient.View
 {
     internal class PaymentsDataView : CashAccountView
     {
         private BindingList<PaymentTransaction> _payments;
+        private static Logger logger = LogManager.GetCurrentClassLogger();
 
         public PaymentsDataView(InvestmentDataModel dataModel) :
             base(dataModel)
         {
+            logger.Info("creating payments data view");
             this.Text = "Payments Cash Account";
         }
 

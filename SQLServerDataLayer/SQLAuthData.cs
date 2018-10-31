@@ -5,12 +5,6 @@ namespace SQLServerDataLayer
 {
     public class SQLAuthData : IAuthDataLayer
     {
-        #region Private Member Data
-
-        private string _connectionStr;
-
-        #endregion
-
         #region Public Methods
 
         private SqlConnection OpenConnection()
@@ -28,13 +22,6 @@ namespace SQLServerDataLayer
         /// <summary>
         /// add new user to auth table
         /// </summary>
-        /// <param name="userName"></param>
-        /// <param name="eMail"></param>
-        /// <param name="salt"></param>
-        /// <param name="passwordHash"></param>
-        /// <param name="phoneNumber"></param>
-        /// <param name="twoFactorEnabled"></param>
-        /// <returns>0: success. -1 : command failed , 1 : empty email, 2: empty password, 3, user already exists</returns>
         public int AddNewUser(string userName, string eMail, string salt, string passwordHash, string phoneNumber, bool twoFactorEnabled)
         {
             using (var connection = OpenConnection())
@@ -58,6 +45,9 @@ namespace SQLServerDataLayer
             return -1;
         }
 
+        /// <summary>
+        /// Authenticate a user with a given password hash
+        /// </summary>
         public bool AuthenticateUser(string email, string passwordHash)
         {
             using (var connection = OpenConnection())
@@ -77,6 +67,9 @@ namespace SQLServerDataLayer
             return false;
         }
 
+        /// <summary>
+        /// Change the password for an existing user.
+        /// </summary>
         public bool ChangePassword(string email, string oldPasswordHash, string newPasswordHash, string newSalt)
         {
             using (var connection = OpenConnection())
@@ -98,6 +91,9 @@ namespace SQLServerDataLayer
             return false;
         }
 
+        /// <summary>
+        /// Remove a user
+        /// </summary>
         public void RemoveUser(string email)
         {
             using (var connection = OpenConnection())
@@ -111,6 +107,9 @@ namespace SQLServerDataLayer
             }
         }
 
+        /// <summary>
+        /// Return the salt for the user with this email address.
+        /// </summary>
         public string GetSalt(string email)
         {
             using (var connection = OpenConnection())
@@ -128,6 +127,33 @@ namespace SQLServerDataLayer
             }
             return null;
         }
+
+        /// <summary>
+        /// Validate the user exists
+        /// </summary>
+        public bool ValidateUser(string emailAddress)
+        {
+            using (var connection = OpenConnection())
+            {
+                using (var command = new SqlCommand("sp_ValidateUser", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@EMail", emailAddress));
+                    var objResult = command.ExecuteScalar();
+                    if (objResult != null)
+                    {
+                        return (int)objResult == 1;
+                    }
+                }
+            }
+            return false;
+        }
+
+        #endregion
+
+        #region Private Member Data
+
+        private string _connectionStr;
 
         #endregion
 

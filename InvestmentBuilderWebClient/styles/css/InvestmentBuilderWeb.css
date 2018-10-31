@@ -78,6 +78,11 @@ right: 1em;
     box-sizing:border-box;
 }
 
+.investmentNavigatorUser {
+    margin:5px;
+    color:white;
+}
+
 .investmentNavigator {
     margin:5px;
 }
@@ -162,6 +167,10 @@ right: 1em;
 
 .layoutTop {
     margin-top: 100px;
+}
+
+.headerLarge {
+    margin:3px;
 }
 
 /* Safari */

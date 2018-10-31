@@ -8,16 +8,19 @@ using InvestmentBuilderClient.ViewModel;
 using InvestmentBuilder;
 using System.ComponentModel;
 using System.Windows.Forms;
+using NLog;
 
 namespace InvestmentBuilderClient.View
 {
     internal class ReceiptDataView: CashAccountView
     {
         private BindingList<ReceiptTransaction> _receipts;
+        private static Logger logger = LogManager.GetCurrentClassLogger();
 
         public ReceiptDataView(InvestmentDataModel dataModel) :
             base(dataModel)
         {
+            logger.Info("creating receipt data view");
             this.Text = "Receipt Cash Account";
         }
 

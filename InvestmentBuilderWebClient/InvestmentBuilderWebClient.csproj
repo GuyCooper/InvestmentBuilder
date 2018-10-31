@@ -26,6 +26,7 @@
     <Content Include="gulpfile.js" />
     <Content Include="Index.html" />
     <Content Include="Middleware\Middleware.js" />
+    <Content Include="Password.html" />
     <Content Include="Register.html" />
     <Content Include="src\AccountList.js" />
     <Content Include="src\AddAccount.js" />

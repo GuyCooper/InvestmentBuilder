@@ -144,9 +144,10 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
     $scope.CanBuild = false;
     $scope.LoggedIn = false;
     $scope.BuildStatus = "Not Building";
-    $scope.UserName = "guy@guycooper.plus.com";
-    $scope.Password = "rangers";
+    $scope.UserName = localStorage.getItem('userName');
+    $scope.Password = localStorage.getItem('password');
     $scope.IsBusy = false;
+    $scope.SaveCredentials = true;
 
     var servername = ""; //"ws://localhost:8080/MWARE";
 
@@ -244,6 +245,15 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
         //once conncted inform any connection listeners that connection is complete
         MiddlewareService.Connect(servername, $scope.UserName, $scope.Password).then(function () {
             console.log("connection to middleware succeded!");
+            if ($scope.SaveCredentials) {
+                localStorage.setItem('userName', $scope.UserName);
+                localStorage.setItem('password', $scope.Password);
+            }
+            else {
+                localStorage.removeItem('userName');
+                localStorage.removeItem('password');
+            }
+
             NotifyService.UpdateBusyState(false);
             $scope.LoggedIn = true;
             NotifyService.InvokeConnectionListeners($scope.UserName);
@@ -259,7 +269,7 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
     };
 
     //load the config
-    $http.get("/config.json").then(function (data) {
+    $http.get("./config.json").then(function (data) {
         servername = data.data.url;
         console.log('config loaded. url: ' + servername);
         //register handler to be invoked every time the isBusy state is changed
@@ -994,7 +1004,8 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
 
     $scope.IsConnected = false;
 
-    var loggedInUser;
+    $scope.LoggedInUser = "";
+
     var currencies = null;
     var brokers = null;
 
@@ -1010,7 +1021,7 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
     //method called when web app has successfully connected and logged in
     var onConnected = function (username) {
         $scope.IsConnected = true;
-        loggedInUser = username;
+        $scope.LoggedInUser = username;
 
         //retrieve the list of account names for logged in user
         MiddlewareService.GetAccountsForUser(onLoadAccountNames);
@@ -1045,7 +1056,7 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
             size: 'lg',
             resolve: {
                 user: function () {
-                    return loggedInUser;
+                    return $scope.LoggedInUser;
                 },
                 currencies: function () {
                     return currencies;

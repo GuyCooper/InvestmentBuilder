@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using InvestmentBuilderClient.DataModel;
-using InvestmentBuilder;
 using System.Threading;
 using NLog;
 using InvestmentBuilderCore;
@@ -17,22 +13,19 @@ using MarketDataServices;
 
 namespace InvestmentBuilderClient.View
 {
+    /// <summary>
+    /// MainView class. COntainer for all investmentbuilder views.
+    /// </summary>
     internal partial class MainView : Form
     {
-        private InvestmentDataModel _dataModel;
-        private List<IInvestmentBuilderView> _views;
-        private IConfigurationSettings _settings;
-        private IMarketDataSource _marketDataSource;
+        #region COnstructor
 
-        private static Logger logger = LogManager.GetCurrentClassLogger();
-
-        //the one and only log viewer
-        private static LoggingView logView;
-
-        private static SynchronizationContext _displayContext;
-
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public MainView(InvestmentDataModel dataModel, IConfigurationSettings settings, IMarketDataSource marketDataSource)
         {
+            logger.Info("creating main view");
             InitializeComponent();
             _dataModel = dataModel;
             _marketDataSource = marketDataSource;
@@ -48,6 +41,18 @@ namespace InvestmentBuilderClient.View
             };
               
             _displayContext = SynchronizationContext.Current;
+        }
+
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        /// Update logged on user.
+        /// </summary>
+        public void UpdateUser(string user)
+        {
+            _dataModel.UpdateUsername(user);
         }
 
         public static void LogMethod(string level, string message)
@@ -68,6 +73,11 @@ namespace InvestmentBuilderClient.View
                 }, new KeyValuePair<string, string>(level,message));
             }
         }
+
+        #endregion
+
+        #region Private Methods
+
         private void UpdateValuationDate()
         {
             DateTime dtValuation = _GetSelectedValuationDate();
@@ -81,6 +91,7 @@ namespace InvestmentBuilderClient.View
         {
             try
             {
+                logger.Info("updating account name.");
                 UseWaitCursor = true;
                 var accountName = cmboAccountName.SelectedItem as AccountIdentifier;
                 foreach (var view in _views)
@@ -141,11 +152,14 @@ namespace InvestmentBuilderClient.View
 
         private void InitialiseValues()
         {
+            logger.Info("Initialising account names");
             cmboAccountName.Items.Clear();
             cmboAccountName.Items.AddRange(_dataModel.GetAccountNames().Cast<object>().ToArray());
-            cmboAccountName.SelectedIndex = 0;
-
-            _dataModel.UpdateAccountName(cmboAccountName.SelectedItem as AccountIdentifier);
+            if (cmboAccountName.Items.Count > 0)
+            {
+                cmboAccountName.SelectedIndex = 0;
+                _dataModel.UpdateAccountName(cmboAccountName.SelectedItem as AccountIdentifier);
+            }
 
             //PopulateValuationDates();        
         }
@@ -191,31 +205,6 @@ namespace InvestmentBuilderClient.View
                 }
             }
         }
-
-        //private void btnPerformance_Click(object sender, EventArgs e)
-        //{
-        //    if (MessageBox.Show("Are You Sure?", "Build Charts", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes)
-        //    {
-        //        DateTime dtValuation = _GetSelectedValuationDate();
-        //        Task.Factory.StartNew(() =>
-        //            {
-        //                var performanceData = _dataModel.GetPerformanceCharts(dtValuation);
-        //                if(performanceData != null && _displayContext != null)
-        //                {
-        //                    _displayContext.Post(o =>
-        //                    {
-        //                        var data = (IList<IndexedRangeData>)o;
-        //                        foreach(var range in data)
-        //                        {
-        //                            var chartView = new PerformanceChartView(range);
-        //                            chartView.TopLevel = true;
-        //                            chartView.Show();
-        //                        }
-        //                    },performanceData);
-        //                }
-        //            });
-        //    }
-        //}
 
         private void cmboAccountName_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -348,5 +337,24 @@ namespace InvestmentBuilderClient.View
         {
             _AddView(new RedemptionsView(_dataModel, _GetSelectedValuationDate()));
         }
+
+        #endregion
+
+        #region Private Data
+
+        private InvestmentDataModel _dataModel;
+        private List<IInvestmentBuilderView> _views;
+        private IConfigurationSettings _settings;
+        private IMarketDataSource _marketDataSource;
+
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
+        //the one and only log viewer
+        private static LoggingView logView;
+
+        private static SynchronizationContext _displayContext;
+
+        #endregion
+
     }
 }
