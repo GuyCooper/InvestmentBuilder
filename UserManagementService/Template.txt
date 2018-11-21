@@ -1,7 +1,0 @@
-You have requested a password reset for InvestmentBuilder. Please log into InvestmentBuilder using the temporary password
-
-<PLACEHOLDER>
-
-If you did not request a reset then please contact the InvestmentBuilder adminstrator.
-
-www.investmentbuilder.co.uk

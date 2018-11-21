@@ -61,11 +61,13 @@
     <Compile Include="Endpoint.cs" />
     <Compile Include="FileServer.cs" />
     <Compile Include="Handler.cs" />
+    <Compile Include="Handlers\ChangePasswordHandler.cs" />
     <Compile Include="Handlers\ForgottonPasswordHandler.cs" />
     <Compile Include="Handlers\RegisterNewUserHandler.cs" />
     <Compile Include="Serialiser.cs" />
     <Compile Include="UserManagementService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UserNotifier.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -82,7 +84,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Template.txt">
+    <Content Include="Template.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="UserManagementConfiguration.xml">

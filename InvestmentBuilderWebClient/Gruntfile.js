@@ -10,10 +10,6 @@ module.exports = function (grunt) {
             config: "Config.json",
 
             index: "index.html",
-            topviewfiles: [
-                "register.html",
-                "password.html"
-            ],
 
             libs: [
                     "./libs/modernizr-2.6.2.js",
@@ -34,7 +30,7 @@ module.exports = function (grunt) {
             ],
 
             registersourcejs : [
-                        "./src/Register.js",
+                        "./src/RegisterUser.js",
             ],
 
             sourcejs: [
@@ -57,7 +53,6 @@ module.exports = function (grunt) {
                            "./Views/CreateTrade.html",
                            "./Views/EditTrade.html",
                            "./Views/Parameters.html",
-                           "./Views/RaiseAlert.html",
                            "./Views/ReportCompletion.html",
                            "./Views/YesNoChooser.html",
                            "./Views/AddAccount.html"
@@ -84,7 +79,7 @@ module.exports = function (grunt) {
             },
             registerappjs: {
                 src: ['<%= app.registersourcejs %>'],
-                dest: '<%= app.output.folder %>/js/register.js'
+                dest: '<%= app.output.folder %>/js/registerUser.js'
             },
             
             css: {
@@ -98,12 +93,6 @@ module.exports = function (grunt) {
                 files: [
                     // flattens results to a single level
                     { expand: true, flatten: true, src: '<%= app.viewfiles %>', dest: '<%= app.output.folder%>/views', filter: 'isFile' }
-                ]
-            },
-            topViews: {
-                files: [
-                    // flattens results to a single level
-                    { expand: true, flatten: true, src: '<%= app.topviewfiles %>', dest: '<%= app.output.folder%>', filter: 'isFile' }
                 ]
             },
 
@@ -156,7 +145,23 @@ module.exports = function (grunt) {
                 tasks: [
                     {
                         "sourceFile": '<%= app.index %>',
-                        "outputFile": '<%= app.output.folder %>/index.html'
+                        "outputFile": '<%= app.output.folder %>/index.html',
+                        "lookup": {}
+                    },
+                    {
+                        "sourceFile": 'UserTemplate.html',
+                        "outputFile": '<%= app.output.folder %>/RegisterUser.html',
+                        "lookup": { "templateurl": "RegisterUser.html", "title" : "Register User", "requestSuccess" : "Register User succeded", "requestFail" : "Register User failed" }
+                    },
+                    {
+                        "sourceFile": 'UserTemplate.html',
+                        "outputFile": '<%= app.output.folder %>/ForgottenPassword.html',
+                        "lookup": { "templateurl": "ForgottenPassword.html", "title": "Forgotten Password", "requestSuccess": "Forgotten password succeded", "requestFail": "Forgotten password  failed" }
+                    },
+                    {
+                        "sourceFile": 'UserTemplate.html',
+                        "outputFile": '<%= app.output.folder %>/ChangePassword.html',
+                        "lookup": { "templateurl": "ChangePassword.html", "title": "Change Password", "requestSuccess": "Change password succeded", "requestFail": "Change password failed" }
                     },
                 ]
             }
@@ -174,7 +179,7 @@ module.exports = function (grunt) {
     grunt.registerTask('buildlib', ['concat:libjs']);
     grunt.registerTask('buildregisterlib', ['concat:registerlibsjs']);
     grunt.registerTask('buildapp', ['concat:appjs', 'concat:registerappjs']);
-    grunt.registerTask('copyviews', ['copy:views', 'copy:topViews']);
+    grunt.registerTask('copyviews', ['copy:views']);
     grunt.registerTask('copyconfig', ['copy:config']);
     grunt.registerTask('buildviews', ['scaffold']);
 

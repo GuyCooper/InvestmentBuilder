@@ -104,13 +104,13 @@ namespace UserManagementService
                     response.Headers.Add($"Access-Control-Allow-Origin:{origins[0]}");
                 }
 
-                var query = Path.GetFileName(request.Url.PathAndQuery);
+                var query = Path.GetFileName(request.Url.AbsolutePath);
                 IHandler handler;
                 if(_handlers.TryGetValue(query, out handler) == true)
                 {
                     response.StatusCode = 200;
                     response.ContentType = "application/json";
-                    handler.HandleRequest(request.InputStream, request.Url.Query, response.OutputStream, headers);
+                    handler.HandleRequest(request.InputStream, _ValidateQuery(request.Url.Query), response.OutputStream, headers);
                 }
                 else
                 {
@@ -154,6 +154,76 @@ namespace UserManagementService
             }
         }
         protected bool IsDisposed { get; set; }
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        /// Method takes the http query string and validates and normalises it. 
+        /// Converts from format:
+        /// 
+        /// name1=value1;name2=value2;
+        /// 
+        /// into a json object:
+        /// { "name1" : "value1", "name2" : "value2"}
+        /// 
+        /// it also checks there is no funny business going on (checking for embedded < or > in query</or>
+        /// </summary>
+        private string _ValidateQuery(string query)
+        {
+            var startIndex = query.IndexOf('?');
+            if (startIndex > -1)
+            {
+                query = query.Substring(query.IndexOf('?')+1);
+            }
+            else
+            {
+                return query;
+            }
+
+            List<char> badChars = new List<char>
+            {
+                '>',
+                '<'
+            };
+
+            char badOne = query.FirstOrDefault(ch => badChars.Contains(ch));
+            if(badOne != default(char))
+            {
+                throw new ArgumentException($"Unsafe characters in request. cannot process for security reasons.");
+            }
+
+            var parts = query.Split(';');
+            var jsonStringBuilder = new StringBuilder("{");
+            for(var index = 0; index < parts.Length; index++)
+            {
+                var element = parts[index].Split('=');
+                if(element.Length != 2)
+                {
+                    throw new ArgumentException("Badly formed query string!");
+                }
+
+                jsonStringBuilder.Append($"\"{element[0]}\" : ");
+                double dVal;
+                if(double.TryParse(element[1], out dVal) == true)
+                {
+                    jsonStringBuilder.Append($"{element[1]}");
+                }
+                else
+                {
+                    jsonStringBuilder.Append($"\"{element[1]}\"");
+                }
+
+                if(index < (parts.Length - 1))
+                {
+                    jsonStringBuilder.Append(",");
+                }
+            }
+            jsonStringBuilder.Append("}");
+
+            return jsonStringBuilder.ToString();
+        }
 
         #endregion
 

@@ -8,7 +8,8 @@ namespace InvestmentBuilderCore
     {
         int AddNewUser(string userName, string eMail, string salt, string passwordHash, string phoneNumber, bool twoFactorEnabled);
         bool AuthenticateUser(string email, string passwordHash);
-        bool ChangePassword(string email, string oldPasswordHash, string newPasswordHash, string newSalt);
+        bool PasswordChangeRequest(string email, string token);
+        bool ChangePassword(string email, string token, string newPasswordHash, string newSalt);
         void RemoveUser(string email);
         string GetSalt(string email);
         bool ValidateUser(string emailAddress);

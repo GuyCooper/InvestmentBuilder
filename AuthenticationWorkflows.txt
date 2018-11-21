@@ -1,0 +1,17 @@
+
+New User
+	1. Open Inex.html
+	2. click on "Register New User" link
+	3. user submits form. 
+	4. ManageUsers service adds user to auth database.
+	5. end
+	
+Forgotten Password
+	1. Open Index.html
+	2. click on "forgotten password" link.
+	3. user submits form (containing emil address)
+	4. ManageUsers service generates temporary password and calls AddTemporaryPassword on auth database. sends email to user with temporary password.
+	5. User opens index.html.
+	6. User logs in with temporary password.
+	
+	

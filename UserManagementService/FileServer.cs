@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NLog;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -40,6 +41,8 @@ namespace UserManagementService
 
         private List<string> m_fileList = new List<string>();
         private readonly string m_root;
+
+        private static Logger logger = LogManager.GetCurrentClassLogger();
 
         #endregion
     }

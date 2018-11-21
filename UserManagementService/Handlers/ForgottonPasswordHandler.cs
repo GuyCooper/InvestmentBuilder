@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using InvestmentBuilderCore;
-using System.Net.Mail;
-using System.Net;
+using NLog;
 
 namespace UserManagementService.Handlers
 {
@@ -19,7 +18,14 @@ namespace UserManagementService.Handlers
     /// </summary>
     class ForgottonPasswordResponse
     {
+        public enum PasswordResponseType
+        {
+            FAIL,
+            SUCCESS
+        };
 
+        public PasswordResponseType Result { get; set; }
+        public string ResultMessage { get; set; }
     }
 
     /// <summary>
@@ -33,39 +39,44 @@ namespace UserManagementService.Handlers
         /// <summary>
         /// Constructor
         /// </summary>
-        public ForgottonPasswordHandler(string smtpServer, string username, string password,
-            string from, IAuthDataLayer authdata) :  base("ForgottonPassword")
+        public ForgottonPasswordHandler(IUserNotifier notifier, string changePasswordUrl, IAuthDataLayer authdata)
+             :  base("ForgottonPassword")
         {
-            _smtpServer = smtpServer;
-            _username = username;
-            _password = password;
-            _from = from;
+            _changePasswordUrl = changePasswordUrl;
             _authdata = authdata;
+            _notifier = notifier;
         }
 
         /// <summary>
-        /// Handle request.
+        /// Handle request. Generate a temporary password and set it in the auth table. Send email to user
+        /// with temporary password.
         /// </summary>
         protected override ForgottonPasswordResponse ProcessRequest(ForgottonPasswordRequest request, Dictionary<string, List<string>> headers)
         {
-            //validate email address.
-            //send an smtp message to address with temporary password   
+            var response = new ForgottonPasswordResponse();
 
-            var password = SaltedHash.GenerateSalt().Substring(0, 8);
+            logger.Info("Processing Forgoten Password request");
 
+            var token = Guid.NewGuid().ToString();
+            var ok = _authdata.PasswordChangeRequest(request.EMailAddress, token);
 
-            SmtpClient mail = new SmtpClient(_smtpServer);
-            mail.UseDefaultCredentials = false;
-            mail.Credentials = new NetworkCredential(_username, _password);
+            if (ok == true)
+            {
+                var link = $"{_changePasswordUrl}?token={token}";
 
-            MailMessage mailMessage = new MailMessage();
-            mailMessage.From = new MailAddress(_from);
-            mailMessage.To.Add(request.EMailAddress);
-            mailMessage.Body = "body";
-            mailMessage.Subject = "subject";
-            mail.Send(mailMessage);
+                _notifier.NotifyUserPasswordChange(request.EMailAddress, link);
 
-            return new ForgottonPasswordResponse();
+                response.Result = ForgottonPasswordResponse.PasswordResponseType.SUCCESS;
+                response.ResultMessage = "ok";
+            }
+            else
+            {
+                response.Result = ForgottonPasswordResponse.PasswordResponseType.FAIL;
+                response.ResultMessage = "Failed to Validate Email Address";
+            }
+
+            logger.Info($"Forgotten Password Response {response.Result}");
+            return response;
         }
 
         #endregion
@@ -73,10 +84,10 @@ namespace UserManagementService.Handlers
         #region Private Data Members
 
         private readonly IAuthDataLayer _authdata;
-        private readonly string _smtpServer;
-        private readonly string _username;
-        private readonly string _password;
-        private readonly string _from;
+        private readonly string _changePasswordUrl;
+        private readonly IUserNotifier _notifier;
+
+        private static Logger logger = LogManager.GetCurrentClassLogger();
 
         #endregion
 

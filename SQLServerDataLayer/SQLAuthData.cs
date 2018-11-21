@@ -70,25 +70,44 @@ namespace SQLServerDataLayer
         /// <summary>
         /// Change the password for an existing user.
         /// </summary>
-        public bool ChangePassword(string email, string oldPasswordHash, string newPasswordHash, string newSalt)
+        public bool ChangePassword(string email, string token, string newPasswordHash, string newSalt)
         {
             using (var connection = OpenConnection())
             {
-                using (var command = new SqlCommand("sp_ChangePassword", connection))
+                using (var command = new SqlCommand("sp_AuthChangePassword", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
+                    var retParam = new SqlParameter { ParameterName = "@Return", Direction = System.Data.ParameterDirection.ReturnValue };
                     command.Parameters.Add(new SqlParameter("@EMail", email));
-                    command.Parameters.Add(new SqlParameter("@OldPasswordHash", oldPasswordHash));
+                    command.Parameters.Add(new SqlParameter("@Token", token));
                     command.Parameters.Add(new SqlParameter("@NewPasswordHash", newPasswordHash));
                     command.Parameters.Add(new SqlParameter("@NewSalt", newSalt));
-                    var objResult = command.ExecuteScalar();
-                    if (objResult != null)
-                    {
-                        return (int)objResult == 1;
-                    }
+                    command.ExecuteNonQuery();
+                    return (int)retParam.Value == 1;
                 }
             }
-            return false;
+        }
+
+        /// <summary>
+        /// Update the PassChange request table with a password change request.
+        /// </summary>
+        /// <returns></returns>
+        public bool PasswordChangeRequest(string email, string token)
+        {
+            using (var connection = OpenConnection())
+            {
+                using (var command = new SqlCommand("sp_AuthAddPasswordChangeRequest", connection))
+                {
+                    var retParam = new SqlParameter { ParameterName = "@Return", Direction = System.Data.ParameterDirection.ReturnValue };
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@EMail", email));
+                    command.Parameters.Add(new SqlParameter("@Token", token));
+                    command.Parameters.Add(retParam);
+                    command.ExecuteNonQuery();
+
+                    return (int)retParam.Value == 0;
+                }
+            }
         }
 
         /// <summary>

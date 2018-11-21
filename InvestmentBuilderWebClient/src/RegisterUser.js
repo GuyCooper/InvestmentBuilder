@@ -6,6 +6,9 @@ function RegisterUser($scope, $http) {
     $scope.ConfirmPassword = "";
     $scope.IsError = false;
     $scope.ErrorList = [];
+    $scope.IsBusy = false;
+    $scope.Complete = false;
+    $scope.Success = false;
 
     var validated = false;
     var servername = "";
@@ -39,6 +42,21 @@ function RegisterUser($scope, $http) {
         $scope.IsError = false;
     };
 
+
+    var onsuccess = function(response) {
+        console.log("success");
+        $scope.Complete = true;
+        $scope.IsBusy = false;
+        $scope.Success = true;
+    };
+
+    var onfail = function(response) {
+        console.log("failed");
+        $scope.Complete = true;
+        $scope.IsBusy = false;
+        $scope.Success = false;
+    };
+
     $scope.registerUser = function () {
         $scope.ErrorList = [];
         validateEmailAddress();
@@ -51,13 +69,39 @@ function RegisterUser($scope, $http) {
                 ConfirmPassword: $scope.ConfirmPassword,
                 PhoneNumber : ""
             };
-            $http.post(servername + "/RegisterUser", userDetails).then(function (response) {
-                console.log("success");
-            },
-            function (response) {
-                console.log("failed");
-            }
-            );
+
+            $scope.IsBusy = true;
+            $http.post(servername + "/RegisterUser", userDetails).then(onsuccess, onfail);
+        }
+    };
+
+    $scope.forgottenPassword = function () {
+        $scope.ErrorList = [];
+        validateEmailAddress();
+        if ($scope.IsError === false) {
+            var config = {
+                params: { "EMailAddress": $scope.EMailAddress }
+            };
+
+            $scope.IsBusy = true;
+            $http.get(servername + "/ForgottonPassword", config).then(onsuccess, onfail);
+        }
+    };
+
+    $scope.changePassword = function () {
+        $scope.ErrorList = [];
+        validateEmailAddress();
+        if ($scope.IsError === false) {
+            var config = {
+                params : { 
+                            "Token" : window.location,
+                            "EMailAddress" : $scope.EMailAddress,
+                            "Password" : $scope.Password
+                        }
+            };
+
+            $scope.IsBusy = true;
+            $http.get(servername + "/ChangePassword", config).then(onsuccess, onfail);
         }
     };
 

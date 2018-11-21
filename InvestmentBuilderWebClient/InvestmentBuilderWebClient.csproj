@@ -22,12 +22,13 @@
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="ChangePassword.html" />
     <Content Include="Gruntfile.js" />
     <Content Include="gulpfile.js" />
     <Content Include="Index.html" />
     <Content Include="Middleware\Middleware.js" />
-    <Content Include="Password.html" />
-    <Content Include="Register.html" />
+    <Content Include="ForgottenPassword.html" />
+    <Content Include="RegisterUser.html" />
     <Content Include="src\AccountList.js" />
     <Content Include="src\AddAccount.js" />
     <Content Include="src\CashFlow.js" />
@@ -37,7 +38,7 @@
     <Content Include="src\NotifyService.js" />
     <Content Include="src\Portfolio.js" />
     <Content Include="src\RegisterModules.js" />
-    <Content Include="src\Register.js" />
+    <Content Include="src\RegisterUser.js" />
     <Content Include="src\Reports.js" />
     <Content Include="src\Utils.js" />
     <Content Include="styles\css\InvestmentBuilderWeb.css" />
@@ -54,6 +55,7 @@
     <Content Include="styles\thirdParty\jquery-ui.theme.min.css" />
     <Content Include="styles\thirdParty\Site.css" />
     <Content Include="tasks\scaffold.js" />
+    <Content Include="UserTemplate.html" />
     <Content Include="views\AccountList.html" />
     <Content Include="views\AddAccount.html" />
     <Content Include="views\Layout.html" />
@@ -71,7 +73,6 @@
     <Content Include="views\EditTrade.html" />
     <Content Include="views\Parameters.html" />
     <Content Include="views\Portfolio.html" />
-    <Content Include="views\RaiseAlert.html" />
     <Content Include="views\ReportCompletion.html" />
     <Content Include="views\Reports.html" />
     <Content Include="views\YesNoChooser.html" />

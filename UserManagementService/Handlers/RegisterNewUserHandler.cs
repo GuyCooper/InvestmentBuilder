@@ -1,4 +1,5 @@
 ﻿using InvestmentBuilderCore;
+using NLog;
 using System.Collections.Generic;
 
 namespace UserManagementService.Handlers
@@ -53,6 +54,8 @@ namespace UserManagementService.Handlers
         /// </summary>
         protected override RegisterNewUserResponse ProcessRequest(RegisterNewUserRequest request, Dictionary<string, List<string>> headers)
         {
+            logger.Info("processing new user request");
+
             var response = new RegisterNewUserResponse();
 
             if (request.Password != request.ConfirmPassword)
@@ -82,6 +85,7 @@ namespace UserManagementService.Handlers
                 }
             }
 
+            logger.Info($"New User Request finished with response {response.Response}");
             return response;
         }
 
@@ -109,6 +113,8 @@ namespace UserManagementService.Handlers
 
         private readonly IAuthDataLayer _authdata;
         private readonly IUserAccountInterface _userAccountData;
+
+        private static Logger logger = LogManager.GetCurrentClassLogger();
 
         #endregion
     }

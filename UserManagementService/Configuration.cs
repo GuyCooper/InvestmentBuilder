@@ -30,6 +30,16 @@ namespace UserManagementService
         /// Web Server Root location
         /// </summary>
         string Root { get; }
+        /// <summary>
+        /// Smpt server name
+        /// </summary>
+        string SmtpServer { get; }
+        /// <summary>
+        /// Smtp username
+        /// </summary>
+        string SmtpUserName { get; }
+        string SmtpPassword { get; }
+        string OurEmailAddress { get; }
     }
 
     /// <summary>
@@ -51,6 +61,18 @@ namespace UserManagementService
 
         [XmlElement("root")]
         public string Root { get; set; }
+
+        [XmlElement("smtpserver")]
+        public string SmtpServer { get; set; }
+
+        [XmlElement("smtpuser")]
+        public string SmtpUserName { get; set; }
+
+        [XmlElement("smtppassword")]
+        public string SmtpPassword { get; set; }
+
+        [XmlElement("address")]
+        public string OurEmailAddress { get; set; }
     }
 
     /// <summary>
@@ -69,6 +91,15 @@ namespace UserManagementService
         public int MaxConnections { get { return _configuration.MaxConnections; } }
 
         public string Root { get { return _configuration.Root; } }
+
+        public string SmtpServer { get { return _configuration.SmtpServer; } }
+
+        public string SmtpUserName { get { return _configuration.SmtpUserName; } }
+
+        public string SmtpPassword { get { return _configuration.SmtpPassword; } }
+
+        public string OurEmailAddress { get { return _configuration.OurEmailAddress; } }
+
         #endregion
 
         #region Constructor

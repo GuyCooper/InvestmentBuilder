@@ -3,13 +3,12 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forgotton Password</title>
+    <title>@[title]</title>
     <link rel="stylesheet" href="styles/jquery-ui.css" type="text/css">
     <link rel="stylesheet" href="styles/jquery-ui.structure.css" type="text/css">
     <link rel="stylesheet" href="styles/jquery-ui.theme.css" type="text/css">
     <link rel="stylesheet" href="styles/bootstrap.css" type="text/css">
-    <link rel="stylesheet" href="styles/investmentBuilder.css" type="text/css">
-</head>
+    <link rel="stylesheet" href="styles/investmentBuilder.css" type="text/css"></head>
 <body>
     <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
         <div class="container">
@@ -27,28 +26,21 @@
     <div class="container body-content layoutTop">
         <div ng-app="InvestmentBuilderRegister">
             <div class="editor" ng-controller="RegisterUser">
-                <blockquote>
-                    <p>
-                        Enter the email you have registered with and a new password
-                        will be sent to you. You will be asked to change your password
-                        after the first login.
-                    </p>
-                </blockquote>
-
-                <form name="ForgottonPasswordForm" role="form">
-                    <div class="form-group">
-                        <label>Email Address</label>
-                        <input class="form-control" ng-model="EMailAddress" name="EMailAddress" placeholder="email address" />
+                <div ng-hide="IsBusy">
+                    <div ng-hide="Complete">
+                        @[templateurl]
                     </div>
-
-                    <div>
-                        <input type="button" value="Request Password" ng-click="requestPassword()" />
+                    <div ng-show="Complete">
+                        <h3 ng-show="Success">@[requestSuccess]</h3>
+                        <h3 ng-hide="Success">@[requestFail]</h3>
                     </div>
-                </form>
+                </div>
+                <div ng-show="IsBusy" class="loader">
+                </div>
             </div>
         </div>
     </div>
     <script type="text/javascript" src="js/registerlibs.js"></script>
-    <script type="text/javascript" src="js/register.js"></script>
+    <script type="text/javascript" src="js/registerUser.js"></script>
 </body>
 </html>
