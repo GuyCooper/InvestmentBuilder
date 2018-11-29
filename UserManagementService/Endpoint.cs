@@ -19,11 +19,12 @@ namespace UserManagementService
         /// <summary>
         /// Constructor
         /// </summary>
-        public Endpoint(string url)
+        public Endpoint(string url, string hostUrl)
         {
             logger.Info($"endpoint listener binding to url {url}");
             _httpListener = new HttpListener();
             _httpListener.Prefixes.Add(url);
+            _hostUrl = hostUrl;
         }
 
         /// <summary>
@@ -90,8 +91,8 @@ namespace UserManagementService
                 {
                     //looks like a CORS ORIGIN request. inform client that we allow
                     //CORS requests.
-                    //response.Headers.Add($"Access-Control-Allow-Origin:{origins[0]}");
-                    response.Headers.Add($"Access-Control-Allow-Origin:*");
+                    //only allow connections from the configured host url
+                    response.Headers.Add($"Access-Control-Allow-Origin:{_hostUrl}");
                     response.Headers.Add("Access-Control-Allow-Method: POST, GET, OPTIONS");
                     response.Headers.Add("Access-Control-Max-Age: 86400");
                     response.Headers.Add("Access-Control-Allow-Headers: Content-Type");
@@ -234,6 +235,12 @@ namespace UserManagementService
         private readonly Dictionary<string, IHandler> _handlers = new Dictionary<string, IHandler>();
 
         private static Logger logger = LogManager.GetCurrentClassLogger();
+
+        /// <summary>
+        /// Specifies the host url that accesess this web service. only requests from
+        /// this host can use this web service
+        /// </summary>
+        private readonly string _hostUrl;
         #endregion
 
     }

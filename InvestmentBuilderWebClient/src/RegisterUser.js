@@ -57,11 +57,19 @@ function RegisterUser($scope, $http) {
         $scope.Success = false;
     };
 
+    var getToken = function () {
+        var index = window.location.search.indexOf("=");
+        if(index > 1) {
+            return window.location.search.slice(index+1);
+        }
+        return "";
+    }
+
     $scope.registerUser = function () {
         $scope.ErrorList = [];
         validateEmailAddress();
         validatePassword();
-        if ($scope.IsError === false) {
+        if ($scope.IsError === false) {            
             var userDetails = {
                 UserName: "",
                 EMailAddress : $scope.EMailAddress, 
@@ -89,19 +97,26 @@ function RegisterUser($scope, $http) {
     };
 
     $scope.changePassword = function () {
+        var token = getToken();
         $scope.ErrorList = [];
         validateEmailAddress();
+        validatePassword();
         if ($scope.IsError === false) {
-            var config = {
-                params : { 
-                            "Token" : window.location,
-                            "EMailAddress" : $scope.EMailAddress,
-                            "Password" : $scope.Password
-                        }
+            var userDetails = {
+                "Token": token,
+                "EMail": $scope.EMailAddress,
+                "Password": $scope.Password
             };
 
             $scope.IsBusy = true;
-            $http.get(servername + "/ChangePassword", config).then(onsuccess, onfail);
+            $http.post(servername + "/ChangePassword", userDetails).then((result) => {
+                if (result.data.result == 0) {
+                    onfail(result.data.ResultMessage);
+                } else {
+                    onsuccess();
+                }
+            }
+            , onfail);
         }
     };
 

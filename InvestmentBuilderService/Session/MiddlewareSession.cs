@@ -69,7 +69,7 @@ namespace InvestmentBuilderService.Session
                 var authResult = new AuthResult
                 {
                     Message = message,
-                    Success = result
+                    Result = result ? AuthResult.ResultType.SUCCESS : AuthResult.ResultType.FAILED
                 };
 
                 _middleware.SendAuthenticationResponse(_session, requestid, authResult);

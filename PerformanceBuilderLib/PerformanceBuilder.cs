@@ -41,7 +41,7 @@ namespace PerformanceBuilderLib
             allLadders.InsertRange(0, ladderBuilder.BuildCompanyPerformanceLadders(userToken, progress));
 
             //now build the company dividend ladders
-            allLadders.Insert(0, ladderBuilder.BuildAccountDividendPerformanceLadder(userToken, progress));
+            //allLadders.Insert(0, ladderBuilder.BuildAccountDividendPerformanceLadder(userToken, progress));
            
             //and finally the company dividend yield ladders
             allLadders.Insert(0, ladderBuilder.BuildAccountDividendYieldPerformanceLadder(userToken, progress));

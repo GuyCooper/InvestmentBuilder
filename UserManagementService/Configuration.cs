@@ -23,6 +23,10 @@ namespace UserManagementService
         /// </summary>
         string ListenURL { get; }
         /// <summary>
+        /// url of web host
+        /// </summary>
+        string HostURL { get; }
+        /// <summary>
         /// max number of concurrent connections service will support
         /// </summary>
         int MaxConnections { get; }
@@ -56,6 +60,9 @@ namespace UserManagementService
         [XmlElement("listenurl")]
         public string ListenURL { get; set; }
 
+        [XmlElement("hosturl")]
+        public string HostURL { get; set; }
+
         [XmlElement("maxconnections")]
         public int MaxConnections { get; set; }
 
@@ -87,6 +94,8 @@ namespace UserManagementService
         public string AuthenticationDatabase { get { return _configuration.AuthenticationDatabase; } }
 
         public string ListenURL { get { return _configuration.ListenURL; } }
+
+        public string HostURL { get { return _configuration.HostURL; } }
 
         public int MaxConnections { get { return _configuration.MaxConnections; } }
 

@@ -77,13 +77,12 @@ namespace SQLServerDataLayer
                 using (var command = new SqlCommand("sp_AuthChangePassword", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    var retParam = new SqlParameter { ParameterName = "@Return", Direction = System.Data.ParameterDirection.ReturnValue };
                     command.Parameters.Add(new SqlParameter("@EMail", email));
                     command.Parameters.Add(new SqlParameter("@Token", token));
                     command.Parameters.Add(new SqlParameter("@NewPasswordHash", newPasswordHash));
                     command.Parameters.Add(new SqlParameter("@NewSalt", newSalt));
-                    command.ExecuteNonQuery();
-                    return (int)retParam.Value == 1;
+                    var result = command.ExecuteScalar();
+                    return (int)result == 1;
                 }
             }
         }
@@ -103,7 +102,7 @@ namespace SQLServerDataLayer
                     command.Parameters.Add(new SqlParameter("@EMail", email));
                     command.Parameters.Add(new SqlParameter("@Token", token));
                     command.Parameters.Add(retParam);
-                    command.ExecuteNonQuery();
+                    command.ExecuteScalar();
 
                     return (int)retParam.Value == 0;
                 }

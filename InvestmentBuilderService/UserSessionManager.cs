@@ -91,7 +91,7 @@ namespace InvestmentBuilderService
                         userSession.AccountName = accounts.FirstOrDefault();
                         _userSessions.Add(message.SourceId, userSession);
                     }
-                    GetSession().SendAuthenticationResult(authenticated, authenticated ? "authentication succeded" : "authenitcation failed", message.RequestId);
+                    GetSession().SendAuthenticationResult(authenticated, authenticated ? "authentication succeded" : "authentication failed", message.RequestId);
 
                 });
             }

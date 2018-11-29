@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MarketDataServices;
 using NLog;
 using InvestmentBuilderCore;
 using Newtonsoft.Json;
@@ -25,12 +22,11 @@ namespace PerformanceBuilderLib
     /// </summary>
     internal class PerformanceLaddersBuilder
     {
-        private static Logger logger = LogManager.GetCurrentClassLogger();
-        private IConfigurationSettings _settings;
-        private IHistoricalDataReader _historicalDataReader;
-        private IInvestmentRecordInterface _investmentRecordData;
-        private IUserAccountInterface _userAccountData;
+        #region Public Methods
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public PerformanceLaddersBuilder(IConfigurationSettings settings, IDataLayer dataLayer)
         {
             _historicalDataReader = dataLayer.HistoricalData;
@@ -39,11 +35,150 @@ namespace PerformanceBuilderLib
             _settings = settings;
         }
 
+        /// <summary>
+        /// Builds the performance ladders that allows the performance of the users portfolio
+        /// to be compared to a configured list of global indices. Returns a performance ladder for the
+        /// users portfolio and all the configured indices.
+        /// </summary>
+        public IEnumerable<IndexedRangeData> BuildPerformanceLadders(UserAccountToken userToken, DateTime dtValuation, ProgressCounter progress)
+        {
+            logger.Log(LogLevel.Info, "building portfolio performance ladders");
+
+            var historicalData = _historicalDataReader.GetHistoricalAccountData(userToken);
+            var firstRecord = historicalData != null ? historicalData.FirstOrDefault() : null;
+            if (firstRecord != null)
+            {
+                var performanceRangeList = _DetermineIndexRanges(firstRecord.Date);
+                progress.Initialise("building performance ladders", performanceRangeList.Count);
+                //now retrieve all historical data ladders from the market data source 
+                //var allLadders = new List<IndexedRangeData>();
+                foreach (var point in performanceRangeList)
+                {
+                    logger.Log(LogLevel.Info, "building data ladder for {0}", point.Item2);
+
+                    //Console.WriteLine("building data ladder for {0}", perfPoint.Item2);
+                    var indexladder = _BuildIndexLadders(userToken, point.Item1, historicalData, userToken.Account);
+                    var result = new IndexedRangeData
+                    {
+                        MinValue = 0.8,
+                        IsHistorical = true,
+                        Name = point.Item2,
+                        Data = indexladder,
+                        Title = "Account Performance"
+                    };
+
+                    progress.Increment();
+
+                    yield return result;
+                }
+            }
+            logger.Log(LogLevel.Info, "Finished building portfolio performance ladders");
+        }
+
+        /// <summary>
+        /// Method returns a peformance ladder for each investment in the users portfolio. Allows user
+        /// to compare relative performance of each investment.
+        /// </summary>
+        public IEnumerable<IndexedRangeData> BuildCompanyPerformanceLadders(UserAccountToken userToken, ProgressCounter progress)
+        {
+            var dtValuation = _investmentRecordData.GetLatestRecordInvestmentValuationDate(userToken);
+            if (dtValuation.HasValue == true)
+            {
+                logger.Log(LogLevel.Info, "building company performance data ladders");
+                var companies = _userAccountData.GetActiveCompanies(userToken, dtValuation.Value).ToList();
+                var investmentRecords = _investmentRecordData.GetFullInvestmentRecordData(userToken).OrderBy(x => x.ValuationDate).ToList();
+                var firstRecord = investmentRecords.FirstOrDefault();
+                if (firstRecord != null)
+                {
+                    var performanceRangeList = _DetermineIndexRanges(firstRecord.ValuationDate);
+                    foreach (var point in performanceRangeList)
+                    {
+                        yield return new IndexedRangeData
+                        {
+                            MinValue = 0.0,
+                            IsHistorical = true,
+                            Name = point.Item2,
+                            Data = _BuildCompanyIndexData(companies, investmentRecords, point, dtValuation.Value, progress),
+                            Title = string.Format("Individual company performance (units)")
+                        };
+                    }
+                }
+
+                logger.Log(LogLevel.Info, "Finished building company performance data ladders");
+            }
+        }
+
+        /// <summary>
+        /// Method returns a list containing the total dividend for each investment in the users 
+        /// portfolio.
+        /// 
+        /// </summary>
+        public IndexedRangeData BuildAccountDividendPerformanceLadder(UserAccountToken userToken, ProgressCounter progress)
+        {
+            var dtValuation = _investmentRecordData.GetLatestRecordInvestmentValuationDate(userToken);
+            if (dtValuation.HasValue == false)
+                return null;
+
+            logger.Log(LogLevel.Info, "building company dividend data ladders");
+
+            var indexData = new IndexedRangeData
+            {
+                MinValue = 0,
+                IsHistorical = false,
+                KeyName = "Company",
+                Name = "Dividends",
+                Data = _BuildAccountDividendIndexData(userToken, dtValuation.Value, progress),
+                Title = "Individual Company dividends received"
+            };
+
+            logger.Log(LogLevel.Info, "Finished building company dividend data ladders");
+
+            return indexData;
+        }
+
+        /// <summary>
+        /// Method returns a list containing the average dividend yield for each investment in the users 
+        /// portfolio. It also returns an average volume weighted yield for the portfolio as a whole.
+        /// 
+        /// </summary>
+        public IndexedRangeData BuildAccountDividendYieldPerformanceLadder(UserAccountToken userToken, ProgressCounter progress)
+        {
+            var dtValuation = _investmentRecordData.GetLatestRecordInvestmentValuationDate(userToken);
+            if (dtValuation.HasValue == false)
+                return null;
+
+            logger.Log(LogLevel.Info, "building company dividend yield data ladders");
+
+            var indexData =  new IndexedRangeData
+            {
+                MinValue = 0,
+                IsHistorical = false,
+                KeyName = "Company",
+                Name = "Average Yield",
+                Data = _BuildAccountDividendYieldIndexData(userToken, dtValuation.Value, progress),
+                Title = "Individual Company average yield (%)"
+            };
+
+            logger.Log(LogLevel.Info, "Finished building company dividend yield data ladders");
+
+            return indexData;
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        /// Method returns the year and month of the specified date
+        /// </summary>
         private DateTime MonthlyDate(DateTime dt)
         {
             return new DateTime(dt.Year, dt.Month, 1);
         }
 
+        /// <summary>
+        /// Method outputs historical data to the logger
+        /// </summary>
         private void DumpData(string title, IEnumerable<HistoricalData> enData)
         {
             //Console.WriteLine(title);
@@ -55,6 +190,9 @@ namespace PerformanceBuilderLib
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private bool _GetIndexRangeForYear(DateTime dtStartDate, int years, string description, IList<Tuple<DateTime?, string>> listIndexes)
         {
             var dtYear = DateTime.Today.AddYears(years);
@@ -101,118 +239,9 @@ namespace PerformanceBuilderLib
             return result;
         }
 
-        public IEnumerable<IndexedRangeData> BuildPerformanceLadders(UserAccountToken userToken, DateTime dtValuation, ProgressCounter progress )
-        {
-            logger.Log(LogLevel.Info, "building performance ladders");
-
-            var historicalData = _historicalDataReader.GetHistoricalAccountData(userToken);
-            var firstRecord = historicalData != null ? historicalData.FirstOrDefault() : null;
-            if (firstRecord != null)
-            {
-                var performanceRangeList = _DetermineIndexRanges(firstRecord.Date);
-                progress.Initialise("building performance ladders", performanceRangeList.Count);
-                //now retrieve all historical data ladders from the market data source 
-                //var allLadders = new List<IndexedRangeData>();
-                foreach (var point in performanceRangeList)
-                {
-                    logger.Log(LogLevel.Info, "building data ladder for {0}", point.Item2);
-
-                    //Console.WriteLine("building data ladder for {0}", perfPoint.Item2);
-                    var indexladder = _BuildIndexLadders(userToken, point.Item1, historicalData, userToken.Account);
-                    var result = new IndexedRangeData
-                    {
-                        MinValue = 0.8,
-                        IsHistorical = true,
-                        Name = point.Item2,
-                        Data = indexladder,
-                        Title = "Account Performance"
-                    };
-
-                    progress.Increment();
-
-                    yield return result;
-                }
-            }
-            logger.Log(LogLevel.Info, "performance data ladders complete...");
-        }
-
         /// <summary>
-        /// build company performance data ladder
+        /// method filters out any older prices than start date,and rebases on first date
         /// </summary>
-        /// <param name="userToken"></param>
-        /// <param name="dtValuation"></param>
-        /// <returns></returns>
-        public IEnumerable<IndexedRangeData> BuildCompanyPerformanceLadders(UserAccountToken userToken, ProgressCounter progress)
-        {
-            var dtValuation = _investmentRecordData.GetLatestRecordInvestmentValuationDate(userToken);
-            if (dtValuation.HasValue == true)
-            {
-                logger.Log(LogLevel.Info, "building company performance data ladders");
-                var companies = _userAccountData.GetActiveCompanies(userToken, dtValuation.Value).ToList();
-                var investmentRecords = _investmentRecordData.GetFullInvestmentRecordData(userToken).OrderBy(x => x.ValuationDate).ToList();
-                var firstRecord = investmentRecords.FirstOrDefault();
-                if (firstRecord != null)
-                {
-                    var performanceRangeList = _DetermineIndexRanges(firstRecord.ValuationDate);
-                    foreach (var point in performanceRangeList)
-                    {
-                        yield return new IndexedRangeData
-                        {
-                            MinValue = 0.0,
-                            IsHistorical = true,
-                            Name = point.Item2,
-                            Data = _BuildCompanyIndexData(companies, investmentRecords, point, dtValuation.Value, progress),
-                            Title = string.Format("Individual company performance (units)")
-                        };
-                    }
-                }
-            }
-        }
-
-        public IndexedRangeData BuildAccountDividendPerformanceLadder(UserAccountToken userToken, ProgressCounter progress)
-        {
-            var dtValuation = _investmentRecordData.GetLatestRecordInvestmentValuationDate(userToken);
-            if (dtValuation.HasValue == false)
-                return null;
-
-            logger.Log(LogLevel.Info, "building company dividend data ladders");
-
-            return new IndexedRangeData
-            {
-                MinValue = 0,
-                IsHistorical = false,
-                KeyName = "Company",
-                Name = "Dividends",
-                Data = _BuildAccountDividendIndexData(userToken, dtValuation.Value, progress),
-                Title = "Individual Company dividends received"
-            };
-        }
-
-        public IndexedRangeData BuildAccountDividendYieldPerformanceLadder(UserAccountToken userToken, ProgressCounter progress)
-        {
-            var dtValuation = _investmentRecordData.GetLatestRecordInvestmentValuationDate(userToken);
-            if (dtValuation.HasValue == false)
-                return null;
-
-            logger.Log(LogLevel.Info, "building company dividend yield data ladders");
-
-            return new IndexedRangeData
-            {
-                MinValue = 0,
-                IsHistorical = false,
-                KeyName = "Company",
-                Name = "Average Yield",
-                Data = _BuildAccountDividendYieldIndexData(userToken, dtValuation.Value, progress),
-                Title = "Individual Company average yield (%)"
-            };
-        }
-
-        /// <summary>
-        /// method filters out any olderr prices than start date,and rebases on first date
-        /// </summary>
-        /// <param name="dataList"></param>
-        /// <param name="dtStartDate"></param>
-        /// <returns></returns>
         private IEnumerable<HistoricalData> RebaseDataList(IEnumerable<HistoricalData> dataList, DateTime? dtStartDate)
         {
             DateTime? dtPrevious = null;
@@ -237,7 +266,7 @@ namespace PerformanceBuilderLib
                     dtPrevious.Value.Year == item.Date.Value.Year &&
                     dtPrevious.Value.Month == item.Date.Value.Month)
                 {
-                    logger.Log(LogLevel.Info, "RebaseDataList: removing duplicate date entry : {0}", dtPrevious.Value.Date.ToShortDateString());
+                    //logger.Log(LogLevel.Info, "RebaseDataList: removing duplicate date entry : {0}", dtPrevious.Value.Date.ToShortDateString());
                     resultList.RemoveAt(resultList.Count - 1);
                 }
 
@@ -252,6 +281,10 @@ namespace PerformanceBuilderLib
             return resultList;
         }
 
+        /// <summary>
+        /// Method deserialises the stored historical data from the database and converts it into
+        /// an HistoricalData list.
+        /// </summary>
         private IEnumerable<HistoricalData> ParseHistoricalData(string data, DateTime? dtFrom)
         {
             var rawData = JsonConvert.DeserializeObject<IList<RawHistoricalData>>(data);
@@ -276,9 +309,6 @@ namespace PerformanceBuilderLib
         /// method retrieves the historical price information for all the configured indexes for all required
         /// date ranges. Data is then rebased for each date range to allow easy determination of relative performance
         /// </summary>
-        /// <param name="startDate"></param>
-        /// <param name="indexes"></param>
-        /// <returns></returns>
         private IList<IndexData> _BuildIndexLadders(UserAccountToken userToken, DateTime? startDate, IEnumerable<HistoricalData> historicalData, AccountIdentifier account)
         {
             //first get club history
@@ -328,12 +358,18 @@ namespace PerformanceBuilderLib
             return result;
         }
 
+        /// <summary>
+        /// Method retuns the total return for an individual company
+        /// </summary>
         private double _GetPerformanceAmount(CompanyData company)
         {
             company.NetSellingValue = company.Quantity * company.SharePrice;
             return (company.NetSellingValue + company.Dividend) / company.TotalCost;
         }
 
+        /// <summary>
+        /// Method determines if an index curve starts later than the specified date or not.
+        /// </summary>
         private bool _IsPointLaterThan(IndexData index, DateTime dtDate)
         {
             if ((index.StartDate.Value.Year > dtDate.Year) ||
@@ -344,6 +380,9 @@ namespace PerformanceBuilderLib
             return false;
         }
 
+        /// <summary>
+        /// Method builds the performance curves for a list of investments 
+        /// </summary>
         private IList<IndexData> _BuildCompanyIndexData(IList<string> companies,
                                                         IList<CompanyData> investmentRecords,
                                                         DATE_POINT startPoint,
@@ -372,7 +411,7 @@ namespace PerformanceBuilderLib
                     if(dtPrevious.Year == investment.ValuationDate.Year && 
                         dtPrevious.Month == investment.ValuationDate.Month)
                     {
-                        logger.Log(LogLevel.Info, "BuildCompanyIndexData: removing duplicate date entry : {0}", dtPrevious.Date.ToShortDateString());
+                        //logger.Log(LogLevel.Info, "BuildCompanyIndexData: removing duplicate date entry : {0}", dtPrevious.Date.ToShortDateString());
                         dataList.RemoveAt(dataList.Count - 1);
                     }
 
@@ -426,6 +465,9 @@ namespace PerformanceBuilderLib
             return indexes;
         }
 
+        /// <summary>
+        /// Method builds the dividend amounts curve for all investments in the portfolio. 
+        /// </summary>
         private IList<IndexData> _BuildAccountDividendIndexData(UserAccountToken userToken, DateTime valuationDate, ProgressCounter progress)
         {
             progress.Initialise("Building Company income data ladder", 1);
@@ -451,6 +493,9 @@ namespace PerformanceBuilderLib
             return indexes;
         }
 
+        /// <summary>
+        /// Method builds the dividend yield items for all investments in the portfolio.
+        /// </summary>
         private IList<IndexData> _BuildAccountDividendYieldIndexData(UserAccountToken userToken, DateTime valuationDate, ProgressCounter progress)
         {
             progress.Initialise("building company yield data ladder", 3);
@@ -498,5 +543,17 @@ namespace PerformanceBuilderLib
 
             return indexes;
         }
+
+        #endregion
+
+        #region Private Methods
+
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+        private IConfigurationSettings _settings;
+        private IHistoricalDataReader _historicalDataReader;
+        private IInvestmentRecordInterface _investmentRecordData;
+        private IUserAccountInterface _userAccountData;
+
+        #endregion
     }
 }

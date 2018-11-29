@@ -148,6 +148,7 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
     $scope.Password = localStorage.getItem('password');
     $scope.IsBusy = false;
     $scope.SaveCredentials = true;
+    $scope.LoginFailed = false;
 
     var servername = ""; //"ws://localhost:8080/MWARE";
 
@@ -241,10 +242,12 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
 
     //connect to middleware layer with user supplied username and password
     $scope.doLogin = function () {
+        $scope.LoginFailed = false;
         NotifyService.UpdateBusyState(true);
         //once conncted inform any connection listeners that connection is complete
         MiddlewareService.Connect(servername, $scope.UserName, $scope.Password).then(function () {
             console.log("connection to middleware succeded!");
+            
             if ($scope.SaveCredentials) {
                 localStorage.setItem('userName', $scope.UserName);
                 localStorage.setItem('password', $scope.Password);
@@ -256,9 +259,13 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
 
             NotifyService.UpdateBusyState(false);
             $scope.LoggedIn = true;
+            $scope.LoginFailed = false;
             NotifyService.InvokeConnectionListeners($scope.UserName);
         },
         function (error) {
+            NotifyService.UpdateBusyState(false);
+            $scope.LoginFailed = true;
+            $scope.$apply();
             console.log("connection to middleware failed" + error);
         });
     }

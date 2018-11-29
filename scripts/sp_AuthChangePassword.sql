@@ -64,7 +64,7 @@ DELETE FROM PasswordChange
 WHERE [User_Id] = 
 (SELECT [Id] FROM UserDetails WHERE EMail = @EMail)
 
-RETURN @Result
+SELECT @Result
 
 END
 GO

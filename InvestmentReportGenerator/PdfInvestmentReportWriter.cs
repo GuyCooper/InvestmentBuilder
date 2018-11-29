@@ -8,6 +8,7 @@ using MigraDoc.DocumentObjectModel.Tables;
 using PdfSharp;
 using PdfSharp.Pdf;
 using PdfSharp.Drawing;
+using NLog;
 
 namespace InvestmentReportGenerator
 {
@@ -18,6 +19,9 @@ namespace InvestmentReportGenerator
         public bool LastPart { get; set; }
     }
 
+    /// <summary>
+    /// Class generates the pdf investment report.
+    /// </summary>
     public class PdfInvestmentReportWriter : IInvestmentReportWriter, IDisposable
     {
         //private MigraDoc.DocumentObjectModel.Document _document = null;
@@ -31,6 +35,8 @@ namespace InvestmentReportGenerator
         private const int MaxXLabelCount = 12;
 
         private static readonly Unit _MaxTableHeight = Unit.FromCentimeter(15);
+
+        private static Logger logger = LogManager.GetCurrentClassLogger();
 
         private static readonly List<KeyValuePair<string,double>> _headerNames = new List<KeyValuePair<string,double>>
         {
@@ -169,6 +175,8 @@ namespace InvestmentReportGenerator
 
         public void WriteAssetReport(AssetReport report, double startOfYear, string outputPath, ProgressCounter progress)
         {
+            logger.Log(LogLevel.Info, "Writing pdf asset report");
+
             var reportFileName = Path.Combine(outputPath, GetReportFileName(report.ValuationDate));
             if (File.Exists(reportFileName))
                 File.Delete(reportFileName);
@@ -287,6 +295,9 @@ namespace InvestmentReportGenerator
 
                 progress.Increment();
             }
+
+            logger.Log(LogLevel.Info, "Finished writing pdf asset report");
+
             //_pdfDocument.Save(_reportFileName);
             //_pdfDocument.Close();
         }

@@ -17,7 +17,7 @@ namespace UserManagementService
 
             var configuration = new Configuration("UserManagementConfiguration.xml");
 
-            using (var endpoint = new Endpoint(configuration.ListenURL))
+            using (var endpoint = new Endpoint(configuration.ListenURL, configuration.HostURL))
             {
                 RegisterHandlers(endpoint, configuration);
                 endpoint.Run(configuration.MaxConnections);
@@ -38,7 +38,7 @@ namespace UserManagementService
             //                                   configuration.OurEmailAddress);
 
             var changePasswordHandler = new Handlers.ChangePasswordHandler(authData);
-            var changePasswordUrl = $"{configuration.ListenURL}{changePasswordHandler.Name}";
+            var changePasswordUrl = $"{configuration.HostURL}/{changePasswordHandler.Name}.html";
 
             endpoint.AddHandler(new Handlers.RegisterNewUserHandler(authData, userDatabase));
             endpoint.AddHandler(new Handlers.ForgottonPasswordHandler(userNotifer, changePasswordUrl, authData));

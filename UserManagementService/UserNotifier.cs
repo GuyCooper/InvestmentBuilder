@@ -43,7 +43,7 @@ namespace UserManagementService
                 mail.UseDefaultCredentials = false;
                 mail.Credentials = new NetworkCredential(_smtpUsername, _smtpPassword);
 
-                var message = File.ReadAllText("Template.txt").Replace("<LINK>", linkUrl);
+                var message = File.ReadAllText("Template.html").Replace("<LINK>", linkUrl);
 
                 MailMessage mailMessage = new MailMessage();
                 mailMessage.From = new MailAddress(_from);
@@ -83,6 +83,7 @@ namespace UserManagementService
         public void NotifyUserPasswordChange(string userAddress, string linkUrl)
         {
             Console.WriteLine($"user: {userAddress}. link: {linkUrl}");
+            File.WriteAllText("testEmail.txt", $"link: {linkUrl}");
         }
     }
 }

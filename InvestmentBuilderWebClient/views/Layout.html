@@ -18,6 +18,10 @@
                     <label>Save Credentials</label>
                 </div>
 
+                <div ng-show="LoginFailed">
+                    <p class="text-danger">Invalid Username or Password!</p>
+                </div>
+
                 <br/>
                 <div>
                     <a href="RegisterUser.html">Register New User</a>
