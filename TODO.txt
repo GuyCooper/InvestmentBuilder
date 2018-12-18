@@ -4,4 +4,5 @@ InvestmentBuilder TODO 03-07-2018
 2. tidy up header bar
 3. tidy up account summary bar
 4. refactor schema to add a userid into accounts table so account can be indexed on userid - account name
+5. InvestmentBuilderWebCLient - Copy completed report to shared destination. Send link to report back in completed response.
 

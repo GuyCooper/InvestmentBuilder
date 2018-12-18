@@ -24,38 +24,9 @@ namespace InvestmentReportGenerator
     /// </summary>
     public class PdfInvestmentReportWriter : IInvestmentReportWriter, IDisposable
     {
-        //private MigraDoc.DocumentObjectModel.Document _document = null;
-        private PdfDocument _pdfDocument = null;
-        private const double dataCellWidth = 2.1;
-        private const double HeaderRowHeight = 1.3d;
-        private const double RowHeight = 0.45d;
-        private const double DoubleRowHeight = 0.9d;
-        private const int MaxAssetsPerChart = 17;
-
-        private const int MaxXLabelCount = 12;
-
-        private static readonly Unit _MaxTableHeight = Unit.FromCentimeter(15);
-
-        private static Logger logger = LogManager.GetCurrentClassLogger();
-
-        private static readonly List<KeyValuePair<string,double>> _headerNames = new List<KeyValuePair<string,double>>
-        {
-            new KeyValuePair<string, double>("Investment",3.5),
-            new KeyValuePair<string, double>("Last Bought", 2.5 ),
-            new KeyValuePair<string, double>("Quantity",dataCellWidth ),
-            new KeyValuePair<string, double>( @"Price Paid \Share", dataCellWidth ),
-            new KeyValuePair<string, double>( "Total Cost",dataCellWidth ),
-            new KeyValuePair<string, double>( @"Selling Price \Share",dataCellWidth ),
-            new KeyValuePair<string, double>( "Net Selling Value",dataCellWidth ),
-            new KeyValuePair<string, double>( "PnL",dataCellWidth ),
-            new KeyValuePair<string, double>( @"Change \Month",dataCellWidth ),
-            new KeyValuePair<string, double>( @"%\Month",dataCellWidth ),
-            new KeyValuePair<string, double>( "Dividends",dataCellWidth )
-        };
 
         public PdfInvestmentReportWriter()
         {
-
         }
 
         public static string GetPdfReportFile(DateTime ValuationDate)
@@ -517,7 +488,10 @@ namespace InvestmentReportGenerator
             }
         }
 
-        public void WritePerformanceData(IList<IndexedRangeData> data, string outputPath, DateTime dtValuation, ProgressCounter progress)
+        /// <summary>
+        /// Methods persists all the performance data to a pdf document.
+        /// </summary>
+        public void WritePerformanceData(IList<IndexedRangeData> data, string outputPath, DateTime dtValuation, ProgressCounter progress, string sharedFolder)
         {
             progress.Initialise("writing performance data to pdf report", data.Count+2);
             string title = string.Format(@"{0}\Performance Report-{1}", outputPath, dtValuation);
@@ -568,6 +542,46 @@ namespace InvestmentReportGenerator
             _pdfDocument = null;
 
             progress.Increment();
+
+            if(string.IsNullOrWhiteSpace(sharedFolder) == false)
+            {
+                File.Copy(reportFileName, Path.Combine(sharedFolder, GetReportFileName(dtValuation)));
+            }
+
+            progress.Increment();
         }
+
+        #region Private Data
+
+        //private MigraDoc.DocumentObjectModel.Document _document = null;
+        private PdfDocument _pdfDocument = null;
+        private const double dataCellWidth = 2.1;
+        private const double HeaderRowHeight = 1.3d;
+        private const double RowHeight = 0.45d;
+        private const double DoubleRowHeight = 0.9d;
+        private const int MaxAssetsPerChart = 17;
+
+        private const int MaxXLabelCount = 12;
+
+        private static readonly Unit _MaxTableHeight = Unit.FromCentimeter(15);
+
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
+        private static readonly List<KeyValuePair<string, double>> _headerNames = new List<KeyValuePair<string, double>>
+        {
+            new KeyValuePair<string, double>("Investment",3.5),
+            new KeyValuePair<string, double>("Last Bought", 2.5 ),
+            new KeyValuePair<string, double>("Quantity",dataCellWidth ),
+            new KeyValuePair<string, double>( @"Price Paid \Share", dataCellWidth ),
+            new KeyValuePair<string, double>( "Total Cost",dataCellWidth ),
+            new KeyValuePair<string, double>( @"Selling Price \Share",dataCellWidth ),
+            new KeyValuePair<string, double>( "Net Selling Value",dataCellWidth ),
+            new KeyValuePair<string, double>( "PnL",dataCellWidth ),
+            new KeyValuePair<string, double>( @"Change \Month",dataCellWidth ),
+            new KeyValuePair<string, double>( @"%\Month",dataCellWidth ),
+            new KeyValuePair<string, double>( "Dividends",dataCellWidth )
+        };
+
+        #endregion
     }
 }

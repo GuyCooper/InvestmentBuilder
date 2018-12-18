@@ -20,7 +20,7 @@ namespace InvestmentBuilderService
         {
             UserName = username;
             SessionId = usersessionid;
-            ValuationDate = DateTime.Today;
+            ValuationDate = DateTime.Now;
             UserPrices = new ManualPrices();
         }             
     }

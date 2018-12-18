@@ -107,7 +107,7 @@ namespace InvestmentBuilder
                 {
                     if (dtTradeValuationDate <= currentRecordDate)
                     {
-                        logger.Log(userToken, LogLevel.Error, "record date must be later than the previous record valution date");
+                        logger.Log(userToken, LogLevel.Error, $"record date {dtTradeValuationDate.ToString()} must be later than the previous record valution date: {currentRecordDate.ToString()}");
                         return assetReport;
                     }
                 }

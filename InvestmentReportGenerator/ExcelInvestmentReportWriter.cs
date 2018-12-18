@@ -186,7 +186,7 @@ namespace InvestmentReportGenerator
         /// <param name="data"></param>
         /// <param name="path"></param>
         /// <param name="dtValuation"></param>
-        public void WritePerformanceData(IList<IndexedRangeData> data, string outputPath, DateTime dtValuation, ProgressCounter progress)
+        public void WritePerformanceData(IList<IndexedRangeData> data, string outputPath, DateTime dtValuation, ProgressCounter progress, string sharedFolder)
         {
             //_Workbook performanceBook = null;
             //try

@@ -2,7 +2,7 @@
 
 function MiddlewareService()
 {
-    var mw = new Middleware();
+    var mw = null;
     var subscriptionList = [];
     var pendingRequestList = [];
 
@@ -36,12 +36,19 @@ function MiddlewareService()
     };
 
     this.Connect = function (server, username, password) {
+        mw = new Middleware();
+        subscriptionList = [];
+        pendingRequestList = [];
         server_ = server;
         username_ = username;
         password_ = password;
         return new Promise(function (resolve, reject) {
             mw.Connect(server_, username_, password_, resolve, reject, onMessage);
         });
+    };
+
+    this.Disconnect = function () {
+        mw.Disconnect();
     };
 
     var sendRequestToChannel = function (channel, message, handler) {
@@ -111,7 +118,7 @@ function MiddlewareService()
     };
 
     this.RemoveTransaction = function (transaction, handler) {
-        doCommand("REMOVE_TRANSACTION_REQUEST", "REMOVE_TRANSACTION_RESPONSE", transaction, handler);
+        doCommand("DELETE_TRANSACTION_REQUEST", "DELETE_TRANSACTION_RESPONSE", transaction, handler);
     };
 
     this.GetTransactionParameters = function (type, handler) {

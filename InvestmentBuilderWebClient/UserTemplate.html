@@ -32,7 +32,13 @@
                     </div>
                     <div ng-show="Complete">
                         <h3 ng-show="Success">@[requestSuccess]</h3>
-                        <h3 ng-hide="Success">@[requestFail]</h3>
+                        <div ng-hide="Success">
+                            <h3>@[requestFail]</h3>
+                            <br />
+                            <ul>
+                                <li class="text-danger" ng-repeat="error in ErrorList" ng-bind="error"></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
                 <div ng-show="IsBusy" class="loader">

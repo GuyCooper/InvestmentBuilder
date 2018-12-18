@@ -55,6 +55,7 @@ function RegisterUser($scope, $http) {
         $scope.Complete = true;
         $scope.IsBusy = false;
         $scope.Success = false;
+        $scope.ErrorList.push(response);
     };
 
     var getToken = function () {
@@ -110,7 +111,7 @@ function RegisterUser($scope, $http) {
 
             $scope.IsBusy = true;
             $http.post(servername + "/ChangePassword", userDetails).then((result) => {
-                if (result.data.result == 0) {
+                if (result.data.Result !== 1) {
                     onfail(result.data.ResultMessage);
                 } else {
                     onsuccess();

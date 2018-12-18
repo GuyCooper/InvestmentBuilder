@@ -154,6 +154,11 @@ namespace InvestmentBuilderMSTests
             get { return string.Empty; }
         }
 
+        public virtual string SharedReportFolder
+        {
+            get { return string.Empty; }
+        }
+
         public virtual string MarketDatasource { get { return string.Empty; } }
 
         public virtual string OutputCachedMarketData { get { return string.Empty; } }
@@ -299,7 +304,7 @@ namespace InvestmentBuilderMSTests
         {
         }
 
-        public void WritePerformanceData(IList<IndexedRangeData> data, string path, DateTime dtValuation, ProgressCounter progress)
+        public void WritePerformanceData(IList<IndexedRangeData> data, string path, DateTime dtValuation, ProgressCounter progress, string sharedFolder)
         {
         }
     }
@@ -420,6 +425,14 @@ namespace InvestmentBuilderMSTests
         }
 
         public virtual string OutputFolder
+        {
+            get
+            {
+                return null;
+            }
+        }
+
+        public virtual string SharedReportFolder
         {
             get
             {

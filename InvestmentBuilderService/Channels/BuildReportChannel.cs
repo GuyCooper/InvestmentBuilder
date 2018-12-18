@@ -2,6 +2,8 @@
 using InvestmentBuilderService.Utils;
 using System.Timers;
 using InvestmentBuilderService.Session;
+using InvestmentBuilderCore;
+using System;
 
 namespace InvestmentBuilderService.Channels
 {
@@ -52,17 +54,20 @@ namespace InvestmentBuilderService.Channels
         #region Private Data Members
         private readonly InvestmentBuilder.InvestmentBuilder _builder;
         private readonly PerformanceBuilderLib.PerformanceBuilder _chartBuilder;
+        private readonly IConfigurationSettings m_settings;
 
         #endregion
 
         #region Constructor
         public BuildReportChannel(AccountService accountService, 
                                   InvestmentBuilder.InvestmentBuilder builder,
-                                  PerformanceBuilderLib.PerformanceBuilder chartBuilder) 
+                                  PerformanceBuilderLib.PerformanceBuilder chartBuilder,
+                                  IConfigurationSettings settings) 
             : base("BUILD_REPORT_REQUEST", "BUILD_REPORT_RESPONSE", accountService)
         {
             _builder = builder;
             _chartBuilder = chartBuilder;
+            m_settings = settings;
         }
 
         #endregion
@@ -80,23 +85,29 @@ namespace InvestmentBuilderService.Channels
             //asynchronously
             Task.Factory.StartNew(() =>
             {
-                DummyBuildRun(monitor);
+                //DummyBuildRun(monitor);
 
-                //var report = _builder.BuildAssetReport(token
-                //                    , userSession.ValuationDate
-                //                    , true
-                //                    , userSession.UserPrices
-                //                    , monitor.GetProgressCounter());
+                var report = _builder.BuildAssetReport(token
+                                    , userSession.ValuationDate
+                                    , true
+                                    , userSession.UserPrices
+                                    , monitor.GetProgressCounter());
 
-                //if (report != null)
-                //{
-                //    //now generate the performance charts. by doing this the whole report will be persisted
-                //    //to a pdf file
-                //    _chartBuilder.Run(token, userSession.ValuationDate, monitor.GetProgressCounter());
-                //}
+                if (report != null)
+                {
+                    //now generate the performance charts. by doing this the whole report will be persisted
+                    //to a pdf filen
+                    _chartBuilder.Run(token, userSession.ValuationDate, monitor.GetProgressCounter(), m_settings.SharedReportFolder);
+                }
 
-                //TODO. we could add the completed report to the monitor which can then be sent back to the client
-                monitor.StopBuiliding();
+                //this command creates a new valuation snapshot. reset the valuation date to allow
+                //any subsequent updates.
+                userSession.ValuationDate = DateTime.Now;
+
+                //Copy the completed report to the shared location so it is available to web clients
+
+                var filename = $"{m_settings.GetOutputLinkPath(token.Account.GetPathName())}/{_builder.GetInvestmentReport(token, userSession.ValuationDate)}";
+                monitor.StopBuiliding(filename);
             });
 
             return new BuildStatusResponseDto { Status = monitor.GetReportStatus() };

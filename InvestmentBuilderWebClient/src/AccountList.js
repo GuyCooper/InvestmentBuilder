@@ -105,5 +105,39 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
         showAccountPopup("Add Account", null);
     }
 
+    $scope.logout = function () {
+        var title = "logout";
+        var description = "Are you sure?";
+        var logoutModal = $uibModal.open({
+            animation: true,
+            ariaLabelledBy: 'modal-title',
+            ariaDescribedBy: 'modal-body',
+            templateUrl: 'views/YesNoChooser.html',
+            controller: 'YesNoController',
+            controllerAs: '$item',
+            size: 'lg',
+            resolve: {
+                title: function () {
+                    return title;
+                },
+                description: function () {
+                    return description;
+                },
+                name: function () {
+                    return null;
+                }
+            }
+        });
+
+        logoutModal.result.then(function (param) {
+            //use wants to logout. do it here...
+            NotifyService.InvokeDisconnectionListeners();
+
+        }, function () {
+            $log.info('Modal dismissed at: ' + new Date());
+        });
+
+    }
+
     NotifyService.RegisterConnectionListener(onConnected);
 }

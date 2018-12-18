@@ -7,28 +7,40 @@ using InvestmentBuilderCore;
 
 namespace InvestmentBuilderService.Utils
 {
+    /// <summary>
+    /// Class defines the current status of a report
+    /// </summary>
     internal class ReportStatus
     {
         public bool IsBuilding { get; set; }
         public int Progress { get; set; }
         public string BuildSection { get; set; }
         public IEnumerable<string> Errors { get; set; }
+        public string CompletedReport { get; set; }
     }
 
+    /// <summary>
+    /// BuildMonitor interface. Monitor class allows a build process to be
+    /// monitored.
+    /// </summary>
     internal interface IBuildMonitor
     {
         void StartBuilding();
-        void StopBuiliding();
+        void StopBuiliding(string completedReport);
         ReportStatus GetReportStatus();
         ProgressCounter GetProgressCounter();
     }
 
+    /// <summary>
+    /// Class allows monitoring of the build report request.
+    /// </summary>
     internal class BuildReportMonitor : IBuildMonitor
     {
         private string username_;
         private bool isbuilding_;
         private IEnumerable<string> errors_;
         private ProgressCounter counter_;
+        private string completedReport_;
 
         private static Dictionary<string, List<string>> ErrorLookup = new Dictionary<string, List<string>>();
 
@@ -45,10 +57,11 @@ namespace InvestmentBuilderService.Utils
             errors_ = null;
         }
 
-        public void StopBuiliding()
+        public void StopBuiliding(string completedReport)
         {
             isbuilding_ = false;
             errors_ = _GetUserErrors();
+            completedReport_ = completedReport;
         }
 
         public void AddError(string error)
@@ -101,7 +114,8 @@ namespace InvestmentBuilderService.Utils
                 Progress = counter_.Count,
                 BuildSection = counter_.Section,
                 IsBuilding = isbuilding_,
-                Errors = errors_
+                Errors = errors_,
+                CompletedReport = completedReport_
             };
         }
 

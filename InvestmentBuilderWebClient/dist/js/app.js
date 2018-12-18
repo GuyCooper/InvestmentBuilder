@@ -29,6 +29,7 @@ function NotifyService() {
     var BuildStatusListeners = []; //this of listeners that should be invoked when the build status changes
     var AccountListeners = []; //this is a list of listeners that should be invoked when the account is changed
     var ConnectionListeners = []; //this list contains a list of handlers that should be called once connection to the middleware is complete
+    var DisconnectionListeners = []; //this list contains a list of handlers that should be called when the session is ended
 
     //listeners for the current view
     var listeners = null;
@@ -68,6 +69,10 @@ function NotifyService() {
 
     this.RegisterConnectionListener = function (listener) {
         ConnectionListeners.push(listener);
+    };
+
+    this.RegisterDisconnectionListener = function (listener) {
+        DisconnectionListeners.push(listener);
     };
 
     this.RegisterBuildStatusListener = function (listener) {
@@ -125,6 +130,10 @@ function NotifyService() {
         invokeCallbacks(ConnectionListeners, username);
     };
 
+    this.InvokeDisconnectionListeners = function () {
+        invokeCallbacks(DisconnectionListeners);
+    };
+
     this.SetBusyState = function (busy) {
         IsBusy = busy;
     };
@@ -138,17 +147,20 @@ function NotifyService() {
 
 //controller handles management of the build report progress and the view tab
 function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService) {
-    $scope.ProgressCount = 0;
-    $scope.Section = null;
-    $scope.IsBuilding = false;
-    $scope.CanBuild = false;
-    $scope.LoggedIn = false;
-    $scope.BuildStatus = "Not Building";
-    $scope.UserName = localStorage.getItem('userName');
-    $scope.Password = localStorage.getItem('password');
-    $scope.IsBusy = false;
-    $scope.SaveCredentials = true;
-    $scope.LoginFailed = false;
+
+    var initialiseLayout = function () {
+        $scope.ProgressCount = 0;
+        $scope.Section = null;
+        $scope.IsBuilding = false;
+        $scope.CanBuild = false;
+        $scope.LoggedIn = false;
+        $scope.BuildStatus = "Not Building";
+        $scope.UserName = localStorage.getItem('userName');
+        $scope.Password = localStorage.getItem('password');
+        $scope.IsBusy = false;
+        $scope.SaveCredentials = true;
+        $scope.LoginFailed = false;
+    };
 
     var servername = ""; //"ws://localhost:8080/MWARE";
 
@@ -186,7 +198,7 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
             if ($scope.IsBuilding == true && buildStatus.IsBuilding == false) {
                 $scope.IsBuilding = buildStatus.IsBuilding;
                 //now display a dialog to show any errors during the build
-                onReportFinished(buildStatus.Errors);
+                onReportFinished(buildStatus.Errors, buildStatus.CompletedReport);
             }
             else {
                 $scope.IsBuilding = buildStatus.IsBuilding;
@@ -203,7 +215,7 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
         }
     };
     
-    var onReportFinished = function (errors) {
+    var onReportFinished = function (errors, completedReport) {
         var modalInstance = $uibModal.open({
             animation: true,
             ariaLabelledBy: 'modal-title',
@@ -215,6 +227,9 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
             resolve: {
                 errors: function () {
                     return errors;
+                },
+                completedReport: function () {
+                    return completedReport;
                 }
             }
         });
@@ -275,6 +290,15 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
         $scope.IsBusy = busy;
     };
 
+    var closeConnection = function () {
+        MiddlewareService.Disconnect();
+        initialiseLayout();
+    };
+
+    NotifyService.RegisterDisconnectionListener(closeConnection);
+
+    initialiseLayout();
+
     //load the config
     $http.get("./config.json").then(function (data) {
         servername = data.data.url;
@@ -294,11 +318,12 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
 };
 
 //controller to handle the report completion view
-function ReportCompletion($uibModalInstance, errors) {
+function ReportCompletion($uibModalInstance, errors, completedReport) {
     var $report = this;
     $report.success = errors == null || errors.length == 0;
     $report.errors = errors;
 
+    $report.CompletedReport = completedReport;
     $report.ok = function () {
         $uibModalInstance.dismiss('cancel');
     };
@@ -308,7 +333,7 @@ function ReportCompletion($uibModalInstance, errors) {
 
 function MiddlewareService()
 {
-    var mw = new Middleware();
+    var mw = null;
     var subscriptionList = [];
     var pendingRequestList = [];
 
@@ -342,12 +367,19 @@ function MiddlewareService()
     };
 
     this.Connect = function (server, username, password) {
+        mw = new Middleware();
+        subscriptionList = [];
+        pendingRequestList = [];
         server_ = server;
         username_ = username;
         password_ = password;
         return new Promise(function (resolve, reject) {
             mw.Connect(server_, username_, password_, resolve, reject, onMessage);
         });
+    };
+
+    this.Disconnect = function () {
+        mw.Disconnect();
     };
 
     var sendRequestToChannel = function (channel, message, handler) {
@@ -417,7 +449,7 @@ function MiddlewareService()
     };
 
     this.RemoveTransaction = function (transaction, handler) {
-        doCommand("REMOVE_TRANSACTION_REQUEST", "REMOVE_TRANSACTION_RESPONSE", transaction, handler);
+        doCommand("DELETE_TRANSACTION_REQUEST", "DELETE_TRANSACTION_RESPONSE", transaction, handler);
     };
 
     this.GetTransactionParameters = function (type, handler) {
@@ -1110,6 +1142,40 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
 
     $scope.addAccount = function () {
         showAccountPopup("Add Account", null);
+    }
+
+    $scope.logout = function () {
+        var title = "logout";
+        var description = "Are you sure?";
+        var logoutModal = $uibModal.open({
+            animation: true,
+            ariaLabelledBy: 'modal-title',
+            ariaDescribedBy: 'modal-body',
+            templateUrl: 'views/YesNoChooser.html',
+            controller: 'YesNoController',
+            controllerAs: '$item',
+            size: 'lg',
+            resolve: {
+                title: function () {
+                    return title;
+                },
+                description: function () {
+                    return description;
+                },
+                name: function () {
+                    return null;
+                }
+            }
+        });
+
+        logoutModal.result.then(function (param) {
+            //use wants to logout. do it here...
+            NotifyService.InvokeDisconnectionListeners();
+
+        }, function () {
+            $log.info('Modal dismissed at: ' + new Date());
+        });
+
     }
 
     NotifyService.RegisterConnectionListener(onConnected);

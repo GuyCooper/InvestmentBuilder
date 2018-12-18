@@ -29,6 +29,10 @@ namespace InvestmentBuilderCore
         /// </summary>
         string OutputLinkFolder { get; }
         /// <summary>
+        /// shared folder for reports
+        /// </summary>
+        string SharedReportFolder { get; }
+        /// <summary>
         /// List of comparison indexes to use in report
         /// </summary>
         IEnumerable<Index> ComparisonIndexes { get; }
@@ -103,6 +107,8 @@ namespace InvestmentBuilderCore
         public string OutputFolder {get;set;}
         [XmlElement("outputLinkFolder")]
         public string OutputLinkFolder { get; set; }
+        [XmlElement("sharedReportFolder")]
+        public string SharedReportFolder { get; set; }
         [XmlArray("indexes")]
         public Index[] IndexArray{get;set;}
         [XmlArray("formats")]
@@ -142,6 +148,8 @@ namespace InvestmentBuilderCore
         public string OutputFolder { get { return _configuration.OutputFolder; } }
 
         public string OutputLinkFolder { get { return _configuration.OutputLinkFolder; } }
+
+        public string SharedReportFolder { get { return _configuration.SharedReportFolder; } }
 
         public IEnumerable<Index> ComparisonIndexes { get { return _configuration.IndexArray; } }
 

@@ -42,31 +42,30 @@
 
             <div ng-show="!IsBuilding" ng-cloak>
                 <div class="row investmentSummary">
-                    <div class="pull-left">
+                    <div class="pull-left accountNameDisplay">
                         <h1>{{AccountName.Name}}</h1>
                     </div>
                     <div class="pull-right">
-                        <div style="display:inline-block">
+                        <div class="summaryDisplay">
+                            <div><strong>Reporting Currency</strong></div>
+                            <div>{{ReportingCurrency}}</div>
+                        </div>
+                        <div class="summaryDisplay">
                             <div><strong>Value Per Unit</strong></div>
                             <div>{{ValuePerUnit}}</div>
                         </div>
-                        <div style="display:inline-block">
+                        <div class="summaryDisplay">
                             <div><strong>Net Assets</strong></div>
                             <div>{{NetAssets}}</div>
                         </div>
-                        <div style="display:inline-block">
+                        <div class="summaryDisplay">
                             <div><strong>Bank Balance</strong></div>
                             <div>{{BankBalance}}</div>
                         </div>
-                        <div style="display:inline-block">
+                        <div class="summaryDisplay">
                             <div><strong>Month PnL</strong></div>
                             <div>{{MonthlyPnL}}</div>
                         </div>
-                        <div style="display:inline-block">
-                            <div><strong>Build Status</strong></div>
-                            <div>{{BuildStatus}}</div>
-                        </div>
-
                         <div ng-click="buildReport()" ng-disabled="!CanBuild" class="btn btn-primary summaryButton">Build Report</div>
                     </div>
                 </div>

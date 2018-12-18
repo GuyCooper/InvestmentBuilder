@@ -2,17 +2,20 @@
 
 //controller handles management of the build report progress and the view tab
 function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService) {
-    $scope.ProgressCount = 0;
-    $scope.Section = null;
-    $scope.IsBuilding = false;
-    $scope.CanBuild = false;
-    $scope.LoggedIn = false;
-    $scope.BuildStatus = "Not Building";
-    $scope.UserName = localStorage.getItem('userName');
-    $scope.Password = localStorage.getItem('password');
-    $scope.IsBusy = false;
-    $scope.SaveCredentials = true;
-    $scope.LoginFailed = false;
+
+    var initialiseLayout = function () {
+        $scope.ProgressCount = 0;
+        $scope.Section = null;
+        $scope.IsBuilding = false;
+        $scope.CanBuild = false;
+        $scope.LoggedIn = false;
+        $scope.BuildStatus = "Not Building";
+        $scope.UserName = localStorage.getItem('userName');
+        $scope.Password = localStorage.getItem('password');
+        $scope.IsBusy = false;
+        $scope.SaveCredentials = true;
+        $scope.LoginFailed = false;
+    };
 
     var servername = ""; //"ws://localhost:8080/MWARE";
 
@@ -50,7 +53,7 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
             if ($scope.IsBuilding == true && buildStatus.IsBuilding == false) {
                 $scope.IsBuilding = buildStatus.IsBuilding;
                 //now display a dialog to show any errors during the build
-                onReportFinished(buildStatus.Errors);
+                onReportFinished(buildStatus.Errors, buildStatus.CompletedReport);
             }
             else {
                 $scope.IsBuilding = buildStatus.IsBuilding;
@@ -67,7 +70,7 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
         }
     };
     
-    var onReportFinished = function (errors) {
+    var onReportFinished = function (errors, completedReport) {
         var modalInstance = $uibModal.open({
             animation: true,
             ariaLabelledBy: 'modal-title',
@@ -79,6 +82,9 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
             resolve: {
                 errors: function () {
                     return errors;
+                },
+                completedReport: function () {
+                    return completedReport;
                 }
             }
         });
@@ -139,6 +145,15 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
         $scope.IsBusy = busy;
     };
 
+    var closeConnection = function () {
+        MiddlewareService.Disconnect();
+        initialiseLayout();
+    };
+
+    NotifyService.RegisterDisconnectionListener(closeConnection);
+
+    initialiseLayout();
+
     //load the config
     $http.get("./config.json").then(function (data) {
         servername = data.data.url;
@@ -158,11 +173,12 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
 };
 
 //controller to handle the report completion view
-function ReportCompletion($uibModalInstance, errors) {
+function ReportCompletion($uibModalInstance, errors, completedReport) {
     var $report = this;
     $report.success = errors == null || errors.length == 0;
     $report.errors = errors;
 
+    $report.CompletedReport = completedReport;
     $report.ok = function () {
         $uibModalInstance.dismiss('cancel');
     };

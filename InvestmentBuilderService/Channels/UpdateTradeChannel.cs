@@ -21,6 +21,9 @@ namespace InvestmentBuilderService.Channels
         {
             var token = GetCurrentUserToken(userSession);
             var result = _builder.UpdateTrades(token, payload.ToInternalTrade(), userSession.UserPrices, null, null);
+            //this command creates a new valuation snapshot. reset the valuation date to allow
+            //any subsequent updates.
+            userSession.ValuationDate = DateTime.Now;
             return new ResponseDto
             {
                 Status = result

@@ -4,6 +4,7 @@
   <authdataSource>Data Source=DESKTOP-JJ9QOJA\SQLEXPRESS;Initial Catalog=UserAuthentication;Integrated Security=True</authdataSource>
   <outputFolder>C:\Users\guy\Documents\Guy\InvestmentBuilderTest</outputFolder>
   <outputLinkFolder>Reports</outputLinkFolder>
+  <sharedReportFolder>C:\Projects\InvestmentBuilder\InvestmentBuilderWebClient\dist\Reports</sharedReportFolder>
   <marketDataSource>C:\Users\guy\AppData\Roaming\InvestmentRecordBuilder\yahooMarketData.txt</marketDataSource>
   <outputCachedMarketDataFile>C:\Users\guy\AppData\Roaming\InvestmentRecordBuilder\CachedData.txt</outputCachedMarketDataFile>
   <maxAccountsPerUser>5</maxAccountsPerUser>

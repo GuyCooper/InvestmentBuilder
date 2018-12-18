@@ -99296,6 +99296,7 @@ angular.module('ui.bootstrap.typeahead').run(function() {!angular.$$csp().noInli
 
 var uid = 1;
 
+//Middleware service library
 var Middleware = function () {
     var ws;
     var callQueue = [];
@@ -99379,6 +99380,13 @@ var Middleware = function () {
             }
 
         };
+    };
+
+    this.Disconnect = function () {
+        if (ws != null && ws != undefined) {
+            ws.close();
+            ws = null;
+        }
     };
 
     var processRequestInternal = function(channel, command, type, data, destination, requestId, resolve, reject) {

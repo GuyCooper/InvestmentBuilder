@@ -12,6 +12,7 @@ function NotifyService() {
     var BuildStatusListeners = []; //this of listeners that should be invoked when the build status changes
     var AccountListeners = []; //this is a list of listeners that should be invoked when the account is changed
     var ConnectionListeners = []; //this list contains a list of handlers that should be called once connection to the middleware is complete
+    var DisconnectionListeners = []; //this list contains a list of handlers that should be called when the session is ended
 
     //listeners for the current view
     var listeners = null;
@@ -51,6 +52,10 @@ function NotifyService() {
 
     this.RegisterConnectionListener = function (listener) {
         ConnectionListeners.push(listener);
+    };
+
+    this.RegisterDisconnectionListener = function (listener) {
+        DisconnectionListeners.push(listener);
     };
 
     this.RegisterBuildStatusListener = function (listener) {
@@ -106,6 +111,10 @@ function NotifyService() {
 
     this.InvokeConnectionListeners = function (username) {
         invokeCallbacks(ConnectionListeners, username);
+    };
+
+    this.InvokeDisconnectionListeners = function () {
+        invokeCallbacks(DisconnectionListeners);
     };
 
     this.SetBusyState = function (busy) {

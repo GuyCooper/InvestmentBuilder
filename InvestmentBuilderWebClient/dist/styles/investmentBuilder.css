@@ -173,6 +173,21 @@ right: 1em;
     margin:3px;
 }
 
+.logout {
+    font-size: 2em;
+    color: Tomato;
+    margin: 5px;
+}
+
+.summaryDisplay {
+    display:inline-block;
+    margin:1em;
+}
+
+.accountNameDisplay {
+    margin:1em;
+}
+
 /* Safari */
 @-webkit-keyframes spin {
   0% { -webkit-transform: rotate(0deg); }
