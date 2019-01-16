@@ -106,11 +106,18 @@ namespace InvestmentBuilderCore
         }
     }
 
+    /// <summary>
+    /// Manual Prices class. lookup of investment name to manual price. curency is 
+    /// always considered to be the same as the reporting currency for the account
+    /// </summary>
     public class ManualPrices : Dictionary<string, double>
     {
         public ManualPrices() : base(StringComparer.InvariantCultureIgnoreCase) { }
     }
 
+    /// <summary>
+    /// TradeType Enum. 
+    /// </summary>
     public enum TradeType
     {
         BUY,
@@ -118,6 +125,9 @@ namespace InvestmentBuilderCore
         MODIFY
     } 
 
+    /// <summary>
+    /// Redemption Status.
+    /// </summary>
     public enum RedemptionStatus
     {
         Pending,
@@ -125,6 +135,10 @@ namespace InvestmentBuilderCore
         Failed
     }
 
+    /// <summary>
+    /// Redemption Class. Contains details about a requested redemetion. Redemptions have to be
+    /// recoreded as requested because they cannot be issued until the account has been valued.
+    /// </summary>
     public class Redemption
     {
         public Redemption(string user, double amount, DateTime date, RedemptionStatus status)
@@ -151,5 +165,16 @@ namespace InvestmentBuilderCore
             Contract.Invariant(string.IsNullOrEmpty(User) == false);
             Contract.Invariant(Amount > 0);
         }
+    }
+
+    /// <summary>
+    /// Transaction class. Defines a single investment transaction. 
+    /// </summary>
+    public class Transaction
+    {
+        public string InvestmentName { get; set; }
+        public TradeType TransactionType { get; set; }
+        public double Quantity { get; set; }
+        public double Amount { get; set; }
     }
 }

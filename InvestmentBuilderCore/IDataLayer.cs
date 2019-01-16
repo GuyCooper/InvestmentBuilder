@@ -62,6 +62,7 @@ namespace InvestmentBuilderCore
         IEnumerable<string> GetAllCompanies();
         Stock GetTradeItem(UserAccountToken userToken, string name);
         void UndoLastTransaction(UserAccountToken userToken);
+        Transaction GetLastTransaction(UserAccountToken userToken);
     }
 
     /// <summary>

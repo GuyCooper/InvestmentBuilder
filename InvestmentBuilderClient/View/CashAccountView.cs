@@ -100,7 +100,7 @@ namespace InvestmentBuilderClient.View
         {
             foreach(DataGridViewRow row in cashAccountGrid.SelectedRows)
             {
-                var transaction = row.DataBoundItem as Transaction;
+                var transaction = row.DataBoundItem as InvestmentBuilder.CashTransaction;
                 //if(!transaction.Added)
                 //{
                 //    MessageBox.Show("Can only delete transactions that have not been comitted");
@@ -137,7 +137,7 @@ namespace InvestmentBuilderClient.View
 
         private void cashAccountGrid_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
         {
-            var transaction = cashAccountGrid.Rows[e.RowIndex].DataBoundItem as Transaction;
+            var transaction = cashAccountGrid.Rows[e.RowIndex].DataBoundItem as InvestmentBuilder.CashTransaction;
             if (transaction != null)
             {
                 cashAccountGrid.Rows[e.RowIndex].ReadOnly = transaction.Added == false;

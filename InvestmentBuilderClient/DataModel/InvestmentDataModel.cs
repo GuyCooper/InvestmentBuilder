@@ -214,7 +214,7 @@ namespace InvestmentBuilderClient.DataModel
             var  report = _investmentBuilder.BuildAssetReport(_userToken, dtValuation, update, GetManualPrices(),null);
             if(update == true && report != null)
             {
-                _performanceBuilder.Run(_userToken, dtValuation, null, null);
+                _performanceBuilder.Run(_userToken, dtValuation, null);
             }
             return report;
         }
@@ -293,7 +293,7 @@ namespace InvestmentBuilderClient.DataModel
         /// </summary>
         public IList<IndexedRangeData> GetPerformanceCharts(DateTime dtValaution)
         {
-            return _performanceBuilder.Run(_userToken, dtValaution, null,null);
+            return _performanceBuilder.Run(_userToken, dtValaution, null);
         }
 
         /// <summary>

@@ -160,7 +160,7 @@ namespace InvestmentBuilderMSTests
             ValidateTotalTransaction(transactions[1]);
         }
 
-        private void ValidateTotalTransaction(Transaction transaction)
+        private void ValidateTotalTransaction(InvestmentBuilder.CashTransaction transaction)
         {
             Assert.AreEqual("TOTAL", transaction.Parameter);
             Assert.AreEqual(_dtValuation, transaction.TransactionDate);

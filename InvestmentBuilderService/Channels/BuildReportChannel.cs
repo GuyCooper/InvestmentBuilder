@@ -97,7 +97,7 @@ namespace InvestmentBuilderService.Channels
                 {
                     //now generate the performance charts. by doing this the whole report will be persisted
                     //to a pdf filen
-                    _chartBuilder.Run(token, userSession.ValuationDate, monitor.GetProgressCounter(), m_settings.SharedReportFolder);
+                    _chartBuilder.Run(token, userSession.ValuationDate, monitor.GetProgressCounter());
                 }
 
                 //this command creates a new valuation snapshot. reset the valuation date to allow

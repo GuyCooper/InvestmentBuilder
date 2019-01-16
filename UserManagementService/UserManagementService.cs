@@ -38,7 +38,7 @@ namespace UserManagementService
             //                                   configuration.OurEmailAddress);
 
             var changePasswordHandler = new Handlers.ChangePasswordHandler(authData);
-            var changePasswordUrl = $"{configuration.HostURL}/{changePasswordHandler.Name}.html";
+            var changePasswordUrl = configuration.ChangePasswordURL;
 
             endpoint.AddHandler(new Handlers.RegisterNewUserHandler(authData, userDatabase));
             endpoint.AddHandler(new Handlers.ForgottonPasswordHandler(userNotifer, changePasswordUrl, authData));

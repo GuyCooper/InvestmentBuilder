@@ -46,11 +46,11 @@ namespace InvestmentReportGenerator
             }
         }
 
-        public void WritePerformanceData(IList<IndexedRangeData> data, string path, DateTime dtValuation, ProgressCounter progress, string sharedFolder)
+        public void WritePerformanceData(IList<IndexedRangeData> data, string path, DateTime dtValuation, ProgressCounter progress)
         {
             foreach (var reportType in _InitReports())
             {
-                reportType.WritePerformanceData(data, path, dtValuation, progress, sharedFolder);
+                reportType.WritePerformanceData(data, path, dtValuation, progress);
             }
         }
 

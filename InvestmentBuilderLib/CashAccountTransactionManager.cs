@@ -12,7 +12,7 @@ namespace InvestmentBuilder
 {
     //transaction class.used for binding the cash account transactions to a displayable
     //view.
-    public abstract class Transaction
+    public abstract class CashTransaction
     {
         public DateTime ValuationDate { get; set; }
         public DateTime TransactionDate { get; set; }
@@ -23,7 +23,7 @@ namespace InvestmentBuilder
         public bool IsTotal { get; set; }
     }
 
-    public class ReceiptTransaction : Transaction
+    public class ReceiptTransaction : CashTransaction
     {
         public double Subscription { get; set; }
         public double Sale { get; set; }
@@ -31,7 +31,7 @@ namespace InvestmentBuilder
         public double Other { get; set; }
     }
 
-    public class PaymentTransaction : Transaction
+    public class PaymentTransaction : CashTransaction
     {
         public double Withdrawls { get; set; }
         public double Purchases { get; set; }
@@ -150,7 +150,7 @@ namespace InvestmentBuilder
         }
 
         private void _GetTransactionsImpl<T>(UserAccountToken userToken, DateTime dtValuationDate, string mnenomic,
-             IList<T> transactions) where T : Transaction, new()
+             IList<T> transactions) where T : CashTransaction, new()
         {
             _cashAccountData.GetCashAccountTransactions(userToken, mnenomic, dtValuationDate, (reader) =>
             {
@@ -177,7 +177,7 @@ namespace InvestmentBuilder
             });
         }
 
-        private double _AddTotalRow<T>(DateTime dtValuationDate, IList<T> transactions) where T : Transaction, new()
+        private double _AddTotalRow<T>(DateTime dtValuationDate, IList<T> transactions) where T : CashTransaction, new()
         {
             //add a totals row at the bottom
             //ReceiptTransaction total = new ReceiptTransaction();
@@ -198,6 +198,7 @@ namespace InvestmentBuilder
             total.IsTotal = true;
             total.TransactionDate = dtValuationDate;
             transactions.Add(total);
+            total.Amount = Math.Round(total.Amount, 2);
             return total.Amount;
             //return props.Where(x => x.PropertyType.Name == "Double").Sum(x => (double)x.GetValue(total)); //total.Withdrawls + total.Other + total.Purchases;
         }

@@ -29,10 +29,6 @@ namespace InvestmentBuilderCore
         /// </summary>
         string OutputLinkFolder { get; }
         /// <summary>
-        /// shared folder for reports
-        /// </summary>
-        string SharedReportFolder { get; }
-        /// <summary>
         /// List of comparison indexes to use in report
         /// </summary>
         IEnumerable<Index> ComparisonIndexes { get; }
@@ -107,8 +103,6 @@ namespace InvestmentBuilderCore
         public string OutputFolder {get;set;}
         [XmlElement("outputLinkFolder")]
         public string OutputLinkFolder { get; set; }
-        [XmlElement("sharedReportFolder")]
-        public string SharedReportFolder { get; set; }
         [XmlArray("indexes")]
         public Index[] IndexArray{get;set;}
         [XmlArray("formats")]
@@ -120,6 +114,8 @@ namespace InvestmentBuilderCore
         public string OutputCachedMarketData { get; set; }
         [XmlElement("maxAccountsPerUser")]
         public int MaxAccountsPerUser { get; set; }
+        [XmlElement("templatePath")]
+        public string TemplatePath { get; set; }
     }
 
     public class ConfigurationSettings : IConfigurationSettings
@@ -148,8 +144,6 @@ namespace InvestmentBuilderCore
         public string OutputFolder { get { return _configuration.OutputFolder; } }
 
         public string OutputLinkFolder { get { return _configuration.OutputLinkFolder; } }
-
-        public string SharedReportFolder { get { return _configuration.SharedReportFolder; } }
 
         public IEnumerable<Index> ComparisonIndexes { get { return _configuration.IndexArray; } }
 
@@ -198,7 +192,7 @@ namespace InvestmentBuilderCore
 
         public string GetTemplatePath()
         {
-            return Path.Combine(_configuration.OutputFolder, "templates");
+            return _configuration.TemplatePath;
         }
 
         public IEnumerable<string> ReportFormats { get { return _configuration.ReportFormats; } }

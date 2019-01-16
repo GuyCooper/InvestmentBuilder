@@ -64,3 +64,7 @@ dist
 /php/HangSengRaw.log
 /php/Nikkei225Raw.log
 /php/ShanghaiCompRaw.log
+
+*.VC.opendb
+*.VC.db
+*.vcxproj.user

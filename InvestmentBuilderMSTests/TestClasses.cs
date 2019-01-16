@@ -55,6 +55,7 @@ namespace InvestmentBuilderMSTests
         public virtual IEnumerable<string> GetAllCompanies() { throw new NotImplementedException(); }
         public virtual Stock GetTradeItem(UserAccountToken userToken, string name) { throw new NotImplementedException(); }
         public virtual void UndoLastTransaction(UserAccountToken userToken) { throw new NotImplementedException(); }
+        public Transaction GetLastTransaction(UserAccountToken userToken) { throw new NotImplementedException(); }
     }
 
     internal class InvestmentRecordInterfaceTest : IInvestmentRecordInterface
@@ -150,11 +151,6 @@ namespace InvestmentBuilderMSTests
         }
 
         public virtual string OutputFolder
-        {
-            get { return string.Empty; }
-        }
-
-        public virtual string SharedReportFolder
         {
             get { return string.Empty; }
         }
@@ -304,7 +300,7 @@ namespace InvestmentBuilderMSTests
         {
         }
 
-        public void WritePerformanceData(IList<IndexedRangeData> data, string path, DateTime dtValuation, ProgressCounter progress, string sharedFolder)
+        public void WritePerformanceData(IList<IndexedRangeData> data, string path, DateTime dtValuation, ProgressCounter progress)
         {
         }
     }
@@ -377,6 +373,7 @@ namespace InvestmentBuilderMSTests
         public virtual IEnumerable<string> GetAllCompanies() { return Enumerable.Empty<string>(); }
         public virtual Stock GetTradeItem(UserAccountToken userToken, string name) { return null; }
         public virtual void UndoLastTransaction(UserAccountToken userToken) { }
+        public Transaction GetLastTransaction(UserAccountToken userToken) { return null; }
     }
 
     internal class CashAccountEmptyInterfaceTest : ICashAccountInterface
@@ -425,14 +422,6 @@ namespace InvestmentBuilderMSTests
         }
 
         public virtual string OutputFolder
-        {
-            get
-            {
-                return null;
-            }
-        }
-
-        public virtual string SharedReportFolder
         {
             get
             {

@@ -32,7 +32,7 @@ namespace InvestmentReportGenerator
 
         public ExcelInvestmentReportWriter(string templateBookLocation)
         {
-            _app = new Microsoft.Office.Interop.Excel.Application();
+            _app = new Application();
             //open the template book
             _templateFileName = Path.Combine(templateBookLocation, TemplateBookName);
         }
@@ -186,7 +186,7 @@ namespace InvestmentReportGenerator
         /// <param name="data"></param>
         /// <param name="path"></param>
         /// <param name="dtValuation"></param>
-        public void WritePerformanceData(IList<IndexedRangeData> data, string outputPath, DateTime dtValuation, ProgressCounter progress, string sharedFolder)
+        public void WritePerformanceData(IList<IndexedRangeData> data, string outputPath, DateTime dtValuation, ProgressCounter progress)
         {
             //_Workbook performanceBook = null;
             //try

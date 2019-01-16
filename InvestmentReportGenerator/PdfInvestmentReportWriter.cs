@@ -491,7 +491,7 @@ namespace InvestmentReportGenerator
         /// <summary>
         /// Methods persists all the performance data to a pdf document.
         /// </summary>
-        public void WritePerformanceData(IList<IndexedRangeData> data, string outputPath, DateTime dtValuation, ProgressCounter progress, string sharedFolder)
+        public void WritePerformanceData(IList<IndexedRangeData> data, string outputPath, DateTime dtValuation, ProgressCounter progress)
         {
             progress.Initialise("writing performance data to pdf report", data.Count+2);
             string title = string.Format(@"{0}\Performance Report-{1}", outputPath, dtValuation);
@@ -540,13 +540,6 @@ namespace InvestmentReportGenerator
             _pdfDocument.Save(reportFileName);
             _pdfDocument.Dispose();
             _pdfDocument = null;
-
-            progress.Increment();
-
-            if(string.IsNullOrWhiteSpace(sharedFolder) == false)
-            {
-                File.Copy(reportFileName, Path.Combine(sharedFolder, GetReportFileName(dtValuation)));
-            }
 
             progress.Increment();
         }

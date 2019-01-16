@@ -6,3 +6,5 @@ add/remove/ edit stocks on the fly.
 show snapshot performance (asset statement)
 more historical information in reports.i.e. historyof all transactions
 MUST ALLOW MANUAL ENTRY OF SHARE PRICE
+undo last transaction
+redemptions page

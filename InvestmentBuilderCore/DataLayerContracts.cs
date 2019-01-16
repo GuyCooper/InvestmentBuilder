@@ -66,6 +66,12 @@ namespace InvestmentBuilderCore
         {
             Contract.Requires(userToken != null);
         }
+
+        public Transaction GetLastTransaction(UserAccountToken userToken)
+        {
+            Contract.Requires(userToken != null);
+            return null;
+        }
     }
 
     [ContractClassFor(typeof(IInvestmentRecordInterface))]

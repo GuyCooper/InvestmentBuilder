@@ -213,6 +213,39 @@ namespace SQLServerDataLayer
         }
 
         /// <summary>
+        /// Returns the last investment transaction (BUY,SELL, CHANGE)
+        /// </summary>
+        /// <param name="userToken"></param>
+        /// <returns></returns>
+        public Transaction GetLastTransaction(UserAccountToken userToken)
+        {
+            userToken.AuthorizeUser(AuthorizationLevel.READ);
+            using (var connection = OpenConnection())
+            {
+                using (var sqlCommand = new SqlCommand("sp_GetLastTransaction", connection))
+                {
+                    sqlCommand.CommandType = CommandType.StoredProcedure;
+                    sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
+                    using (var reader = sqlCommand.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new Transaction
+                            {
+                                InvestmentName = GetDBValue<string>("Name", reader),
+                                Quantity = GetDBValue<double>("Quantity", reader),
+                                Amount = GetDBValue<double>("TotalCost", reader),
+                                TransactionType = (TradeType)Enum.Parse(typeof(TradeType), GetDBValue<string>("trade_Action", reader))
+                            };
+                        }
+                    }
+                }
+            }
+            return null;
+
+        }
+
+        /// <summary>
         /// Return a list of the previous account valuation dates for the spcified account to the date specified.
         /// </summary>
         public DateTime? GetPreviousAccountValuationDate(UserAccountToken userToken, DateTime dtValuation)

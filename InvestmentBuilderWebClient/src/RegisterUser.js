@@ -121,7 +121,7 @@ function RegisterUser($scope, $http) {
         }
     };
 
-    $http.get("/config.json").then(function (data) {
+    $http.get("./config.json").then(function (data) {
         servername = data.data.registerurl;
     });
 }
