@@ -22,7 +22,15 @@
                     <li role="presentation">
                         <a role="menuitem" ng-click="editAccount()">Edit Account</a>
                     </li>
+                    <li role="presentation">
+                        <a role="menuitem" ng-click="getLastTransaction()">Undo Last Transaction</a>
+                    </li>
                 </ul>
+            </li>
+            <li>
+                <span class="undolast" title="undo last transaction">
+                    <i class="fas fa-undo" ng-click="getLastTransaction()"></i>
+                </span>
             </li>
             <li>
                 <span class="logout" title="logout">

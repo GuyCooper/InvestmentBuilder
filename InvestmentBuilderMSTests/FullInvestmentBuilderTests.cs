@@ -246,7 +246,7 @@ namespace InvestmentBuilderMSTests
             Assert.AreEqual(3000, companyData.Quantity);
 
             var dataLayer = ContainerManager.ResolveValueOnContainer<IDataLayer>(_childContainer);
-            dataLayer.ClientData.UndoLastTransaction(userToken);
+            dataLayer.ClientData.UndoLastTransaction(userToken, new DateTime());
 
             VerifyTradeTransactionResults(userToken);
         }

@@ -30,3 +30,7 @@ module.controller('LayoutController', Layout);
 module.controller('ReportsController', Reports);
 
 module.controller('AddAccount', AddAccount);
+
+module.controller('LastTransactionController', LastTransaction);
+
+module.controller('RedemptionsController', Redemptions);

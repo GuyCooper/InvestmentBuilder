@@ -27,15 +27,19 @@ namespace
 		ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
 		ZeroMemory(&si, sizeof(STARTUPINFO));
 
+		size_t count = path.size() + 1;
+		char *szCommandLine = (char*)calloc(count, sizeof(char));
+		strncpy_s(szCommandLine, count, path.c_str(), path.size());
+		
 		si.cb = sizeof(STARTUPINFO);
 
 		bool ok = false;
-		BOOL success = CreateProcess(path.c_str(),
-			NULL,
+		BOOL success = CreateProcess(NULL,
+			szCommandLine,
 			NULL,
 			NULL,
 			false,
-			0,
+			CREATE_NEW_CONSOLE,
 			NULL,
 			folder.c_str(),
 			&si,
@@ -43,7 +47,8 @@ namespace
 
 		if (success != FALSE)
 		{
-			ok = ::WaitForInputIdle(pi.hProcess, INFINITE) == 0;
+			ok = true;
+			//ok = ::WaitForInputIdle(pi.hProcess, INFINITE) == 0;
 
 			CloseHandle(pi.hThread);
 		}
@@ -56,6 +61,8 @@ namespace
 		{
 			process_manager_utils::logMessage("process failed to start: Error: " + process_manager_utils::getLastErrorString());
 		}
+
+		free(szCommandLine);
 
 		return pi.hProcess;
 	}
@@ -149,7 +156,7 @@ namespace process_manager
 		boost::property_tree::ptree tree;
 		// Parse the XML into the property tree.
 		boost::property_tree::read_xml(configurationFile, tree);
-		return tree.get<std::string>("ServiceName");
+		return tree.get<std::string>("configuration.servicename");
 	}
 }
 

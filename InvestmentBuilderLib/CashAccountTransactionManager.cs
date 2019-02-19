@@ -198,7 +198,6 @@ namespace InvestmentBuilder
             total.IsTotal = true;
             total.TransactionDate = dtValuationDate;
             transactions.Add(total);
-            total.Amount = Math.Round(total.Amount, 2);
             return total.Amount;
             //return props.Where(x => x.PropertyType.Name == "Double").Sum(x => (double)x.GetValue(total)); //total.Withdrawls + total.Other + total.Purchases;
         }

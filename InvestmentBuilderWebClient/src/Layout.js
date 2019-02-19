@@ -106,6 +106,10 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
         NotifyService.InvokeReports();
     };
 
+    $scope.onRedemptions = function () {
+        NotifyService.InvokeRedemptions();
+    };
+
     $scope.buildReport = function () {
         MiddlewareService.BuildReport(onBuildProgress);
     };
@@ -141,8 +145,11 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
     }
 
     //method updates the isBusy state
-    var busyStateChanged = function (busy) {
+    var busyStateChanged = function (busy, applyScope) {
         $scope.IsBusy = busy;
+        if (applyScope === true) {
+            $scope.$apply();
+        }
     };
 
     var closeConnection = function () {

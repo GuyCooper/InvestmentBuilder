@@ -197,8 +197,9 @@ namespace SQLServerDataLayer
 
         /// <summary>
         /// Undo the last transaction for the account specified in the user token.
+        /// Returns the numbers of rows affected
         /// </summary>
-        public void UndoLastTransaction(UserAccountToken userToken)
+        public int UndoLastTransaction(UserAccountToken userToken, DateTime fromValuationDate)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
             using (var connection = OpenConnection())
@@ -207,7 +208,9 @@ namespace SQLServerDataLayer
                 {
                     sqlCommand.CommandType = CommandType.StoredProcedure;
                     sqlCommand.Parameters.Add(new SqlParameter("@account", userToken.Account.AccountId));
-                    int rowsUpdated = sqlCommand.ExecuteNonQuery();
+                    sqlCommand.Parameters.Add(new SqlParameter("@fromValuationDate", fromValuationDate));
+
+                    return sqlCommand.ExecuteNonQuery();
                 }
             }
         }
@@ -217,7 +220,7 @@ namespace SQLServerDataLayer
         /// </summary>
         /// <param name="userToken"></param>
         /// <returns></returns>
-        public Transaction GetLastTransaction(UserAccountToken userToken)
+        public Transaction GetLastTransaction(UserAccountToken userToken, DateTime fromValuationDate)
         {
             userToken.AuthorizeUser(AuthorizationLevel.READ);
             using (var connection = OpenConnection())
@@ -226,6 +229,7 @@ namespace SQLServerDataLayer
                 {
                     sqlCommand.CommandType = CommandType.StoredProcedure;
                     sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
+                    sqlCommand.Parameters.Add(new SqlParameter("@fromValuationDate", fromValuationDate));
                     using (var reader = sqlCommand.ExecuteReader())
                     {
                         if (reader.Read())

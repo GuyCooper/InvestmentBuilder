@@ -22,10 +22,11 @@ function NotifyService() {
     //notify service acts as a broker service between the controllers. it contains
     //several lists of listeners that need to be called when a particular view is
     //selected.
-    var PortfolioListeners = [];
-    var AddTradeListeners = [];
-    var CashFlowListeners = [];
-    var ReportsListeners = [];
+    var PortfolioListeners = []; //list of listeners that are invoked when the user clicks on the Portfolio view
+    var AddTradeListeners = []; //list of listeners that are invoked when the user clicks on the AddTrade view
+    var CashFlowListeners = []; //list of listeners that are invoked when the user clicks on the CashFlow view
+    var ReportsListeners = []; //list of listeners that are invoked when the user clicks on the Reports view
+    var RedemptionListeners = []; //list of listeners that are invoked when the user clicks on the Redemptions view
     var BuildStatusListeners = []; //this of listeners that should be invoked when the build status changes
     var AccountListeners = []; //this is a list of listeners that should be invoked when the account is changed
     var ConnectionListeners = []; //this list contains a list of handlers that should be called once connection to the middleware is complete
@@ -40,10 +41,10 @@ function NotifyService() {
     this.RegisterBusyStateChangedListener = function (listener) {
         busyStateChangedListener = listener;
     }
-    this.UpdateBusyState = function (busy) {
+    this.UpdateBusyState = function (busy, applyScope) {
         isBusy = busy;
         if (busyStateChangedListener != null) {
-            busyStateChangedListener(busy);
+            busyStateChangedListener(busy, applyScope);
         }
     }
     //register callback methods 
@@ -65,6 +66,10 @@ function NotifyService() {
 
     this.RegisterReportsListener = function (listener) {
         ReportsListeners.push(listener);
+    };
+
+    this.RegisterRedemptionListener = function (listener) {
+        RedemptionListeners.push(listener);
     };
 
     this.RegisterConnectionListener = function (listener) {
@@ -111,6 +116,11 @@ function NotifyService() {
 
     this.InvokeReports = function () {
         listeners = ReportsListeners;
+        invokeListeners();
+    };
+
+    this.InvokeRedemptions = function () {
+        listeners = RedemptionListeners;
         invokeListeners();
     };
 
@@ -251,6 +261,10 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
         NotifyService.InvokeReports();
     };
 
+    $scope.onRedemptions = function () {
+        NotifyService.InvokeRedemptions();
+    };
+
     $scope.buildReport = function () {
         MiddlewareService.BuildReport(onBuildProgress);
     };
@@ -286,8 +300,11 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
     }
 
     //method updates the isBusy state
-    var busyStateChanged = function (busy) {
+    var busyStateChanged = function (busy, applyScope) {
         $scope.IsBusy = busy;
+        if (applyScope === true) {
+            $scope.$apply();
+        }
     };
 
     var closeConnection = function () {
@@ -483,6 +500,22 @@ function MiddlewareService()
 
     this.GetBrokers = function (handler) {
         doCommand("GET_BROKERS_REQUEST", "GET_BROKERS_RESPONSE", null, handler);
+    };
+
+    this.GetLastTransaction = function (handler) {
+        doCommand("GET_LAST_TRANSACTION_REQUEST", "GET_LAST_TRANSACTION_RESPONSE", null, handler);
+    }
+
+    this.UndoLastTransaction = function (handler) {
+        doCommand("UNDO_LAST_TRANSACTION_REQUEST", "UNDO_LAST_TRANSACTION_RESPONSE", null, handler);
+    }
+
+    this.GetRedemptions = function (handler) {
+        doCommand("GET_REDEMPTIONS_REQUEST", "GET_REDEMPTIONS_RESPONSE", null, handler);
+    };
+
+    this.RequestRedemption = function (request, handler) {
+        doCommand("REQUEST_REDEMPTION_REQUEST", "REQUEST_REDEMPTION_RESPONSE", request, handler);
     };
 }
 "use strict"
@@ -766,13 +799,15 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
         { headerName: "Options", cellRenderer:editTradeRenderer }
     ];
 
+    var reloadPortfolio = false;
+
     var onLoadContents = function (data) {
 
         if (data && data.Portfolio) {
             $scope.gridOptions.api.setRowData(data.Portfolio);
             $scope.gridOptions.api.sizeColumnsToFit();
         }
-        NotifyService.UpdateBusyState(false);
+        NotifyService.UpdateBusyState(false, true);
     }.bind(this);
 
     function editTradeRenderer() {
@@ -785,8 +820,11 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
     }
 
     function loadPortfolio() {
-        NotifyService.UpdateBusyState(true);
-        MiddlewareService.LoadPortfolio(onLoadContents);
+        if (reloadPortfolio === true) {
+            NotifyService.UpdateBusyState(true, true);
+            MiddlewareService.LoadPortfolio(onLoadContents);
+            reloadPortfolio = false;
+        }
     };
 
     $scope.gridOptions = {
@@ -866,7 +904,16 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
 
     //also, we want the portfolio to be loaded on startup so add is as a connectionlistener as well.
     //this means it will be loaded once the connection to the server has been made
-    NotifyService.RegisterConnectionListener(loadPortfolio);
+    NotifyService.RegisterConnectionListener(function () {
+        reloadPortfolio = true;
+        loadPortfolio();
+    });
+
+    function onAccountChanged() {
+        reloadPortfolio = true;
+    };
+
+    NotifyService.RegisterAccountListener(onAccountChanged);
 };
 
 function TradeEditor($uibModalInstance, name) {
@@ -1142,7 +1189,36 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
 
     $scope.addAccount = function () {
         showAccountPopup("Add Account", null);
-    }
+    };
+
+    // Display the last transaction and give the user the option to undo it.
+    $scope.getLastTransaction = function () {
+        MiddlewareService.GetLastTransaction((transaction) => {
+            var lastTranactionModal = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'views/LastTransaction.html',
+                controller: 'LastTransactionController',
+                size: 'lg',
+                resolve: {
+                    transaction: function () {
+                        return transaction;
+                    }
+                }
+            });
+
+            lastTransactionModal.result.then(function () {
+                MiddlewareService.UndoLastTransaction(function (result) {
+                    //undo succeded, refresh all data...
+                    NotifyService.InvokeAccountChange();
+                });
+            }, function () {
+                $log.info('LastTransactionModal dismissed at: ' + new Date());
+            });
+
+        });
+    };
 
     $scope.logout = function () {
         var title = "logout";
@@ -1198,6 +1274,63 @@ function Reports($scope, NotifyService, MiddlewareService) {
 
 "use strict"
 
+// Controller for LastTransaction Page
+function LastTransaction($scope, $uibModalInstance, transaction) {
+
+    $scope.Name =  transaction.InvestmentName;
+    $scope.TransactionType = transaction.TransactionType;
+    $scope.Quantity = transaction.Quantity;
+    $scope.Amount = transaction.Amount;
+
+    $scope.ok = function () {
+        $uibModalInstance.close();
+    }
+
+    $scope.cancel = function () {
+        $uibModalInstance.dismiss('cancel');
+    };
+}
+'use strict'
+
+// Redemptions view controller.
+function Redemptions($scope, $log, $uibModal, NotifyService, MiddlewareService) {
+    var columnDefs = [
+        { headerName: "User", field: "User" },
+        { headerName: "Amount", field: "Amount" },
+        { headerName: "TransactionDate", field: "TransactionDate", cellFormatter: dateFormatter },
+        { headerName: "Status", field: "Status" }
+    ];
+
+    var onLoadContents = function (data) {
+
+        if (data && data.Redemptions) {
+            $scope.gridOptions.api.setRowData(data.Redemptions);
+            $scope.gridOptions.api.sizeColumnsToFit();
+        }
+    }.bind(this);
+
+    function dateFormatter(val) {
+        var dateobj = new Date(val.value);
+        return dateobj.toLocaleDateString();
+    }
+
+    function loadRedemptions() {
+        MiddlewareService.GetRedemptions(onLoadContents);
+    };
+
+    $scope.gridOptions = {
+        columnDefs: columnDefs,
+        rowData: null,
+        angularCompileRows: true,
+        enableColResize: true,
+        enableSorting: true,
+        enableFilter: true
+    }
+
+    NotifyService.RegisterRedemptionListener(loadRedemptions);
+};
+"use strict"
+
 var module = angular.module("InvestmentRecord", ["ui.bootstrap","agGrid"]);
 
 agGrid.initialiseAgGridWithAngular1(angular);
@@ -1228,3 +1361,7 @@ module.controller('LayoutController', Layout);
 module.controller('ReportsController', Reports);
 
 module.controller('AddAccount', AddAccount);
+
+module.controller('LastTransactionController', LastTransaction);
+
+module.controller('RedemptionsController', Redemptions);

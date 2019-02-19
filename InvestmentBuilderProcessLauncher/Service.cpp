@@ -3,8 +3,8 @@
 
 #pragma comment(lib, "advapi32.lib")
 
-#define SVCNAME TEXT("InvestmentBuilderLauncher")
-#define CONFIGURATIONFILENAME TEXT("ProcessLauncherConfiguration")
+const char CONFIGURATIONFILENAME[] = { "ProcessLauncherConfiguration.xml" };
+const char DEFAULTSERVICENAME[] = { "ProcessLauncherService" };
 
 SERVICE_STATUS          gSvcStatus;
 SERVICE_STATUS_HANDLE   gSvcStatusHandle;
@@ -18,7 +18,8 @@ VOID ReportSvcStatus(DWORD, DWORD, DWORD);
 VOID SvcInit(DWORD, LPTSTR *);
 VOID SvcReportEvent(LPTSTR);
 
-std::string ServiceName;
+//the name of this service
+char* g_szServiceName;
 
 namespace process_manager
 {
@@ -45,6 +46,18 @@ void __cdecl _tmain(int argc, TCHAR *argv[])
 	
 	std::string configurationFile = process_manager_utils::getProcessPath() + "\\" + CONFIGURATIONFILENAME;
 
+	//determine the name for this service from the configuration file
+	std::string serviceName = process_manager::GetServiceName(configurationFile);
+	if (serviceName.empty())
+	{
+		serviceName = DEFAULTSERVICENAME;
+	}
+
+	size_t bufferSize = serviceName.size() + 1;
+	g_szServiceName = (char*)malloc(bufferSize);
+	ZeroMemory(g_szServiceName, bufferSize);
+	strncpy_s(g_szServiceName, bufferSize, serviceName.c_str(), serviceName.size());
+
 	if (lstrcmpi(argv[1], TEXT("console")) == 0)
 	{
 		process_manager_utils::logMessage("running in console mode...");
@@ -67,7 +80,7 @@ void __cdecl _tmain(int argc, TCHAR *argv[])
 	// TO_DO: Add any additional services for the process to this table.
 	SERVICE_TABLE_ENTRY DispatchTable[] =
 	{
-		{ SVCNAME, (LPSERVICE_MAIN_FUNCTION)SvcMain },
+		{ g_szServiceName , (LPSERVICE_MAIN_FUNCTION)SvcMain },
 		{ NULL, NULL }
 	};
 
@@ -114,8 +127,8 @@ VOID SvcInstall()
 
 	schService = CreateService(
 		schSCManager,              // SCM database 
-		SVCNAME,                   // name of service 
-		SVCNAME,                   // service name to display 
+		g_szServiceName,                   // name of service 
+		g_szServiceName,                   // service name to display 
 		SERVICE_ALL_ACCESS,        // desired access 
 		SERVICE_WIN32_OWN_PROCESS, // service type 
 		SERVICE_DEMAND_START,      // start type 
@@ -157,7 +170,7 @@ VOID WINAPI SvcMain(DWORD dwArgc, LPTSTR *lpszArgv)
 	// Register the handler function for the service
 
 	gSvcStatusHandle = RegisterServiceCtrlHandler(
-		SVCNAME,
+		g_szServiceName,
 		SvcCtrlHandler);
 
 	if (!gSvcStatusHandle)
@@ -325,13 +338,13 @@ VOID SvcReportEvent(LPTSTR szFunction)
 	LPCTSTR lpszStrings[2];
 	TCHAR Buffer[80];
 
-	hEventSource = RegisterEventSource(NULL, SVCNAME);
+	hEventSource = RegisterEventSource(NULL, g_szServiceName);
 
 	if (NULL != hEventSource)
 	{
 		StringCchPrintf(Buffer, 80, TEXT("%s failed with %d"), szFunction, GetLastError());
 
-		lpszStrings[0] = SVCNAME;
+		lpszStrings[0] = g_szServiceName;
 		lpszStrings[1] = Buffer;
 
 		ReportEvent(hEventSource,        // event log handle

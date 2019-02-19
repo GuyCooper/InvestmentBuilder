@@ -12,7 +12,7 @@ END
 GO
 
 --returns the last transactions details for this account
-CREATE PROCEDURE sp_GetLastTransaction(@account as int) AS
+CREATE PROCEDURE sp_GetLastTransaction(@account as int, @fromValuationDate as DATETIME) AS
 BEGIN
 
 SELECT TOP 1 
@@ -25,7 +25,9 @@ SELECT TOP 1
 FROM 	TransactionHistory th
 INNER JOIN Companies c
 ON th.company_id = c.Company_Id
-WHERE th.account_id = @Account
+WHERE th.account_id = @Account 
+AND th.valuation_date > @fromValuationDate
+
 ORDER BY th.valuation_date DESC			 
 
 END

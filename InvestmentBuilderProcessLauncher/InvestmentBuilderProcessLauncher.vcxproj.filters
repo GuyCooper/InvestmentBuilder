@@ -43,6 +43,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="processes.xml" />
+    <Xml Include="ProcessLauncherConfiguration.xml" />
   </ItemGroup>
 </Project>

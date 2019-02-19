@@ -5,10 +5,11 @@ function NotifyService() {
     //notify service acts as a broker service between the controllers. it contains
     //several lists of listeners that need to be called when a particular view is
     //selected.
-    var PortfolioListeners = [];
-    var AddTradeListeners = [];
-    var CashFlowListeners = [];
-    var ReportsListeners = [];
+    var PortfolioListeners = []; //list of listeners that are invoked when the user clicks on the Portfolio view
+    var AddTradeListeners = []; //list of listeners that are invoked when the user clicks on the AddTrade view
+    var CashFlowListeners = []; //list of listeners that are invoked when the user clicks on the CashFlow view
+    var ReportsListeners = []; //list of listeners that are invoked when the user clicks on the Reports view
+    var RedemptionListeners = []; //list of listeners that are invoked when the user clicks on the Redemptions view
     var BuildStatusListeners = []; //this of listeners that should be invoked when the build status changes
     var AccountListeners = []; //this is a list of listeners that should be invoked when the account is changed
     var ConnectionListeners = []; //this list contains a list of handlers that should be called once connection to the middleware is complete
@@ -23,10 +24,10 @@ function NotifyService() {
     this.RegisterBusyStateChangedListener = function (listener) {
         busyStateChangedListener = listener;
     }
-    this.UpdateBusyState = function (busy) {
+    this.UpdateBusyState = function (busy, applyScope) {
         isBusy = busy;
         if (busyStateChangedListener != null) {
-            busyStateChangedListener(busy);
+            busyStateChangedListener(busy, applyScope);
         }
     }
     //register callback methods 
@@ -48,6 +49,10 @@ function NotifyService() {
 
     this.RegisterReportsListener = function (listener) {
         ReportsListeners.push(listener);
+    };
+
+    this.RegisterRedemptionListener = function (listener) {
+        RedemptionListeners.push(listener);
     };
 
     this.RegisterConnectionListener = function (listener) {
@@ -94,6 +99,11 @@ function NotifyService() {
 
     this.InvokeReports = function () {
         listeners = ReportsListeners;
+        invokeListeners();
+    };
+
+    this.InvokeRedemptions = function () {
+        listeners = RedemptionListeners;
         invokeListeners();
     };
 

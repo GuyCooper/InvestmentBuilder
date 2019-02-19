@@ -62,12 +62,13 @@ namespace InvestmentBuilderCore
             return null;
         }
 
-        public void UndoLastTransaction(UserAccountToken userToken)
+        public int UndoLastTransaction(UserAccountToken userToken, DateTime fromValuationDate)
         {
             Contract.Requires(userToken != null);
+            return 0;
         }
 
-        public Transaction GetLastTransaction(UserAccountToken userToken)
+        public Transaction GetLastTransaction(UserAccountToken userToken, DateTime fromValuationDate)
         {
             Contract.Requires(userToken != null);
             return null;

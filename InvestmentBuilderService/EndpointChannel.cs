@@ -2,6 +2,8 @@
 using Newtonsoft.Json;
 using InvestmentBuilderCore;
 using InvestmentBuilderService.Session;
+using NLog;
+using System;
 
 namespace InvestmentBuilderService
 {
@@ -9,6 +11,8 @@ namespace InvestmentBuilderService
     internal class Dto
     {
         public string Name { get; private set; }
+        public bool IsError { get; set; }
+        public string Error { get; set; }
         public Dto()
         {
             Name = this.GetType().Name;
@@ -103,7 +107,17 @@ namespace InvestmentBuilderService
                 //TODO. this list should be periodically cleaned up
                 _updaterList.Add(updater);
             }
-            var responsePayload = HandleEndpointRequest(userSession, requestPayload, updater);
+            Dto responsePayload;
+            try
+            {
+                responsePayload = HandleEndpointRequest(userSession, requestPayload, updater);
+            }
+            catch(Exception ex)
+            {
+                logger.Error(ex);
+                responsePayload = new Dto { IsError = true, Error = "Internal Server Error" };
+            } 
+            
             if ((responsePayload != null) && (string.IsNullOrEmpty(ResponseName) == false))
             {
                 session.SendMessageToChannel(ResponseName, JsonConvert.SerializeObject(responsePayload), sourceId, requestId);
@@ -119,6 +133,7 @@ namespace InvestmentBuilderService
 
         private readonly List<IChannelUpdater> _updaterList = new List<IChannelUpdater>();
         private readonly AccountService _accountService;
+        private static Logger logger = LogManager.GetCurrentClassLogger();
 
         #endregion
     }

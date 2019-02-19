@@ -103,7 +103,36 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
 
     $scope.addAccount = function () {
         showAccountPopup("Add Account", null);
-    }
+    };
+
+    // Display the last transaction and give the user the option to undo it.
+    $scope.getLastTransaction = function () {
+        MiddlewareService.GetLastTransaction((transaction) => {
+            var lastTranactionModal = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'views/LastTransaction.html',
+                controller: 'LastTransactionController',
+                size: 'lg',
+                resolve: {
+                    transaction: function () {
+                        return transaction;
+                    }
+                }
+            });
+
+            lastTransactionModal.result.then(function () {
+                MiddlewareService.UndoLastTransaction(function (result) {
+                    //undo succeded, refresh all data...
+                    NotifyService.InvokeAccountChange();
+                });
+            }, function () {
+                $log.info('LastTransactionModal dismissed at: ' + new Date());
+            });
+
+        });
+    };
 
     $scope.logout = function () {
         var title = "logout";

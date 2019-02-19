@@ -153,4 +153,20 @@ function MiddlewareService()
     this.GetBrokers = function (handler) {
         doCommand("GET_BROKERS_REQUEST", "GET_BROKERS_RESPONSE", null, handler);
     };
+
+    this.GetLastTransaction = function (handler) {
+        doCommand("GET_LAST_TRANSACTION_REQUEST", "GET_LAST_TRANSACTION_RESPONSE", null, handler);
+    }
+
+    this.UndoLastTransaction = function (handler) {
+        doCommand("UNDO_LAST_TRANSACTION_REQUEST", "UNDO_LAST_TRANSACTION_RESPONSE", null, handler);
+    }
+
+    this.GetRedemptions = function (handler) {
+        doCommand("GET_REDEMPTIONS_REQUEST", "GET_REDEMPTIONS_RESPONSE", null, handler);
+    };
+
+    this.RequestRedemption = function (request, handler) {
+        doCommand("REQUEST_REDEMPTION_REQUEST", "REQUEST_REDEMPTION_RESPONSE", request, handler);
+    };
 }

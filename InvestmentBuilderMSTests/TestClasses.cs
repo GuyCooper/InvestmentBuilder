@@ -54,8 +54,8 @@ namespace InvestmentBuilderMSTests
         public virtual IEnumerable<string> GetAccountTypes() { throw new NotImplementedException(); }
         public virtual IEnumerable<string> GetAllCompanies() { throw new NotImplementedException(); }
         public virtual Stock GetTradeItem(UserAccountToken userToken, string name) { throw new NotImplementedException(); }
-        public virtual void UndoLastTransaction(UserAccountToken userToken) { throw new NotImplementedException(); }
-        public Transaction GetLastTransaction(UserAccountToken userToken) { throw new NotImplementedException(); }
+        public virtual int UndoLastTransaction(UserAccountToken userToken, DateTime fromValuationDate) { throw new NotImplementedException(); }
+        public Transaction GetLastTransaction(UserAccountToken userToken, DateTime fromValuationDate) { throw new NotImplementedException(); }
     }
 
     internal class InvestmentRecordInterfaceTest : IInvestmentRecordInterface
@@ -372,8 +372,8 @@ namespace InvestmentBuilderMSTests
         public virtual IEnumerable<string> GetAccountTypes() { return Enumerable.Empty<string>(); }
         public virtual IEnumerable<string> GetAllCompanies() { return Enumerable.Empty<string>(); }
         public virtual Stock GetTradeItem(UserAccountToken userToken, string name) { return null; }
-        public virtual void UndoLastTransaction(UserAccountToken userToken) { }
-        public Transaction GetLastTransaction(UserAccountToken userToken) { return null; }
+        public virtual int UndoLastTransaction(UserAccountToken userToken, DateTime fromValuationDate) { return 0; }
+        public Transaction GetLastTransaction(UserAccountToken userToken, DateTime fromValuationDate) { return null; }
     }
 
     internal class CashAccountEmptyInterfaceTest : ICashAccountInterface

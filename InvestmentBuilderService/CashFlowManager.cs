@@ -12,8 +12,8 @@ namespace InvestmentBuilderService
     {
         public IEnumerable<ReceiptTransaction> Receipts { get; set; }
         public IEnumerable<PaymentTransaction> Payments { get; set; }
-        public double ReceiptsTotal { get; set; }
-        public double PaymentsTotal { get; set; }
+        public string ReceiptsTotal { get; set; }
+        public string PaymentsTotal { get; set; }
         public string ValuationDate { get; set; }
         public bool CanEdit { get; set; }
         public bool CanBuild { get; set; }
@@ -59,12 +59,12 @@ namespace InvestmentBuilderService
                 var cashFlowModel = new CashFlowModel();
                 cashFlowModel.Receipts = _cashTransactionManager.GetReceiptTransactions(token, dtDateNext, dtDateFrom, out dReceiptTotal);
                 cashFlowModel.Payments = _cashTransactionManager.GetPaymentTransactions(token, dtDateNext, out dPaymentTotal);
-                cashFlowModel.ReceiptsTotal = dReceiptTotal;
-                cashFlowModel.PaymentsTotal = dPaymentTotal;
+                cashFlowModel.ReceiptsTotal = dReceiptTotal.ToString("#0.00");
+                cashFlowModel.PaymentsTotal = dPaymentTotal.ToString("#0.00");
                 cashFlowModel.ValuationDate = dtDateNext.ToString("yyyy-MM-dd"); //ISO 8601
 
                 cashFlowModel.CanEdit = dtDateNext == dtDateLatest;
-                cashFlowModel.CanBuild = cashFlowModel.CanEdit && cashFlowModel.ReceiptsTotal > 0 && cashFlowModel.ReceiptsTotal == cashFlowModel.PaymentsTotal;
+                cashFlowModel.CanBuild = cashFlowModel.CanEdit && dReceiptTotal > 0 && cashFlowModel.ReceiptsTotal == cashFlowModel.PaymentsTotal;
 
                 if (dtDateFrom.HasValue == false)
                 {

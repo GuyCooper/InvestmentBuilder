@@ -126,11 +126,6 @@ namespace InvestmentBuilder
         /// this method rolls all the investments in the investment record
         /// table and updates the trades
         /// </summary>
-        /// <param name="account"></param>
-        /// <param name="trades"></param>
-        /// <param name="cashData"></param>
-        /// <param name="valuationDate"></param>
-        /// <param name="previousValuation"></param>
         public bool UpdateInvestmentRecords(UserAccountToken userToken, AccountModel account, Trades trades, CashAccountData cashData, DateTime valuationDate, ManualPrices manualPrices, DateTime? dtPreviousValuation, ProgressCounter progress)
         {
             Log.Log(LogLevel.Info, "building investment records...");

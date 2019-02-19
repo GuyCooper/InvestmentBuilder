@@ -179,6 +179,12 @@ right: 1em;
     margin: 5px;
 }
 
+.undolast {
+    font-size: 2em;
+    color: Tomato;
+    margin: 5px;
+}
+
 .summaryDisplay {
     display:inline-block;
     margin:1em;

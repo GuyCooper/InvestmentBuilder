@@ -44,6 +44,8 @@ module.exports = function (grunt) {
                         "./src/AddAccount.js",
                         "./src/AccountList.js",
                         "./src/Reports.js",
+                        "./src/LastTransaction.js",
+                        "./src/Redemptions.js",
                         "./src/RegisterModules.js"
                       ],
             jsfiles: "./legacy/index.js",

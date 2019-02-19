@@ -107,7 +107,14 @@ namespace InvestmentBuilderService
             {
                 Task.Factory.StartNew(() =>
                 {
-                    channel.ProcessMessage(GetSession(), userSession, message.Payload, message.SourceId, message.RequestId);
+                    try
+                    {
+                        channel.ProcessMessage(GetSession(), userSession, message.Payload, message.SourceId, message.RequestId);
+                    }
+                    catch(Exception ex)
+                    {
+                        logger.Log(LogLevel.Error, ex);
+                    }
                 });
             }
             else

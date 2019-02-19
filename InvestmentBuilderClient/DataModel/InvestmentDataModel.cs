@@ -239,7 +239,8 @@ namespace InvestmentBuilderClient.DataModel
             if (_TradeUpdateCount > 0)
             {
                 --_TradeUpdateCount;
-                _clientData.UndoLastTransaction(_userToken);
+                var valuationDate = _clientData.GetLatestValuationDate(_userToken);
+                _clientData.UndoLastTransaction(_userToken, valuationDate ?? new DateTime());
                 UpdateTradeUpdateEvent();
             }
         }

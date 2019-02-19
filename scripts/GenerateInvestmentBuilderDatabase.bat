@@ -5,9 +5,9 @@ set DBName=master
 
 echo rebuild unit test database, server name: %ServerName%, db name: %DBName%
 
-sqlcmd -S %ServerName% -E -d %DBName% -i BuildInvestmentBuilderUnitTestDatabase.sql
+sqlcmd -S %ServerName% -E -d %DBName% -i BuildInvestmentBuilderDatabase.sql
 
-set DBName=InvestmentBuilderUnitTest1
+set DBName=InvestmentBuilderTest3
 
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddCashAccountData.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddNewShares.sql

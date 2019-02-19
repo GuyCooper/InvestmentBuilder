@@ -1,0 +1,20 @@
+﻿<div class="modal-header">
+    <h3 class="modal-title" id="modal-title">Undo Last Transaction</h3>
+</div>
+<div class="modal-body" id="modal-body">
+    <dl class="dl-horizontal">
+        <dt>Investment</dt>
+        <dd ng-model="Name"></dd>
+        <dt>Type</dt>
+        <dd ng-model="TransactionType"></dd>
+        <dt>Quantity</dt>
+        <dd ng-model="Quantity"></dd>
+        <dt>Amount</dt>
+        <dd ng-model="Amount"></dd>
+    </dl>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" type="button" ng-click="ok()">OK</button>
+    <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+</div>
+

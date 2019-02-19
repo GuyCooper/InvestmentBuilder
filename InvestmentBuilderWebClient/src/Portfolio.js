@@ -17,13 +17,15 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
         { headerName: "Options", cellRenderer:editTradeRenderer }
     ];
 
+    var reloadPortfolio = false;
+
     var onLoadContents = function (data) {
 
         if (data && data.Portfolio) {
             $scope.gridOptions.api.setRowData(data.Portfolio);
             $scope.gridOptions.api.sizeColumnsToFit();
         }
-        NotifyService.UpdateBusyState(false);
+        NotifyService.UpdateBusyState(false, true);
     }.bind(this);
 
     function editTradeRenderer() {
@@ -36,8 +38,11 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
     }
 
     function loadPortfolio() {
-        NotifyService.UpdateBusyState(true);
-        MiddlewareService.LoadPortfolio(onLoadContents);
+        if (reloadPortfolio === true) {
+            NotifyService.UpdateBusyState(true, true);
+            MiddlewareService.LoadPortfolio(onLoadContents);
+            reloadPortfolio = false;
+        }
     };
 
     $scope.gridOptions = {
@@ -117,7 +122,16 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
 
     //also, we want the portfolio to be loaded on startup so add is as a connectionlistener as well.
     //this means it will be loaded once the connection to the server has been made
-    NotifyService.RegisterConnectionListener(loadPortfolio);
+    NotifyService.RegisterConnectionListener(function () {
+        reloadPortfolio = true;
+        loadPortfolio();
+    });
+
+    function onAccountChanged() {
+        reloadPortfolio = true;
+    };
+
+    NotifyService.RegisterAccountListener(onAccountChanged);
 };
 
 function TradeEditor($uibModalInstance, name) {

@@ -11,7 +11,7 @@ END
 
 GO
 
-CREATE PROCEDURE sp_UndoLastTransaction(@account as int) AS
+CREATE PROCEDURE sp_UndoLastTransaction(@account as int, @fromValuationDate as DATETIME) AS
 BEGIN
 
 DECLARE @AccountId INT
@@ -20,6 +20,7 @@ DECLARE @ValuationDate DATETIME
 SELECT TOP 1 @ValuationDate = [Valuation_Date]
 FROM 	TransactionHistory
 WHERE [account_id] = @Account
+AND valuation_date > @fromValuationDate
 ORDER BY [valuation_date] DESC
 
 	DELETE FROM InvestmentRecord

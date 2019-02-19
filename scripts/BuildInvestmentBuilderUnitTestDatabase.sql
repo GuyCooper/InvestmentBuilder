@@ -1,18 +1,18 @@
 use master
 
-if exists(select 1 from sysdatabases where name = 'InvestmentBuilderTest3')
+if exists(select 1 from sysdatabases where name = 'InvestmentBuilderUnitTest1')
 begin
-	alter database InvestmentBuilderTest3 set single_user with
+	alter database InvestmentBuilderUnitTest1 set single_user with
 	rollback immediate
-	drop database InvestmentBuilderTest3
+	drop database InvestmentBuilderUnitTest1
 end
 
 go
 
-create database InvestmentBuilderTest3
+create database InvestmentBuilderUnitTest1
 go
 
-use InvestmentBuilderTest3
+use InvestmentBuilderUnitTest1
 go
 
 create table dbo.TransactionType
