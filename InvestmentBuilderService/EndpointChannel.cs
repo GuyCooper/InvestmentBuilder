@@ -4,6 +4,7 @@ using InvestmentBuilderCore;
 using InvestmentBuilderService.Session;
 using NLog;
 using System;
+using MiddlewareInterfaces;
 
 namespace InvestmentBuilderService
 {
@@ -19,11 +20,18 @@ namespace InvestmentBuilderService
         }
     }
 
+    /// <summary>
+    /// A Dto that contains a binary payload
+    /// </summary>
+    internal class BinaryDto : Dto
+    {
+        public Byte[] Payload { get; set; }
+    }
+
     //base class for reponse Dtos
     internal class ResponseDto : Dto
     {
         public bool Status { get; set; }
-        public string Error { get; set; }
     }
 
     /// <summary>
@@ -120,7 +128,14 @@ namespace InvestmentBuilderService
             
             if ((responsePayload != null) && (string.IsNullOrEmpty(ResponseName) == false))
             {
-                session.SendMessageToChannel(ResponseName, JsonConvert.SerializeObject(responsePayload), sourceId, requestId);
+                if(responsePayload.GetType() == typeof(BinaryDto))
+                {
+                    session.SendMessageToChannel(ResponseName, null, sourceId, requestId, ((BinaryDto)responsePayload).Payload);
+                }
+                else
+                {
+                    session.SendMessageToChannel(ResponseName, MiddlewareUtils.SerialiseObjectToString(responsePayload), sourceId, requestId, null);
+                }
             }
         }
 

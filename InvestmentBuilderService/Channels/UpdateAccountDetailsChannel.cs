@@ -32,7 +32,6 @@ namespace InvestmentBuilderService.Channels
     internal class UpdateAccountResponseDto : Dto
     {
         public bool Status { get; set; }
-        public string Error { get; set; }
         public IEnumerable<AccountIdentifier> AccountNames { get; set; }
     }
 

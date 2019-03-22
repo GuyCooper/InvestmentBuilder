@@ -108,7 +108,7 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
     // Display the last transaction and give the user the option to undo it.
     $scope.getLastTransaction = function () {
         MiddlewareService.GetLastTransaction((transaction) => {
-            var lastTranactionModal = $uibModal.open({
+            var lastTransactionModal = $uibModal.open({
                 animation: true,
                 ariaLabelledBy: 'modal-title',
                 ariaDescribedBy: 'modal-body',

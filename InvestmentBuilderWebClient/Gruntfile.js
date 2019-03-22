@@ -38,6 +38,7 @@ module.exports = function (grunt) {
                         "./src/NotifyService.js",
                         "./src/Layout.js",
                         "./src/MiddlewareService.js",
+                        "./src/CashTransaction.js",
                         "./src/CashFlow.js",
                         "./src/CreateTrade.js",
                         "./src/Portfolio.js",
@@ -57,7 +58,8 @@ module.exports = function (grunt) {
                            "./Views/Parameters.html",
                            "./Views/ReportCompletion.html",
                            "./Views/YesNoChooser.html",
-                           "./Views/AddAccount.html"
+                           "./Views/AddAccount.html",
+                           "./Views/LastTransaction.html"
                        ],
             styles: {
                 source: "./styles/css/**/*.css",

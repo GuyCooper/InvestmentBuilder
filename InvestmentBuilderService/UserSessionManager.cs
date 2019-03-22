@@ -8,6 +8,7 @@ using NLog;
 using InvestmentBuilderService.Session;
 using Microsoft.Practices.Unity;
 using InvestmentBuilder;
+using MiddlewareInterfaces;
 
 namespace InvestmentBuilderService
 {
@@ -79,7 +80,7 @@ namespace InvestmentBuilderService
                 //quite slow so marshall onto a separate thread and let that respond when it is ready
                 Task.Factory.StartNew(() =>
                 {
-                    var login = JsonConvert.DeserializeObject<LoginPayload>(message.Payload);
+                    var login = MiddlewareUtils.DeserialiseObject<LoginPayload>(message.Payload);
                     var salt = _authdata.GetSalt(login.UserName);
                     var hash = SaltedHash.GenerateHash(login.Password, salt);
 

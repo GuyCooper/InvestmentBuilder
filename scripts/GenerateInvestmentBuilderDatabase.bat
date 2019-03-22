@@ -70,6 +70,6 @@ sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddHistoricalData.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_GetHistoricalData.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddNewUser.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_GetUserId.sql
-
+sqlcmd -S %ServerName% -E -d %DBName% -i sp_GetLastTransaction.sql
 popd
 

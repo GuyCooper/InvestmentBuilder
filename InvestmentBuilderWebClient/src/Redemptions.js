@@ -9,6 +9,9 @@ function Redemptions($scope, $log, $uibModal, NotifyService, MiddlewareService) 
         { headerName: "Status", field: "Status" }
     ];
 
+    $scope.RedemptionRequestFailed = false;
+    $scope.RedemptionRequestError = '';
+
     var onLoadContents = function (data) {
 
         if (data && data.Redemptions) {
@@ -33,7 +36,34 @@ function Redemptions($scope, $log, $uibModal, NotifyService, MiddlewareService) 
         enableColResize: true,
         enableSorting: true,
         enableFilter: true
-    }
+    };
+
+    //User requesting a new redemption
+    $scope.requestRedemption = function () {
+        var requestRedemptionModal = $uibModal.open({
+            animation: true,
+            ariaLabelledBy: 'modal-title',
+            ariaDescribedBy: 'modal-body',
+            templateUrl: 'views/RequestRedemption.html',
+            controller: 'RequestRedemptionController',
+            size: 'lg'
+        });
+
+        requestRedemptionModal.result.then(function (redemption) {
+            MiddlewareService.RequestRedemption(redemption, (response) => {
+                if (response.Success === true) {
+                    loadRedemptions();
+                }
+                else {
+                    $scope.RedemptionRequestFailed = true;
+                    $scope.RedemptionRequestError = response.Error;
+                }
+            });
+        },
+        function () {
+            $log.info('RequestRdemptionModal dismissed at: ' + new Date());
+        });
+    };
 
     NotifyService.RegisterRedemptionListener(loadRedemptions);
 };

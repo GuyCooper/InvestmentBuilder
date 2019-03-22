@@ -2,6 +2,7 @@
 using System.Timers;
 using System;
 using Newtonsoft.Json;
+using MiddlewareInterfaces;
 
 namespace InvestmentBuilderService
 {
@@ -39,7 +40,14 @@ namespace InvestmentBuilderService
         /// </summary>
         public void SendUpdate(Dto payload)
         {
-            _session.SendMessageToChannel(_channel, JsonConvert.SerializeObject(payload), _sourceId, _requestId);
+            if(payload.GetType() == typeof(BinaryDto))
+            {
+                _session.SendMessageToChannel(_channel, null, _sourceId, _requestId, ((BinaryDto)payload).Payload);
+            }
+            else
+            {
+                _session.SendMessageToChannel(_channel, MiddlewareUtils.SerialiseObjectToString(payload), _sourceId, _requestId, null);
+            }
         }
 
         public bool Completed { get; protected set; }

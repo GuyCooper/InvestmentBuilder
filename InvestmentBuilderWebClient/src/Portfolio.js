@@ -75,7 +75,7 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
         editModal.result.then(function (trade) {
             //$ctrl.selected = selectedItem;
             //use has clicked ok , we need to update the trade
-            MiddlewareService.UpdateTrade(trade, loadPortfolio);
+            MiddlewareService.UpdateTrade(trade, refreshPortfolio);
         }, function () {
             $log.info('Modal dismissed at: ' + new Date());
         });
@@ -110,7 +110,7 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
         sellModal.result.then(function (param) {
             //$ctrl.selected = selectedItem;
             //use has clicked ok , we need to update the trade
-            MiddlewareService.SellTrade(param, loadPortfolio);
+            MiddlewareService.SellTrade(param, refreshPortfolio);
         }, function () {
             $log.info('Modal dismissed at: ' + new Date());
         });
@@ -122,10 +122,13 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
 
     //also, we want the portfolio to be loaded on startup so add is as a connectionlistener as well.
     //this means it will be loaded once the connection to the server has been made
-    NotifyService.RegisterConnectionListener(function () {
+    NotifyService.RegisterConnectionListener(refreshPortfolio);
+
+    // reload the portfolio from the server
+    function refreshPortfolio() {
         reloadPortfolio = true;
         loadPortfolio();
-    });
+    };
 
     function onAccountChanged() {
         reloadPortfolio = true;

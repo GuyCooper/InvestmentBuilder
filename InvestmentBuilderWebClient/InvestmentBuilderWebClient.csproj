@@ -32,6 +32,7 @@
     <Content Include="src\AccountList.js" />
     <Content Include="src\AddAccount.js" />
     <Content Include="src\CashFlow.js" />
+    <Content Include="src\CashTransaction.js" />
     <Content Include="src\CreateTrade.js" />
     <Content Include="src\LastTransaction.js" />
     <Content Include="src\Layout.js" />
@@ -42,6 +43,7 @@
     <Content Include="src\RegisterModules.js" />
     <Content Include="src\RegisterUser.js" />
     <Content Include="src\Reports.js" />
+    <Content Include="src\RequestRedemption.js" />
     <Content Include="src\Utils.js" />
     <Content Include="styles\css\InvestmentBuilderWeb.css" />
     <Content Include="styles\fonts\glyphicons-halflings-regular.svg" />
@@ -63,6 +65,7 @@
     <Content Include="views\LastTransaction.html" />
     <Content Include="views\Layout.html" />
     <Content Include="views\Redemptions.html" />
+    <Content Include="views\RequestRedemption.html" />
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>

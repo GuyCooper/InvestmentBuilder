@@ -22,13 +22,13 @@ function MiddlewareService()
         return object === null || object === undefined;
     }
 
-    var onMessage = function (message) {
+    var onMessage = function (requestId, payload, binaryPayload) {
         for (var i = 0; i < pendingRequestList.length; i++) {
             var request = pendingRequestList[i];
-            if (request.pendingId === message.RequestId) {
+            if (request.pendingId === requestId) {
                 //pendingRequestList.splice(i, 1);
                 if (isNullOrUndefined(request.callback) === false) {
-                    request.callback(JSON.parse(message.Payload));
+                    request.callback(payload, binaryPayload);
                 }
                 break;
             }
@@ -52,8 +52,7 @@ function MiddlewareService()
     };
 
     var sendRequestToChannel = function (channel, message, handler) {
-        var payload = message != null ? JSON.stringify(message) : null;
-        mw.SendRequest(channel, payload).then((id) => {
+        mw.SendRequest(channel, message).then((id) => {
             pendingRequestList.push({"pendingId": id,"callback": handler });
         }, (error) => { console.log("unable to send request to channel " + channel + ". error: " +  error); });
     };
@@ -168,5 +167,9 @@ function MiddlewareService()
 
     this.RequestRedemption = function (request, handler) {
         doCommand("REQUEST_REDEMPTION_REQUEST", "REQUEST_REDEMPTION_RESPONSE", request, handler);
+    };
+
+    this.LoadReport = function (request, handler) {
+        doCommand("LOAD_REPORT_REQUEST", "LOAD_REPORT_RESPONSE", request, handler);
     };
 }

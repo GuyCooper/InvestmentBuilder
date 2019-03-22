@@ -1,6 +1,14 @@
 ﻿"use strict"
 
-var module = angular.module("InvestmentRecord", ["ui.bootstrap","agGrid"]);
+var module = angular.module("InvestmentRecord", ["ui.bootstrap", "agGrid"])
+
+module.config([
+   '$compileProvider',
+    function ($compileProvider) {
+        $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|file|blob|ftp|mailto|chrome-extension):/);
+        // Angular before v1.2 uses $compileProvider.urlSanitizationWhitelist(...)
+    }
+]);
 
 agGrid.initialiseAgGridWithAngular1(angular);
 

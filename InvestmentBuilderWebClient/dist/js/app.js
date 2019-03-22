@@ -370,13 +370,13 @@ function MiddlewareService()
         return object === null || object === undefined;
     }
 
-    var onMessage = function (message) {
+    var onMessage = function (requestId, payload, binaryPayload) {
         for (var i = 0; i < pendingRequestList.length; i++) {
             var request = pendingRequestList[i];
-            if (request.pendingId === message.RequestId) {
+            if (request.pendingId === requestId) {
                 //pendingRequestList.splice(i, 1);
                 if (isNullOrUndefined(request.callback) === false) {
-                    request.callback(JSON.parse(message.Payload));
+                    request.callback(payload, binaryPayload);
                 }
                 break;
             }
@@ -400,8 +400,7 @@ function MiddlewareService()
     };
 
     var sendRequestToChannel = function (channel, message, handler) {
-        var payload = message != null ? JSON.stringify(message) : null;
-        mw.SendRequest(channel, payload).then((id) => {
+        mw.SendRequest(channel, message).then((id) => {
             pendingRequestList.push({"pendingId": id,"callback": handler });
         }, (error) => { console.log("unable to send request to channel " + channel + ". error: " +  error); });
     };
@@ -517,7 +516,98 @@ function MiddlewareService()
     this.RequestRedemption = function (request, handler) {
         doCommand("REQUEST_REDEMPTION_REQUEST", "REQUEST_REDEMPTION_RESPONSE", request, handler);
     };
+
+    this.LoadReport = function (request, handler) {
+        doCommand("LOAD_REPORT_REQUEST", "LOAD_REPORT_RESPONSE", request, handler);
+    };
 }
+"use strict"
+
+function CashTransaction($scope, $uibModalInstance, transactionType, paramTypes, dateFrom, MiddlewareService) {
+    var $transaction = this;
+    if (transactionType == 'receipt') {
+        $transaction.title = 'Add Receipt';
+    }
+    else {
+        $transaction.title = 'Add Payment';
+    }
+
+    //$transaction.dt = null;
+    $transaction.ParamTypes = paramTypes;
+    $transaction.SelectedParamType = '';
+    if (paramTypes.length > 0) {
+        $transaction.SelectedParamType = paramTypes[0];
+    }
+    $scope.Parameters = [];
+    $transaction.SelectedParameter = '';
+    $transaction.Amount = 0;
+
+    $transaction.ok = function () {
+        var sendParams = [];
+        if ($transaction.SelectedParameter == "ALL") {
+            sendParams = $scope.Parameters.slice(0, $scope.Parameters.length - 1);
+        }
+        else {
+            sendParams.push($transaction.SelectedParameter)
+        }
+
+        $uibModalInstance.close({
+            TransactionDate: $transaction.dt,
+            ParamType: $transaction.SelectedParamType,
+            Parameter: sendParams,
+            Amount: $transaction.Amount,
+            DateRequestedFrom: dateFrom
+        });
+    };
+
+    $transaction.cancel = function () {
+        $uibModalInstance.dismiss('cancel');
+    };
+
+    $transaction.today = function () {
+        $transaction.dt = new Date();
+    };
+
+    $transaction.dateOptions = {
+        dateDisabled: false,
+        formatYear: 'yy',
+        maxDate: new Date(2020, 5, 22),
+        minDate: null,
+        startingDay: 1
+    };
+
+    $transaction.openDatePicker = function () {
+        $transaction.datepicker.opened = true;
+    };
+
+    $transaction.format = 'dd-MMMM-yyyy';
+    $transaction.altInputFormats = ['M!/d!/yyyy'];
+
+    $transaction.datepicker = {
+        opened: false
+    };
+
+    $transaction.today();
+
+    $transaction.onLoadParameters = function (response) {
+        if (response) {
+            $scope.Parameters = response.Parameters;
+            if ($scope.Parameters.length > 0) {
+                $transaction.SelectedParameter = $scope.Parameters[0];
+            }
+            $scope.$apply();
+        }
+    };
+
+    $transaction.changeParamType = function () {
+
+        MiddlewareService.GetTransactionParameters(
+            { ParameterType: $transaction.SelectedParamType }, $transaction.onLoadParameters);
+    };
+
+    $transaction.changeParamType();
+};
+
 "use strict"
 
 function CashFlow($scope, $uibModal, $log, NotifyService, MiddlewareService) {
@@ -639,90 +729,6 @@ function CashFlow($scope, $uibModal, $log, NotifyService, MiddlewareService) {
     //}
 }
 
-function CashTransaction($scope, $uibModalInstance, transactionType, paramTypes, dateFrom, MiddlewareService) {
-    var $transaction = this;
-    if (transactionType == 'receipt') {
-        $transaction.title = 'Add Receipt';
-    }
-    else {
-        $transaction.title = 'Add Payment';
-    }
-
-    //$transaction.dt = null;
-    $transaction.ParamTypes = paramTypes;
-    $transaction.SelectedParamType = '';
-    if (paramTypes.length > 0) {
-        $transaction.SelectedParamType = paramTypes[0];
-    }
-    $scope.Parameters = [];
-    $transaction.SelectedParameter = '';
-    $transaction.Amount = 0;
-
-    $transaction.ok = function () {
-        var sendParams = [];
-        if ($transaction.SelectedParameter == "ALL") {
-            sendParams = $scope.Parameters.slice(0, $scope.Parameters.length - 1);
-        }
-        else {
-            sendParams.push($transaction.SelectedParameter)
-        }
-
-        $uibModalInstance.close({
-            TransactionDate: $transaction.dt,
-            ParamType: $transaction.SelectedParamType,
-            Parameter: sendParams,
-            Amount: $transaction.Amount,
-            DateRequestedFrom : dateFrom
-        });
-    };
-
-    $transaction.cancel = function () {
-        $uibModalInstance.dismiss('cancel');
-    };
-
-    $transaction.today = function () {
-        $transaction.dt = new Date();
-    };
-
-    $transaction.dateOptions = {
-        dateDisabled: false,
-        formatYear: 'yy',
-        maxDate: new Date(2020, 5, 22),
-        minDate: null,
-        startingDay: 1
-    };
-
-    $transaction.openDatePicker = function () {
-        $transaction.datepicker.opened = true;
-    };
-
-    $transaction.format = 'dd-MMMM-yyyy';
-    $transaction.altInputFormats = ['M!/d!/yyyy'];
-
-    $transaction.datepicker = {
-        opened: false
-    };
-
-    $transaction.today();
-
-    $transaction.onLoadParameters = function (response) {
-        if (response) {
-            $scope.Parameters = response.Parameters;
-            if ($scope.Parameters.length > 0) {
-                $transaction.SelectedParameter = $scope.Parameters[0];
-            }
-            $scope.$apply();
-        }
-    };
-
-    $transaction.changeParamType = function () {
-        
-    MiddlewareService.GetTransactionParameters(
-        { ParameterType: $transaction.SelectedParamType }, $transaction.onLoadParameters);
-    };
-
-    $transaction.changeParamType();
-};
 
 
 'use strict'
@@ -857,7 +863,7 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
         editModal.result.then(function (trade) {
             //$ctrl.selected = selectedItem;
             //use has clicked ok , we need to update the trade
-            MiddlewareService.UpdateTrade(trade, loadPortfolio);
+            MiddlewareService.UpdateTrade(trade, refreshPortfolio);
         }, function () {
             $log.info('Modal dismissed at: ' + new Date());
         });
@@ -892,7 +898,7 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
         sellModal.result.then(function (param) {
             //$ctrl.selected = selectedItem;
             //use has clicked ok , we need to update the trade
-            MiddlewareService.SellTrade(param, loadPortfolio);
+            MiddlewareService.SellTrade(param, refreshPortfolio);
         }, function () {
             $log.info('Modal dismissed at: ' + new Date());
         });
@@ -904,10 +910,13 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
 
     //also, we want the portfolio to be loaded on startup so add is as a connectionlistener as well.
     //this means it will be loaded once the connection to the server has been made
-    NotifyService.RegisterConnectionListener(function () {
+    NotifyService.RegisterConnectionListener(refreshPortfolio);
+
+    // reload the portfolio from the server
+    function refreshPortfolio() {
         reloadPortfolio = true;
         loadPortfolio();
-    });
+    };
 
     function onAccountChanged() {
         reloadPortfolio = true;
@@ -1194,7 +1203,7 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
     // Display the last transaction and give the user the option to undo it.
     $scope.getLastTransaction = function () {
         MiddlewareService.GetLastTransaction((transaction) => {
-            var lastTranactionModal = $uibModal.open({
+            var lastTransactionModal = $uibModal.open({
                 animation: true,
                 ariaLabelledBy: 'modal-title',
                 ariaDescribedBy: 'modal-body',
@@ -1261,8 +1270,23 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
 function Reports($scope, NotifyService, MiddlewareService) {
 
     $scope.RecentReports = [];
+    //$scope.ReportData = '';
+
+    var disposeReport = function (report) {
+        if (report.ReportData != null) {
+            window.URL.revokeObjectURL(report.ReportData);
+            report.ReportData = null;
+        }
+    };
+
+    var disposeAllReportData = function () {
+        for (var index = 0; index < $scope.RecentReports.Length; index++) {
+            disposeReport($scope.RecentReports[index]);
+        }
+    };
 
     var onLoadContents = function (response) {
+        disposeAllReportData();
         $scope.RecentReports = response.RecentReports;
         $scope.$apply();
     };
@@ -1270,6 +1294,24 @@ function Reports($scope, NotifyService, MiddlewareService) {
     NotifyService.RegisterReportsListener(function () {
         MiddlewareService.LoadRecentReports(onLoadContents);
     });
+
+    $scope.downloadReport = function (index) {
+
+        var report = $scope.RecentReports[index];
+        disposeReport(report);
+
+        var request = {
+            ValuationDate: report.ValuationDate
+        };
+
+        MiddlewareService.LoadReport(request, function (response, binaryResponse) {
+            window.URL = window.webkitURL || window.URL;
+            var bb = new Blob([atob(binaryResponse)], { type: 'application/pdf' });
+            report.ReportData = window.URL.createObjectURL(bb);
+            $scope.$apply();
+            //report.Visible = true;
+        });
+    };
 }
 
 "use strict"
@@ -1301,6 +1343,9 @@ function Redemptions($scope, $log, $uibModal, NotifyService, MiddlewareService) 
         { headerName: "Status", field: "Status" }
     ];
 
+    $scope.RedemptionRequestFailed = false;
+    $scope.RedemptionRequestError = '';
+
     var onLoadContents = function (data) {
 
         if (data && data.Redemptions) {
@@ -1325,13 +1370,48 @@ function Redemptions($scope, $log, $uibModal, NotifyService, MiddlewareService) 
         enableColResize: true,
         enableSorting: true,
         enableFilter: true
-    }
+    };
+
+    //User requesting a new redemption
+    $scope.requestRedemption = function () {
+        var requestRedemptionModal = $uibModal.open({
+            animation: true,
+            ariaLabelledBy: 'modal-title',
+            ariaDescribedBy: 'modal-body',
+            templateUrl: 'views/RequestRedemption.html',
+            controller: 'RequestRedemptionController',
+            size: 'lg'
+        });
+
+        requestRedemptionModal.result.then(function (redemption) {
+            MiddlewareService.RequestRedemption(redemption, (response) => {
+                if (response.Success === true) {
+                    loadRedemptions();
+                }
+                else {
+                    $scope.RedemptionRequestFailed = true;
+                    $scope.RedemptionRequestError = response.Error;
+                }
+            });
+        },
+        function () {
+            $log.info('RequestRdemptionModal dismissed at: ' + new Date());
+        });
+    };
 
     NotifyService.RegisterRedemptionListener(loadRedemptions);
 };
 "use strict"
 
-var module = angular.module("InvestmentRecord", ["ui.bootstrap","agGrid"]);
+var module = angular.module("InvestmentRecord", ["ui.bootstrap", "agGrid"])
+
+module.config([
+   '$compileProvider',
+    function ($compileProvider) {
+        $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|file|blob|ftp|mailto|chrome-extension):/);
+        // Angular before v1.2 uses $compileProvider.urlSanitizationWhitelist(...)
+    }
+]);
 
 agGrid.initialiseAgGridWithAngular1(angular);
 
