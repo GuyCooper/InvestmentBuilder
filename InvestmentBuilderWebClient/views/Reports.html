@@ -1,7 +1,7 @@
 ﻿<div class="container">
     <div ng-controller="ReportsController" id="reportsContainer" class="row">
         <div ng-repeat="report in RecentReports">
-            <a href="{{report.FileName}}" target="_blank" rel=noopener>{{report.ValuationDate}}</a><br />
+            <a href="{{report.Link}}" target="_blank" rel=noopener>{{report.ValuationDate}}</a><br />
         </div>
     </div> 
 </div>

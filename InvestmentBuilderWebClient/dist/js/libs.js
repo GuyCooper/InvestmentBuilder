@@ -99319,7 +99319,7 @@ var Middleware = function () {
                 if(msg.id === message.RequestId) {
                     //message found. remove it from queue
                     callQueue.splice(i, 1);
-                    if(success) {
+                    if (success) {
                         msg.succeed(message.RequestId, message.Payload);
                     }
                     else {
@@ -99330,9 +99330,9 @@ var Middleware = function () {
             }
         };
 
-        var loginSuccess = function (message) {
+        var loginSuccess = function (message, payload) {
             if (onopen != null) {
-                onopen(message);
+                onopen(payload);
             }
         };
 
@@ -99378,6 +99378,13 @@ var Middleware = function () {
                 }
             }
         };
+    };
+
+    this.Disconnect = function () {
+        if (ws != null && ws != undefined) {
+            ws.close();
+            ws = null;
+        }
     };
 
     var processRequestInternal = function(channel, command, type, data, destination, resolve, reject) {

@@ -119,7 +119,7 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
         $scope.LoginFailed = false;
         NotifyService.UpdateBusyState(true);
         //once conncted inform any connection listeners that connection is complete
-        MiddlewareService.Connect(servername, $scope.UserName, $scope.Password).then(function () {
+        MiddlewareService.Connect(servername, $scope.UserName, $scope.Password).then(function (result) {
             console.log("connection to middleware succeded!");
             
             if ($scope.SaveCredentials) {
@@ -134,7 +134,8 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
             NotifyService.UpdateBusyState(false);
             $scope.LoggedIn = true;
             $scope.LoginFailed = false;
-            NotifyService.InvokeConnectionListeners($scope.UserName);
+            var loginResult = JSON.parse(result);
+            NotifyService.OnConnected(loginResult.ConnectionId, $scope.UserName);
         },
         function (error) {
             NotifyService.UpdateBusyState(false);

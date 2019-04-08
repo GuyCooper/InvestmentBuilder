@@ -21,6 +21,9 @@ function NotifyService() {
     var busyStateChangedListener = null;
     //flag to determine if system is busy with request / connecting etc..
     var isBusy = false;
+    //store the sessionid of the connection to allow secure file requests to the server
+    var sessionid = null;
+
     this.RegisterBusyStateChangedListener = function (listener) {
         busyStateChangedListener = listener;
     }
@@ -119,7 +122,8 @@ function NotifyService() {
         invokeCallbacks(BuildStatusListeners, status);
     }
 
-    this.InvokeConnectionListeners = function (username) {
+    this.OnConnected = function (connectionID, username) {
+        sessionid = connectionID;
         invokeCallbacks(ConnectionListeners, username);
     };
 
@@ -133,5 +137,9 @@ function NotifyService() {
 
     this.GetBusyState = function () {
         return IsBusy;
+    };
+
+    this.GetSessionID = function () {
+        return sessionid;
     };
 }

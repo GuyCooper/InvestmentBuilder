@@ -1,4 +1,5 @@
 ﻿using InvestmentBuilderCore;
+using InvestmentBuilderService.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace InvestmentBuilderService.Channels
     internal class RecentReportFile
     {
         public string ValuationDate { get; set; }
-        public string FileName { get; set; }
+        public string Link { get; set; }
     }
 
     /// <summary>
@@ -32,12 +33,12 @@ namespace InvestmentBuilderService.Channels
         /// Constructor.
         /// </summary>
         public GetRecentReportFiles(AccountService accountService, IDataLayer dataLayer, InvestmentBuilder.InvestmentBuilder builder,
-            IConfigurationSettings settings) 
+            IConnectionSettings settings) 
             : base("GET_RECENT_REPORTS_REQUEST", "GET_RECENT_REPORTS_RESPONSE", accountService)
         {
-            _clientData = dataLayer.ClientData;
-            _builder = builder;
-            _m_settings = settings;
+            m_clientData = dataLayer.ClientData;
+            m_builder = builder;
+            m_settings = settings;
         }
 
         #endregion
@@ -51,10 +52,10 @@ namespace InvestmentBuilderService.Channels
             var userToken = GetCurrentUserToken(userSession);
             return new RecentReportListDto
             {
-                RecentReports = _clientData.GetRecentValuationDates(userToken, DateTime.Now).Select(x =>
+                RecentReports = m_clientData.GetRecentValuationDates(userToken, DateTime.Now).Select(x =>
                     new RecentReportFile
                     {
-                        FileName = $"{_m_settings.GetOutputLinkPath(userToken.Account.GetPathName())}/{_builder.GetInvestmentReport(userToken, x)}",
+                        Link = CreateLink(userToken.Account, x),
                         ValuationDate = x.ToShortDateString()
                     }).ToList()
             };
@@ -62,11 +63,31 @@ namespace InvestmentBuilderService.Channels
 
         #endregion
 
+        #region Private Methods
+
+        /// <summary>
+        /// Methods creates a link to allow user to download report
+        /// </summary>
+        /// <returns></returns>
+        private string CreateLink(AccountIdentifier account, DateTime reportDate)
+        {
+            var root = m_settings.ServerConnection.ServerName;
+            var index = root.IndexOf(':');
+            var prefix = root.Substring(0, index );
+            if (prefix == "ws")
+                root = "http" + root.Substring(index);
+            else if(prefix == "wss")
+                root = "https" + root.Substring(index);
+
+            return $"{root}/VALUATION_REPORT?Account={account};Date={reportDate.ToString("MMM-yyyy")}";
+        }
+        #endregion
+
         #region Private Data Members
 
-        private readonly IClientDataInterface _clientData;
-        private readonly InvestmentBuilder.InvestmentBuilder _builder;
-        private readonly IConfigurationSettings _m_settings;
+        private readonly IClientDataInterface m_clientData;
+        private readonly InvestmentBuilder.InvestmentBuilder m_builder;
+        private readonly IConnectionSettings m_settings;
 
         #endregion
     }

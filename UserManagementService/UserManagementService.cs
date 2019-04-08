@@ -1,5 +1,7 @@
 ﻿using NLog;
 using SQLServerDataLayer;
+using System;
+using System.Threading;
 
 namespace UserManagementService
 {
@@ -8,21 +10,38 @@ namespace UserManagementService
     /// </summary>
     class UserManagementService
     {
+        #region Main entry point
+
         /// <summary>
         /// Main entry point
         /// </summary>
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             logger.Info($"Starting UserManagementService");
 
             var configuration = new Configuration("UserManagementConfiguration.xml");
 
+            //Instantiate the listener...
             using (var endpoint = new Endpoint(configuration.ListenURL, configuration.HostURL))
             {
+                //Register all the handlers.
                 RegisterHandlers(endpoint, configuration);
-                endpoint.Run(configuration.MaxConnections);
+                endpoint.Run();
+
+                //Wait until user shuts down the application...
+                Console.CancelKeyPress += (sender, e) =>
+                {
+                    e.Cancel = true;
+                    _shutdownEvent.Set();
+                };
+
+                _shutdownEvent.WaitOne();
             }
         }
+
+        #endregion
+
+        #region Private Methods
 
         /// <summary>
         /// Register user manager handlers
@@ -45,6 +64,15 @@ namespace UserManagementService
             endpoint.AddHandler(changePasswordHandler);
         }
 
+        #endregion
+
+        #region Private Data
+
         private static Logger logger = LogManager.GetCurrentClassLogger();
+
+        private static AutoResetEvent _shutdownEvent = new AutoResetEvent(false);
+
+        #endregion
+
     }
 }

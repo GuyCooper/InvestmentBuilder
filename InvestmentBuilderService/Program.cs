@@ -23,6 +23,7 @@ namespace InvestmentBuilderService
         {
             ContainerManager.RegisterType(typeof(IAuthorizationManager), typeof(SQLAuthorizationManager), true);
             ContainerManager.RegisterType(typeof(IConfigurationSettings), typeof(ConfigurationSettings), true, "InvestmentBuilderConfig.xml");
+            ContainerManager.RegisterType(typeof(IConnectionSettings), typeof(ConnectionSettings),true, "Connections.xml");
             ContainerManager.RegisterType(typeof(IMarketDataService), typeof(MarketDataService), true);
             MarketDataRegisterService.RegisterServices();
             ContainerManager.RegisterType(typeof(IDataLayer), typeof(SQLServerDataLayer.SQLServerDataLayer), true);
@@ -35,12 +36,11 @@ namespace InvestmentBuilderService
             ContainerManager.RegisterType(typeof(IInvestmentReportWriter),typeof(InvestmentReportGenerator.InvestmentReportWriter), true);           
 
             using (var child = ContainerManager.CreateChildContainer())
-            { 
-                var connectionSettings = new ConnectionSettings("Connections.xml");
+            {                 
                 var authData = new SQLAuthData(ContainerManager.ResolveValue<IConfigurationSettings>().AuthDatasourceString);
-                var authSession = new MiddlewareSession(connectionSettings.AuthServerConnection, "InvestmentBuilder-AuthService");
+                var authSession = new MiddlewareSession(ContainerManager.ResolveValue<IConnectionSettings>().AuthServerConnection, "InvestmentBuilder-AuthService");
                 var userManager = new UserSessionManager(authSession, authData, ContainerManager.ResolveValue<AccountManager>());
-                var serverSession = new MiddlewareSession(connectionSettings.ServerConnection, "InvestmentBuilder-Channels");
+                var serverSession = new MiddlewareSession(ContainerManager.ResolveValue<IConnectionSettings>().ServerConnection, "InvestmentBuilder-Channels");
                 var endpointManager = new ChannelEndpointManager(serverSession, userManager);
 
                 //now connect to servers and wait

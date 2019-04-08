@@ -38,6 +38,9 @@ function NotifyService() {
     var busyStateChangedListener = null;
     //flag to determine if system is busy with request / connecting etc..
     var isBusy = false;
+    //store the sessionid of the connection to allow secure file requests to the server
+    var sessionid = null;
+
     this.RegisterBusyStateChangedListener = function (listener) {
         busyStateChangedListener = listener;
     }
@@ -136,7 +139,8 @@ function NotifyService() {
         invokeCallbacks(BuildStatusListeners, status);
     }
 
-    this.InvokeConnectionListeners = function (username) {
+    this.OnConnected = function (connectionID, username) {
+        sessionid = connectionID;
         invokeCallbacks(ConnectionListeners, username);
     };
 
@@ -150,6 +154,10 @@ function NotifyService() {
 
     this.GetBusyState = function () {
         return IsBusy;
+    };
+
+    this.GetSessionID = function () {
+        return sessionid;
     };
 }
 
@@ -274,7 +282,7 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
         $scope.LoginFailed = false;
         NotifyService.UpdateBusyState(true);
         //once conncted inform any connection listeners that connection is complete
-        MiddlewareService.Connect(servername, $scope.UserName, $scope.Password).then(function () {
+        MiddlewareService.Connect(servername, $scope.UserName, $scope.Password).then(function (result) {
             console.log("connection to middleware succeded!");
             
             if ($scope.SaveCredentials) {
@@ -289,7 +297,8 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
             NotifyService.UpdateBusyState(false);
             $scope.LoggedIn = true;
             $scope.LoginFailed = false;
-            NotifyService.InvokeConnectionListeners($scope.UserName);
+            var loginResult = JSON.parse(result);
+            NotifyService.OnConnected(loginResult.ConnectionId, $scope.UserName);
         },
         function (error) {
             NotifyService.UpdateBusyState(false);
@@ -1270,48 +1279,19 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
 function Reports($scope, NotifyService, MiddlewareService) {
 
     $scope.RecentReports = [];
-    //$scope.ReportData = '';
-
-    var disposeReport = function (report) {
-        if (report.ReportData != null) {
-            window.URL.revokeObjectURL(report.ReportData);
-            report.ReportData = null;
-        }
-    };
-
-    var disposeAllReportData = function () {
-        for (var index = 0; index < $scope.RecentReports.Length; index++) {
-            disposeReport($scope.RecentReports[index]);
-        }
-    };
 
     var onLoadContents = function (response) {
-        disposeAllReportData();
-        $scope.RecentReports = response.RecentReports;
+        $scope.RecentReports = response.RecentReports.map(report => 
+        {
+            report.Link = report.Link + ";session=" + NotifyService.GetSessionID();
+            return report;
+        });
         $scope.$apply();
     };
 
     NotifyService.RegisterReportsListener(function () {
         MiddlewareService.LoadRecentReports(onLoadContents);
     });
-
-    $scope.downloadReport = function (index) {
-
-        var report = $scope.RecentReports[index];
-        disposeReport(report);
-
-        var request = {
-            ValuationDate: report.ValuationDate
-        };
-
-        MiddlewareService.LoadReport(request, function (response, binaryResponse) {
-            window.URL = window.webkitURL || window.URL;
-            var bb = new Blob([atob(binaryResponse)], { type: 'application/pdf' });
-            report.ReportData = window.URL.createObjectURL(bb);
-            $scope.$apply();
-            //report.Visible = true;
-        });
-    };
 }
 
 "use strict"

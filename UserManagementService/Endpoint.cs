@@ -6,6 +6,7 @@ using System.Threading;
 using NLog;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace UserManagementService
 {
@@ -39,25 +40,14 @@ namespace UserManagementService
         /// <summary>
         /// Starts the http listener.
         /// </summary>
-        public void Run(int maxConnections)
+        public async void Run()
         {
             logger.Info("Endpoint listener starting...");
 
             _httpListener.Start();
 
-            var sem = new Semaphore(maxConnections, maxConnections);
-            while (true)
-            {
-                sem.WaitOne();
-                //_httpListener.BeginGetContext(_ProcessConnection, null);
-                //var context = await _httpListener.GetContextAsync();
-                _httpListener.GetContextAsync().ContinueWith(async (t) =>
-                {
-                    var context = await t;
-                    _ProcessConnection(context);
-                    sem.Release();
-                });
-            }
+            await _ProcessConnection();
+
         }
 
         #endregion
@@ -67,10 +57,10 @@ namespace UserManagementService
         /// <summary>
         /// Method processes a connection to this endpoint
         /// </summary>
-        private void _ProcessConnection(HttpListenerContext context)
-        //private void _ProcessConnection(IAsyncResult result)
+        private async Task _ProcessConnection()
         {
-            //var context = _httpListener.EndGetContext(result);
+            var context = await _httpListener.GetContextAsync();
+            var ret = _ProcessConnection();
             var response = context.Response;
             string error = null;
             List<string> origins = null;
@@ -137,6 +127,7 @@ namespace UserManagementService
             //response.OutputStream.Close();
             //response.Headers.Add("Access-Control-Allow-Origin:*");
             //response.Headers.Add("Content-Type", "application/json");
+            await ret;
         }
 
         /// <summary>

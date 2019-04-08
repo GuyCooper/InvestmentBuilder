@@ -28,7 +28,7 @@ var Middleware = function () {
                 if(msg.id === message.RequestId) {
                     //message found. remove it from queue
                     callQueue.splice(i, 1);
-                    if(success) {
+                    if (success) {
                         msg.succeed(message.RequestId, message.Payload);
                     }
                     else {
@@ -39,9 +39,9 @@ var Middleware = function () {
             }
         };
 
-        var loginSuccess = function (message) {
+        var loginSuccess = function (message, payload) {
             if (onopen != null) {
-                onopen(message);
+                onopen(payload);
             }
         };
 
