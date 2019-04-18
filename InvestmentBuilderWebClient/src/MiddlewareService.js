@@ -145,6 +145,10 @@ function MiddlewareService()
         doCommand("GET_ACCOUNT_DETAILS_REQUEST", "GET_ACCOUNT_DETAILS_RESPONSE", dto, handler);
     };
 
+    this.GetAccountMembers = function (handler) {
+        doCommand("GET_ACCOUNT_MEMBERS_REQUEST", "GET_ACCOUNT_MEMBERS_RESPONSE", null, handler);
+    };
+
     this.GetCurrencies = function (handler) {
         doCommand("GET_CURRENCIES_REQUEST", "GET_CURRENCIES_RESPONSE", null, handler);
     };

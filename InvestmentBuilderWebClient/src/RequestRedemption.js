@@ -1,10 +1,11 @@
 ﻿"use strict"
 
 //Controller for Request Redemption dialog page.
-function RequestRedemption($scope, $uibModalInstance) {
+function RequestRedemption($scope, $uibModalInstance, users) {
 
     $scope.UserName = '';
     $scope.Amount = 0;
+    $scope.Users = users;
 
     $scope.ok = function () {
         $uibModalInstance.close({

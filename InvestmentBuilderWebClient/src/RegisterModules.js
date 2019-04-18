@@ -42,3 +42,5 @@ module.controller('AddAccount', AddAccount);
 module.controller('LastTransactionController', LastTransaction);
 
 module.controller('RedemptionsController', Redemptions);
+
+module.controller('RequestRedemptionController', RequestRedemption);

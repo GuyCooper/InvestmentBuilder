@@ -67,6 +67,13 @@ namespace InvestmentBuilderService
                                                                       userSession.ValuationDate);
         }
 
+        /// <summary>
+        /// Return a list of members of an account
+        /// </summary>
+        public IEnumerable<AccountMember> GetAccountMembers(UserAccountToken userToken, DateTime dtValuationDate)
+        {
+            return _accountManager.GetAccountMembers(userToken, dtValuationDate);
+        }
         #endregion
 
         #region Private Data Members

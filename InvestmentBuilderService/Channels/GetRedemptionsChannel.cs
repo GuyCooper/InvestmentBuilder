@@ -13,7 +13,7 @@ namespace InvestmentBuilderService.Channels
     /// </summary>
     internal class RedemptionsDto : Dto
     {
-        public List<Redemption> Redmeptions { get; set; }
+        public List<Redemption> Redemptions { get; set; }
     }
 
     /// <summary>
@@ -44,7 +44,7 @@ namespace InvestmentBuilderService.Channels
             var userToken = GetCurrentUserToken(userSession);
             return new RedemptionsDto
             {
-                Redmeptions = _builder.GetRedemptions(userToken, userSession.ValuationDate).ToList()
+                Redemptions = _builder.GetRedemptions(userToken, userSession.ValuationDate).ToList()
             };
         }
 

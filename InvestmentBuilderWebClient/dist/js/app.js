@@ -502,6 +502,10 @@ function MiddlewareService()
         doCommand("GET_ACCOUNT_DETAILS_REQUEST", "GET_ACCOUNT_DETAILS_RESPONSE", dto, handler);
     };
 
+    this.GetAccountMembers = function (handler) {
+        doCommand("GET_ACCOUNT_MEMBERS_REQUEST", "GET_ACCOUNT_MEMBERS_RESPONSE", null, handler);
+    };
+
     this.GetCurrencies = function (handler) {
         doCommand("GET_CURRENCIES_REQUEST", "GET_CURRENCIES_RESPONSE", null, handler);
     };
@@ -822,7 +826,7 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
             $scope.gridOptions.api.setRowData(data.Portfolio);
             $scope.gridOptions.api.sizeColumnsToFit();
         }
-        NotifyService.UpdateBusyState(false, true);
+        NotifyService.UpdateBusyState(false, false);
     }.bind(this);
 
     function editTradeRenderer() {
@@ -836,7 +840,7 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
 
     function loadPortfolio() {
         if (reloadPortfolio === true) {
-            NotifyService.UpdateBusyState(true, true);
+            NotifyService.UpdateBusyState(true, false);
             MiddlewareService.LoadPortfolio(onLoadContents);
             reloadPortfolio = false;
         }
@@ -1326,6 +1330,14 @@ function Redemptions($scope, $log, $uibModal, NotifyService, MiddlewareService) 
     $scope.RedemptionRequestFailed = false;
     $scope.RedemptionRequestError = '';
 
+    var members = [];
+
+    var onLoadMembers = function (data) {
+        if (data && data.Members) {
+            members = data.Members;
+        }
+    };
+
     var onLoadContents = function (data) {
 
         if (data && data.Redemptions) {
@@ -1341,6 +1353,7 @@ function Redemptions($scope, $log, $uibModal, NotifyService, MiddlewareService) 
 
     function loadRedemptions() {
         MiddlewareService.GetRedemptions(onLoadContents);
+        MiddlewareService.GetAccountMembers(onLoadMembers);
     };
 
     $scope.gridOptions = {
@@ -1360,7 +1373,12 @@ function Redemptions($scope, $log, $uibModal, NotifyService, MiddlewareService) 
             ariaDescribedBy: 'modal-body',
             templateUrl: 'views/RequestRedemption.html',
             controller: 'RequestRedemptionController',
-            size: 'lg'
+            size: 'lg',
+            resolve: {
+                users: function () {
+                    return members;
+                }
+            }
         });
 
         requestRedemptionModal.result.then(function (redemption) {
@@ -1380,6 +1398,55 @@ function Redemptions($scope, $log, $uibModal, NotifyService, MiddlewareService) 
     };
 
     NotifyService.RegisterRedemptionListener(loadRedemptions);
+};
+"use strict"
+
+//Controller for Request Redemption dialog page.
+function RequestRedemption($scope, $uibModalInstance, users) {
+
+    $scope.UserName = '';
+    $scope.Amount = 0;
+    $scope.Users = users;
+
+    $scope.ok = function () {
+        $uibModalInstance.close({
+            TransactionDate: $scope.dt,
+            UserName: $scope.UserName,
+            Amount : $scope.Amount
+        });
+    };
+
+    $scope.cancel = function () {
+        $uibModalInstance.dismiss('cancel');
+    };
+
+    //datetime picker scoped methods
+
+    $scope.today = function () {
+        $scope.dt = new Date();
+    };
+
+    $scope.dateOptions = {
+        dateDisabled: false,
+        formatYear: 'yy',
+        maxDate: new Date(2020, 5, 22),
+        minDate: null,
+        startingDay: 1
+    };
+
+    $scope.openDatePicker = function () {
+        $scope.datepicker.opened = true;
+    };
+
+    $scope.format = 'dd-MMMM-yyyy';
+    $scope.altInputFormats = ['M!/d!/yyyy'];
+
+    $scope.datepicker = {
+        opened: false
+    };
+
+    $scope.today();
+
 };
 "use strict"
 
@@ -1425,3 +1492,5 @@ module.controller('AddAccount', AddAccount);
 module.controller('LastTransactionController', LastTransaction);
 
 module.controller('RedemptionsController', Redemptions);
+
+module.controller('RequestRedemptionController', RequestRedemption);

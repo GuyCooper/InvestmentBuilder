@@ -23,6 +23,6 @@ namespace InvestmentBuilderCore
         public double ValuePerUnit { get; set; }
         public double MonthlyPnL { get; set; }
         public double YearToDatePerformance { get; set; }
-        public IEnumerable<Redemption> Redemptions { get; set; }
+        public List<Redemption> Redemptions { get; set; }
     }
 }

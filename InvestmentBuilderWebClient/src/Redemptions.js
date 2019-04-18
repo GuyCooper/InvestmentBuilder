@@ -12,6 +12,14 @@ function Redemptions($scope, $log, $uibModal, NotifyService, MiddlewareService) 
     $scope.RedemptionRequestFailed = false;
     $scope.RedemptionRequestError = '';
 
+    var members = [];
+
+    var onLoadMembers = function (data) {
+        if (data && data.Members) {
+            members = data.Members;
+        }
+    };
+
     var onLoadContents = function (data) {
 
         if (data && data.Redemptions) {
@@ -27,6 +35,7 @@ function Redemptions($scope, $log, $uibModal, NotifyService, MiddlewareService) 
 
     function loadRedemptions() {
         MiddlewareService.GetRedemptions(onLoadContents);
+        MiddlewareService.GetAccountMembers(onLoadMembers);
     };
 
     $scope.gridOptions = {
@@ -46,7 +55,12 @@ function Redemptions($scope, $log, $uibModal, NotifyService, MiddlewareService) 
             ariaDescribedBy: 'modal-body',
             templateUrl: 'views/RequestRedemption.html',
             controller: 'RequestRedemptionController',
-            size: 'lg'
+            size: 'lg',
+            resolve: {
+                users: function () {
+                    return members;
+                }
+            }
         });
 
         requestRedemptionModal.result.then(function (redemption) {

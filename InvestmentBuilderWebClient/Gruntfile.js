@@ -47,6 +47,7 @@ module.exports = function (grunt) {
                         "./src/Reports.js",
                         "./src/LastTransaction.js",
                         "./src/Redemptions.js",
+                        "./src/RequestRedemption.js",
                         "./src/RegisterModules.js"
                       ],
             jsfiles: "./legacy/index.js",
@@ -59,7 +60,8 @@ module.exports = function (grunt) {
                            "./Views/ReportCompletion.html",
                            "./Views/YesNoChooser.html",
                            "./Views/AddAccount.html",
-                           "./Views/LastTransaction.html"
+                           "./Views/LastTransaction.html",
+                           "./Views/RequestRedemption.html"
                        ],
             styles: {
                 source: "./styles/css/**/*.css",

@@ -25,7 +25,7 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
             $scope.gridOptions.api.setRowData(data.Portfolio);
             $scope.gridOptions.api.sizeColumnsToFit();
         }
-        NotifyService.UpdateBusyState(false, true);
+        NotifyService.UpdateBusyState(false, false);
     }.bind(this);
 
     function editTradeRenderer() {
@@ -39,7 +39,7 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
 
     function loadPortfolio() {
         if (reloadPortfolio === true) {
-            NotifyService.UpdateBusyState(true, true);
+            NotifyService.UpdateBusyState(true, false);
             MiddlewareService.LoadPortfolio(onLoadContents);
             reloadPortfolio = false;
         }
