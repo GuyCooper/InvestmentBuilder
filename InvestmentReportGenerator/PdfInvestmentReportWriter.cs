@@ -444,7 +444,7 @@ namespace InvestmentReportGenerator
         /// </summary>
         private void _WriteRedemptionsList(AssetReport report)
         {
-            if (report.Redemptions.Any())
+            if(report.Redemptions != null && report.Redemptions.Any())
             {
                 var yPos = XUnit.FromCentimeter(1);
                 var xPos = XUnit.FromCentimeter(1);
@@ -466,6 +466,7 @@ namespace InvestmentReportGenerator
                     _AddCellEntry(row, cell++, redemption.User);
                     _AddCellEntry(row, cell++, redemption.Amount.ToString("#.##"));
                     _AddCellEntry(row, cell++, redemption.TransactionDate.ToShortDateString());
+                    _AddCellEntry(row, cell++, redemption.RedeemedUnits.ToString("#.##"));
                     _AddCellEntry(row, cell++, redemption.Status.ToString());
                 }
 
@@ -685,9 +686,10 @@ namespace InvestmentReportGenerator
 
         private static readonly List<KeyValuePair<string, double>> _redemptionHeaders = new List<KeyValuePair<string, double>>
         {
-            new KeyValuePair<string, double>("User",3.5),
+            new KeyValuePair<string, double>("User",9.0),
             new KeyValuePair<string, double>("Amount", 2.5 ),
             new KeyValuePair<string, double>("Date",2.5 ),
+            new KeyValuePair<string, double>("Units", 2.5 ),
             new KeyValuePair<string, double>( "Status", 3 )
         };
 

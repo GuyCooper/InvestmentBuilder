@@ -15,7 +15,7 @@ CREATE PROCEDURE sp_GetActiveCompanies(@Account as INT, @ValuationDate as DATETI
 BEGIN
 
 SELECT
-	 C.NAME 
+	 DISTINCT C.NAME 
 FROM 
 	InvestmentRecord IR
 INNER JOIN

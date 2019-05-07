@@ -5,6 +5,7 @@ using InvestmentBuilderService.Session;
 using NLog;
 using System;
 using MiddlewareInterfaces;
+using InvestmentBuilderService.Utils;
 
 namespace InvestmentBuilderService
 {
@@ -62,6 +63,8 @@ namespace InvestmentBuilderService
 
         #endregion
 
+        #region Constructor
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -72,10 +75,45 @@ namespace InvestmentBuilderService
             _accountService = accountService;
         }
 
+        #endregion
+
+        #region Public Methods
+
         /// <summary>
-        /// abstract method for handling requests on this channel
+        /// Process an incoming request on this endpoint
         /// </summary>
-        protected abstract Dto HandleEndpointRequest(UserSession userSession, Request payload, Update updater);
+        public void ProcessMessage(IConnectionSession session, UserSession userSession, string payload, string sourceId, string requestId)
+        {
+            var requestPayload = ConvertToRequestPayload(payload);
+            var updater = GetUpdater(session, userSession, sourceId, requestId);
+            if (updater != null)
+            {
+                //TODO. this list should be periodically cleaned up
+                _updaterList.Add(updater);
+            }
+            Dto responsePayload;
+            try
+            {
+                responsePayload = HandleEndpointRequest(userSession, requestPayload, updater);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex);
+                responsePayload = new Dto { IsError = true, Error = "Internal Server Error" };
+            }
+
+            if ((responsePayload != null) && (string.IsNullOrEmpty(ResponseName) == false))
+            {
+                if (responsePayload.GetType() == typeof(BinaryDto))
+                {
+                    session.SendMessageToChannel(ResponseName, null, sourceId, requestId, ((BinaryDto)responsePayload).Payload);
+                }
+                else
+                {
+                    session.SendMessageToChannel(ResponseName, MiddlewareUtils.SerialiseObjectToString(responsePayload), sourceId, requestId, null);
+                }
+            }
+        }
 
         /// <summary>
         /// Factory method for creating an updater to use for this channel. by default does not create one.
@@ -95,6 +133,15 @@ namespace InvestmentBuilderService
             return payload != null ? JsonConvert.DeserializeObject<Request>(payload) : new Request();
         }
 
+        #endregion
+
+        #region Protected Methods
+
+        /// <summary>
+        /// abstract method for handling requests on this channel
+        /// </summary>
+        protected abstract Dto HandleEndpointRequest(UserSession userSession, Request payload, Update updater);
+
         /// <summary>
         /// Helper method for getting the current user token.
         /// </summary>
@@ -104,45 +151,32 @@ namespace InvestmentBuilderService
         }
 
         /// <summary>
-        /// Process an incoming request on this endpoint
+        /// Returns the AccountService.
         /// </summary>
-        public void ProcessMessage(IConnectionSession session,  UserSession userSession,  string payload, string sourceId, string requestId)
-        {
-            var requestPayload = ConvertToRequestPayload(payload);
-            var updater = GetUpdater(session, userSession, sourceId, requestId);
-            if(updater != null)
-            {
-                //TODO. this list should be periodically cleaned up
-                _updaterList.Add(updater);
-            }
-            Dto responsePayload;
-            try
-            {
-                responsePayload = HandleEndpointRequest(userSession, requestPayload, updater);
-            }
-            catch(Exception ex)
-            {
-                logger.Error(ex);
-                responsePayload = new Dto { IsError = true, Error = "Internal Server Error" };
-            } 
-            
-            if ((responsePayload != null) && (string.IsNullOrEmpty(ResponseName) == false))
-            {
-                if(responsePayload.GetType() == typeof(BinaryDto))
-                {
-                    session.SendMessageToChannel(ResponseName, null, sourceId, requestId, ((BinaryDto)responsePayload).Payload);
-                }
-                else
-                {
-                    session.SendMessageToChannel(ResponseName, MiddlewareUtils.SerialiseObjectToString(responsePayload), sourceId, requestId, null);
-                }
-            }
-        }
-
+        /// <returns></returns>
         protected AccountService GetAccountService()
         {
             return _accountService;
         }
+
+        /// <summary>
+        /// Helper method creates a url link for the valuation reort for the specified account on the
+        /// specified report date.
+        /// </summary>
+        protected string CreateReportLink(IConnectionSettings settings, AccountIdentifier account, DateTime reportDate)
+        {
+            var root = settings.ServerConnection.ServerName;
+            var index = root.IndexOf(':');
+            var prefix = root.Substring(0, index);
+            if (prefix == "ws")
+                root = "http" + root.Substring(index);
+            else if (prefix == "wss")
+                root = "https" + root.Substring(index);
+
+            return $"{root}/VALUATION_REPORT?Account={account};Date={reportDate.ToString("MMM-yyyy")}";
+        }
+
+        #endregion
 
         #region Private Data Members
 

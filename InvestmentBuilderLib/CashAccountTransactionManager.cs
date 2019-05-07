@@ -15,7 +15,8 @@ namespace InvestmentBuilder
     public abstract class CashTransaction
     {
         public DateTime ValuationDate { get; set; }
-        public DateTime TransactionDate { get; set; }
+        //public DateTime TransactionDate { get; set; }
+        public string TransactionDate { get; set; }
         public string TransactionType { get; set; }
         public string Parameter { get; set; }
         public double Amount { get; set; }
@@ -61,12 +62,12 @@ namespace InvestmentBuilder
         //this structure maps a transaction type onto its transaction property
         private readonly Dictionary<string, string> _receiptTransactionLookup =
                 new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase) {
-                {SUBSCRIPTION, SUBSCRIPTION}, 
-                {BALANCEINHAND, SUBSCRIPTION},
-                {SALE, SALE},
-                {DIVIDEND, DIVIDEND},
-                {INTEREST, OTHER}
-            };
+                    {DIVIDEND, DIVIDEND},
+                    {SUBSCRIPTION, SUBSCRIPTION}, 
+                    {BALANCEINHAND, SUBSCRIPTION},
+                    {SALE, SALE},
+                    {INTEREST, OTHER}
+                };
 
         private readonly Dictionary<string, string> _paymentTransactionLookup =
                 new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase) {
@@ -126,7 +127,7 @@ namespace InvestmentBuilder
                     {
                         Parameter = BALANCEINHAND,
                         Added = true,
-                        TransactionDate = dtValuationDate,
+                        TransactionDate = dtValuationDate.ToString("yyyy-MM-dd"),
                         TransactionType = BALANCEINHAND,
                         Subscription = dAmount,
                         Amount = dAmount
@@ -156,7 +157,7 @@ namespace InvestmentBuilder
             {
                 var transaction = new T();
                 transaction.ValuationDate = dtValuationDate;
-                transaction.TransactionDate = (DateTime)reader["TransactionDate"];
+                transaction.TransactionDate = ((DateTime)reader["TransactionDate"]).ToString("yyyy-MM-dd");
                 transaction.Parameter = (string)reader["Parameter"];
                 transaction.TransactionType = (string)reader["TransactionType"];
 
@@ -196,7 +197,7 @@ namespace InvestmentBuilder
             });
             total.Parameter = TOTAL;
             total.IsTotal = true;
-            total.TransactionDate = dtValuationDate;
+            total.TransactionDate = dtValuationDate.ToString("yyyy-MM-dd");
             transactions.Add(total);
             return total.Amount;
             //return props.Where(x => x.PropertyType.Name == "Double").Sum(x => (double)x.GetValue(total)); //total.Withdrawls + total.Other + total.Purchases;

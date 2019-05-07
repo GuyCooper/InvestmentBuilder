@@ -519,9 +519,10 @@ namespace InvestmentBuilder
                 logger.Log(userToken, LogLevel.Info, "redemption for user {0} complete. Units sold. {1}. Units remaining {2}", redemption.User,
                     requestedUnitRedemption, newMemberUnits);
 
+                redemption.RedeemedUnits = requestedUnitRedemption;
                 //update redemtpion table with the amount that was actually redeemed, the number of
                 //units redeemed and the status to complete
-                _userAccountData.UpdateRedemption(userToken, redemption.User, redemption.TransactionDate, redemption.Amount, requestedUnitRedemption);
+                redemption.Status = _userAccountData.UpdateRedemption(userToken, redemption.User, redemption.TransactionDate, redemption.Amount, requestedUnitRedemption);
 
                 updated = true;
             }

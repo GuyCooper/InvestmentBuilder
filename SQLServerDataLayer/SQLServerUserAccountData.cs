@@ -308,8 +308,9 @@ namespace SQLServerDataLayer
         /// Update a requested redemtion on an account. This is used for changing the status of the redemtion to complete
         /// and specifiying the actual amount redeemed.
         /// </summary>
-        public void UpdateRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount, double units)
+        public RedemptionStatus UpdateRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount, double units)
         {
+            var result = RedemptionStatus.Complete;
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
 
             using (var connection = OpenConnection())
@@ -322,11 +323,13 @@ namespace SQLServerDataLayer
                     command.Parameters.Add(new SqlParameter("@TransactionDate", transactionDate.Date));
                     command.Parameters.Add(new SqlParameter("@Amount", amount));
                     command.Parameters.Add(new SqlParameter("@UnitsRedeemed", units));
-                    command.Parameters.Add(new SqlParameter("@Status", RedemptionStatus.Complete.ToString()));
+                    command.Parameters.Add(new SqlParameter("@Status", result.ToString()));
 
                     command.ExecuteScalar();
                 }
             }
+
+            return result;
         }
 
         /// <summary>

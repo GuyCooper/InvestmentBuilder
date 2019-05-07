@@ -124,7 +124,7 @@ namespace InvestmentBuilderCore
         double GetStartOfYearValuation(UserAccountToken userToken, DateTime valuationDate);
         IEnumerable<Redemption> GetRedemptions(UserAccountToken userToken, DateTime valuationDate);
         void AddRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount);
-        void UpdateRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount, double units);
+        RedemptionStatus UpdateRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount, double units);
         void UpdateMemberForAccount(UserAccountToken userToken, string member, AuthorizationLevel level, bool add);
         int CreateAccount(UserAccountToken userToken, AccountModel account);
         void UpdateAccount(UserAccountToken userToken, AccountModel account);

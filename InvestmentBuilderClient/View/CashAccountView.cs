@@ -108,7 +108,7 @@ namespace InvestmentBuilderClient.View
                 //else
                 //{
                     _dataModel.RemoveCashTransaction(transaction.ValuationDate,
-                                                     transaction.TransactionDate,
+                                                     DateTime.Parse(transaction.TransactionDate),
                                                      transaction.TransactionType,
                                                      transaction.Parameter);
                     _GetCashAccountData(transaction.ValuationDate);

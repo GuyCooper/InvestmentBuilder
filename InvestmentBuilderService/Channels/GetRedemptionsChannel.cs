@@ -44,7 +44,8 @@ namespace InvestmentBuilderService.Channels
             var userToken = GetCurrentUserToken(userSession);
             return new RedemptionsDto
             {
-                Redemptions = _builder.GetRedemptions(userToken, userSession.ValuationDate).ToList()
+                Redemptions = _builder.GetRedemptions(userToken, userSession.ValuationDate).
+                                       Where(redemption => redemption.Status != RedemptionStatus.Complete).ToList()
             };
         }
 

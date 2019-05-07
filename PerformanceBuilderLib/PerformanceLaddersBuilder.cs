@@ -255,9 +255,7 @@ namespace PerformanceBuilderLib
                 return resultList;
             }
 
-            var dFirstPrice = tmpList.First().Price;
             //scan through the list, removing any duplicate entries for the same month
-            //and rebasing the price
             foreach (var item in tmpList)
             {
                 //where multiple records exist for a single month, just use the the last one
@@ -274,8 +272,15 @@ namespace PerformanceBuilderLib
                 resultList.Add(new HistoricalData
                 (
                     date: item.Date,
-                    price: 1 + ((item.Price - dFirstPrice) / dFirstPrice)
+                    price: item.Price
                 ));
+            }
+
+            //now we have filtered out the prices we can rebase them...
+            var firstPrice = resultList.First().Price;
+            foreach(var entry in resultList)
+            {
+                entry.RebasePrice(firstPrice);
             }
 
             return resultList;
@@ -291,7 +296,7 @@ namespace PerformanceBuilderLib
             foreach (var item in rawData)
             {
                 var date = DateTime.ParseExact(item.date, "M/d/yyyy", CultureInfo.InvariantCulture);
-                if (dtFrom.HasValue == false || (date >= dtFrom.Value))
+                if (dtFrom.HasValue == false || isDateGreaterThanOrEqual(dtFrom.Value, date))
                 {
                     if (string.IsNullOrEmpty(item.price) == false)
                     {
@@ -303,6 +308,20 @@ namespace PerformanceBuilderLib
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Compare a date to a ref date. return truw if the date is later or the same
+        /// based on the year and month
+        /// </summary>
+        private bool isDateGreaterThanOrEqual(DateTime dtRef, DateTime dt2)
+        {
+            if ((dtRef.Year < dt2.Year) ||
+                ((dtRef.Year == dt2.Year) && (dtRef.Month <= dt2.Month)))
+            {
+                return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -346,6 +365,13 @@ namespace PerformanceBuilderLib
                 {
                     var rebasedIndexedData = RebaseDataList(indexedData, null).ToList();
                     
+                    //it could be the case that the index data has not been updated for a while and not
+                    //all available to the current date. In this case just pad it out...
+                    while(rebasedClubData.Count > rebasedIndexedData.Count)
+                    {
+                        rebasedIndexedData.Add(rebasedIndexedData.Last());
+                    }
+
                     result.Add(new IndexData
                     {
                         Name = index.Name,

@@ -38,10 +38,25 @@ top: 5em;
 right: 1em;
 }
 
-.investmentSummary {
+.cashFlowSummary {
     margin-bottom: 10px;
     background: #D8D8D8;
     border: 1px solid #000;
+}
+
+.investmentSummaryContainer {
+    margin-bottom: 10px;
+    background: #D8D8D8;
+    border: 1px solid #000;
+    border-radius : 1em;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+}
+
+.investmentSummaryChild {
+    flex-grow: 1;
 }
 
 .cashTotal {
@@ -140,13 +155,6 @@ right: 1em;
 
 .showLayout {
     visibility: visible;
-}
-
-.layoutWrapper {
-    display:flex;
-    flex-direction:row;
-    justify-content:center;
-    align-items:center;
 }
 
 .loader {

@@ -89,6 +89,14 @@ namespace InvestmentBuilderCore
             Price = price;
         }
 
+        /// <summary>
+        /// Rebase the price from the base price.
+        /// </summary>
+        public void RebasePrice(double basePrice)
+        {
+            Price = 1 + ((Price - basePrice) / basePrice);
+        }
+
         public DateTime? Date { get; private set; }
         public string Key { get; private set; }
         public double Price { get; private set; }
@@ -152,7 +160,8 @@ namespace InvestmentBuilderCore
         public string User { get; private set; }
         public double Amount { get; private set; }
         public DateTime TransactionDate { get; private set; }
-        public RedemptionStatus Status { get; private set; }
+        public double RedeemedUnits { get; set; }
+        public RedemptionStatus Status { get; set; }
 
         public void UpdateAmount(double amount)
         {

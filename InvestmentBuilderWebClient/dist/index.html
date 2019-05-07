@@ -111,14 +111,18 @@
             </div>
 
             <div ng-show="!IsBuilding" ng-cloak>
-                <div class="row investmentSummary">
-                    <div class="pull-left accountNameDisplay">
+                <div class="row investmentSummaryContainer">
+                    <div class="investmentSummaryChild accountNameDisplay">
                         <h1>{{AccountName.Name}}</h1>
                     </div>
-                    <div class="pull-right">
+                    <div class="investmentSummaryChild">
                         <div class="summaryDisplay">
                             <div><strong>Reporting Currency</strong></div>
                             <div>{{ReportingCurrency}}</div>
+                        </div>
+                        <div class="summaryDisplay">
+                            <div><strong>Valuation Date</strong></div>
+                            <div>{{ValuationDate}}</div>
                         </div>
                         <div class="summaryDisplay">
                             <div><strong>Value Per Unit</strong></div>
@@ -219,7 +223,7 @@
 <div class="container">
     <div ng-controller="CashFlowController as cashFlow" id="cashflowContainer">        
             <div ng-repeat="cashFlowItem in cashFlows" class="row cashFlowBlock">
-                <div class="panel panel-default investmentSummary">
+                <div class="panel panel-default cashFlowSummary">
                     <div class="cashItemType">
                         <div class="navbar navbar-default">
                             <div class="navbar-header">
@@ -279,7 +283,7 @@
                     </div>
                 </div>
 
-                <div class="panel panel-default investmentSummary">
+                <div class="panel panel-default cashFlowSummary">
                     <div class="cashItemType">
                         <div class="navbar navbar-default">
                             <div class="navbar-header">

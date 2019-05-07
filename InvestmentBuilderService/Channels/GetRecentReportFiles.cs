@@ -38,7 +38,7 @@ namespace InvestmentBuilderService.Channels
         {
             m_clientData = dataLayer.ClientData;
             m_builder = builder;
-            m_settings = settings;
+            m_connectionSettings = settings;
         }
 
         #endregion
@@ -55,7 +55,7 @@ namespace InvestmentBuilderService.Channels
                 RecentReports = m_clientData.GetRecentValuationDates(userToken, DateTime.Now).Select(x =>
                     new RecentReportFile
                     {
-                        Link = CreateLink(userToken.Account, x),
+                        Link = CreateReportLink(m_connectionSettings, userToken.Account, x),
                         ValuationDate = x.ToShortDateString()
                     }).ToList()
             };
@@ -63,31 +63,11 @@ namespace InvestmentBuilderService.Channels
 
         #endregion
 
-        #region Private Methods
-
-        /// <summary>
-        /// Methods creates a link to allow user to download report
-        /// </summary>
-        /// <returns></returns>
-        private string CreateLink(AccountIdentifier account, DateTime reportDate)
-        {
-            var root = m_settings.ServerConnection.ServerName;
-            var index = root.IndexOf(':');
-            var prefix = root.Substring(0, index );
-            if (prefix == "ws")
-                root = "http" + root.Substring(index);
-            else if(prefix == "wss")
-                root = "https" + root.Substring(index);
-
-            return $"{root}/VALUATION_REPORT?Account={account};Date={reportDate.ToString("MMM-yyyy")}";
-        }
-        #endregion
-
         #region Private Data Members
 
         private readonly IClientDataInterface m_clientData;
         private readonly InvestmentBuilder.InvestmentBuilder m_builder;
-        private readonly IConnectionSettings m_settings;
+        private readonly IConnectionSettings m_connectionSettings;
 
         #endregion
     }

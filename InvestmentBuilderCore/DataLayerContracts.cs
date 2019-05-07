@@ -311,12 +311,13 @@ namespace InvestmentBuilderCore
             Contract.Requires(dAmount > 0);
         }
 
-        public void UpdateRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount, double units)
+        public RedemptionStatus UpdateRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount, double units)
         {
             Contract.Requires(userToken != null);
             Contract.Requires(string.IsNullOrEmpty(user) == false);
             Contract.Requires(amount > 0);
             Contract.Requires(units> 0);
+            return RedemptionStatus.Complete;
         }
 
         public IEnumerable<string> GetAccountMembers(UserAccountToken userToken, DateTime valuationDate)

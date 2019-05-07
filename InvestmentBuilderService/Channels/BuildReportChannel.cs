@@ -4,6 +4,7 @@ using System.Timers;
 using InvestmentBuilderService.Session;
 using InvestmentBuilderCore;
 using System;
+using System.IO;
 
 namespace InvestmentBuilderService.Channels
 {
@@ -51,28 +52,27 @@ namespace InvestmentBuilderService.Channels
     /// </summary>
     internal class BuildReportChannel : EndpointChannel<Dto, BuildReportUpdater>
     {
-        #region Private Data Members
-        private readonly InvestmentBuilder.InvestmentBuilder _builder;
-        private readonly PerformanceBuilderLib.PerformanceBuilder _chartBuilder;
-        private readonly IConfigurationSettings m_settings;
-
-        #endregion
-
         #region Constructor
         public BuildReportChannel(AccountService accountService, 
                                   InvestmentBuilder.InvestmentBuilder builder,
                                   PerformanceBuilderLib.PerformanceBuilder chartBuilder,
-                                  IConfigurationSettings settings) 
+                                  IConfigurationSettings settings,
+                                  IConnectionSettings connectionSettings) 
             : base("BUILD_REPORT_REQUEST", "BUILD_REPORT_RESPONSE", accountService)
         {
             _builder = builder;
             _chartBuilder = chartBuilder;
             m_settings = settings;
+            m_connectionSettings = connectionSettings;
         }
 
         #endregion
 
         #region Public Methods
+
+        /// <summary>
+        /// Handle BuildReport request.
+        /// </summary>
         protected override Dto HandleEndpointRequest(UserSession userSession, Dto payload, BuildReportUpdater updater)
         {
             var token = GetCurrentUserToken(userSession);
@@ -104,10 +104,9 @@ namespace InvestmentBuilderService.Channels
                 //any subsequent updates.
                 userSession.ValuationDate = DateTime.Now;
 
-                //Copy the completed report to the shared location so it is available to web clients
+                var reportFile = CreateReportLink(m_connectionSettings, token.Account, userSession.ValuationDate);
 
-                var filename = $"{m_settings.GetOutputLinkPath(token.Account.GetPathName())}/{_builder.GetInvestmentReport(token, userSession.ValuationDate)}";
-                monitor.StopBuiliding(filename);
+                monitor.StopBuiliding(reportFile);
             });
 
             return new BuildStatusResponseDto { Status = monitor.GetReportStatus() };
@@ -150,6 +149,15 @@ namespace InvestmentBuilderService.Channels
                 }
             }
         }
+        #endregion
+
+        #region Private Data Members
+
+        private readonly InvestmentBuilder.InvestmentBuilder _builder;
+        private readonly PerformanceBuilderLib.PerformanceBuilder _chartBuilder;
+        private readonly IConfigurationSettings m_settings;
+        private readonly IConnectionSettings m_connectionSettings;
+
         #endregion
     }
 }

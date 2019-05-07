@@ -179,7 +179,7 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
         $scope.SaveCredentials = true;
         $scope.LoginFailed = false;
     };
-
+     
     var servername = ""; //"ws://localhost:8080/MWARE";
 
     //callback displays the account summary details
@@ -191,6 +191,9 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
 
         $scope.BankBalance = response.BankBalance;
         $scope.MonthlyPnL = response.MonthlyPnL;
+
+        var dtValuation = new Date(response.ValuationDate);
+        $scope.ValuationDate = dtValuation.toDateString();
         $scope.$apply();
     };
 
@@ -216,6 +219,7 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
             if ($scope.IsBuilding == true && buildStatus.IsBuilding == false) {
                 $scope.IsBuilding = buildStatus.IsBuilding;
                 //now display a dialog to show any errors during the build
+                loadAccountSummary();
                 onReportFinished(buildStatus.Errors, buildStatus.CompletedReport);
             }
             else {
@@ -344,12 +348,12 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
 };
 
 //controller to handle the report completion view
-function ReportCompletion($uibModalInstance, errors, completedReport) {
+function ReportCompletion($uibModalInstance, NotifyService, errors, completedReport) {
     var $report = this;
     $report.success = errors == null || errors.length == 0;
     $report.errors = errors;
 
-    $report.CompletedReport = completedReport;
+    $report.CompletedReport = completedReport + ";session=" + NotifyService.GetSessionID();
     $report.ok = function () {
         $uibModalInstance.dismiss('cancel');
     };
