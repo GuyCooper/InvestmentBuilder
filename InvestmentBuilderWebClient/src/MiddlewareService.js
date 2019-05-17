@@ -176,4 +176,8 @@ function MiddlewareService()
     this.LoadReport = function (request, handler) {
         doCommand("LOAD_REPORT_REQUEST", "LOAD_REPORT_RESPONSE", request, handler);
     };
+
+    this.GetPrice = function (request, handler) {
+        doCommand("GET_PRICE_REQUEST", "GET_PRICE_RESPONSE", request, handler);
+    }
 }

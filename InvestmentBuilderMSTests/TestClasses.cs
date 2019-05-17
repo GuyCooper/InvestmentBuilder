@@ -135,6 +135,8 @@ namespace InvestmentBuilderMSTests
 
     internal class ConfigurationSettingsTest : IConfigurationSettings
     {
+        #region Public Properties
+
         public virtual IEnumerable<Index> ComparisonIndexes
         {
             get { return Enumerable.Empty<Index>(); }
@@ -164,15 +166,13 @@ namespace InvestmentBuilderMSTests
             get { return Enumerable.Empty<string>(); }
         }
 
-        public string OutputLinkFolder
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
         public int MaxAccountsPerUser { get { return 5; } }
+
+        public string ScriptFolder { get { return string.Empty; } }
+
+        #endregion
+
+        #region Public Methods
 
         public virtual string GetOutputPath(string account)
         {
@@ -204,10 +204,8 @@ namespace InvestmentBuilderMSTests
             return true;
         }
 
-        public string GetOutputLinkPath(string account)
-        {
-            throw new NotImplementedException();
-        }
+        #endregion
+
     }
 
     internal class MarketDataSourceTest : IMarketDataSource
@@ -397,6 +395,8 @@ namespace InvestmentBuilderMSTests
 
     internal class EmptyConfigurationSettingsTest : IConfigurationSettings
     {
+        #region Public Properties
+
         public virtual IEnumerable<Index> ComparisonIndexes
         {
             get
@@ -438,15 +438,13 @@ namespace InvestmentBuilderMSTests
             get { return null; }
         }
 
-        public string OutputLinkFolder
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
         public virtual int MaxAccountsPerUser {get { return 0; } }
+
+        public virtual string ScriptFolder { get { return null; } }
+
+        #endregion
+
+        #region Public Methods
 
         public virtual string GetOutputPath(string account)
         {
@@ -478,10 +476,8 @@ namespace InvestmentBuilderMSTests
             return true;
         }
 
-        public string GetOutputLinkPath(string account)
-        {
-            throw new NotImplementedException();
-        }
+        #endregion
+
     }
 
     internal class EmptyMarketDataSourceTest : IMarketDataSource

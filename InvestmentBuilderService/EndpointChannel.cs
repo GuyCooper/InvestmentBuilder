@@ -6,6 +6,7 @@ using NLog;
 using System;
 using MiddlewareInterfaces;
 using InvestmentBuilderService.Utils;
+using System.Threading.Tasks;
 
 namespace InvestmentBuilderService
 {
@@ -82,7 +83,7 @@ namespace InvestmentBuilderService
         /// <summary>
         /// Process an incoming request on this endpoint
         /// </summary>
-        public void ProcessMessage(IConnectionSession session, UserSession userSession, string payload, string sourceId, string requestId)
+        public async void ProcessMessage(IConnectionSession session, UserSession userSession, string payload, string sourceId, string requestId)
         {
             var requestPayload = ConvertToRequestPayload(payload);
             var updater = GetUpdater(session, userSession, sourceId, requestId);
@@ -94,7 +95,7 @@ namespace InvestmentBuilderService
             Dto responsePayload;
             try
             {
-                responsePayload = HandleEndpointRequest(userSession, requestPayload, updater);
+                responsePayload = await HandleEndpointRequestAsync(userSession, requestPayload, updater);
             }
             catch (Exception ex)
             {
@@ -141,6 +142,20 @@ namespace InvestmentBuilderService
         /// abstract method for handling requests on this channel
         /// </summary>
         protected abstract Dto HandleEndpointRequest(UserSession userSession, Request payload, Update updater);
+
+        /// <summary>
+        /// asynchronous abstract method for handling requests on this channel
+        /// </summary>
+
+        protected virtual async Task<Dto> HandleEndpointRequestAsync(UserSession userSession, Request payload, Update updater)
+        {
+            var dto = await Task.Factory.StartNew<Dto>(() =>
+            {
+                return HandleEndpointRequest(userSession, payload, updater);
+            });
+
+            return dto;
+        }
 
         /// <summary>
         /// Helper method for getting the current user token.

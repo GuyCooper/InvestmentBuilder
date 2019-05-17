@@ -31,7 +31,7 @@ module.controller('ReportCompletion', ReportCompletion);
 
 module.controller('YesNoController', YesNoPicker);
 
-module.controller('AddTradeController', CreateTrade);
+module.controller('AddInvestmentController', AddInvestment);
 
 module.controller('LayoutController', Layout);
 

@@ -105,17 +105,14 @@ namespace InvestmentBuilderService
             IEndpointChannel channel;
             if (_channels.TryGetValue(message.Channel, out channel) == true)
             {
-                Task.Factory.StartNew(() =>
+                try
                 {
-                    try
-                    {
-                        channel.ProcessMessage(GetSession(), userSession, message.Payload, message.SourceId, message.RequestId);
-                    }
-                    catch(Exception ex)
-                    {
-                        logger.Log(LogLevel.Error, ex);
-                    }
-                });
+                    channel.ProcessMessage(GetSession(), userSession, message.Payload, message.SourceId, message.RequestId);
+                }
+                catch(Exception ex)
+                {
+                    logger.Log(LogLevel.Error, ex);
+                }
             }
             else
             {

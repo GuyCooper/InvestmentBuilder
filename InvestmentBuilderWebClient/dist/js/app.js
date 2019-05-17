@@ -1,10 +1,11 @@
 'use strict'
 
-function YesNoPicker($uibModalInstance, title, description, name) {
+function YesNoPicker($uibModalInstance, title, description, name, ok) {
     var $item = this;
     $item.Title = title;
     $item.Description = description;
     $item.Name = name;
+    $item.Ok = ok;
     $item.ok = function () {
         $uibModalInstance.close({
             name: $item.Name
@@ -261,7 +262,7 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
         NotifyService.InvokePortfolio();
     };
 
-    $scope.onAddTrade = function () {
+    $scope.onAddInvestment = function () {
         NotifyService.InvokeAddTrade();
     };
 
@@ -537,6 +538,10 @@ function MiddlewareService()
     this.LoadReport = function (request, handler) {
         doCommand("LOAD_REPORT_REQUEST", "LOAD_REPORT_RESPONSE", request, handler);
     };
+
+    this.GetPrice = function (request, handler) {
+        doCommand("GET_PRICE_REQUEST", "GET_PRICE_RESPONSE", request, handler);
+    }
 }
 "use strict"
 
@@ -750,13 +755,17 @@ function CashFlow($scope, $uibModal, $log, NotifyService, MiddlewareService) {
 
 'use strict'
 
-function CreateTrade(NotifyService, MiddlewareService) {
-    var addTrade = this;
-    addTrade.today = function () {
-        addTrade.dt = new Date();
+function AddInvestment($uibModal, $scope, NotifyService, MiddlewareService) {
+
+    $scope.Busy = false;
+
+    $scope.today = function () {
+        $scope.dt = new Date();
     };
 
-    addTrade.dateOptions = {
+    $scope.ValidatingSymbol = false;
+
+    $scope.dateOptions = {
         dateDisabled: false,
         formatYear: 'yy',
         maxDate: new Date(2020, 5, 22),
@@ -764,43 +773,87 @@ function CreateTrade(NotifyService, MiddlewareService) {
         startingDay: 1
     };
 
-    addTrade.openDatePicker = function () {
-        addTrade.datepicker.opened = true;
+    $scope.openDatePicker = function () {
+        $scope.datepicker.opened = true;
     };
 
-    addTrade.format = 'dd-MMMM-yyyy';
-    addTrade.altInputFormats = ['M!/d!/yyyy'];
+    $scope.format = 'dd-MMMM-yyyy';
+    $scope.altInputFormats = ['M!/d!/yyyy'];
 
     var onTradeSubmitted = function (response) {
+        $scope.Busy = false;
+        var description = "";
         if (response.status == 'fail') {
-            //trade submission failed. display error messages in error dialog
-
+            description = "Add investment failed";
         }
+        else {
+            description = "Add investment succeded";
+            NotifyService.InvokeAccountChange();
+        }
+
+        var logoutModal = $uibModal.open({
+            animation: true,
+            ariaLabelledBy: 'modal-title',
+            ariaDescribedBy: 'modal-body',
+            templateUrl: 'views/YesNoChooser.html',
+            controller: 'YesNoController',
+            controllerAs: '$item',
+            size: 'lg',
+            resolve: {
+                title: function () {
+                    return "Add Investment";
+                },
+                description: function () {
+                    return description;
+                },
+                name: function () { return null},
+                ok: function () { return true;}
+            }
+        });
     };
 
-    addTrade.datepicker = {
+    var onSymbolValidated = function (response) {
+        $scope.Busy = false;
+        $scope.SymbolValidated = response.IsError === false;
+        $scope.$apply();
+    };
+
+    $scope.datepicker = {
         opened: false
     };
 
-    addTrade.submitTrade = function () {
-        MiddlewareService.UpdateTrade({
-            TransactionDate: addTrade.dt,
-            ItemName: addTrade.Name,
-            Symbol: addTrade.Symbol,
-            Quantity: addTrade.Quantity,
-            ScalingFactor: addTrade.ScalingFactor,
-            Currency: addTrade.currency,
-            Exchange: addTrade.Exchange,
-            TotalCost: addTrade.totalCost
-        }, onTradeSubmitted);
+    $scope.submitTrade = function () {
+
+        var trade = {
+            TransactionDate: $scope.dt,
+            ItemName: $scope.Name,
+            Symbol: $scope.Symbol,
+            Quantity: $scope.Quantity,
+            Currency: $scope.Currency,
+            TotalCost: $scope.TotalCost,
+            Action: "Buy"
+        };
+
+        $scope.Busy = true;
+        MiddlewareService.UpdateTrade(trade,onTradeSubmitted);
     };
 
-    addTrade.cancel = function () {
+    $scope.cancel = function () {
 
+    };
+
+    $scope.ValidateSymbol = function () {
+        $scope.ValidatingSymbol = true;
+        var payload = {
+            Symbol: $scope.Symbol
+        };
+
+        $scope.Busy = true;
+        MiddlewareService.GetPrice(payload, onSymbolValidated);
     };
 
     NotifyService.RegisterAddTradeListener = function () {
-        addTrade.today();
+        $scope.today();
     };
 }
 "use strict"
@@ -908,7 +961,8 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
                 },
                 name: function () {
                     return name;
-                }
+                },
+                ok: function () { return false; }
             }
         });
         
@@ -1264,9 +1318,8 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
                 description: function () {
                     return description;
                 },
-                name: function () {
-                    return null;
-                }
+                name: function () { return null },
+                ok: function () { return false; }
             }
         });
 
@@ -1277,7 +1330,6 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
         }, function () {
             $log.info('Modal dismissed at: ' + new Date());
         });
-
     }
 
     NotifyService.RegisterConnectionListener(onConnected);
@@ -1485,7 +1537,7 @@ module.controller('ReportCompletion', ReportCompletion);
 
 module.controller('YesNoController', YesNoPicker);
 
-module.controller('AddTradeController', CreateTrade);
+module.controller('AddInvestmentController', AddInvestment);
 
 module.controller('LayoutController', Layout);
 

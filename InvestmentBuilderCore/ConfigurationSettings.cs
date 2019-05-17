@@ -3,7 +3,6 @@ using System.Xml;
 using System.Xml.Serialization;
 using System.IO;
 using System.Linq;
-using System;
 
 namespace InvestmentBuilderCore
 {
@@ -12,6 +11,8 @@ namespace InvestmentBuilderCore
     /// </summary>
     public interface IConfigurationSettings
     {
+        #region Public Properties
+
         /// <summary>
         /// Datasource connection string (SQL Server connection)
         /// </summary>
@@ -24,10 +25,6 @@ namespace InvestmentBuilderCore
         /// Output folder where all reports are written
         /// </summary>
         string OutputFolder { get; }
-        /// <summary>
-        /// url link to output folder
-        /// </summary>
-        string OutputLinkFolder { get; }
         /// <summary>
         /// List of comparison indexes to use in report
         /// </summary>
@@ -50,6 +47,14 @@ namespace InvestmentBuilderCore
         /// </summary>
         int MaxAccountsPerUser { get; }
         /// <summary>
+        /// Folder containing any external scriopts to be run.
+        /// </summary>
+        string ScriptFolder { get; }
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
         /// Update datasource methnod
         /// </summary>
         bool UpdateDatasource(string dataSource);
@@ -71,12 +76,10 @@ namespace InvestmentBuilderCore
         /// </summary>
         string GetOutputPath(string account);
         /// <summary>
-        /// return full path to url link to report folder. This is used by the web app.
-        /// </summary>
-        string GetOutputLinkPath(string account);
-        /// <summary>
         /// Return path to template folder containing the excel templates.
         string GetTemplatePath();
+
+        #endregion
     }
 
     [XmlType("index")]
@@ -101,8 +104,6 @@ namespace InvestmentBuilderCore
         public string AuthDatasourceString { get; set; }
         [XmlElement("outputFolder")]
         public string OutputFolder {get;set;}
-        [XmlElement("outputLinkFolder")]
-        public string OutputLinkFolder { get; set; }
         [XmlArray("indexes")]
         public Index[] IndexArray{get;set;}
         [XmlArray("formats")]
@@ -116,20 +117,16 @@ namespace InvestmentBuilderCore
         public int MaxAccountsPerUser { get; set; }
         [XmlElement("templatePath")]
         public string TemplatePath { get; set; }
+        [XmlElement("scriptFolder")]
+        public string ScriptFolder { get; set; }
     }
 
+    /// <summary>
+    /// XML Implementation of IConfigurationSettings
+    /// </summary>
     public class ConfigurationSettings : IConfigurationSettings
     {
-        private Configuration _configuration;
-
-        public ConfigurationSettings(string filename)
-        {
-            using (var fs = new FileStream(filename, FileMode.Open))
-            {
-                XmlSerializer serialiser = new XmlSerializer(typeof(Configuration));
-                _configuration = (Configuration)serialiser.Deserialize(fs);
-            }
-        }
+        #region Public Properties
 
         public string DatasourceString { get { return _configuration.DatasourceString; } }
          
@@ -143,9 +140,28 @@ namespace InvestmentBuilderCore
 
         public string OutputFolder { get { return _configuration.OutputFolder; } }
 
-        public string OutputLinkFolder { get { return _configuration.OutputLinkFolder; } }
-
         public IEnumerable<Index> ComparisonIndexes { get { return _configuration.IndexArray; } }
+
+        public string ScriptFolder { get { return _configuration.ScriptFolder; } }
+
+        public IEnumerable<string> ReportFormats { get { return _configuration.ReportFormats; } }
+
+        #endregion
+
+        #region Constructor
+
+        public ConfigurationSettings(string filename)
+        {
+            using (var fs = new FileStream(filename, FileMode.Open))
+            {
+                XmlSerializer serialiser = new XmlSerializer(typeof(Configuration));
+                _configuration = (Configuration)serialiser.Deserialize(fs);
+            }
+        }
+
+        #endregion
+
+        #region Public Methods
 
         public bool UpdateDatasource(string dataSource)
         {
@@ -185,17 +201,18 @@ namespace InvestmentBuilderCore
             return path;
         }
 
-        public string GetOutputLinkPath(string account)
-        {
-            return $"{_configuration.OutputLinkFolder}/{account}";
-        }
-
         public string GetTemplatePath()
         {
             return _configuration.TemplatePath;
         }
 
-        public IEnumerable<string> ReportFormats { get { return _configuration.ReportFormats; } }
+        #endregion
+
+        #region Private Data
+
+        private Configuration _configuration;
+
+        #endregion
 
     }
 }

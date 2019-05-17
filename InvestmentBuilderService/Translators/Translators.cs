@@ -62,10 +62,13 @@ namespace InvestmentBuilderService.Translators
         /// <returns></returns>
         public static Trades ToInternalTrade(this TradeItemDto tradeItem)
         {
+            if(tradeItem.Action == TransactionType.None)
+            {
+                throw new System.Exception($"Invalid action type on trade item");
+            }
             var stock = new Stock
             {
                 Currency = tradeItem.Currency,
-                Exchange = tradeItem.Exchange,
                 Name = tradeItem.ItemName,
                 Quantity = tradeItem.Quantity,
                 Symbol = tradeItem.Symbol,

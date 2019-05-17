@@ -82,7 +82,6 @@
     <Compile Include="TestFileMarketDataSource.cs" />
     <Compile Include="WebMarketDataReader.cs" />
     <Compile Include="YahooMarketDataSource.cs" />
-    <Compile Include="YahooMarketDataSourceOld.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

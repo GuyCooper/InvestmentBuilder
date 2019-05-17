@@ -98,7 +98,7 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
         NotifyService.InvokePortfolio();
     };
 
-    $scope.onAddTrade = function () {
+    $scope.onAddInvestment = function () {
         NotifyService.InvokeAddTrade();
     };
 

@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace InvestmentBuilderCore
 {
+    /// <summary>
+    /// General utility methods for investment builder application.
+    /// </summary>
     public static class InvestmentUtils
     {
         /// <summary>
@@ -35,14 +38,37 @@ namespace InvestmentBuilderCore
             return Enumerable.Empty<Stock>();
         }
 
+        /// <summary>
+        /// Returns true if a double is zero within max double tolerance.
+        /// </summary>
+        /// <returns></returns>
         public static bool IsZero(this double lhs)
         {
             return AreSame(lhs, 0d);
         }
 
+
+        /// <summary>
+        /// Compares the value of 2 doubles and returns true if they match within max double
+        /// tolerances.
+        /// </summary>
         public static bool AreSame(this double lhs, double rhs)
         {
             return Math.Abs(lhs - rhs) < double.Epsilon;
+        }
+
+        /// <summary>
+        /// Extract the server name and database name from a datasource string.
+        /// returns true if successful.
+        /// </summary>
+        public static bool extractDatabaseDetailsFromDatasource(string datasource, out string server, out string database)
+        {
+            server = "";
+            database = "";
+            //<dataSource>Data Source=DESKTOP-JJ9QOJA\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest3;Integrated Security=True</dataSource>
+            var mapDetails = datasource.Split(';').Select(val => val.Split('=')).Where(val => val.Length == 2).ToDictionary(val => val[0], val => val[1]);
+            return mapDetails.TryGetValue("Data Source", out server) &&
+                   mapDetails.TryGetValue("Initial Catalog", out database);
         }
     }
 }

@@ -152,9 +152,8 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
                 description: function () {
                     return description;
                 },
-                name: function () {
-                    return null;
-                }
+                name: function () { return null },
+                ok: function () { return false; }
             }
         });
 
@@ -165,7 +164,6 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
         }, function () {
             $log.info('Modal dismissed at: ' + new Date());
         });
-
     }
 
     NotifyService.RegisterConnectionListener(onConnected);

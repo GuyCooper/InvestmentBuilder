@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel.Composition;
-//using System.Net;
 using System.IO;
 using NLog;
 using InvestmentBuilderCore;
@@ -17,47 +13,111 @@ namespace MarketDataServices
     [Export(typeof(IMarketDataSource))]
     internal class YahooMarketDataSource : TestFileMarketDataSource
     {
-        private static Logger logger = LogManager.GetCurrentClassLogger();
+        #region Public Properties
 
+        /// <summary>
+        /// Name of datasource
+        /// </summary>
+        public override string Name { get { return "Yahoo"; } }
+
+        /// <summary>
+        /// Priority of datasource.
+        /// </summary>
+        public override int Priority { get { return 1; } }
+
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public YahooMarketDataSource() 
         {
         }
 
-        public override string Name { get { return "Yahoo"; } }
-
-        public override int Priority { get { return 1; } }
-
+        /// <summary>
+        /// Overriden method for retreiving a market data price from the yahoo datasource.
+        /// </summary>
         public override Task<MarketDataPrice> RequestPrice(string symbol, string exchange, string source)
         {
             return Task.Factory.StartNew(() =>
             {
                 MarketDataPrice price = null;
-                //first check if price is already stored. no point in requesting again
-                if(TryGetMarketData(symbol, exchange, source, out price) == true)
+                var outputFile = "";
+                try
                 {
-                    //it is, just return stored price
-                    return price;
+                    //first check if price is already stored. no point in requesting again
+                    if (TryGetMarketData(symbol, exchange, source, out price) == true)
+                    {
+                        //it is, just return stored price
+                        return price;
+                    }
+
+                    //run external php script to download price
+                    outputFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                                              "InvestmentRecordBuilder",
+                                              $"marketData_{Guid.NewGuid().ToString()}.txt");
+
+                    var process = new System.Diagnostics.Process();
+                    process.StartInfo.FileName = "php.exe";
+                    process.StartInfo.Arguments = $"MarketDataLoader.php --n:{symbol} --o:{outputFile} --s:{m_serverName} --d:{m_databaseName}"; 
+                    process.StartInfo.CreateNoWindow = false;
+                    process.StartInfo.ErrorDialog = true;
+                    process.StartInfo.UseShellExecute = true;
+                    process.StartInfo.WorkingDirectory = m_scriptFolder;
+                    process.Start();
+                    process.WaitForExit();
+
+                    //add result to cache
+                    ProcessFileName(outputFile);
+                    //now retrieve the newly found price and return it
+                    TryGetMarketData(symbol, exchange, source, out price);
                 }
-
-                //run external php script to download price
-                var outputFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "InvestmentRecordBuilder", "result.txt");
-                File.Delete(outputFile);
-                var process = new System.Diagnostics.Process();
-                process.StartInfo.FileName = "php.exe";
-                process.StartInfo.Arguments = string.Format(@"MarketDataLoader.php --n:{0} --o:{1}", symbol, outputFile);
-                process.StartInfo.CreateNoWindow = false;
-                process.StartInfo.ErrorDialog = true;
-                process.StartInfo.UseShellExecute = true;
-                process.StartInfo.WorkingDirectory = @"C:\Projects\InvestmentBuilder\php";
-                process.Start();
-                process.WaitForExit();
-
-                //add result to cache
-                ProcessFileName(outputFile);
-                //now retrieve the newly found price and return it
-                TryGetMarketData(symbol, exchange, source, out price);
+                catch(Exception ex)
+                {
+                    logger.Error(ex);
+                }
+                finally
+                {
+                    if(File.Exists(outputFile))
+                    {
+                        File.Delete(outputFile);
+                    }
+                }
                 return price;
             });
         }
+
+        #endregion
+
+        #region Protected Methods
+
+        /// <summary>
+        /// Setup the yahoo datasource
+        /// </summary>
+        protected override void SetupDataSource(IConfigurationSettings settings)
+        {
+            if(InvestmentUtils.extractDatabaseDetailsFromDatasource(settings.DatasourceString, out m_serverName, out m_databaseName) == false)
+            {
+                throw new ApplicationException($"Invalid datasource string in configuration settings: {settings.DatasourceString}");
+            }
+
+            m_scriptFolder = settings.ScriptFolder;
+        }
+
+        #endregion
+
+        #region Private Data
+
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
+        private string m_scriptFolder;
+
+        private string m_serverName;
+
+        private string m_databaseName;
+
+        #endregion
     }
 }

@@ -40,7 +40,7 @@ module.exports = function (grunt) {
                         "./src/MiddlewareService.js",
                         "./src/CashTransaction.js",
                         "./src/CashFlow.js",
-                        "./src/CreateTrade.js",
+                        "./src/AddInvestment.js",
                         "./src/Portfolio.js",
                         "./src/AddAccount.js",
                         "./src/AccountList.js",
@@ -54,7 +54,7 @@ module.exports = function (grunt) {
             viewfiles: [
                            "./Views/AddModalDialog.html",
                            "./Views/AddTransaction.html",
-                           "./Views/CreateTrade.html",
+                           "./Views/AddInvestment.html",
                            "./Views/EditTrade.html",
                            "./Views/Parameters.html",
                            "./Views/ReportCompletion.html",

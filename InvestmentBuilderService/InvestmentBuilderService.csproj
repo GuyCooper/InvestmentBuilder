@@ -83,6 +83,7 @@
     <Compile Include="CashFlowManager.cs" />
     <Compile Include="ChannelEndpointManager.cs" />
     <Compile Include="Channels\GetAccountMembersChannel.cs" />
+    <Compile Include="Channels\GetPriceChannel.cs" />
     <Compile Include="Channels\RequestRedemptionChannel.cs" />
     <Compile Include="Channels\CreateAccountChannel.cs" />
     <Compile Include="Channels\GetAccountDetailsChannel.cs" />

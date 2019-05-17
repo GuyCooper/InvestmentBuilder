@@ -193,6 +193,18 @@ right: 1em;
     margin: 5px;
 }
 
+.validated {
+    font-size: 1.5em;
+    color: lightgreen;
+    margin: 2px;
+}
+
+.validationFailed {
+    font-size: 1.5em;
+    color: red;
+    margin: 2px;
+}
+
 .summaryDisplay {
     display:inline-block;
     margin:1em;

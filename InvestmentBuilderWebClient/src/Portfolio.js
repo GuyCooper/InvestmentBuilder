@@ -103,7 +103,8 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
                 },
                 name: function () {
                     return name;
-                }
+                },
+                ok: function () { return false; }
             }
         });
         

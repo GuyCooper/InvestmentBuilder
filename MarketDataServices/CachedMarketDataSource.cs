@@ -177,10 +177,17 @@ namespace MarketDataServices
         //public IMarketDataReader DataReader { get; set; }
         public async Task<MarketDataPrice> RequestPrice(string symbol, string exchange, string source)
         {
-            var marketData = await _sourceMarketData.RequestPrice(symbol, exchange, source);
+            var key = $"{symbol}{exchange}";
+            MarketDataPrice marketData;
+            if(_marketDataPriceCache.TryGetValue(key, out marketData) == true)
+            {
+                return marketData;
+            }
+
+            marketData = await _sourceMarketData.RequestPrice(symbol, exchange, source);
             if(marketData != null)
             {
-                _marketDataPriceCache.Add(symbol + exchange, marketData);
+                _marketDataPriceCache.Add(key, marketData);
             }
             return marketData;
         }

@@ -156,26 +156,26 @@
 </div>
 
                     </uib-tab>
-                    <uib-tab index="1" select="onAddTrade()" heading="Add Investment">
+                    <uib-tab index="1" select="onAddInvestment()" heading="Add Investment">
                         ﻿
 <h2>Add Investment</h2>
 
 <p/>
 <div class="editor">
-    <div ng-controller="AddTradeController as addTrade">
+    <div ng-controller="AddInvestmentController">
         <form name="AddInvestment" role="form">
             <div class="form-group">
                 <label>Name</label>
-                <input class="form-control" ng-model="addTrade.Name" placeholder="name of investment" />
+                <input class="form-control" ng-model="Name" placeholder="name of investment" />
             </div>
             <div class="row">
                 <div class="col-md-4">
                     <div class="form-group">
                         <label>Transaction Date</label>
                         <p class="input-group">
-                            <input type="text" name="transactionDate" class="form-control" uib-datepicker-popup="{{addTrade.format}}" ng-model="addTrade.dt" is-open="addTrade.datepicker.opened" datepicker-options="addTrade.dateOptions" ng-required="true" close-text="Close" alt-input-formats="addTrade.altInputFormats" />
+                            <input type="text" name="transactionDate" class="form-control" uib-datepicker-popup="{{format}}" ng-model="dt" is-open="datepicker.opened" datepicker-options="dateOptions" ng-required="true" close-text="Close" alt-input-formats="altInputFormats" />
                             <span class="input-group-btn">
-                                <button type="button" class="btn btn-default" ng-click="addTrade.openDatePicker()"><i class="glyphicon glyphicon-calendar"></i></button>
+                                <button type="button" class="btn btn-default" ng-click="openDatePicker()"><i class="glyphicon glyphicon-calendar"></i></button>
                             </span>
                         </p>
                     </div>
@@ -183,34 +183,42 @@
             </div>
             <div class="form-group">
                 <label>Quantity</label>
-                <input class="form-control" type="number" ng-model="addTrade.Quantity" placeholder="amount bought" />
+                <input class="form-control" type="number" ng-model="Quantity" placeholder="amount bought" />
             </div>
 
             <div class="form-group">
                 <label>Symbol</label>
-                <input class="form-control" ng-model="addTrade.Symbol" placeholder="ticker symbol" />
+                <p class="input-group">
+                    <input class="form-control" ng-model="Symbol" placeholder="ticker symbol" />
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" ng-click="ValidateSymbol()">Validate</button>
+                    </span>
+                </p>
             </div>
-            <div class="form-group">
-                <label>Exchange</label>
-                <input class="form-control" ng-model="addTrade.Exchange" placeholder="optional" />
+            <div class="form-group" ng-show="ValidatingSymbol === true">
+                <div ng-show="Busy" class="loader">
+                </div>
+                <div ng-hide="Busy">
+                    <span class="validated" title="validated" ng-show="SymbolValidated === true">
+                        validated <i class="fas fa-check-circle"></i>
+                    </span>
+                    <span class="validationFailed" title="validation failed" ng-show="SymbolValidated === false">
+                        validation failed <i class="fas fa-times-circle"></i>
+                    </span>
+                </div>
             </div>
+
             <div class="form-group">
                 <label>Investment Currency</label>
-                <input class="form-control" ng-model="addTrade.Currency" />
+                <input class="form-control" ng-model="Currency" />
             </div>
-            <div class="form-group">
-                <label>Scaling Factor</label>
-                <input class="form-control" type="number" ng-model="addTrade.ScalingFactor" />
-            </div>
-
             <div class="form-group">
                 <label>Total Cost</label>
-                <input class="form-control" type="number" ng-model="addTrade.TotalCost" />
+                <input class="form-control" type="number" ng-model="TotalCost" />
             </div>
 
             <div class="form-group">
-                <button class="btn btn-primary" type="button" ng-click="addTrade.submitTrade()">Submit</button>
-                <button class="btn btn-warning" type="button" ng-click="addTrade.cancel()">Cancel</button>
+                <button class="btn btn-primary" ng-disabled="!SymbolValidated" type="button" ng-click="submitTrade()">Submit</button>
             </div>
         </form>
     </div>

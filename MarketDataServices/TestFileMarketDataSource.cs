@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using InvestmentBuilderCore;
@@ -20,80 +19,146 @@ namespace MarketDataServices
     /// </summary>
     public class TestFileMarketDataSource : IMarketDataSource, IDisposable
     {
-        private Dictionary<string, MarketDataPrice> _marketDataLookup = new Dictionary<string, MarketDataPrice>();
-        private Dictionary<string, double> _fxDataLookup = new Dictionary<string, double>();
-        private Dictionary<string, IList<HistoricalData>> _historicalDataLookup = new Dictionary<string, IList<HistoricalData>>();
+        #region Public Properties
 
-        private static Logger logger = LogManager.GetCurrentClassLogger();
+        /// <summary>
+        /// Name of data source.
+        /// </summary>
+        public virtual string Name { get { return "TestFileMarketDataSource"; }}
 
-        //private const string _testDataPath = @"C:\Projects\TestData\InvestmentBuilder";
-        //private const string _testDataFile = "testMarketData.txt";
-        private static Dictionary<string, string> _currencyMapper = new Dictionary<string, string>()
-            {
-                {"NYQ", "USD"}
-            };
+        /// <summary>
+        /// Priority of data source.
+        /// </summary>
+        public virtual int Priority { get { return 5; } }
 
-        private void _addMarketDataToLookup(string name, string strPrice, string strCurrency, Dictionary<string, MarketDataPrice> lookup)
-        {
-            if(lookup.ContainsKey(name) == true)
-            {
-                return;
-            }
+        #endregion
 
-            double dPrice;
-            if (double.TryParse(strPrice, out dPrice))
-            {
-                lookup.Add(name, new MarketDataPrice
-                (
-                    name,
-                    name,
-                    dPrice,
-                    strCurrency
-                ));
-            }
-        }
+        #region Public Methods
 
-        private void _addDataToLookup(string name, string strPrice, Dictionary<string, double> lookup)
-        {
-            double dRate;
-            if (double.TryParse(strPrice, out dRate))
-            {
-                lookup.Add(name, dRate);
-            }
-        }
-
-        //historical data has format dd/mm/yyyy=value:dd/mm/yyyy=value:etc...
-        private void _AddDataToHistoricalLookup(string name, string data)
-        {
-            _historicalDataLookup.Add(name,
-                data.Split(':').Select(x =>
-                {
-                    int split = x.IndexOf('=');
-                    return new HistoricalData
-                    (
-                        date: DateTime.Parse(x.Substring(0, split)),
-                        price: Double.Parse(x.Substring(split + 1))
-                    );
-                }).ToList());
-        }
-
+        /// <summary>
+        /// Parameterless Constructor.
+        /// </summary>
         public TestFileMarketDataSource()
         {
         }
 
+        /// <summary>
+        /// Construct from file
+        /// </summary>
         public TestFileMarketDataSource(string filename)
         {
             InitialiseFromFile(filename);
         }
 
+        /// <summary>
+        /// Initialise. Initialise from configuration settings. Called when class
+        /// instantiated from depenency injection framework.
+        /// </summary>
         public virtual void Initialise(IConfigurationSettings settings)
         {
             InitialiseFromFile(settings.MarketDatasource);
+            SetupDataSource(settings);
         }
 
+        /// <summary>
+        /// Return the name of this source.
+        /// </summary>
+        public IList<string> GetSources()
+        {
+            return new List<string> { Name };
+        }
+
+        /// <summary>
+        /// Retrieve market data from cache.
+        /// </summary>
+        public bool TryGetMarketData(string symbol, string exchange, string source, out MarketDataPrice marketData)
+        {
+            if (_marketDataLookup.TryGetValue(symbol, out marketData))
+            {
+                marketData.DecimalisePrice();
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Retrieve an FX rate from the cache.
+        /// </summary>
+        public bool TryGetFxRate(string baseCurrency, string contraCurrency, string exchange, string source, out double dFxRate)
+        {
+            var ccypair = _mapCurrency(baseCurrency) + _mapCurrency(contraCurrency);
+            return _fxDataLookup.TryGetValue(ccypair, out dFxRate);
+        }
+
+        /// <summary>
+        /// Retrieve historical data for an instrument.
+        /// </summary>
+        public IEnumerable<HistoricalData> GetHistoricalData(string instrument, string exchange, string source, DateTime dtFrom)
+        {
+            //first check if instrument is in historical data cache
+            IList<HistoricalData> cache;
+            if (_historicalDataLookup.TryGetValue(instrument, out cache) == true)
+            {
+                var result = cache.Where(x => x.Date >= dtFrom).ToList();
+                if (result.Count > 0)
+                {
+                    return result;
+                }
+            }
+
+            //if not in cache then just generate some historical price data
+
+            if (instrument.Contains("FTSE"))
+            {
+                return _GenerateHistoricalData(dtFrom, 0.008); //ftse
+            }
+            else if (instrument.Contains("GSPC"))
+            {
+                return _GenerateHistoricalData(dtFrom, 0.009); //s&p
+            }
+
+            return _GenerateHistoricalData(dtFrom, 0.006);
+        }
+
+        /// <summary>
+        /// Dispose class.
+        /// </summary>
+        public void Dispose()
+        {
+            Console.WriteLine("disposing TestDataSource...");
+        }
+
+        public virtual Task<MarketDataPrice> RequestPrice(string symbol, string exchange, string source)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                MarketDataPrice price;
+                if (TryGetMarketData(symbol, exchange, source, out price) == true)
+                {
+                    return price;
+                }
+                return null;
+            });
+        }
+
+
+        #endregion
+
+        #region Protected Methods
+
+        /// <summary>
+        /// Datasource specific setup. Can be overriden by implementations.
+        /// </summary>
+        protected virtual void SetupDataSource(IConfigurationSettings settings)
+        {
+        }
+
+        /// <summary>
+        /// Load data from a file.
+        /// </summary>
         protected void ProcessFileName(string filename)
         {
-            if(File.Exists(filename) == false)
+            if (File.Exists(filename) == false)
             {
                 logger.Log(LogLevel.Error, "file does not exist: {0}", filename);
                 return;
@@ -127,6 +192,65 @@ namespace MarketDataServices
             }
         }
 
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        /// Add market data to a cache.
+        /// </summary>
+        private void _addMarketDataToLookup(string name, string strPrice, string strCurrency, Dictionary<string, MarketDataPrice> lookup)
+        {
+            if(lookup.ContainsKey(name) == true)
+            {
+                return;
+            }
+
+            double dPrice;
+            if (double.TryParse(strPrice, out dPrice))
+            {
+                lookup.Add(name, new MarketDataPrice
+                (
+                    name,
+                    name,
+                    dPrice,
+                    strCurrency
+                ));
+            }
+        }
+
+        /// <summary>
+        /// Add FX market data to a cache.
+        /// </summary>
+        private void _addDataToLookup(string name, string strPrice, Dictionary<string, double> lookup)
+        {
+            double dRate;
+            if (double.TryParse(strPrice, out dRate))
+            {
+                lookup.Add(name, dRate);
+            }
+        }
+
+        /// <summary>
+        /// historical data has format dd/mm/yyyy=value:dd/mm/yyyy=value:etc... 
+        /// </summary>
+        private void _AddDataToHistoricalLookup(string name, string data)
+        {
+            _historicalDataLookup.Add(name,
+                data.Split(':').Select(x =>
+                {
+                    int split = x.IndexOf('=');
+                    return new HistoricalData
+                    (
+                        date: DateTime.Parse(x.Substring(0, split)),
+                        price: Double.Parse(x.Substring(split + 1))
+                    );
+                }).ToList());
+        }
+
+        /// <summary>
+        /// Initialise cache from a file.
+        /// </summary>
         private void InitialiseFromFile(string filename)
         {
             if (_marketDataLookup.Count == 0)
@@ -135,27 +259,9 @@ namespace MarketDataServices
             }
         }
 
-        public IList<string> GetSources()
-        {
-            return new List<string> { Name };
-        }
-
-        public bool TryGetMarketData(string symbol, string exchange,string source,  out MarketDataPrice marketData)
-        {
-            if(_marketDataLookup.TryGetValue(symbol, out marketData))
-            {
-                marketData.DecimalisePrice();
-                return true;
-            }
-            return false;
-        }
-
-        public bool TryGetFxRate(string baseCurrency, string contraCurrency, string exchange, string source, out double dFxRate)
-        {
-            var ccypair = _mapCurrency(baseCurrency) + _mapCurrency(contraCurrency);
-            return _fxDataLookup.TryGetValue(ccypair, out dFxRate);
-        }
-
+        /// <summary>
+        /// Add a generated list of historic data.
+        /// </summary>
         private IEnumerable<HistoricalData> _GenerateHistoricalData(DateTime dtFrom, double dIncrement)
         {
             //always take basedate from first day of month
@@ -175,60 +281,9 @@ namespace MarketDataServices
             }
         }
 
-        public IEnumerable<HistoricalData> GetHistoricalData(string instrument, string exchange, string source, DateTime dtFrom)
-        {
-            //first check if instrument is in historical data cache
-            IList<HistoricalData> cache;
-            if(_historicalDataLookup.TryGetValue(instrument, out cache) == true)
-            {
-                var result = cache.Where(x => x.Date >= dtFrom).ToList();
-                if(result.Count > 0)
-                {
-                    return result;
-                }
-            }
-
-            //if not in cache then just generate some historical price data
-
-            if(instrument.Contains("FTSE"))
-            {
-                return _GenerateHistoricalData(dtFrom, 0.008); //ftse
-            }
-            else if(instrument.Contains("GSPC"))
-            {
-                return _GenerateHistoricalData(dtFrom, 0.009); //s&p
-            }
-            
-            return _GenerateHistoricalData(dtFrom, 0.006);
-        }
-
-        public void Dispose()
-        {
-            Console.WriteLine("disposing TestDataSource...");
-        }
-
-        public virtual string Name
-        {
-            get { return "TestFileMarketDataSource"; }
-        }
-
-        public virtual int Priority { get { return 5; } }
-
-        public virtual Task<MarketDataPrice> RequestPrice(string symbol, string exchange, string source)
-        {
-            return Task.Factory.StartNew(() =>
-            {
-                MarketDataPrice price;
-                if (TryGetMarketData(symbol, exchange, source, out price) == true)
-                {
-                    return price;
-                }
-                return null;
-            });
-        }
-
-        //public IMarketDataReader DataReader { get; set; }
-
+        /// <summary>
+        /// Map a currency to its other known name if defined.
+        /// </summary>
         private string _mapCurrency(string ccy)
         {
             if (_currencyMapper.ContainsKey(ccy) == true)
@@ -238,5 +293,23 @@ namespace MarketDataServices
             return ccy;
         }
 
+        #endregion
+
+        #region Private Data
+
+        private Dictionary<string, MarketDataPrice> _marketDataLookup = new Dictionary<string, MarketDataPrice>();
+        private Dictionary<string, double> _fxDataLookup = new Dictionary<string, double>();
+        private Dictionary<string, IList<HistoricalData>> _historicalDataLookup = new Dictionary<string, IList<HistoricalData>>();
+
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
+        //private const string _testDataPath = @"C:\Projects\TestData\InvestmentBuilder";
+        //private const string _testDataFile = "testMarketData.txt";
+        private static Dictionary<string, string> _currencyMapper = new Dictionary<string, string>()
+            {
+                {"NYQ", "USD"}
+            };
+
+        #endregion
     }
 }
