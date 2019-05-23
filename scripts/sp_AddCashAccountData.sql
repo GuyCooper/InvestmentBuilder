@@ -30,6 +30,8 @@ FROM
 WHERE
 	t.[type] = @TransactionType 
 
+SELECT @@IDENTITY
+
 END
 GO
 

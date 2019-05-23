@@ -75,8 +75,7 @@ namespace SQLServerDataLayer
         /// <summary>
         /// Remove the specifed cash account transaction on the specifed date. Usually added in error.
         /// </summary>
-        public void RemoveCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate,
-                    string type, string parameter)
+        public void RemoveCashAccountTransaction(UserAccountToken userToken, int transactionID)
         {
             using (var connection = OpenConnection())
             {
@@ -84,11 +83,7 @@ namespace SQLServerDataLayer
                 using (var sqlCommand = new SqlCommand("sp_RemoveCashAccountData", connection))
                 {
                     sqlCommand.CommandType = CommandType.StoredProcedure;
-                    sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate.Date));
-                    sqlCommand.Parameters.Add(new SqlParameter("@TransactionDate", transactionDate));
-                    sqlCommand.Parameters.Add(new SqlParameter("@TransactionType", type));
-                    sqlCommand.Parameters.Add(new SqlParameter("@Parameter", parameter));
-                    sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
+                    sqlCommand.Parameters.Add(new SqlParameter("@TransactionID", transactionID));
                     sqlCommand.ExecuteNonQuery();
                 }
             }
@@ -153,9 +148,11 @@ namespace SQLServerDataLayer
 
         /// <summary>
         /// Add a cash account transaction for the specified account on the specified valuation date
+        /// return a unique id for the transaction (transaction_id)
         /// </summary>
-        public void AddCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate, string type, string parameter, double amount)
+        public int AddCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate, string type, string parameter, double amount)
         {
+            int result = 0;
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
             using (var connection = OpenConnection())
             {
@@ -168,9 +165,15 @@ namespace SQLServerDataLayer
                     sqlCommand.Parameters.Add(new SqlParameter("@Parameter", parameter));
                     sqlCommand.Parameters.Add(new SqlParameter("@Amount", amount));
                     sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
-                    sqlCommand.ExecuteNonQuery();
+                    var objResult = sqlCommand.ExecuteScalar();
+                    if (objResult != null)
+                    {
+                        result = (int)Math.Floor((Decimal)objResult);
+                    }
+
                 }
             }
+            return result;
         }
     }
 }

@@ -199,12 +199,13 @@ namespace InvestmentBuilderCore
     [ContractClassFor(typeof(ICashAccountInterface))]
     internal abstract class ICashAccountContract : ICashAccountInterface
     {
-        public void AddCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate, string type, string parameter, double amount)
+        public int AddCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate, string type, string parameter, double amount)
         {
             Contract.Requires(userToken != null);
             Contract.Requires(string.IsNullOrEmpty(type) == false);
             Contract.Requires(string.IsNullOrEmpty(parameter) == false);
             Contract.Requires(amount > 0);
+            return 0;
         }
 
         public double GetBalanceInHand(UserAccountToken userToken, DateTime valuationDate)
@@ -227,11 +228,9 @@ namespace InvestmentBuilderCore
             Contract.Requires(string.IsNullOrEmpty(side) == false);
         }
 
-        public void RemoveCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate, string type, string parameter)
+        public void RemoveCashAccountTransaction(UserAccountToken userToken, int transactionID)
         {
             Contract.Requires(userToken != null);
-            Contract.Requires(string.IsNullOrEmpty(type) == false);
-            Contract.Requires(string.IsNullOrEmpty(parameter) == false);
         }
     }
 

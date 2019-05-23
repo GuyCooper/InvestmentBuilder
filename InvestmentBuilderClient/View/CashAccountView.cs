@@ -107,10 +107,7 @@ namespace InvestmentBuilderClient.View
                 //}
                 //else
                 //{
-                    _dataModel.RemoveCashTransaction(transaction.ValuationDate,
-                                                     DateTime.Parse(transaction.TransactionDate),
-                                                     transaction.TransactionType,
-                                                     transaction.Parameter);
+                _dataModel.RemoveCashTransaction(transaction.TransactionID);
                     _GetCashAccountData(transaction.ValuationDate);
                 //}
             }

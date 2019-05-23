@@ -479,7 +479,7 @@ function MiddlewareService()
     };
 
     this.RemoveTransaction = function (transaction, handler) {
-        doCommand("DELETE_TRANSACTION_REQUEST", "DELETE_TRANSACTION_RESPONSE", transaction, handler);
+        doCommand("REMOVE_TRANSACTION_REQUEST", "REMOVE_TRANSACTION_RESPONSE", transaction, handler);
     };
 
     this.GetTransactionParameters = function (type, handler) {
@@ -702,11 +702,8 @@ function CashFlow($scope, $uibModal, $log, NotifyService, MiddlewareService) {
 
     this.deleteTransaction = function (transaction) {
         MiddlewareService.RemoveTransaction({
-            valuationDate: transaction.ValuationDate,
-            transactionDate: transaction.TransactionDate,
-            transactionType: transaction.TransactionType,
-            parameter: transaction.Parameter
-        }, onLoadContents);
+            TransactionID: transaction.TransactionID
+        }, this.reloadContents);
     };
 
     this.deleteReceipt = function (index) {

@@ -1,45 +1,53 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using InvestmentBuilder;
-using InvestmentBuilderCore;
+﻿using InvestmentBuilder;
+using InvestmentBuilderService.Dtos;
 
 namespace InvestmentBuilderService.Channels
 {
+    /// <summary>
+    /// Dto for RemoveTransaction request.
+    /// </summary>
     internal class RemoveTransactionRequestDto : Dto
     {
-        public string ValuationDate { get; set; }
-        public string TransactionDate { get; set; }
-        public string TransactionType { get; set; }
-        public string Parameter { get; set; }
+        public int TransactionID { get; set; }
     }
 
     /// <summary>
     /// handler class for removing a transaction from the database
     /// </summary>
-    internal abstract class RemoveTransactionChannel : EndpointChannel<RemoveTransactionRequestDto, ChannelUpdater>
+    internal class RemoveTransactionChannel : EndpointChannel<RemoveTransactionRequestDto, ChannelUpdater>
     {
-        private CashAccountTransactionManager _cashTransactionManager;
-        private InvestmentBuilder.InvestmentBuilder _builder;
-        private IInvestmentRecordInterface _recordData;
+        #region Public Methods
 
-        public RemoveTransactionChannel(string requestName, string responseName, 
-                                    AccountService accountService,
-                                    CashAccountTransactionManager cashTransactionManager)
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public RemoveTransactionChannel(AccountService accountService,
+                                        CashAccountTransactionManager cashTransactionManager)
             : base("REMOVE_TRANSACTION_REQUEST", "REMOVE_TRANSACTION_RESPONSE", accountService)
         {
             _cashTransactionManager = cashTransactionManager;
         }
 
+        #endregion
+
+        #region Protected Methods
+
+        /// <summary>
+        /// Handle the remove transaction  request.
+        /// </summary>
         protected override Dto HandleEndpointRequest(UserSession userSession, RemoveTransactionRequestDto payload, ChannelUpdater update)
         {
             var token = GetCurrentUserToken(userSession);
-            var dtValuation = DateTime.Parse(payload.ValuationDate);
-            var dtTransaction = DateTime.Parse(payload.TransactionDate);
-            _cashTransactionManager.RemoveTransaction(token, dtValuation, dtTransaction, payload.TransactionType, payload.Parameter);
+            _cashTransactionManager.RemoveTransaction(token, payload.TransactionID);
             return new ResponseDto { Status = true };
         }
+
+        #endregion
+
+        #region Private Data
+
+        private readonly CashAccountTransactionManager _cashTransactionManager;
+
+        #endregion
     }
 }

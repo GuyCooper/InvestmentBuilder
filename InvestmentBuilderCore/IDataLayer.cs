@@ -100,11 +100,10 @@ namespace InvestmentBuilderCore
     public interface ICashAccountInterface
     {
         CashAccountData GetCashAccountData(UserAccountToken userToken, DateTime valuationDate);
-        void AddCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate,
+        int AddCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate,
                                 string type, string parameter, double amount);
 
-        void RemoveCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate,
-                        string type, string parameter);
+        void RemoveCashAccountTransaction(UserAccountToken userToken, int transactionID);
         void GetCashAccountTransactions(UserAccountToken userToken, string side, DateTime valuationDate, Action<System.Data.IDataReader> fnAddTransaction);
         double GetBalanceInHand(UserAccountToken userToken, DateTime valuationDate);
     }

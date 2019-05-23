@@ -15,6 +15,7 @@ CREATE PROCEDURE sp_GetCashAccountData(@ValuationDate as DateTime, @Side as char
 BEGIN
 
 SELECT 
+    ca.[transaction_id] as TransactionID,
 	ca.transaction_date as TransactionDate,
 	tt.[type] as TransactionType,
 	ca.Parameter as Parameter,

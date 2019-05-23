@@ -70,11 +70,8 @@ function CashFlow($scope, $uibModal, $log, NotifyService, MiddlewareService) {
 
     this.deleteTransaction = function (transaction) {
         MiddlewareService.RemoveTransaction({
-            valuationDate: transaction.ValuationDate,
-            transactionDate: transaction.TransactionDate,
-            transactionType: transaction.TransactionType,
-            parameter: transaction.Parameter
-        }, onLoadContents);
+            TransactionID: transaction.TransactionID
+        }, this.reloadContents);
     };
 
     this.deleteReceipt = function (index) {

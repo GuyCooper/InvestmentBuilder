@@ -250,7 +250,7 @@ namespace SQLServerDataLayer
         }
 
         /// <summary>
-        /// Return a list of the previous account valuation dates for the spcified account to the date specified.
+        /// Return the previous account valuation date for the spcified account to the date specified.
         /// </summary>
         public DateTime? GetPreviousAccountValuationDate(UserAccountToken userToken, DateTime dtValuation)
         {

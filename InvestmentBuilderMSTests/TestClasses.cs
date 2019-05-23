@@ -87,12 +87,11 @@ namespace InvestmentBuilderMSTests
     internal class CashAccountInterfaceTest : ICashAccountInterface
     {
         public virtual CashAccountData GetCashAccountData(UserAccountToken userToken, DateTime valuationDate) { throw new NotImplementedException(); }
-        public virtual void AddCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate,
+        public virtual int AddCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate,
                                 string type, string parameter, double amount)
         { throw new NotImplementedException(); }
 
-        public virtual void RemoveCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate,
-                        string type, string parameter)
+        public virtual void RemoveCashAccountTransaction(UserAccountToken userToken, int transactionID)
         { throw new NotImplementedException(); }
         public virtual void GetCashAccountTransactions(UserAccountToken userToken, string side, DateTime valuationDate, Action<System.Data.IDataReader> fnAddTransaction) { throw new NotImplementedException(); }
         public virtual double GetBalanceInHand(UserAccountToken userToken, DateTime valuationDate) { throw new NotImplementedException(); }
@@ -377,11 +376,10 @@ namespace InvestmentBuilderMSTests
     internal class CashAccountEmptyInterfaceTest : ICashAccountInterface
     {
         public virtual CashAccountData GetCashAccountData(UserAccountToken userToken, DateTime valuationDate) { return new CashAccountData(); }
-        public virtual void AddCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate,
+        public virtual int AddCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate,
                                 string type, string parameter, double amount)
-        { }
-        public virtual void RemoveCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate,
-                        string type, string parameter)
+        { return 0; }
+        public virtual void RemoveCashAccountTransaction(UserAccountToken userToken, int transactionID)
         { }
         public virtual void GetCashAccountTransactions(UserAccountToken userToken, string side, DateTime valuationDate, Action<System.Data.IDataReader> fnAddTransaction) { }
         public virtual double GetBalanceInHand(UserAccountToken userToken, DateTime valuationDate) { return 0d; }

@@ -50,8 +50,9 @@ namespace InvestmentBuilderMSTests
             return CashAccountTestData._BalanceInHand;
         }
 
-        public override void AddCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate, string type, string parameter, double amount)
+        public override int AddCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate, string type, string parameter, double amount)
         {
+            return 0;
         }
     }
 

@@ -29,10 +29,11 @@ namespace InvestmentBuilderService.Channels
         protected override Dto HandleEndpointRequest(UserSession userSession, Dto payload, ChannelUpdater update)
         {
             var userToken = GetCurrentUserToken(userSession);
-            var dtPrevious = _clientData.GetPreviousAccountValuationDate(userToken, userSession.ValuationDate);
-            if (dtPrevious.HasValue)
+            var dtValuation = _clientData.GetLatestValuationDate(userToken);
+            //var dtPrevious = _clientData.GetPreviousAccountValuationDate(userToken, userSession.ValuationDate);
+            if (dtValuation.HasValue)
             {
-                return _builder.BuildAssetReport(userToken, dtPrevious.Value, false, null, null).ToInvestmentSummaryModel();
+                return _builder.BuildAssetReport(userToken, dtValuation.Value, false, null, null).ToInvestmentSummaryModel();
             }
             else
             {

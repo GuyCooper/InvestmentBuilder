@@ -94,7 +94,6 @@
     <Compile Include="Channels\RemoveTransactionChannel.cs" />
     <Compile Include="Channels\AddTransactionChannel.cs" />
     <Compile Include="Channels\BuildReportChannel.cs" />
-    <Compile Include="Channels\DeleteTransactionChannel.cs" />
     <Compile Include="Channels\GetAccountNamesChannel.cs" />
     <Compile Include="Channels\GetCashFlowChannel.cs" />
     <Compile Include="Channels\GetRecentValutationDatesChannel.cs" />

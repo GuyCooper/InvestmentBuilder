@@ -15,23 +15,11 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].sp_RemoveCashAccountData(@ValuationDate as DateTime, @TransactionDate as DateTime, @TransactionType as varchar(20),
-									@Parameter as varchar(50), @Account as int) AS
+CREATE PROCEDURE [dbo].sp_RemoveCashAccountData(@TransactionID AS INT) AS
 BEGIN
 
-DECLARE @Type_Id INT
-
-SELECT @Type_Id = [type_id]
-FROM TransactionType
-WHERE [type] = @TransactionType
-
 DELETE FROM CashAccount
-WHERE
-	[valuation_date] = @ValuationDate
-AND [transaction_date] = @TransactionDate
-AND [type_id] = @Type_Id
-AND [parameter] = @Parameter
-AND [account_id] = @Account
+WHERE [transaction_id] = @TransactionID
 
 END
 GO

@@ -273,10 +273,9 @@ namespace InvestmentBuilderClient.DataModel
                                                 type, parameter, amount);
         }
 
-        public void RemoveCashTransaction(DateTime dtValuationDate, DateTime dtTransactionDate,
-                                        string type, string parameter)
+        public void RemoveCashTransaction(int transactionID)
         {
-            _cashAccountManager.RemoveTransaction(_userToken, dtValuationDate, dtTransactionDate, type, parameter);
+            _cashAccountManager.RemoveTransaction(_userToken, transactionID);
         }
 
         public string GetPaymentMnenomic()
