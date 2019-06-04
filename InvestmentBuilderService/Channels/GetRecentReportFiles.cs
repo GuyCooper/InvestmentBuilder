@@ -7,6 +7,14 @@ using System.Linq;
 namespace InvestmentBuilderService.Channels
 {
     /// <summary>
+    /// Defines the recent report request Dto.
+    /// </summary>
+    internal class RecentReportRequestDto : Dto
+    {
+        public string DateFrom { get; set; }
+    }
+
+    /// <summary>
     /// RecentReportFile class. Contains File information about a report
     /// </summary>
     internal class RecentReportFile
@@ -26,7 +34,7 @@ namespace InvestmentBuilderService.Channels
     /// <summary>
     /// Channel Handler for returning a list of recent report file locations
     /// </summary>
-    internal class GetRecentReportFiles : EndpointChannel<Dto, ChannelUpdater>
+    internal class GetRecentReportFiles : EndpointChannel<RecentReportRequestDto, ChannelUpdater>
     {
         #region Constructor
         /// <summary>
@@ -47,12 +55,13 @@ namespace InvestmentBuilderService.Channels
         /// <summary>
         /// Handle request for GetRecentReportFiles.
         /// </summary>
-        protected override Dto HandleEndpointRequest(UserSession userSession, Dto payload, ChannelUpdater updater)
+        protected override Dto HandleEndpointRequest(UserSession userSession, RecentReportRequestDto payload, ChannelUpdater updater)
         {
             var userToken = GetCurrentUserToken(userSession);
+            var dtFrom = payload.DateFrom != null ?  DateTime.Parse(payload.DateFrom) : DateTime.Today;
             return new RecentReportListDto
             {
-                RecentReports = m_clientData.GetRecentValuationDates(userToken, DateTime.Now).Select(x =>
+                RecentReports = m_clientData.GetRecentValuationDates(userToken, dtFrom).Select(x =>
                     new RecentReportFile
                     {
                         Link = CreateReportLink(m_connectionSettings, userToken.Account, x),

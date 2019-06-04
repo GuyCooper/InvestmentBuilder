@@ -165,7 +165,7 @@ function NotifyService() {
 'use strict'
 
 //controller handles management of the build report progress and the view tab
-function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService) {
+function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService, Idle, Keepalive) {
 
     var initialiseLayout = function () {
         $scope.ProgressCount = 0;
@@ -304,6 +304,7 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
             $scope.LoginFailed = false;
             var loginResult = JSON.parse(result);
             NotifyService.OnConnected(loginResult.ConnectionId, $scope.UserName);
+            
         },
         function (error) {
             NotifyService.UpdateBusyState(false);
@@ -330,6 +331,30 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
 
     initialiseLayout();
 
+    function closeModals() {
+        if ($scope.warning) {
+            $scope.warning.close();
+            $scope.warning = null;
+        }
+
+        if ($scope.timedout) {
+            $scope.timedout.close();
+            $scope.timedout = null;
+        }
+    }
+
+    var startIdleWatcher = function () {
+        $log.log("starting idle watcher");
+        closeModals();
+        Idle.watch();
+    };
+
+    var stopIdleWatcher = function () {
+        $log.log("stoping idle watcher");
+        closeModals();
+        Idle.unwatch();
+    };
+
     //load the config
     $http.get("./config.json").then(function (data) {
         servername = data.data.url;
@@ -342,9 +367,32 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
         NotifyService.RegisterAccountListener(loadAccountSummary);
         //ensure this view is updated when the build status changes
         NotifyService.RegisterBuildStatusListener(onBuildStatusChanged);
+        //start the idle watcher on connection
+        NotifyService.RegisterConnectionListener(startIdleWatcher);
+        //stop the idle watcher on disconnect
+        NotifyService.RegisterDisconnectionListener(stopIdleWatcher);
 
     },function (error) {
         alert("unable to load config file: " + error);
+    });
+
+    $scope.$on('IdleStart', function () {
+        closeModals();
+
+        $scope.warning = $uibModal.open({
+            templateUrl: 'warning-dialog.html',
+            windowClass: 'modal-danger'
+        });
+    });
+
+    $scope.$on('IdleEnd', function () {
+        closeModals();
+    });
+
+    $scope.$on('IdleTimeout', function () {
+        closeModals();
+        $log.log("idle timeout expired.logging out...");
+        NotifyService.InvokeDisconnectionListeners();
     });
 };
 
@@ -490,8 +538,8 @@ function MiddlewareService()
         doCommand("GET_INVESTMENT_SUMMARY_REQUEST", "GET_INVESTMENT_SUMMARY_RESPONSE", null, handler);
     };
 
-    this.LoadRecentReports = function (handler) {
-        doCommand("GET_RECENT_REPORTS_REQUEST", "GET_RECENT_REPORTS_RESPONSE", null, handler);
+    this.LoadRecentReports = function (request, handler) {
+        doCommand("GET_RECENT_REPORTS_REQUEST", "GET_RECENT_REPORTS_RESPONSE", request, handler);
     };
 
     this.UpdateAccountDetails = function (account, handler) {
@@ -1200,6 +1248,10 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
         });
     };
 
+    var onDisconnected = function () {
+        $scope.IsConnected = false;
+    };
+
     $scope.SelectedAcount = "";
     $scope.UpdateAccount = function () {
         MiddlewareService.UpdateCurrentAccount($scope.SelectedAcount, function (data) {
@@ -1328,8 +1380,9 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
             $log.info('Modal dismissed at: ' + new Date());
         });
     }
-
+    NotifyService.RegisterDisconnectionListener(onDisconnected);
     NotifyService.RegisterConnectionListener(onConnected);
+
 }
 "use strict"
 
@@ -1337,17 +1390,45 @@ function Reports($scope, NotifyService, MiddlewareService) {
 
     $scope.RecentReports = [];
 
+    var dt = new Date();
+    var latestDate = dt.toDateString();
+    
+    // Handler for load reports.
     var onLoadContents = function (response) {
         $scope.RecentReports = response.RecentReports.map(report => 
         {
             report.Link = report.Link + ";session=" + NotifyService.GetSessionID();
             return report;
         });
+
         $scope.$apply();
     };
 
+    // Call server to load the reports...
+    var loadReports = function (dt) { 
+
+        var request = {
+            DateFrom: dt
+        };
+        MiddlewareService.LoadRecentReports(request, onLoadContents);
+    };
+
+    // Load the previous 5 reports.
+    $scope.previous = function () {
+        if ($scope.RecentReports.length > 0) {
+            var fromDate = $scope.RecentReports[$scope.RecentReports.length - 1].ValuationDate;
+            loadReports(fromDate);
+        }
+    };
+
+    // Load the most recent reports
+    $scope.recent = function () {
+        loadReports(latestDate);
+    };
+
+    // register listener so when page is displayed the reports are loaded.
     NotifyService.RegisterReportsListener(function () {
-        MiddlewareService.LoadRecentReports(onLoadContents);
+        loadReports(latestDate);
     });
 }
 
@@ -1503,13 +1584,30 @@ function RequestRedemption($scope, $uibModalInstance, users) {
 };
 "use strict"
 
-var module = angular.module("InvestmentRecord", ["ui.bootstrap", "agGrid"])
+var module = angular.module("InvestmentRecord", ["ui.bootstrap", "agGrid", "ngIdle"])
+
+//module.config([
+//   '$compileProvider',
+//    'KeepaliveProvider',
+//    'IdleProvider',
+//    function ($compileProvider) {
+//        $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|file|blob|ftp|mailto|chrome-extension):/);
+//        // Angular before v1.2 uses $compileProvider.urlSanitizationWhitelist(...)
+//    },
+//    function (KeepaliveProvider, IdleProvider) {
+//    IdleProvider.idle(30);
+//    IdleProvider.timeout(10);
+//    KeepaliveProvider.interval(10);
+//    }
+//]);
 
 module.config([
-   '$compileProvider',
-    function ($compileProvider) {
-        $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|file|blob|ftp|mailto|chrome-extension):/);
-        // Angular before v1.2 uses $compileProvider.urlSanitizationWhitelist(...)
+    'KeepaliveProvider',
+    'IdleProvider',
+    function (KeepaliveProvider, IdleProvider) {
+    IdleProvider.idle(300);
+    IdleProvider.timeout(30);
+    KeepaliveProvider.interval(10);
     }
 ]);
 

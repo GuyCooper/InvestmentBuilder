@@ -37,6 +37,10 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
         });
     };
 
+    var onDisconnected = function () {
+        $scope.IsConnected = false;
+    };
+
     $scope.SelectedAcount = "";
     $scope.UpdateAccount = function () {
         MiddlewareService.UpdateCurrentAccount($scope.SelectedAcount, function (data) {
@@ -165,6 +169,7 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
             $log.info('Modal dismissed at: ' + new Date());
         });
     }
-
+    NotifyService.RegisterDisconnectionListener(onDisconnected);
     NotifyService.RegisterConnectionListener(onConnected);
+
 }

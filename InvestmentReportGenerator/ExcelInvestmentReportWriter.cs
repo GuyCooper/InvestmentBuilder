@@ -150,6 +150,7 @@ namespace InvestmentReportGenerator
                     newSheet.get_Range("J" + count).Value = company.MonthChange;
                     newSheet.get_Range("K" + count).Value = company.MonthChangeRatio;
                     newSheet.get_Range("L" + count).Value = company.Dividend;
+                    newSheet.get_Range("M" + count).Value = company.TotalReturn;
                     count++;
                     progress.Increment();
                 }

@@ -1,7 +1,7 @@
 ﻿'use strict'
 
 //controller handles management of the build report progress and the view tab
-function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService) {
+function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService, Idle, Keepalive) {
 
     var initialiseLayout = function () {
         $scope.ProgressCount = 0;
@@ -140,6 +140,7 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
             $scope.LoginFailed = false;
             var loginResult = JSON.parse(result);
             NotifyService.OnConnected(loginResult.ConnectionId, $scope.UserName);
+            
         },
         function (error) {
             NotifyService.UpdateBusyState(false);
@@ -166,6 +167,30 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
 
     initialiseLayout();
 
+    function closeModals() {
+        if ($scope.warning) {
+            $scope.warning.close();
+            $scope.warning = null;
+        }
+
+        if ($scope.timedout) {
+            $scope.timedout.close();
+            $scope.timedout = null;
+        }
+    }
+
+    var startIdleWatcher = function () {
+        $log.log("starting idle watcher");
+        closeModals();
+        Idle.watch();
+    };
+
+    var stopIdleWatcher = function () {
+        $log.log("stoping idle watcher");
+        closeModals();
+        Idle.unwatch();
+    };
+
     //load the config
     $http.get("./config.json").then(function (data) {
         servername = data.data.url;
@@ -178,9 +203,32 @@ function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService
         NotifyService.RegisterAccountListener(loadAccountSummary);
         //ensure this view is updated when the build status changes
         NotifyService.RegisterBuildStatusListener(onBuildStatusChanged);
+        //start the idle watcher on connection
+        NotifyService.RegisterConnectionListener(startIdleWatcher);
+        //stop the idle watcher on disconnect
+        NotifyService.RegisterDisconnectionListener(stopIdleWatcher);
 
     },function (error) {
         alert("unable to load config file: " + error);
+    });
+
+    $scope.$on('IdleStart', function () {
+        closeModals();
+
+        $scope.warning = $uibModal.open({
+            templateUrl: 'warning-dialog.html',
+            windowClass: 'modal-danger'
+        });
+    });
+
+    $scope.$on('IdleEnd', function () {
+        closeModals();
+    });
+
+    $scope.$on('IdleTimeout', function () {
+        closeModals();
+        $log.log("idle timeout expired.logging out...");
+        NotifyService.InvokeDisconnectionListeners();
     });
 };
 

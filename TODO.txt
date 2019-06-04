@@ -17,4 +17,8 @@ TODO 23-05-2019
 4. replace php with python
 5. add ROI per investment to investment report
 6. explore possibilities of obtaining / deriving more data for investment reports. for example, sector information for each investment.
-
+7. update out of date libraries on both web client and server.
+8. Add 10 minute auto logout timer to web client DONE
+9. Add Earlier reports button to reports view.
+10. Add minified js libs DONE
+11. Auto reload prices on a daily basis.

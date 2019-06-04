@@ -68,6 +68,7 @@ namespace InvestmentBuilderCore
         public double MonthChangeRatio { get; set; }
         public double Dividend { get; set; }
         public string ManualPrice { get; set; }
+        public double TotalReturn { get; set; }
     }
 
     //this class represents a data point in a performance graph. the

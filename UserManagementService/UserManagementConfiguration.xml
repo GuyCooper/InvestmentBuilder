@@ -7,8 +7,8 @@
   <changepasswordurl>http://localhost:8091/ChangePassword.html</changepasswordurl>
   <maxconnections>5</maxconnections>
   <root>C:\Projects\InvestmentBuilder\InvestmentBuilderWebClient\dist</root>
-  <smtpserver>SERVER1</smtpserver>
-  <smtpuser>USER1</smtpuser>
-  <smtppassword>PASSWORD1</smtppassword>
-  <address>Adminstrator@InvestmentBuilder.com</address>
+  <smtpserver>smtp.ionos.co.uk</smtpserver>
+  <smtpuser>postmaster@guycoopercambridge.co.uk</smtpuser>
+  <smtppassword>pMb.H2x5yjbvzyD</smtppassword>
+  <address>postmaster@guycoopercambridge.co.uk</address>
 </configuration>

@@ -68,7 +68,8 @@ go
 
 create table dbo.CashAccount
 (
-	[valuation_date] datetime not null,
+	[transaction_id]   int identity(1,1),
+	[valuation_date]   datetime not null,
 	[transaction_date] datetime not null,
 	[type_id]		   int not null,
 	[parameter]        nvarchar(256),

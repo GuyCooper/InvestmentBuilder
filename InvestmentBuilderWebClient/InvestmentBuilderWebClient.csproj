@@ -66,6 +66,7 @@
     <Content Include="views\Layout.html" />
     <Content Include="views\Redemptions.html" />
     <Content Include="views\RequestRedemption.html" />
+    <Content Include="views\ShowIdle.html" />
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>

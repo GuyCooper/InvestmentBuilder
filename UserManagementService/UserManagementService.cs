@@ -50,17 +50,17 @@ namespace UserManagementService
         {
             var authData = new SQLAuthData(configuration.AuthenticationDatabase);
             var userDatabase = new SQLServerUserAccountData(configuration.ApplicationDatabase);
-            var userNotifer = new TestNotifier();
-            //var userNotifer = new SmtpNotifier(configuration.SmtpServer,
-            //                                   configuration.SmtpUserName,
-            //                                   configuration.SmtpPassword,
-            //                                   configuration.OurEmailAddress);
+            //var userNotifer = new TestNotifier();
+            var smptNotifer = new SmtpNotifier(configuration.SmtpServer,
+                                               configuration.SmtpUserName,
+                                               configuration.SmtpPassword,
+                                               configuration.OurEmailAddress);
 
             var changePasswordHandler = new Handlers.ChangePasswordHandler(authData);
             var changePasswordUrl = configuration.ChangePasswordURL;
 
             endpoint.AddHandler(new Handlers.RegisterNewUserHandler(authData, userDatabase));
-            endpoint.AddHandler(new Handlers.ForgottonPasswordHandler(userNotifer, changePasswordUrl, authData));
+            endpoint.AddHandler(new Handlers.ForgottonPasswordHandler(smptNotifer, changePasswordUrl, authData));
             endpoint.AddHandler(changePasswordHandler);
         }
 

@@ -128,8 +128,8 @@ function MiddlewareService()
         doCommand("GET_INVESTMENT_SUMMARY_REQUEST", "GET_INVESTMENT_SUMMARY_RESPONSE", null, handler);
     };
 
-    this.LoadRecentReports = function (handler) {
-        doCommand("GET_RECENT_REPORTS_REQUEST", "GET_RECENT_REPORTS_RESPONSE", null, handler);
+    this.LoadRecentReports = function (request, handler) {
+        doCommand("GET_RECENT_REPORTS_REQUEST", "GET_RECENT_REPORTS_RESPONSE", request, handler);
     };
 
     this.UpdateAccountDetails = function (account, handler) {

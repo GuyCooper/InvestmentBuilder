@@ -19,8 +19,22 @@ module.exports = function (grunt) {
                     "./libs/angular.js",
                     "./libs/ag-grid.js",
                     "./libs/ui-bootstrap-tpls-2.5.0.js",
+                    "./libs/angular-idle.js",
                     "./Middleware/Middleware.js"
             ],
+
+            libsmin: [
+                    "./libs/modernizr-2.6.2.js",
+                    "./libsmin/jquery-1.10.2.min.js",
+                    "./libsmin/jquery-ui.min.js",
+                    "./libsmin/bootstrap.min.js",
+                    "./libsmin/angular.min.js",
+                    "./libsmin/ag-grid.min.js",
+                    "./libsmin/ui-bootstrap-tpls-2.5.0.js",
+                    "./libsmin/angular-idle.min.js",
+                    "./Middleware/Middleware.js"
+            ],
+
             registerlibs: [
                     "./libs/modernizr-2.6.2.js",
                     "./libs/jquery-1.10.2.js",
@@ -61,7 +75,8 @@ module.exports = function (grunt) {
                            "./Views/YesNoChooser.html",
                            "./Views/AddAccount.html",
                            "./Views/LastTransaction.html",
-                           "./Views/RequestRedemption.html"
+                           "./Views/RequestRedemption.html",
+                           "./Views/ShowIdle.html"
                        ],
             styles: {
                 source: "./styles/css/**/*.css",
@@ -74,6 +89,10 @@ module.exports = function (grunt) {
             libjs: {
                 src: ['<%= app.libs %>'],
                 dest: '<%= app.output.folder %>/js/libs.js'
+            },
+            libminjs: {
+                src: ['<%= app.libsmin %>'],
+                dest: '<%= app.output.folder %>/js/libsmin.js'
             },
             registerlibsjs: {
                 src: ['<%= app.registerlibs %>'],
@@ -171,6 +190,17 @@ module.exports = function (grunt) {
                     },
                 ]
             }
+        },
+
+        uglify: {
+            libs: {
+                options: {
+                    sourceMap: true
+                },
+                files: {
+                    '<%= app.output.folder %>/js/libsmin.js': ['<%= app.libs %>']
+                }
+            }
         }
     });
 
@@ -179,10 +209,12 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-typescript');
     grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadTasks('tasks');
 
     grunt.registerTask('cleandist', ['clean:packaging']);
-    grunt.registerTask('buildlib', ['concat:libjs']);
+    grunt.registerTask('buildlib', ['concat:libminjs']);
+    //grunt.registerTask('buildlib', ['uglify:libs']);
     grunt.registerTask('buildregisterlib', ['concat:registerlibsjs']);
     grunt.registerTask('buildapp', ['concat:appjs', 'concat:registerappjs']);
     grunt.registerTask('copyviews', ['copy:views']);

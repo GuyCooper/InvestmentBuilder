@@ -87,6 +87,7 @@ namespace InvestmentReportGenerator
                     _AddCellEntry(row, cell++, asset.SharePrice.ToString("#.###"));
                     _AddCellEntry(row, cell++, asset.NetSellingValue.ToString("#.##"));
                     _AddCellEntry(row, cell++, asset.ProfitLoss.ToString("#.##"));
+                    _AddCellEntry(row, cell++, asset.TotalReturn.ToString("#.##"));
                     _AddCellEntry(row, cell++, asset.MonthChange.ToString("#.##"));
                     _AddCellEntry(row, cell++, asset.MonthChangeRatio.ToString("#.#"));
                     _AddCellEntry(row, cell++, asset.Dividend.ToString("#.##"));
@@ -98,7 +99,7 @@ namespace InvestmentReportGenerator
                 if (part.LastPart == true)
                 {
                     totalsTable = _CreateInfoTable(section);
-                    for (int i = 0; i < 5; ++i)
+                    for (int i = 0; i < 6; ++i)
                     {
                         totalsTable.AddColumn(Unit.FromCentimeter(dataCellWidth));
                     }
@@ -107,8 +108,8 @@ namespace InvestmentReportGenerator
                     row.Cells[0].AddParagraph().AddFormattedText("Total Asset Value", TextFormat.Bold);
                     row.Cells[1].AddParagraph().AddFormattedText(report.TotalAssetValue.ToString("#.##"));
                     row.Cells[2].AddParagraph().AddFormattedText(report.Assets.Sum(x => x.ProfitLoss).ToString("#.##"));
-                    row.Cells[3].AddParagraph().AddFormattedText(report.Assets.Sum(x => x.MonthChange).ToString("#.##"));
-                    row.Cells[5].AddParagraph().AddFormattedText(report.Assets.Sum(x => x.Dividend).ToString("#.##"));
+                    row.Cells[4].AddParagraph().AddFormattedText(report.Assets.Sum(x => x.MonthChange).ToString("#.##"));
+                    row.Cells[6].AddParagraph().AddFormattedText(report.Assets.Sum(x => x.Dividend).ToString("#.##"));
 
                     summaryTable = _CreateInfoTable(section);
                     summaryTable.AddColumn(Unit.FromCentimeter(dataCellWidth));
@@ -679,6 +680,7 @@ namespace InvestmentReportGenerator
             new KeyValuePair<string, double>( @"Selling Price \Share",dataCellWidth ),
             new KeyValuePair<string, double>( "Net Selling Value",dataCellWidth ),
             new KeyValuePair<string, double>( "PnL",dataCellWidth ),
+            new KeyValuePair<string, double>( "Total Return%",dataCellWidth ),
             new KeyValuePair<string, double>( @"Change \Month",dataCellWidth ),
             new KeyValuePair<string, double>( @"%\Month",dataCellWidth ),
             new KeyValuePair<string, double>( "Dividends",dataCellWidth )

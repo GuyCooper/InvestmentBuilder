@@ -88,6 +88,9 @@ namespace InvestmentBuilder
             return investments;
         }
 
+        /// <summary>
+        /// Update the monthly data stats for a single investment.
+        /// </summary>
         private void _updateMonthlyData(CompanyData currentData, CompanyData previousData, Trades trades)
         {
             //difference between current selling value and previous selling value, must also
@@ -273,6 +276,9 @@ namespace InvestmentBuilder
             }
         }
 
+        /// <summary>
+        /// Returns the valuations for each investment in the account.
+        /// </summary>
         private IEnumerable<CompanyData> _GetInvestmentRecordsImpl(UserAccountToken userToken, AccountModel account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate, bool bSnapshot, ManualPrices manualPrices)
         {
             var lstCurrentData = _GetCompanyDataImpl(userToken, account, dtValuationDate, bSnapshot, manualPrices).ToList();
@@ -287,7 +293,10 @@ namespace InvestmentBuilder
                 {
                     _updateMonthlyData(company, previousData, trades);
                 }
+
                 company.ProfitLoss = company.NetSellingValue - company.TotalCost;
+                company.TotalReturn = (company.ProfitLoss / company.TotalCost) * 100;
+
                 if (bSnapshot == false && company.Quantity == 0)
                 {
                     _DeactivateInvestment(company.Name, userToken);
@@ -295,13 +304,10 @@ namespace InvestmentBuilder
             }
             return lstCurrentData;
         }
+
         /// <summary>
         /// this method returns the current investment records from persistence layer
         /// </summary>
-        /// <param name="account"></param>
-        /// <param name="dtValuationDate"></param>
-        /// <param name="dtPreviousValuationDate"></param>
-        /// <returns></returns>
         public IEnumerable<CompanyData> GetInvestmentRecords(UserAccountToken userToken, AccountModel account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate, ManualPrices manualPrices, bool bSnapshot)
         {
             //dtPreviousValuationDate parameteris the previous valuation date.we need to extract the previous record
