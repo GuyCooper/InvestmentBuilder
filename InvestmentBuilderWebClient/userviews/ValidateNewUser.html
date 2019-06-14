@@ -1,0 +1,15 @@
+﻿<form name="ValidateNewUserForm" role="form">
+    <div class="form-group">
+        <p>Click on the validate button to enable your Investment Builder account.</p>
+    </div>
+
+    <div>
+        <input type="button" value="Validate" ng-click="validateNewUser()" />
+    </div>
+
+    <div>
+        <ul ng-show="IsError">
+            <li class="text-danger" ng-repeat="error in ErrorList" ng-bind="error"></li>
+        </ul>
+    </div>
+</form>

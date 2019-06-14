@@ -14,25 +14,10 @@ namespace UserManagementService.Handlers
     }
 
     /// <summary>
-    /// Forgotton password response dto
-    /// </summary>
-    class ForgottonPasswordResponse
-    {
-        public enum PasswordResponseType
-        {
-            FAIL,
-            SUCCESS
-        };
-
-        public PasswordResponseType Result { get; set; }
-        public string ResultMessage { get; set; }
-    }
-
-    /// <summary>
     /// Class for handling a forgotton password request. Validates the email address and sends
     /// a new password to this address.
     /// </summary>
-    class ForgottonPasswordHandler : GetRequestHandler<ForgottonPasswordRequest, ForgottonPasswordResponse>
+    class ForgottonPasswordHandler : GetRequestHandler<ForgottonPasswordRequest, UserManagementResponse>
     {
         #region Public Methods
 
@@ -51,9 +36,9 @@ namespace UserManagementService.Handlers
         /// Handle request. Generate a temporary password and set it in the auth table. Send email to user
         /// with temporary password.
         /// </summary>
-        protected override ForgottonPasswordResponse ProcessRequest(ForgottonPasswordRequest request, Dictionary<string, List<string>> headers)
+        protected override UserManagementResponse ProcessRequest(ForgottonPasswordRequest request, Dictionary<string, List<string>> headers)
         {
-            var response = new ForgottonPasswordResponse();
+            var response = new UserManagementResponse();
 
             logger.Info("Processing Forgoten Password request");
 
@@ -64,14 +49,14 @@ namespace UserManagementService.Handlers
             {
                 var link = $"{_changePasswordUrl}?token={token}";
 
-                _notifier.NotifyUserPasswordChange(request.EMailAddress, link);
+                _notifier.NotifyUser(request.EMailAddress, link);
 
-                response.Result = ForgottonPasswordResponse.PasswordResponseType.SUCCESS;
-                response.ResultMessage = "ok";
+                response.Result = UserManagementResponse.UserManagementResponseType.SUCCESS;
+                response.ResultMessage = "Forgotten Password Request succeded. You will receive an email shortly.";
             }
             else
             {
-                response.Result = ForgottonPasswordResponse.PasswordResponseType.FAIL;
+                response.Result = UserManagementResponse.UserManagementResponseType.FAIL;
                 response.ResultMessage = "Failed to Validate Email Address";
             }
 

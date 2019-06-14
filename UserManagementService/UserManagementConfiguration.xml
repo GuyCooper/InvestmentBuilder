@@ -4,7 +4,8 @@
   <authdatabase>Data Source=DESKTOP-JJ9QOJA\SQLEXPRESS;Initial Catalog=UserAuthentication;Integrated Security=True</authdatabase>
   <listenurl>http://localhost:8080/MANAGE/</listenurl>
   <hosturl>http://localhost:8091</hosturl>
-  <changepasswordurl>http://localhost:8091/ChangePassword.html</changepasswordurl>
+  <changepasswordpage>ChangePassword.html</changepasswordpage>
+  <validatenewuserpage>ValidateNewUser.html</validatenewuserpage>
   <maxconnections>5</maxconnections>
   <root>C:\Projects\InvestmentBuilder\InvestmentBuilderWebClient\dist</root>
   <smtpserver>smtp.ionos.co.uk</smtpserver>

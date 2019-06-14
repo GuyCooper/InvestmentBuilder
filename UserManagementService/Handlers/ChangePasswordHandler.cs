@@ -16,26 +16,10 @@ namespace UserManagementService.Handlers
     }
 
     /// <summary>
-    /// ChangePasswordResponse DTO
-    /// </summary>
-    class ChangePasswordResponse
-    {
-        public enum PasswordResponseType
-        {
-            FAIL,
-            SUCCESS
-        };
-
-        public PasswordResponseType Result { get; set; }
-        public string ResultMessage { get; set; }
-
-    }
-
-    /// <summary>
     /// Class handles a request to change a password. request must contain the new password as well
     /// as the token sent to the users email address so the user can be validated
     /// </summary>
-    class ChangePasswordHandler : PostRequestHandler<ChangePasswordRequest, ChangePasswordResponse>
+    class ChangePasswordHandler : PostRequestHandler<ChangePasswordRequest, UserManagementResponse>
     {
         #region Constructor
 
@@ -54,7 +38,7 @@ namespace UserManagementService.Handlers
         /// <summary>
         /// Handle request. Validate the user and token. if successful change password
         /// </summary>
-        protected override ChangePasswordResponse ProcessRequest(ChangePasswordRequest request, Dictionary<string, List<string>> headers)
+        protected override UserManagementResponse ProcessRequest(ChangePasswordRequest request, Dictionary<string, List<string>> headers)
         {
             logger.Info("Processing ChangePassword request.");
 
@@ -65,15 +49,15 @@ namespace UserManagementService.Handlers
                                                 SaltedHash.GenerateHash(request.Password, salt),
                                                 salt);
 
-            var response = new ChangePasswordResponse();
+            var response = new UserManagementResponse();
             if(result == true)
             {
-                response.Result = ChangePasswordResponse.PasswordResponseType.SUCCESS;
-                response.ResultMessage = "Ok";
+                response.Result = UserManagementResponse.UserManagementResponseType.SUCCESS;
+                response.ResultMessage = "Change Password Request Succeded";
             }
             else
             {
-                response.Result = ChangePasswordResponse.PasswordResponseType.FAIL;
+                response.Result = UserManagementResponse.UserManagementResponseType.FAIL;
                 response.ResultMessage = "Failed to change password. Token may have expired.";
             }
 

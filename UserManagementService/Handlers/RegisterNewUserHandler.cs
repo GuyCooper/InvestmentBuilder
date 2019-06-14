@@ -1,5 +1,6 @@
 ﻿using InvestmentBuilderCore;
 using NLog;
+using System;
 using System.Collections.Generic;
 
 namespace UserManagementService.Handlers
@@ -27,94 +28,93 @@ namespace UserManagementService.Handlers
     }
 
     /// <summary>
-    /// Register new user response dto.
-    /// </summary>
-    class RegisterNewUserResponse
-    {
-        public NewUserResponseEnum Response { get; set; }
-        public string Message { get; set; }
-    }
-
-    /// <summary>
     /// Class for handling a Register NewUser request
     /// </summary>
-    class RegisterNewUserHandler : PostRequestHandler<RegisterNewUserRequest, RegisterNewUserResponse>
+    class RegisterNewUserHandler : PostRequestHandler<RegisterNewUserRequest, UserManagementResponse>
     {
         /// <summary>
         /// Constructor
         /// </summary>
-        public RegisterNewUserHandler(IAuthDataLayer authtdata, IUserAccountInterface userAccountData) : base("RegisterUser")
+        public RegisterNewUserHandler(IAuthDataLayer authtdata, IUserAccountInterface userAccountData, IUserNotifier notifier, string validateNewUserUrl) : base("RegisterUser")
         {
-            _authdata = authtdata;
-            _userAccountData = userAccountData;
+            m_authdata = authtdata;
+            m_userAccountData = userAccountData;
+            m_userNotifier = notifier;
+            m_validateNewUserUrl = validateNewUserUrl;
         }
 
         /// <summary>
         /// Process the RegisterNewUser request
         /// </summary>
-        protected override RegisterNewUserResponse ProcessRequest(RegisterNewUserRequest request, Dictionary<string, List<string>> headers)
+        protected override UserManagementResponse ProcessRequest(RegisterNewUserRequest request, Dictionary<string, List<string>> headers)
         {
             logger.Info("processing new user request");
 
-            var response = new RegisterNewUserResponse();
+            var response = new UserManagementResponse();
 
             if (request.Password != request.ConfirmPassword)
             {
-                response.Response = NewUserResponseEnum.PASSWORDS_NOT_MATCHING;
+                response.Result = UserManagementResponse.UserManagementResponseType.FAIL;
             }
             else if(string.IsNullOrWhiteSpace(request.Password))
             {
                 //TODO, validate password
-                response.Response = NewUserResponseEnum.INVALID_PASSWORD;
+                response.Result = UserManagementResponse.UserManagementResponseType.FAIL;
             }
             else
             {
+                var token = Guid.NewGuid().ToString();
+
                 var salt = SaltedHash.GenerateSalt();
-                var result = _authdata.AddNewUser(request.UserName,
+                var result = m_authdata.AddNewUser(request.UserName,
                                     request.EMailAddress,
                                     salt,
                                     SaltedHash.GenerateHash(request.Password, salt),
                                     request.PhoneNumber,
-                                    true);
+                                    true,
+                                    token);
 
-                response.Response = toResponse(result);
+                response.Result = toResponse(result);
 
-                if (response.Response == NewUserResponseEnum.SUCCESS)
+                if (response.Result == UserManagementResponse.UserManagementResponseType.SUCCESS)
                 {
-                    _userAccountData.AddUser(request.EMailAddress, request.UserName);
+                    var link = $"{m_validateNewUserUrl}?token={token}";
+                    m_userNotifier.NotifyUser(request.EMailAddress, link);
+
+                    response.ResultMessage = "Register New User Succeded.\n\nYou will shortly receive an email to validate the request.";
+                    m_userAccountData.AddUser(request.EMailAddress, request.UserName);
+                }
+                else
+                {
+                    response.ResultMessage = "Register New User Failed.";
                 }
             }
 
-            logger.Info($"New User Request finished with response {response.Response}");
+            logger.Info($"New User Request finished with response {response.Result}");
             return response;
         }
 
         /// <summary>
-        /// convert database response to dto response
+        /// convert database response to dto res = ponse
         /// </summary>
         /// <returns></returns>
-        private NewUserResponseEnum toResponse(int result)
+        private UserManagementResponse.UserManagementResponseType toResponse(int result)
         {
-            switch (result)
+            if(result == 0)
             {
-                case 0:
-                    return NewUserResponseEnum.SUCCESS;
-                case 1:
-                    return NewUserResponseEnum.INVALID_USERNAME;
-                case 2:
-                    return NewUserResponseEnum.INVALID_PASSWORD;
-                case 3:
-                    return NewUserResponseEnum.USER_ALREADY_EXISTS;
+                return UserManagementResponse.UserManagementResponseType.SUCCESS;
             }
-            return NewUserResponseEnum.INVALID;
+            return UserManagementResponse.UserManagementResponseType.SUCCESS;
         }
 
         #region Private Member Data
 
-        private readonly IAuthDataLayer _authdata;
-        private readonly IUserAccountInterface _userAccountData;
+        private readonly IAuthDataLayer m_authdata;
+        private readonly IUserAccountInterface m_userAccountData;
 
         private static Logger logger = LogManager.GetCurrentClassLogger();
+        private readonly IUserNotifier m_userNotifier;
+        private readonly string m_validateNewUserUrl;
 
         #endregion
     }

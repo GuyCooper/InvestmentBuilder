@@ -165,7 +165,7 @@ namespace SQLServerDataLayer
         /// </summary>
         public double GetIssuedUnits(UserAccountToken userToken, DateTime dtValuation)
         {
-            userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
+            userToken.AuthorizeUser(AuthorizationLevel.READ);
             using (var connection = OpenConnection())
             {
                 using (var command = new SqlCommand("sp_GetIssuedUnits", connection))
@@ -194,7 +194,7 @@ namespace SQLServerDataLayer
                 return null;
             }
 
-            userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
+            userToken.AuthorizeUser(AuthorizationLevel.READ);
             using (var connection = OpenConnection())
             {
                 using (var command = new SqlCommand("sp_GetAccountData", connection))
@@ -345,7 +345,7 @@ namespace SQLServerDataLayer
         /// </summary>
         public IEnumerable<AccountMember> GetAccountMemberDetails(UserAccountToken userToken, DateTime valuationDate)
         {
-            userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
+            userToken.AuthorizeUser(AuthorizationLevel.READ);
             using (var connection = OpenConnection())
             {
                 using (var command = new SqlCommand("sp_GetAccountMembers", connection))

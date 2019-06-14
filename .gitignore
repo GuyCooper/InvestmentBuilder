@@ -68,3 +68,5 @@ dist
 *.VC.opendb
 *.VC.db
 *.vcxproj.user
+/jamesRodgers.txt
+/nigel.txt

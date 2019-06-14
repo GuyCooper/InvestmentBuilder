@@ -22,7 +22,7 @@ namespace SQLServerDataLayer
         /// <summary>
         /// add new user to auth table
         /// </summary>
-        public int AddNewUser(string userName, string eMail, string salt, string passwordHash, string phoneNumber, bool twoFactorEnabled)
+        public int AddNewUser(string userName, string eMail, string salt, string passwordHash, string phoneNumber, bool twoFactorEnabled, string token)
         {
             using (var connection = OpenConnection())
             {
@@ -35,6 +35,7 @@ namespace SQLServerDataLayer
                     command.Parameters.Add(new SqlParameter("@PasswordHash", passwordHash));
                     command.Parameters.Add(new SqlParameter("@PhoneNumber", phoneNumber));
                     command.Parameters.Add(new SqlParameter("@TwoFactorEnabled", twoFactorEnabled));
+                    command.Parameters.Add(new SqlParameter("@Token", token));
                     var objResult = command.ExecuteScalar();
                     if (objResult != null)
                     {
@@ -147,16 +148,16 @@ namespace SQLServerDataLayer
         }
 
         /// <summary>
-        /// Validate the user exists
+        /// Validate a new user. 
         /// </summary>
-        public bool ValidateUser(string emailAddress)
+        public bool ValidateNewUser(string token)
         {
             using (var connection = OpenConnection())
             {
-                using (var command = new SqlCommand("sp_ValidateUser", connection))
+                using (var command = new SqlCommand("sp_ValidateNewUser", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@EMail", emailAddress));
+                    command.Parameters.Add(new SqlParameter("@Token", token));
                     var objResult = command.ExecuteScalar();
                     if (objResult != null)
                     {

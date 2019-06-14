@@ -6,23 +6,41 @@ using System.Data.SqlClient;
 
 namespace SQLServerDataLayer
 {
-    //implementation class returns the authorization level for a user  
+    /// <summary>
+    /// implementation class returns the authorization level for a user   
+    /// </summary>
     public class SQLAuthorizationManager : AuthorizationManager, IDisposable
     {
-        private string _connectionStr;
+        #region Public Methods
 
-        private SqlConnection OpenConnection()
-        {
-            var connection = new SqlConnection(_connectionStr);
-            connection.Open();
-            return connection;
-        }
-
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public SQLAuthorizationManager(IConfigurationSettings settings)
         {
             _connectionStr = settings.DatasourceString;
         }
 
+        /// <summary>
+        /// Set the datasource for this class.
+        /// </summary>
+        public void ConnectNewDatasource(string datasource)
+        {
+            _connectionStr = datasource;
+        }
+
+        public void Dispose()
+        {
+            //_connection.Close();
+        }
+
+        #endregion
+
+        #region Protected Methods
+
+        /// <summary>
+        /// Returns true if specified user is a global administrator.
+        /// </summary>
         protected override bool IsGlobalAdministrator(string user)
         {
             using (var connection = OpenConnection())
@@ -41,6 +59,9 @@ namespace SQLServerDataLayer
             return false;
         }
 
+        /// <summary>
+        /// Returns the authorisation level for the speciifed user against the specified account.
+        /// </summary>
         protected override AuthorizationLevel GetUserAuthorizationLevel(string user, AccountIdentifier account)
         {
             using (var connection = OpenConnection())
@@ -60,14 +81,26 @@ namespace SQLServerDataLayer
             return AuthorizationLevel.NONE;
         }
 
-        public void ConnectNewDatasource(string datasource)
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        /// Open the database connection
+        /// </summary>
+        private SqlConnection OpenConnection()
         {
-            _connectionStr = datasource;
+            var connection = new SqlConnection(_connectionStr);
+            connection.Open();
+            return connection;
         }
 
-        public void Dispose()
-        {
-            //_connection.Close();
-        }
+        #endregion
+
+        #region Private Data
+
+        private string _connectionStr;
+
+        #endregion
     }
 }

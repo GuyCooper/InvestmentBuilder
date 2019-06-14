@@ -42,12 +42,18 @@ namespace UserManagementService
         /// </summary>
         public async void Run()
         {
-            logger.Info("Endpoint listener starting...");
+            try
+            {
+                logger.Info("Endpoint listener starting...");
 
-            _httpListener.Start();
+                _httpListener.Start();
 
-            await _ProcessConnection();
-
+                await _ProcessConnection();
+            }
+            catch(Exception ex)
+            {
+                logger.Error(ex);
+            }
         }
 
         #endregion

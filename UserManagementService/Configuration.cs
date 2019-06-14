@@ -27,9 +27,14 @@ namespace UserManagementService
         /// </summary>
         string HostURL { get; }
         /// <summary>
-        /// url of change password page. sent in email message
+        /// change password page. 
         /// </summary>
-        string ChangePasswordURL { get; }
+        string ChangePasswordPage { get; }
+        /// <summary>
+        /// validate new user page
+        /// </summary>
+        string ValidateNewUserPage { get; }
+
         /// <summary>
         /// max number of concurrent connections service will support
         /// </summary>
@@ -67,8 +72,11 @@ namespace UserManagementService
         [XmlElement("hosturl")]
         public string HostURL { get; set; }
 
-        [XmlElement("changepasswordurl")]
-        public string ChangePasswordURL { get; set; }
+        [XmlElement("changepasswordpage")]
+        public string ChangePasswordPage { get; set; }
+
+        [XmlElement("validatenewuserpage")]
+        public string ValidateNewUserPage { get; set; }
 
         [XmlElement("maxconnections")]
         public int MaxConnections { get; set; }
@@ -104,7 +112,9 @@ namespace UserManagementService
 
         public string HostURL { get { return _configuration.HostURL; } }
 
-        public string ChangePasswordURL { get { return _configuration.ChangePasswordURL; } }
+        public string ChangePasswordPage { get { return _configuration.ChangePasswordPage; } }
+
+        public string ValidateNewUserPage { get { return _configuration.ValidateNewUserPage; } }
 
         public int MaxConnections { get { return _configuration.MaxConnections; } }
 

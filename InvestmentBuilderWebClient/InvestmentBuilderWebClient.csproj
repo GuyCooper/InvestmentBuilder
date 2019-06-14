@@ -22,13 +22,13 @@
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ChangePassword.html" />
+    <Content Include="userviews\ChangePassword.html" />
     <Content Include="Gruntfile.js" />
     <Content Include="gulpfile.js" />
     <Content Include="Index.html" />
     <Content Include="Middleware\Middleware.js" />
-    <Content Include="ForgottenPassword.html" />
-    <Content Include="RegisterUser.html" />
+    <Content Include="userviews\ForgottenPassword.html" />
+    <Content Include="userviews\RegisterUser.html" />
     <Content Include="src\AccountList.js" />
     <Content Include="src\AddAccount.js" />
     <Content Include="src\CashFlow.js" />
@@ -59,7 +59,8 @@
     <Content Include="styles\thirdParty\jquery-ui.theme.min.css" />
     <Content Include="styles\thirdParty\Site.css" />
     <Content Include="tasks\scaffold.js" />
-    <Content Include="UserTemplate.html" />
+    <Content Include="userviews\UserTemplate.html" />
+    <Content Include="userviews\ValidateNewUser.html" />
     <Content Include="views\AccountList.html" />
     <Content Include="views\AddAccount.html" />
     <Content Include="views\LastTransaction.html" />

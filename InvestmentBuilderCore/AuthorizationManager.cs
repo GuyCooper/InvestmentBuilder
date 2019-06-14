@@ -26,6 +26,8 @@ namespace InvestmentBuilderCore
 
         public AccountIdentifier Account { get; private set; }
 
+        public bool IsAdministrator { get { return _authorization == AuthorizationLevel.ADMINISTRATOR; } } 
+
         #endregion
 
         #region Public Methods

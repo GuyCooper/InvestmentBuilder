@@ -35,12 +35,12 @@ module.exports = function (grunt) {
                     "./Middleware/Middleware.js"
             ],
 
-            registerlibs: [
+            registerlibsmin: [
                     "./libs/modernizr-2.6.2.js",
-                    "./libs/jquery-1.10.2.js",
-                    "./libs/jquery-ui.js",
-                    "./libs/bootstrap.js",
-                    "./libs/angular.js"
+                    "./libsmin/jquery-1.10.2.min.js",
+                    "./libsmin/jquery-ui.min.js",
+                    "./libsmin/bootstrap.min.js",
+                    "./libsmin/angular.min.js"
             ],
 
             registersourcejs : [
@@ -86,10 +86,6 @@ module.exports = function (grunt) {
             }
         },
         concat: {
-            libjs: {
-                src: ['<%= app.libs %>'],
-                dest: '<%= app.output.folder %>/js/libs.js'
-            },
             libminjs: {
                 src: ['<%= app.libsmin %>'],
                 dest: '<%= app.output.folder %>/js/libsmin.js'
@@ -97,6 +93,10 @@ module.exports = function (grunt) {
             registerlibsjs: {
                 src: ['<%= app.registerlibs %>'],
                 dest: '<%= app.output.folder %>/js/registerlibs.js'
+            },
+            registerlibsminjs: {
+                src: ['<%= app.registerlibsmin %>'],
+                dest: '<%= app.output.folder %>/js/registerlibsmin.js'
             },
             appjs: {
                 src: ['<%= app.sourcejs %>'],
@@ -174,19 +174,24 @@ module.exports = function (grunt) {
                         "lookup": {}
                     },
                     {
-                        "sourceFile": 'UserTemplate.html',
+                        "sourceFile": 'userviews/UserTemplate.html',
                         "outputFile": '<%= app.output.folder %>/RegisterUser.html',
-                        "lookup": { "templateurl": "RegisterUser.html", "title" : "Register User", "requestSuccess" : "Register User succeded", "requestFail" : "Register User failed" }
+                        "lookup": { "templateurl": "userviews/RegisterUser.html", "title" : "Register User"}
                     },
                     {
-                        "sourceFile": 'UserTemplate.html',
+                        "sourceFile": 'userviews/UserTemplate.html',
                         "outputFile": '<%= app.output.folder %>/ForgottenPassword.html',
-                        "lookup": { "templateurl": "ForgottenPassword.html", "title": "Forgotten Password", "requestSuccess": "Forgotten password succeded", "requestFail": "Forgotten password  failed" }
+                        "lookup": { "templateurl": "userviews/ForgottenPassword.html", "title": "Forgotten Password" }
                     },
                     {
-                        "sourceFile": 'UserTemplate.html',
+                        "sourceFile": 'userviews/UserTemplate.html',
                         "outputFile": '<%= app.output.folder %>/ChangePassword.html',
-                        "lookup": { "templateurl": "ChangePassword.html", "title": "Change Password", "requestSuccess": "Change password succeded", "requestFail": "Change password failed" }
+                        "lookup": { "templateurl": "userviews/ChangePassword.html", "title": "Change Password" }
+                    },
+                    {
+                        "sourceFile": 'userviews/UserTemplate.html',
+                        "outputFile": '<%= app.output.folder %>/ValidateNewUser.html',
+                        "lookup": { "templateurl": "userviews/ValidateNewUser.html", "title": "Validate New User" }
                     },
                 ]
             }
@@ -215,7 +220,7 @@ module.exports = function (grunt) {
     grunt.registerTask('cleandist', ['clean:packaging']);
     grunt.registerTask('buildlib', ['concat:libminjs']);
     //grunt.registerTask('buildlib', ['uglify:libs']);
-    grunt.registerTask('buildregisterlib', ['concat:registerlibsjs']);
+    grunt.registerTask('buildregisterlib', ['concat:registerlibsminjs']);
     grunt.registerTask('buildapp', ['concat:appjs', 'concat:registerappjs']);
     grunt.registerTask('copyviews', ['copy:views']);
     grunt.registerTask('copyconfig', ['copy:config']);

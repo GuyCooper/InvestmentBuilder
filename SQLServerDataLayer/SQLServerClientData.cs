@@ -74,7 +74,7 @@ namespace SQLServerDataLayer
         /// </summary>
         public DateTime? GetLatestValuationDate(UserAccountToken userToken)
         {
-            userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
+            userToken.AuthorizeUser(AuthorizationLevel.READ);
             using (var connection = OpenConnection())
             {
                 using (var sqlCommand = new SqlCommand("sp_GetLatestValuationDate", connection))

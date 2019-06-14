@@ -49,7 +49,12 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
     };
 
    //invoke the add account dialog view
-    var showAccountPopup = function (title, account) {
+    var showAccountPopup = function (title, account, isError) {
+
+        if (isError === true) {
+            return;
+        }
+
         var modalInstance = $uibModal.open({
             animation: true,
             ariaLabelledBy: 'modal-title',
@@ -101,12 +106,12 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
 
     $scope.editAccount = function () {
         MiddlewareService.GetAccountDetails($scope.SelectedAcount, (account) => {
-            showAccountPopup("Edit Account", account);
+            showAccountPopup("Edit Account", account, account.IsError);
         });
     };
 
     $scope.addAccount = function () {
-        showAccountPopup("Add Account", null);
+        showAccountPopup("Add Account", null, false);
     };
 
     // Display the last transaction and give the user the option to undo it.

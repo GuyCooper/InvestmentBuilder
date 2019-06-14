@@ -14,7 +14,7 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[sp_AuthAddNewUser](@UserName NVARCHAR(256), @EMail NVARCHAR(256), @Salt NVARCHAR(max), 
-										   @PasswordHash NVARCHAR(max), @PhoneNumber NVARCHAR(256), @TwoFactorEnabled BIT) AS
+										   @PasswordHash NVARCHAR(max), @PhoneNumber NVARCHAR(256), @TwoFactorEnabled BIT, @Token NVARCHAR(265)) AS
 BEGIN
 
 DECLARE @Result INT
@@ -62,6 +62,10 @@ BEGIN
 	
 	INSERT INTO UserSalt ([User_Id], [Salt])
 	VALUES (@NewId, @Salt)	
+
+	INSERT INTO PasswordChange
+	VALUES (@NewId, @Token, GETDATE())
+
 	SET @Result = 0
 	GOTO ALLGOOD
 ON_ERROR:

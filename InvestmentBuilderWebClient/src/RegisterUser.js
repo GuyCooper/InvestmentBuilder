@@ -1,5 +1,6 @@
 ﻿"use strict"
 
+// Controller for the register user workflow.
 function RegisterUser($scope, $http) {
     $scope.EMailAddress = "";
     $scope.Password = "";
@@ -42,22 +43,34 @@ function RegisterUser($scope, $http) {
         $scope.IsError = false;
     };
 
+    // Process user error message
+    var failed = function (error) {
+        $scope.ErrorList.push(error);
+    };
 
-    var onsuccess = function(response) {
+    // HTTP Request succeded (although the request itself may have failed)
+    var onsuccess = function (response) {
+
         console.log("success");
         $scope.Complete = true;
         $scope.IsBusy = false;
-        $scope.Success = true;
+        $scope.Success = response.data.Result === 1;
+        $scope.ResultMessage = response.data.ResultMessage;
+        if ($scope.Success === false) {
+            failed(response.data.ResultMessage);
+        }
     };
 
+    // HTTP Request failed.
     var onfail = function(response) {
         console.log("failed");
         $scope.Complete = true;
         $scope.IsBusy = false;
-        $scope.Success = false;
-        $scope.ErrorList.push(response);
+        failed(response.data);
     };
 
+    // This webpage should have been opened from a email link that contains a token parameter. 
+    // e.g: http://url.co.uk/CHANGEPASSWORD?token=abcd. This methodextracts that parameter.
     var getToken = function () {
         var index = window.location.search.indexOf("=");
         if(index > 1) {
@@ -66,6 +79,7 @@ function RegisterUser($scope, $http) {
         return "";
     }
 
+    // Register a new user
     $scope.registerUser = function () {
         $scope.ErrorList = [];
         validateEmailAddress();
@@ -84,6 +98,7 @@ function RegisterUser($scope, $http) {
         }
     };
 
+    // Process a forgotten password request.
     $scope.forgottenPassword = function () {
         $scope.ErrorList = [];
         validateEmailAddress();
@@ -97,6 +112,7 @@ function RegisterUser($scope, $http) {
         }
     };
 
+    // Process a change password request. 
     $scope.changePassword = function () {
         var token = getToken();
         $scope.ErrorList = [];
@@ -110,15 +126,20 @@ function RegisterUser($scope, $http) {
             };
 
             $scope.IsBusy = true;
-            $http.post(servername + "/ChangePassword", userDetails).then((result) => {
-                if (result.data.Result !== 1) {
-                    onfail(result.data.ResultMessage);
-                } else {
-                    onsuccess();
-                }
-            }
-            , onfail);
+            $http.post(servername + "/ChangePassword", userDetails).then(onsuccess, onfail);
         }
+    };
+
+    // Validate a new user
+    $scope.validateNewUser = function () {
+        var token = getToken();
+
+        var validateUser = {
+            "Token": token
+        };
+
+        $scope.IsBusy = true;
+        $http.post(servername + "/ValidateNewUser", validateUser).then(onsuccess, onfail);
     };
 
     $http.get("./config.json").then(function (data) {

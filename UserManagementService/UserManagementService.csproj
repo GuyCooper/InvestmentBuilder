@@ -66,6 +66,7 @@
     <Compile Include="Handlers\ChangePasswordHandler.cs" />
     <Compile Include="Handlers\ForgottonPasswordHandler.cs" />
     <Compile Include="Handlers\RegisterNewUserHandler.cs" />
+    <Compile Include="Handlers\ValidateNewUserHandler.cs" />
     <Compile Include="Serialiser.cs" />
     <Compile Include="UserManagementService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

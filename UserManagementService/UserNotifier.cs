@@ -11,7 +11,7 @@ namespace UserManagementService
     /// </summary>
     public interface IUserNotifier
     {
-        void NotifyUserPasswordChange(string userAddress, string linkUrl);
+        void NotifyUser(string userAddress, string linkUrl);
     }
 
     /// <summary>
@@ -35,7 +35,7 @@ namespace UserManagementService
         /// <summary>
         /// Email the user the password change link
         /// </summary>
-        public void NotifyUserPasswordChange(string userAddress, string linkUrl)
+        public void NotifyUser(string userAddress, string linkUrl)
         {
             try
             {
@@ -80,7 +80,7 @@ namespace UserManagementService
         /// <summary>
         /// Notifer user of password change request.
         /// </summary>
-        public void NotifyUserPasswordChange(string userAddress, string linkUrl)
+        public void NotifyUser(string userAddress, string linkUrl)
         {
             Console.WriteLine($"user: {userAddress}. link: {linkUrl}");
             File.WriteAllText("testEmail.txt", $"link: {linkUrl}");

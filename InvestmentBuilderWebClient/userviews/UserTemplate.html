@@ -31,9 +31,8 @@
                         @[templateurl]
                     </div>
                     <div ng-show="Complete">
-                        <h3 ng-show="Success">@[requestSuccess]</h3>
+                        <h3>{{ResultMessage}}</h3>
                         <div ng-hide="Success">
-                            <h3>@[requestFail]</h3>
                             <br />
                             <ul>
                                 <li class="text-danger" ng-repeat="error in ErrorList" ng-bind="error"></li>
@@ -46,7 +45,7 @@
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="js/registerlibs.js"></script>
+    <script type="text/javascript" src="js/registerlibsmin.js"></script>
     <script type="text/javascript" src="js/registerUser.js"></script>
 </body>
 </html>

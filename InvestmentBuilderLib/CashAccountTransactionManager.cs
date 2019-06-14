@@ -100,13 +100,14 @@ namespace InvestmentBuilder
         {
             Contract.Requires(userToken != null);
             var transactions = new List<ReceiptTransaction>();
-            _GetTransactionsImpl<ReceiptTransaction>(userToken, dtValuationDate, ReceiptMnemomic,
+            _GetTransactionsImpl(userToken, dtValuationDate, ReceiptMnemomic,
                                                         transactions);
             //add the balance in handfrom the previous monthif it is not already there
-            if (dtPreviousValuationDate.HasValue && dtValuationDate > dtPreviousValuationDate)
+            //can only do this if user is an adminstrator
+            if(userToken.IsAdministrator && dtPreviousValuationDate.HasValue && dtValuationDate > dtPreviousValuationDate)
             {
                 var balanceInHand = transactions.FirstOrDefault(r => r.TransactionType == BALANCEINHAND);
-                if (balanceInHand == null)
+                if(balanceInHand == null)
                 {
                     var dAmount = _cashAccountData.GetBalanceInHand(userToken, dtPreviousValuationDate.Value);
                     

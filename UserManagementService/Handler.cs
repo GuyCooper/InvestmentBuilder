@@ -105,4 +105,20 @@ namespace UserManagementService
         }
     }
 
+    /// <summary>
+    /// Standard user management response DTO. Should only contain pass / fail and brief
+    /// resultmessage.
+    /// </summary>
+    internal class UserManagementResponse
+    {
+        public enum UserManagementResponseType
+        {
+            FAIL,
+            SUCCESS
+        };
+
+        public UserManagementResponseType Result { get; set; }
+        public string ResultMessage { get; set; }
+    }
+
 }
