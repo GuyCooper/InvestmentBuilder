@@ -17,25 +17,32 @@ namespace UserManagementService
         /// </summary>
         public static void Main(string[] args)
         {
-            logger.Info($"Starting UserManagementService");
-
-            var configuration = new Configuration("UserManagementConfiguration.xml");
-
-            //Instantiate the listener...
-            using (var endpoint = new Endpoint(configuration.ListenURL, configuration.HostURL))
+            try
             {
-                //Register all the handlers.
-                RegisterHandlers(endpoint, configuration);
-                endpoint.Run();
+                logger.Info($"Starting UserManagementService");
 
-                //Wait until user shuts down the application...
-                Console.CancelKeyPress += (sender, e) =>
+                var configuration = new Configuration("UserManagementConfiguration.xml");
+
+                //Instantiate the listener...
+                using (var endpoint = new Endpoint(configuration.ListenURL, configuration.HostURL))
                 {
-                    e.Cancel = true;
-                    _shutdownEvent.Set();
-                };
+                    //Register all the handlers.
+                    RegisterHandlers(endpoint, configuration);
+                    endpoint.Run();
 
-                _shutdownEvent.WaitOne();
+                    //Wait until user shuts down the application...
+                    Console.CancelKeyPress += (sender, e) =>
+                    {
+                        e.Cancel = true;
+                        _shutdownEvent.Set();
+                    };
+
+                    _shutdownEvent.WaitOne();
+                }
+            }
+            catch(Exception ex)
+            {
+                logger.Error(ex);   
             }
         }
 

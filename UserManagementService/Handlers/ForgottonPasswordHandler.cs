@@ -49,7 +49,7 @@ namespace UserManagementService.Handlers
             {
                 var link = $"{_changePasswordUrl}?token={token}";
 
-                _notifier.NotifyUser(request.EMailAddress, link);
+                _notifier.NotifyUser(request.EMailAddress, link, "PasswordReset.html", "Investment Builder Password Reset");
 
                 response.Result = UserManagementResponse.UserManagementResponseType.SUCCESS;
                 response.ResultMessage = "Forgotten Password Request succeded. You will receive an email shortly.";

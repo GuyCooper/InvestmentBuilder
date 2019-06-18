@@ -79,7 +79,7 @@ namespace UserManagementService.Handlers
                 if (response.Result == UserManagementResponse.UserManagementResponseType.SUCCESS)
                 {
                     var link = $"{m_validateNewUserUrl}?token={token}";
-                    m_userNotifier.NotifyUser(request.EMailAddress, link);
+                    m_userNotifier.NotifyUser(request.EMailAddress, link, "ValidateNewUser.html", "Validate New User");
 
                     response.ResultMessage = "Register New User Succeded.\n\nYou will shortly receive an email to validate the request.";
                     m_userAccountData.AddUser(request.EMailAddress, request.UserName);

@@ -11,7 +11,7 @@ namespace UserManagementService
     /// </summary>
     public interface IUserNotifier
     {
-        void NotifyUser(string userAddress, string linkUrl);
+        void NotifyUser(string userAddress, string linkUrl, string templateFile, string subject);
     }
 
     /// <summary>
@@ -35,22 +35,25 @@ namespace UserManagementService
         /// <summary>
         /// Email the user the password change link
         /// </summary>
-        public void NotifyUser(string userAddress, string linkUrl)
+        public void NotifyUser(string userAddress, string linkUrl, string templateFile, string subject)
         {
             try
             {
-                SmtpClient mail = new SmtpClient(_smtpServer);
-                mail.UseDefaultCredentials = false;
-                mail.Credentials = new NetworkCredential(_smtpUsername, _smtpPassword);
-
-                var message = File.ReadAllText("Template.html").Replace("<LINK>", linkUrl);
-
-                MailMessage mailMessage = new MailMessage();
-                mailMessage.From = new MailAddress(_from);
-                mailMessage.To.Add(userAddress);
-                mailMessage.Body = message;
-                mailMessage.Subject = "Investment Builder Password Reset";
-                mail.Send(mailMessage);
+                using (SmtpClient mail = new SmtpClient(_smtpServer))
+                {
+                    mail.UseDefaultCredentials = false;
+                    mail.Credentials = new NetworkCredential(_smtpUsername, _smtpPassword);
+                    var message = File.ReadAllText(templateFile).Replace("<LINK>", linkUrl);
+                    using (MailMessage mailMessage = new MailMessage())
+                    {
+                        mailMessage.IsBodyHtml = true;
+                        mailMessage.From = new MailAddress(_from);
+                        mailMessage.To.Add(userAddress);
+                        mailMessage.Body = message;
+                        mailMessage.Subject = subject;
+                        mail.Send(mailMessage);
+                    }
+                }
             }
             catch(Exception ex)
             {
@@ -80,7 +83,7 @@ namespace UserManagementService
         /// <summary>
         /// Notifer user of password change request.
         /// </summary>
-        public void NotifyUser(string userAddress, string linkUrl)
+        public void NotifyUser(string userAddress, string linkUrl, string templateFile, string subject)
         {
             Console.WriteLine($"user: {userAddress}. link: {linkUrl}");
             File.WriteAllText("testEmail.txt", $"link: {linkUrl}");

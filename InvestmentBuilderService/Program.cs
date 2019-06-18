@@ -11,58 +11,75 @@ using System.Threading;
 
 namespace InvestmentBuilderService
 {
+    /// <summary>
+    /// Main Entry point to InvestmentBuilderService.
+    /// </summary>
     class Program
     {
-        private static Logger logger = LogManager.GetLogger("InvestmentBuilderService");
+        #region Main
+
         /// <summary>
         /// console app for hosting the investment builder core. interfaces to the middleware
         /// service to allow remote clients access to the investment builder services
         /// </summary>
-        /// <param name="args"></param>
         static void Main(string[] args)
         {
-            ContainerManager.RegisterType(typeof(IAuthorizationManager), typeof(SQLAuthorizationManager), true);
-            ContainerManager.RegisterType(typeof(IConfigurationSettings), typeof(ConfigurationSettings), true, "InvestmentBuilderConfig.xml");
-            ContainerManager.RegisterType(typeof(IConnectionSettings), typeof(ConnectionSettings),true, "Connections.xml");
-            ContainerManager.RegisterType(typeof(IMarketDataService), typeof(MarketDataService), true);
-            MarketDataRegisterService.RegisterServices();
-            ContainerManager.RegisterType(typeof(IDataLayer), typeof(SQLServerDataLayer.SQLServerDataLayer), true);
-            ContainerManager.RegisterType(typeof(IInvestmentRecordDataManager), typeof(InvestmentRecordBuilder), true);
-            ContainerManager.RegisterType(typeof(AccountService),true);
-            ContainerManager.RegisterType(typeof(InvestmentBuilder.InvestmentBuilder), true);
-            ContainerManager.RegisterType(typeof(PerformanceBuilderLib.PerformanceBuilder), true);
-            ContainerManager.RegisterType(typeof(CashAccountTransactionManager), true);
-            ContainerManager.RegisterType(typeof(CashFlowManager), true);
-            ContainerManager.RegisterType(typeof(IInvestmentReportWriter),typeof(InvestmentReportGenerator.InvestmentReportWriter), true);           
+            try
+            {
+                ContainerManager.RegisterType(typeof(IAuthorizationManager), typeof(SQLAuthorizationManager), true);
+                ContainerManager.RegisterType(typeof(IConfigurationSettings), typeof(ConfigurationSettings), true, "InvestmentBuilderConfig.xml");
+                ContainerManager.RegisterType(typeof(IConnectionSettings), typeof(ConnectionSettings), true, "Connections.xml");
+                ContainerManager.RegisterType(typeof(IMarketDataService), typeof(MarketDataService), true);
+                MarketDataRegisterService.RegisterServices();
+                ContainerManager.RegisterType(typeof(IDataLayer), typeof(SQLServerDataLayer.SQLServerDataLayer), true);
+                ContainerManager.RegisterType(typeof(IInvestmentRecordDataManager), typeof(InvestmentRecordBuilder), true);
+                ContainerManager.RegisterType(typeof(AccountService), true);
+                ContainerManager.RegisterType(typeof(InvestmentBuilder.InvestmentBuilder), true);
+                ContainerManager.RegisterType(typeof(PerformanceBuilderLib.PerformanceBuilder), true);
+                ContainerManager.RegisterType(typeof(CashAccountTransactionManager), true);
+                ContainerManager.RegisterType(typeof(CashFlowManager), true);
+                ContainerManager.RegisterType(typeof(IInvestmentReportWriter), typeof(InvestmentReportGenerator.InvestmentReportWriter), true);
 
-            using (var child = ContainerManager.CreateChildContainer())
-            {                 
-                var authData = new SQLAuthData(ContainerManager.ResolveValue<IConfigurationSettings>().AuthDatasourceString);
-                var authSession = new MiddlewareSession(ContainerManager.ResolveValue<IConnectionSettings>().AuthServerConnection, "InvestmentBuilder-AuthService");
-                var userManager = new UserSessionManager(authSession, authData, ContainerManager.ResolveValue<AccountManager>());
-                var serverSession = new MiddlewareSession(ContainerManager.ResolveValue<IConnectionSettings>().ServerConnection, "InvestmentBuilder-Channels");
-                var endpointManager = new ChannelEndpointManager(serverSession, userManager);
-
-                //now connect to servers and wait
-
-                Console.WriteLine("connecting to servers...");
-                ConnectToServers(userManager, endpointManager, child);
-
-                ManualResetEvent closeEvent = new ManualResetEvent(false);
-                Console.CancelKeyPress += (s, e) =>
+                using (var child = ContainerManager.CreateChildContainer())
                 {
-                    closeEvent.Set();
-                    e.Cancel = true;
-                };
+                    var authData = new SQLAuthData(ContainerManager.ResolveValue<IConfigurationSettings>().AuthDatasourceString);
+                    var authSession = new MiddlewareSession(ContainerManager.ResolveValue<IConnectionSettings>().AuthServerConnection, "InvestmentBuilder-AuthService");
+                    var userManager = new UserSessionManager(authSession, authData, ContainerManager.ResolveValue<AccountManager>());
+                    var serverSession = new MiddlewareSession(ContainerManager.ResolveValue<IConnectionSettings>().ServerConnection, "InvestmentBuilder-Channels");
+                    var endpointManager = new ChannelEndpointManager(serverSession, userManager);
 
-                closeEvent.WaitOne();
+                    //now connect to servers and wait
 
-                authSession.Dispose();
-                serverSession.Dispose();
+                    Console.WriteLine("connecting to servers...");
+                    ConnectToServers(userManager, endpointManager, child);
+
+                    ManualResetEvent closeEvent = new ManualResetEvent(false);
+                    Console.CancelKeyPress += (s, e) =>
+                    {
+                        closeEvent.Set();
+                        e.Cancel = true;
+                    };
+
+                    closeEvent.WaitOne();
+
+                    authSession.Dispose();
+                    serverSession.Dispose();
+                }
+            }
+            catch(Exception ex)
+            {
+                logger.Error(ex);
             }
         }
 
-        static async void ConnectToServers(EndpointManager authServer, EndpointManager server, IUnityContainer container)
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        /// Attach the endpoints to the correct server connections. 
+        /// </summary>
+        private static async void ConnectToServers(EndpointManager authServer, EndpointManager server, IUnityContainer container)
         {
             var connected = await authServer.Connect();
             if (connected == false)
@@ -94,5 +111,13 @@ namespace InvestmentBuilderService
                 Console.WriteLine("connection succeded!");
             }
         }
+
+        #endregion
+
+        #region Private Data
+
+        private static Logger logger = LogManager.GetLogger("InvestmentBuilderService");
+
+        #endregion
     }
 }

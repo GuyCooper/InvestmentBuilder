@@ -85,7 +85,7 @@ namespace
 			
 			boost::property_tree::ptree tree;
 	
-			// Parse the JSON into the property tree.
+			// Parse the XML into the property tree.
 			boost::property_tree::read_xml(configurationfile, tree);
 
 			BOOST_FOREACH(boost::property_tree::ptree::value_type &process, tree.get_child("configuration.processes"))
