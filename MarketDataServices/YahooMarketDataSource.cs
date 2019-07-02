@@ -104,6 +104,7 @@ namespace MarketDataServices
             }
 
             m_scriptFolder = settings.ScriptFolder;
+
         }
 
         #endregion

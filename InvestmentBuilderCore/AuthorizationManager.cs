@@ -119,7 +119,7 @@ namespace InvestmentBuilderCore
                 return new UserAccountToken(user, account, AuthorizationLevel.ADMINISTRATOR);
             }
 
-            if(account != null & string.IsNullOrEmpty(account.Name) == false)
+            if(account != null && string.IsNullOrEmpty(account.Name) == false)
             {
                 return new UserAccountToken(user, account,
                     GetUserAuthorizationLevel(user, account));
@@ -135,7 +135,7 @@ namespace InvestmentBuilderCore
         public UserAccountToken SetUserAccountToken(string user, AccountIdentifier account)
         {
             UserAccountToken existingToken;
-            if (IsGlobalAdministrator(user) || account.Name == null)
+            if (IsGlobalAdministrator(user) || account?.Name == null)
             {
                 _userTokenlookup.TryGetValue(user, out existingToken);
                 if(existingToken != null)

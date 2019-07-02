@@ -3,6 +3,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using System.IO;
 using System.Linq;
+using InvestmentBuilderCore.Schedule;
 
 namespace InvestmentBuilderCore
 {
@@ -50,6 +51,12 @@ namespace InvestmentBuilderCore
         /// Folder containing any external scriopts to be run.
         /// </summary>
         string ScriptFolder { get; }
+        
+        /// <summary>
+        /// Lst of scheduled tasks.
+        /// </summary>
+        IEnumerable<ScheduledTaskDetails> ScheduledTasks { get; }
+
         #endregion
 
         #region Public Methods
@@ -119,6 +126,9 @@ namespace InvestmentBuilderCore
         public string TemplatePath { get; set; }
         [XmlElement("scriptFolder")]
         public string ScriptFolder { get; set; }
+        [XmlArray("schedule")]
+        public ScheduledTaskDetails[] ScheduledTasks { get; set; }
+
     }
 
     /// <summary>
@@ -145,6 +155,11 @@ namespace InvestmentBuilderCore
         public string ScriptFolder { get { return _configuration.ScriptFolder; } }
 
         public IEnumerable<string> ReportFormats { get { return _configuration.ReportFormats; } }
+
+        /// <summary>
+        /// List of scheduled tasks.
+        /// </summary>
+        public IEnumerable<ScheduledTaskDetails> ScheduledTasks { get { return _configuration.ScheduledTasks; } }
 
         #endregion
 

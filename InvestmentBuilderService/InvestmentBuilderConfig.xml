@@ -42,4 +42,10 @@
     <format>EXCEL</format>
     <format>PDF</format>
   </formats>
+  <schedule>
+    <task>
+      <name>Yahoo</name>
+      <scheduled>17:37:00</scheduled>
+    </task>
+  </schedule>
 </configuration>

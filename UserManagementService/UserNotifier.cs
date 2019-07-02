@@ -38,7 +38,7 @@ namespace UserManagementService
         public void NotifyUser(string userAddress, string linkUrl, string templateFile, string subject)
         {
             try
-            {
+            {                
                 using (SmtpClient mail = new SmtpClient(_smtpServer))
                 {
                     mail.UseDefaultCredentials = false;
@@ -51,6 +51,9 @@ namespace UserManagementService
                         mailMessage.To.Add(userAddress);
                         mailMessage.Body = message;
                         mailMessage.Subject = subject;
+
+                        logger.Info($"Sending {subject} email to {userAddress} from {_from}");
+
                         mail.Send(mailMessage);
                     }
                 }

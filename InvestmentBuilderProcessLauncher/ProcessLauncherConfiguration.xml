@@ -3,10 +3,11 @@
   <servicename>MiddlewareService</servicename>
   <processes>
     <process>
-      <name>Middleware</name>
-      <path>C:\Projects\Middleware\Middleware\bin\release\Middleware.exe</path>
-      <workingpath>C:\Projects\Middleware\Middleware\bin\release</workingpath>
+      <name>UpdateMarketData</name>
+      <path>C:\Projects\InvestmentBuilder\php\DownloadMarketData.bat</path>
+      <workingpath>C:\Projects\InvestmentBuilder\php</workingpath>
       <instances>1</instances>
+      <runtime>17:58:00</runtime>
     </process>
   </processes>
 </configuration>

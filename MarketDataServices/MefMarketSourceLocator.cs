@@ -1,25 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using InvestmentBuilderCore;
+using InvestmentBuilderCore.Schedule;
 
 namespace MarketDataServices
 {
+    /// <summary>
+    /// MEF implememtation of IMarketSourceLocator.MEF is a service locator that can instantiate
+    /// instances of types froma list of assemblies.
+    /// </summary>
     internal class MefMarketSourceLocator : IMarketSourceLocator
     {
-        private CompositionContainer _container;
-
-        [ImportMany(typeof(IMarketDataSource))]
-        public IEnumerable<IMarketDataSource> Sources
-        {
-            get; private set;
-        }
-
-        public MefMarketSourceLocator(IConfigurationSettings settings)
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public MefMarketSourceLocator(IConfigurationSettings settings, ScheduledTaskFactory scheduledTaskFactory)
         {
             var catalog = new AggregateCatalog();
             //inject all IMarketDataSource instances in this assemlby
@@ -33,8 +29,27 @@ namespace MarketDataServices
             //now inject the datareader into all the different datasources
             foreach (IMarketDataSource source in Sources)
             {
-                source.Initialise(settings);
+                source.Initialise(settings, scheduledTaskFactory);
             }
         }
+
+        #region IMarketSourceLocator
+
+        /// <summary>
+        /// Returns a list of available market data sources.
+        /// </summary>
+        [ImportMany(typeof(IMarketDataSource))]
+        public IEnumerable<IMarketDataSource> Sources
+        {
+            get; private set;
+        }
+
+        #endregion
+
+        #region Private Data
+
+        private CompositionContainer _container;
+
+        #endregion
     }
 }

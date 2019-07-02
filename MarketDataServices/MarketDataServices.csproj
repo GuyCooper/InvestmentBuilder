@@ -78,7 +78,6 @@
     <Compile Include="MarketDataService.cs" />
     <Compile Include="MefMarketSourceLocator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="QuandlMarketDataSource.cs" />
     <Compile Include="TestFileMarketDataSource.cs" />
     <Compile Include="WebMarketDataReader.cs" />
     <Compile Include="YahooMarketDataSource.cs" />

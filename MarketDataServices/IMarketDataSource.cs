@@ -1,15 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using InvestmentBuilderCore;
 using System.Diagnostics.Contracts;
+using InvestmentBuilderCore.Schedule;
 
 namespace MarketDataServices
 {
+    /// <summary>
+    /// Class defines a price item.
+    /// </summary>
     public class MarketDataPrice
     {
+        #region Constructor
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public MarketDataPrice(string name, string symbol, double price,
                                string currency = null, string exchange = null)
         {
@@ -20,17 +27,50 @@ namespace MarketDataServices
             Exchange = exchange;
         }
 
+        #endregion
+
+        #region Public Properties
+
+        /// <summary>
+        /// Name of price item.
+        /// </summary>
         public string Name { get; private set; }
+
+        /// <summary>
+        /// Symbol for source of price.
+        /// </summary>
         public string Symbol { get; private set; }
+
+        /// <summary>
+        /// Actual price.
+        /// </summary>
         public double Price { get; private set; }
+
+        /// <summary>
+        /// Currency of price
+        /// </summary>
         public string Currency { get; private set; }
+
+        /// <summary>
+        /// Exhange of price source (optional).
+        /// </summary>
         public string Exchange { get; private set; }
 
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        /// To String
+        /// </summary>
         public override string ToString()
         {
             return string.Format("{0},{1},{2},{3}", Symbol, Price, Currency, Exchange);
         }
 
+        /// <summary>
+        /// format price depending on currency name.
+        /// </summary>
         public void DecimalisePrice()
         {
             //deciamlise price if required
@@ -41,6 +81,10 @@ namespace MarketDataServices
             }
         }
 
+        #endregion
+
+        #region Protected Methods
+
         [ContractInvariantMethod]
         protected void ObjectInvarianceCheck()
         {
@@ -48,59 +92,57 @@ namespace MarketDataServices
             Contract.Invariant(Price > 0);
             Contract.Invariant(string.IsNullOrEmpty(Symbol) == false);
         }
+
+        #endregion
     }
 
+    /// <summary>
+    /// Interface for a market data source.
+    /// </summary>
     [ContractClass(typeof(MarketDataSourceContract))]
     public interface IMarketDataSource
     {
         /// <summary>
         /// returns list of source names for this market data source
         /// </summary>
-        /// <returns></returns>
         IList<string> GetSources();
+
         /// <summary>
-        /// try  to get market price for symbol
+        /// Try to get market price for symbol.
         /// </summary>
-        /// <param name="symbol">name of instrument</param>
-        /// <param name="dData">price</param>
-        /// <returns>true success, false fail</returns>
         bool TryGetMarketData(string symbol, string exchange, string source, out MarketDataPrice marketData);
+
         /// <summary>
-        /// try to fx rate for ccy pair, return true for success, false for fail 
+        /// Try to fx rate for ccy pair, return true for success, false for fail. 
         /// </summary>
-        /// <param name="baseCurrency"></param>
-        /// <param name="contraCurrency"></param>
-        /// <param name="dFxRate"></param>
-        /// <returns></returns>
         bool TryGetFxRate(string baseCurrency, string contraCurrency, string exchange, string source, out double dFxRate);
+
         /// <summary>
-        /// try to retrieve historical data for instrument, return data if success, null for fail
+        /// Try to retrieve historical data for instrument, return data if success, null for fail.
         /// </summary>
-        /// <param name="instrument"></param>
-        /// <param name="dtFrom"></param>
-        /// <returns></returns>
         IEnumerable<HistoricalData> GetHistoricalData(string instrument, string exchange, string source, DateTime dtFrom);
+
         /// <summary>
         /// name ofsource
         /// </summary>
         string Name { get; }
+        
         /// <summary>
         /// for multiple data sources this value orders them in priority order
         /// 1 = highest
         /// </summary>
         int Priority { get; }
+        
         /// <summary>
-        /// initialise method because of using MEF
+        /// Initialise datasource with configuration settings.
         /// </summary>
-        void Initialise(IConfigurationSettings settings);
+        void Initialise(IConfigurationSettings settings, ScheduledTaskFactory scheduledTaskFactory);
+        
         /// <summary>
-        /// asynchronously request a price from the data source
+        /// Asynchronously request a price from the data source.
         /// </summary>
-        /// <param name="symbol"></param>
-        /// <param name="exchange"></param>
-        /// <param name="source"></param>
-        /// <returns></returns>
         Task<MarketDataPrice> RequestPrice(string symbol, string exchange, string source);
+
     }
 
     [ContractClassFor(typeof(IMarketDataSource))]
@@ -149,7 +191,7 @@ namespace MarketDataServices
             return false;
         }
 
-        public void Initialise(IConfigurationSettings settings)
+        public void Initialise(IConfigurationSettings settings, ScheduledTaskFactory scheduledTaskFactory)
         {
             Contract.Requires(settings != null);
         }

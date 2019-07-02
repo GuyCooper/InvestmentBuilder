@@ -4,6 +4,9 @@ using System.Diagnostics.Contracts;
 
 namespace MarketDataServices
 {
+    /// <summary>
+    /// Interface to a MarketData service. Provides a service interface to a market data source.
+    /// </summary>
     [ContractClass(typeof(MarketDataServiceContract))]
     public interface IMarketDataService
     {
@@ -11,6 +14,9 @@ namespace MarketDataServices
         IList<string> GetSources();
     }
 
+    /// <summary>
+    /// Contract class for IMarketDataService.
+    /// </summary>
     [ContractClassFor(typeof(IMarketDataService))]
     internal abstract class MarketDataServiceContract : IMarketDataService
     {
@@ -30,31 +36,32 @@ namespace MarketDataServices
         }
     }
     /// <summary>
-    /// class provides market data services. provides closing prices and currency conversion for stock symbols
+    /// Class provides market data services. provides closing prices and currency conversion for stock symbols.
     /// </summary>
     public class MarketDataService : IMarketDataService
     {
-        private static Logger logger = LogManager.GetCurrentClassLogger();
+        #region Constructor
 
-        private IMarketDataSource _marketSource;
-
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public MarketDataService(IMarketDataSource marketSource)
         {
             _marketSource = marketSource;
         }
 
+        /// <summary>
+        /// Returns a list of all market data sources.
+        /// </summary>
+        /// <returns></returns>
         public IList<string> GetSources()
         {
             return _marketSource.GetSources();
         }
 
         /// <summary>
-        /// get previous closing price for symbol. convert to reportng currency if required
+        /// Get current closing price for symbol. convert to reportng currency if required.
         /// </summary>
-        /// <param name="symbol"></param>
-        /// <param name="name"></param>
-        /// <param name="exchange"></param>
-        /// <returns></returns>
         public bool TryGetClosingPrice(string symbol, string exchange, string source, string name, string currency, string reportingCurrency, double? dOverride, out double dClosing)
         {
             logger.Log(LogLevel.Info, string.Format("getting closing price for : {0}", name));
@@ -98,5 +105,15 @@ namespace MarketDataServices
             }
             return true;
         }
+
+        #endregion
+
+        #region Private Data
+
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
+        private IMarketDataSource _marketSource;
+
+        #endregion
     }
 }

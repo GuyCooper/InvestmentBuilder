@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.IO;
 using InvestmentBuilderCore;
 using NLog;
+using InvestmentBuilderCore.Schedule;
 
 namespace MarketDataServices
 {
@@ -17,23 +18,9 @@ namespace MarketDataServices
     /// This class is useful for full application testing when there are no datasources available
     /// 
     /// </summary>
-    public class TestFileMarketDataSource : IMarketDataSource, IDisposable
+    public class TestFileMarketDataSource : IMarketDataSource, IScheduledTask, IDisposable
     {
-        #region Public Properties
-
-        /// <summary>
-        /// Name of data source.
-        /// </summary>
-        public virtual string Name { get { return "TestFileMarketDataSource"; }}
-
-        /// <summary>
-        /// Priority of data source.
-        /// </summary>
-        public virtual int Priority { get { return 5; } }
-
-        #endregion
-
-        #region Public Methods
+        #region Constructor
 
         /// <summary>
         /// Parameterless Constructor.
@@ -47,17 +34,34 @@ namespace MarketDataServices
         /// </summary>
         public TestFileMarketDataSource(string filename)
         {
-            InitialiseFromFile(filename);
+            m_currentSource = filename;
+            InitialiseFromFile(m_currentSource);
         }
+
+        #endregion
+
+        #region IMarketDataSource
+
+        /// <summary>
+        /// Name of data source.
+        /// </summary>
+        public virtual string Name { get { return "TestFileMarketDataSource"; } }
+
+        /// <summary>
+        /// Priority of data source.
+        /// </summary>
+        public virtual int Priority { get { return 5; } }
 
         /// <summary>
         /// Initialise. Initialise from configuration settings. Called when class
         /// instantiated from depenency injection framework.
         /// </summary>
-        public virtual void Initialise(IConfigurationSettings settings)
+        public virtual void Initialise(IConfigurationSettings settings, ScheduledTaskFactory scheduledTaskFactory)
         {
-            InitialiseFromFile(settings.MarketDatasource);
+            m_currentSource = settings.MarketDatasource;
+            InitialiseFromFile(m_currentSource);
             SetupDataSource(settings);
+            scheduledTaskFactory.RegisterTask(this);
         }
 
         /// <summary>
@@ -141,6 +145,19 @@ namespace MarketDataServices
             });
         }
 
+        #endregion
+
+        #region IScheduledTask
+
+        /// <summary>
+        /// Refresh the datasource.
+        /// </summary>
+        public void RunJob()
+        {
+            logger.Info($"Refreshing Datasource {Name}");
+            ClearCaches();
+            InitialiseFromFile(m_currentSource);
+        }
 
         #endregion
 
@@ -201,7 +218,7 @@ namespace MarketDataServices
         /// </summary>
         private void _addMarketDataToLookup(string name, string strPrice, string strCurrency, Dictionary<string, MarketDataPrice> lookup)
         {
-            if(lookup.ContainsKey(name) == true)
+            if (lookup.ContainsKey(name) == true)
             {
                 return;
             }
@@ -246,6 +263,16 @@ namespace MarketDataServices
                         price: Double.Parse(x.Substring(split + 1))
                     );
                 }).ToList());
+        }
+
+        /// <summary>
+        /// Clear all the current caches.
+        /// </summary>
+        private void ClearCaches()
+        {
+            _marketDataLookup.Clear();
+            _fxDataLookup.Clear();
+            _historicalDataLookup.Clear();
         }
 
         /// <summary>
@@ -297,9 +324,12 @@ namespace MarketDataServices
 
         #region Private Data
 
+        //  Caches...
         private Dictionary<string, MarketDataPrice> _marketDataLookup = new Dictionary<string, MarketDataPrice>();
         private Dictionary<string, double> _fxDataLookup = new Dictionary<string, double>();
         private Dictionary<string, IList<HistoricalData>> _historicalDataLookup = new Dictionary<string, IList<HistoricalData>>();
+
+        private string m_currentSource;
 
         private static Logger logger = LogManager.GetCurrentClassLogger();
 

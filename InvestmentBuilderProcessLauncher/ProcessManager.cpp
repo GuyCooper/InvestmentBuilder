@@ -5,22 +5,28 @@
 #include <boost/foreach.hpp>
 #include <boost/shared_ptr.hpp>
 #include <sstream>
-
+#include <stdio.h>      /* printf, scanf */
+#include <time.h>       /* time_t, struct tm, time, mktime */
 #include "Utils.h"
 
 namespace
 {
+	// ProcessItem structure. Defines the  comfiguration details for a single process.
 	struct ProcessItem
 	{
 		std::string m_name;
 		std::string m_path;
 		std::string m_folder;
 		int m_instance;
+		time_t m_nextRunTime;
 		HANDLE m_hProcess;		
 	};
 
+	// Spawn a process.
 	HANDLE SpawnProcess(std::string path, std::string folder)
 	{
+		process_manager_utils::logMessage("running process: " + path);
+
 		PROCESS_INFORMATION pi;
 		STARTUPINFO si;
 
@@ -67,13 +73,13 @@ namespace
 		return pi.hProcess;
 	}
 
+	// Kill ap process.
 	void KillProcess(HANDLE hProcess)
 	{
 		::TerminateProcess(hProcess, 0);
 	}
 
-	//boost::shared_ptr<ProcessItem> ProcessItemPtr;
-
+	// ProcessManager class. Manage the confgured processes.
 	class ProcessManager
 	{
 	public:
@@ -94,7 +100,8 @@ namespace
 				std::string processName = process.second.get<std::string>("name");
 				std::string processPath = process.second.get<std::string>("path");
 				std::string workingFolder = process.second.get<std::string>("workingpath");
-				int instances = process.second.get<int>("instances");
+				int instances = process.second.get<int>("instances", 1);
+				std::string runTime = process.second.get<std::string>("runtime", "");
 
 				for (int instance = 0; instance < instances; ++instance)
 				{
@@ -105,29 +112,125 @@ namespace
 
 					process_manager_utils::logMessage(ss.str());
 
-					m_processes.push_back(ProcessItem{processName, processPath, workingFolder, instance, NULL});
+					m_processes.push_back(ProcessItem{processName, processPath, workingFolder, instance, 0, NULL});
 					
 					ProcessItem& processItem = m_processes.back();
 
-					processItem.m_hProcess = SpawnProcess(processItem.m_path, processItem.m_folder);
-					::Sleep(1000);
+					// Set the next runtime field for this process (if it has one)
+					SetNextRuntimeField(runTime, processItem);
+
+					if (processItem.m_nextRunTime == 0)
+					{
+						// process is just a one shot process. do it here.
+						processItem.m_hProcess = SpawnProcess(processItem.m_path, processItem.m_folder);
+						::Sleep(1000);
+					}
+					else
+					{
+						// This is a scheduled process. If the next runtime 
+						ScheduleProcess(processItem, time(NULL));
+					}
 				}
 			}
-
-
 			// Use the throwing version of get to find the debug filename.
 		}
 
+		// Parse the runtime string.
+		bool gettimeparts(std::string strtime, int& hour, int& minute, int&second)
+		{
+			char *szTime = (char*)strtime.c_str();
+			char *pch = strtok(szTime, ":");
+			if (pch == NULL) return false;
+
+			hour = atoi(pch);
+			pch = strtok(NULL, ":");
+			if (pch == NULL)
+			{
+				minute = 0;
+				second = 0;
+				return true;
+			}
+			
+			minute = atoi(pch);
+
+			pch = strtok(NULL, ":");
+			second = pch != NULL ? atoi(pch) : 0;
+			
+			return true;
+		}
+
+		// Convert the runtime string to a time_t for the specified process item.
+		void SetNextRuntimeField(std::string strtime, ProcessItem& processItem)
+		{
+			int hour, minute, second;
+			if (gettimeparts(strtime, hour, minute, second))
+			{
+				time_t utcnow = time(NULL);
+				struct tm nextruntime = *::gmtime(&utcnow);
+				nextruntime.tm_hour = hour;
+				nextruntime.tm_min = minute;
+				nextruntime.tm_sec = second;
+
+				process_manager_utils::logMessage("nextruntime today: " + std::string(::asctime(&nextruntime)));
+				processItem.m_nextRunTime = ::mktime(&nextruntime);
+			}
+		}
+
+		// Increment the nextruntime field for the specified process item.
+		void IncrementNextRuntimeField(ProcessItem& processItem)
+		{
+			processItem.m_nextRunTime = processItem.m_nextRunTime + (60 * 60 * 24);
+		}
+
+		// Stop all running processes.
 		void StopProcesses()
 		{
 			process_manager_utils::logMessage("stopping processes..");
 			BOOST_FOREACH(ProcessItem& item, m_processes)
 			{
-				if(item.m_hProcess != NULL)
+				StopProcess(item);
+			}
+		}
+
+		//Stop a single process
+		void StopProcess(ProcessItem& processItem)
+		{
+			if (processItem.m_hProcess == NULL)
+			{
+				// Process not running anyway
+				return;
+			}
+
+			if(WaitForSingleObject(processItem.m_hProcess,0) == WAIT_TIMEOUT)
+			{
+				// Process handle not signalled so process is still running. kill it.
+				KillProcess(processItem.m_hProcess);
+				WaitForSingleObject(processItem.m_hProcess, 3000);
+				::CloseHandle(processItem.m_hProcess);
+				processItem.m_hProcess = NULL;
+			}
+		}
+
+		// Check the status of running processes and start any that need to be started.
+		void CheckProcesses()
+		{
+			time_t utcnow = time(NULL);
+			BOOST_FOREACH(ProcessItem& processItem, m_processes)
+			{
+				ScheduleProcess(processItem, utcnow);
+			}
+		}
+
+		// Check the next runtime for this process. if it has passed then spawn the process and increment
+		// the nextruntime
+		void ScheduleProcess(ProcessItem& processItem, time_t utcnow)
+		{
+			if (processItem.m_nextRunTime > 0)
+			{
+				if (processItem.m_nextRunTime <= utcnow)
 				{
-					KillProcess(item.m_hProcess);
-					::CloseHandle(item.m_hProcess);
-					item.m_hProcess = NULL;
+					IncrementNextRuntimeField(processItem);
+					processItem.m_hProcess = SpawnProcess(processItem.m_path, processItem.m_folder);
 				}
 			}
 		}
@@ -146,11 +249,19 @@ namespace process_manager
 		_manager.StartProcesses(configurationFile);
 	}
 
+	// SHutdown all processes.
 	void ShutdownProcesses()
 	{
 		_manager.StopProcesses();
 	}
 
+	// Check the process for scheduled runt time.
+	void CheckProcesses()
+	{
+		_manager.CheckProcesses();
+	}
+
+	// Return the name of this service as specified in the configuration file (optional).
 	std::string GetServiceName(std::string configurationFile)
 	{
 		boost::property_tree::ptree tree;

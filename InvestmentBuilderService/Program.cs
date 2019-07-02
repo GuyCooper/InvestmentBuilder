@@ -8,6 +8,8 @@ using InvestmentBuilder;
 using InvestmentBuilderService.Utils;
 using InvestmentBuilderService.Session;
 using System.Threading;
+using InvestmentBuilderCore.Schedule;
+using System.Threading.Tasks;
 
 namespace InvestmentBuilderService
 {
@@ -26,6 +28,8 @@ namespace InvestmentBuilderService
         {
             try
             {
+                logger.Info("InvestmentBuilderService starting...");
+                ContainerManager.RegisterType(typeof(ScheduledTaskFactory), true);
                 ContainerManager.RegisterType(typeof(IAuthorizationManager), typeof(SQLAuthorizationManager), true);
                 ContainerManager.RegisterType(typeof(IConfigurationSettings), typeof(ConfigurationSettings), true, "InvestmentBuilderConfig.xml");
                 ContainerManager.RegisterType(typeof(IConnectionSettings), typeof(ConnectionSettings), true, "Connections.xml");
@@ -42,25 +46,31 @@ namespace InvestmentBuilderService
 
                 using (var child = ContainerManager.CreateChildContainer())
                 {
-                    var authData = new SQLAuthData(ContainerManager.ResolveValue<IConfigurationSettings>().AuthDatasourceString);
-                    var authSession = new MiddlewareSession(ContainerManager.ResolveValue<IConnectionSettings>().AuthServerConnection, "InvestmentBuilder-AuthService");
+                    var configSettings = ContainerManager.ResolveValue<IConfigurationSettings>();
+                    var connectionSettings = ContainerManager.ResolveValue<IConnectionSettings>();                    
+
+                    var authData = new SQLAuthData(configSettings.AuthDatasourceString);
+                    var authSession = new MiddlewareSession(connectionSettings.AuthServerConnection, "InvestmentBuilder-AuthService");
                     var userManager = new UserSessionManager(authSession, authData, ContainerManager.ResolveValue<AccountManager>());
-                    var serverSession = new MiddlewareSession(ContainerManager.ResolveValue<IConnectionSettings>().ServerConnection, "InvestmentBuilder-Channels");
+                    var serverSession = new MiddlewareSession(connectionSettings.ServerConnection, "InvestmentBuilder-Channels");
                     var endpointManager = new ChannelEndpointManager(serverSession, userManager);
 
                     //now connect to servers and wait
 
-                    Console.WriteLine("connecting to servers...");
+                    logger.Info("Connecting to servers");
+
+                    var schedulerFactory = ContainerManager.ResolveValueOnContainer<ScheduledTaskFactory>(child);
+
                     ConnectToServers(userManager, endpointManager, child);
 
-                    ManualResetEvent closeEvent = new ManualResetEvent(false);
-                    Console.CancelKeyPress += (s, e) =>
-                    {
-                        closeEvent.Set();
-                        e.Cancel = true;
-                    };
+                    logger.Info("InvestmentBuilderService Started.");
 
-                    closeEvent.WaitOne();
+                    
+                    var scheduler = new Scheduler(schedulerFactory, configSettings.ScheduledTasks);
+                    scheduler.Run();
+
+                    logger.Info("Shutting down InvestmentBuilderService");
+
 
                     authSession.Dispose();
                     serverSession.Dispose();
@@ -110,6 +120,8 @@ namespace InvestmentBuilderService
                 server.RegisterChannels(container);
                 Console.WriteLine("connection succeded!");
             }
+
+            return;
         }
 
         #endregion

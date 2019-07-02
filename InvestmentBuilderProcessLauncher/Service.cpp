@@ -10,6 +10,8 @@ SERVICE_STATUS          gSvcStatus;
 SERVICE_STATUS_HANDLE   gSvcStatusHandle;
 HANDLE                  ghSvcStopEvent = NULL;
 
+DWORD dwServicePollMS = 3000;
+
 VOID SvcInstall(void);
 VOID WINAPI SvcCtrlHandler(DWORD);
 VOID WINAPI SvcMain(DWORD, LPTSTR *);
@@ -24,8 +26,37 @@ char* g_szServiceName;
 namespace process_manager
 {
 	void StartProcesses(std::string configurationFile);
+	void CheckProcesses();
 	void ShutdownProcesses();
 	std::string GetServiceName(std::string configurationFile);
+}
+
+// Handle a ctrl - break event.
+BOOL WINAPI HandlerConsoleEvent(_In_ DWORD dwCtrlType)
+{
+	if (dwCtrlType == CTRL_C_EVENT || dwCtrlType == CTRL_BREAK_EVENT || dwCtrlType == CTRL_SHUTDOWN_EVENT)
+	{
+		process_manager_utils::logMessage("console close event received...");
+		SetEvent(ghSvcStopEvent);
+		return TRUE;
+	}
+	return FALSE;
+}
+
+/// Run service. Method peridiocally checks processes. Returns on service shutdown
+VOID RunService(std::string configurationFile)
+{
+	process_manager::StartProcesses(configurationFile);
+
+	while (WaitForSingleObject(ghSvcStopEvent, dwServicePollMS) == WAIT_TIMEOUT)
+	{
+		// Check whether to stop the service.
+		process_manager::CheckProcesses();
+	}
+
+	process_manager_utils::logMessage("shutting down...");
+	process_manager::ShutdownProcesses();
+
 }
 
 //
@@ -46,6 +77,12 @@ void __cdecl _tmain(int argc, TCHAR *argv[])
 	
 	std::string configurationFile = process_manager_utils::getProcessPath() + "\\" + CONFIGURATIONFILENAME;
 
+	ghSvcStopEvent = CreateEvent(
+		NULL,    // default security attributes
+		TRUE,    // manual reset event
+		FALSE,   // not signaled
+		NULL);   // no name
+
 	//determine the name for this service from the configuration file
 	std::string serviceName = process_manager::GetServiceName(configurationFile);
 	if (serviceName.empty())
@@ -60,13 +97,9 @@ void __cdecl _tmain(int argc, TCHAR *argv[])
 
 	if (lstrcmpi(argv[1], TEXT("console")) == 0)
 	{
+		SetConsoleCtrlHandler(HandlerConsoleEvent, TRUE);
 		process_manager_utils::logMessage("running in console mode...");
-		process_manager::StartProcesses(configurationFile);
-		process_manager_utils::logMessage("press enter to stop...");
-		char ch;
-		std::cin >> ch;
-		process_manager_utils::logMessage("shutting down...");
-		process_manager::ShutdownProcesses();
+		RunService(configurationFile);
 		return;
 	}
 
@@ -216,12 +249,6 @@ VOID SvcInit(DWORD dwArgc, LPTSTR *lpszArgv)
 	// Create an event. The control handler function, SvcCtrlHandler,
 	// signals this event when it receives the stop control code.
 
-	ghSvcStopEvent = CreateEvent(
-		NULL,    // default security attributes
-		TRUE,    // manual reset event
-		FALSE,   // not signaled
-		NULL);   // no name
-
 	if (ghSvcStopEvent == NULL)
 	{
 		ReportSvcStatus(SERVICE_STOPPED, NO_ERROR, 0);
@@ -233,16 +260,9 @@ VOID SvcInit(DWORD dwArgc, LPTSTR *lpszArgv)
 	ReportSvcStatus(SERVICE_RUNNING, NO_ERROR, 0);
 
 	// TO_DO: Perform work until service stops.
-
-	while (1)
-	{
-		// Check whether to stop the service.
-
-		WaitForSingleObject(ghSvcStopEvent, INFINITE);
-
-		ReportSvcStatus(SERVICE_STOPPED, NO_ERROR, 0);
-		return;
-	}
+	std::string configurationFile = process_manager_utils::getProcessPath() + "\\" + CONFIGURATIONFILENAME;
+	RunService(configurationFile);
+	ReportSvcStatus(SERVICE_STOPPED, NO_ERROR, 0);
 }
 
 //
@@ -360,3 +380,5 @@ VOID SvcReportEvent(LPTSTR szFunction)
 		DeregisterEventSource(hEventSource);
 	}
 }
+
+

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using InvestmentBuilderCore;
 using MarketDataServices;
+using InvestmentBuilderCore.Schedule;
 
 namespace InvestmentBuilderMSTests
 {
@@ -169,6 +170,11 @@ namespace InvestmentBuilderMSTests
 
         public string ScriptFolder { get { return string.Empty; } }
 
+        /// <summary>
+        /// List of scheduled tasks.
+        /// </summary>
+        public IEnumerable<ScheduledTaskDetails> ScheduledTasks { get { return Enumerable.Empty<ScheduledTaskDetails>(); } }
+
         #endregion
 
         #region Public Methods
@@ -236,12 +242,13 @@ namespace InvestmentBuilderMSTests
             throw new NotImplementedException();
         }
 
-        public void Initialise(IConfigurationSettings settings) { }
+        public void Initialise(IConfigurationSettings settings, ScheduledTaskFactory scheduledTaskFactory) { }
 
         public Task<MarketDataPrice> RequestPrice(string symbol, string exchange, string source)
         {
             return null;
         }
+
     }
 
     #endregion
@@ -440,6 +447,11 @@ namespace InvestmentBuilderMSTests
 
         public virtual string ScriptFolder { get { return null; } }
 
+        /// <summary>
+        /// List of scheduled tasks.
+        /// </summary>
+        public virtual IEnumerable<ScheduledTaskDetails> ScheduledTasks { get { return Enumerable.Empty<ScheduledTaskDetails>(); } }
+
         #endregion
 
         #region Public Methods
@@ -512,12 +524,13 @@ namespace InvestmentBuilderMSTests
             return false;
         }
 
-        public void Initialise(IConfigurationSettings settings) { }
+        public void Initialise(IConfigurationSettings settings, ScheduledTaskFactory scheduledTaskFactory) { }
 
         public Task<MarketDataPrice> RequestPrice(string symbol, string exchange, string source)
         {
             return null;
         }
+
     }
 
     #endregion
