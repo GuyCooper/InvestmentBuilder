@@ -27,14 +27,12 @@ namespace InvestmentBuilderService.Channels
         /// <summary>
         /// Constructor. Dependencies are injected here using Unity framework.
         /// </summary>
-        public AddTransactionChannel(string requestName, string responseName, 
-                                    AccountService accountService,
-                                    CashAccountTransactionManager cashTransactionManager,
-                                    CashFlowManager cashFlowManager)
-            : base(requestName, responseName, accountService)
+        public AddTransactionChannel(string requestName, string responseName,
+                                    ServiceAggregator aggregator)
+            : base(requestName, responseName, aggregator)
         {
-            _cashTransactionManager = cashTransactionManager;
-            _cashFlowManager = cashFlowManager;
+            _cashTransactionManager = aggregator.CashTransactionManager;
+            _cashFlowManager = aggregator.CashFlowManager;
         }
 
         #endregion
@@ -84,10 +82,9 @@ namespace InvestmentBuilderService.Channels
         /// <summary>
         /// Constructor. Define the AddReceipt Request / Reposne channels 
         /// </summary>
-        public AddRecieptTransactionChannel(AccountService accountService, CashAccountTransactionManager cashTransactionManager, 
-                        CashFlowManager cashFlowManager) 
+        public AddRecieptTransactionChannel(ServiceAggregator aggregator) 
             : base("ADD_RECEIPT_TRANSACTION_REQUEST", "ADD_RECEIPT_TRANSACTION_RESPONSE", 
-                    accountService, cashTransactionManager, cashFlowManager)
+                    aggregator)
         {
         }
     }
@@ -100,10 +97,9 @@ namespace InvestmentBuilderService.Channels
         /// <summary>
         /// Constructor. Define the AddPayment request/response channels.
         /// </summary>
-        public AddPaymentTransactionChannel(AccountService accountService, CashAccountTransactionManager cashTransactionManager, 
-            CashFlowManager cashFlowManager)
+        public AddPaymentTransactionChannel(ServiceAggregator aggregator)
             : base("ADD_PAYMENT_TRANSACTION_REQUEST", "ADD_PAYMENT_TRANSACTION_RESPONSE",
-                    accountService, cashTransactionManager, cashFlowManager)
+                    aggregator)
         {
         }
     }

@@ -16,11 +16,11 @@ namespace InvestmentBuilderService.Channels
         private IClientDataInterface _clientData;
         private InvestmentBuilder.InvestmentBuilder _builder;
 
-        public GetInvestmentSummaryChannel(AccountService accountService, IDataLayer dataLayer, InvestmentBuilder.InvestmentBuilder builder) :
-            base("GET_INVESTMENT_SUMMARY_REQUEST", "GET_INVESTMENT_SUMMARY_RESPONSE", accountService)
+        public GetInvestmentSummaryChannel(ServiceAggregator aggregator) :
+            base("GET_INVESTMENT_SUMMARY_REQUEST", "GET_INVESTMENT_SUMMARY_RESPONSE", aggregator)
         {
-            _clientData = dataLayer.ClientData;
-            _builder = builder;
+            _clientData = aggregator.DataLayer.ClientData;
+            _builder = aggregator.Builder;
         }
 
         /// <summary>

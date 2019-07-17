@@ -7,6 +7,9 @@ using InvestmentBuilderCore;
 
 namespace InvestmentBuilderService.Channels
 {
+    /// <summary>
+    /// Portfolio response dto.
+    /// </summary>
     class PortfolioResponseDto : Dto
     {
         public IEnumerable<CompanyData> Portfolio { get; private set; }
@@ -22,17 +25,36 @@ namespace InvestmentBuilderService.Channels
     /// </summary>
     class GetPortfolioChannel : EndpointChannel<Dto, ChannelUpdater>
     {
-        private InvestmentBuilder.InvestmentBuilder _builder;
-        public GetPortfolioChannel(AccountService accountService, InvestmentBuilder.InvestmentBuilder builder) :
-            base("GET_PORTFOLIO_REQUEST", "GET_PORTFOLIO_RESPONSE", accountService)
+        #region Constructor
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public GetPortfolioChannel(ServiceAggregator aggregator) :
+            base("GET_PORTFOLIO_REQUEST", "GET_PORTFOLIO_RESPONSE", aggregator)
         {
-            _builder = builder;
+            _builder = aggregator.Builder;
         }
 
+        #endregion
+
+        #region Protected Overrides
+
+        /// <summary>
+        /// Handle GetPortfolio request
+        /// </summary>
         protected override Dto HandleEndpointRequest(UserSession userSession, Dto payload, ChannelUpdater update)
         {
             var userToken = GetCurrentUserToken(userSession);
             return new PortfolioResponseDto(_builder.GetCurrentInvestments(userToken, userSession.UserPrices).OrderBy(x => x.Name).ToList());
         }
+
+        #endregion
+
+        #region Private Data
+
+        private readonly  InvestmentBuilder.InvestmentBuilder _builder;
+
+        #endregion
     }
 }

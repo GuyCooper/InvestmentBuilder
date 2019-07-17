@@ -44,10 +44,10 @@ namespace InvestmentBuilderService.Channels
         /// <summary>
         /// Constructor
         /// </summary>
-        public RequestRedemptionChannel(AccountService accountService, InvestmentBuilder.InvestmentBuilder builder) : 
-            base("REQUEST_REDEMPTION_REQUEST", "REQUEST_REDEMPTION_RESPONSE", accountService)
+        public RequestRedemptionChannel(ServiceAggregator aggregator) : 
+            base("REQUEST_REDEMPTION_REQUEST", "REQUEST_REDEMPTION_RESPONSE", aggregator)
         {
-            _builder = builder;
+            _builder = aggregator.Builder;
         }
 
         #endregion

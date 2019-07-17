@@ -17,12 +17,11 @@ namespace InvestmentBuilderService.Channels
     /// </summary>
     internal class LoadReportChannel : EndpointChannel<LoadReportRequestDto, ChannelUpdater>
     {
-        public LoadReportChannel(AccountService accountService, InvestmentBuilder.InvestmentBuilder builder,
-            IConfigurationSettings settings) : 
-            base("LOAD_REPORT_REQUEST", "LOAD_REPORT_RESPONSE", accountService)
+        public LoadReportChannel(ServiceAggregator aggregator) :
+            base("LOAD_REPORT_REQUEST", "LOAD_REPORT_RESPONSE", aggregator)
         {
-            _builder = builder;
-            _settings = settings;
+            _builder = aggregator.Builder;
+            _settings = aggregator.Settings;
         }
 
         protected override Dto HandleEndpointRequest(UserSession userSession, LoadReportRequestDto payload, ChannelUpdater update)

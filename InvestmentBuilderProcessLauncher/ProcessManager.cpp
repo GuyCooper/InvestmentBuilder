@@ -125,11 +125,6 @@ namespace
 						processItem.m_hProcess = SpawnProcess(processItem.m_path, processItem.m_folder);
 						::Sleep(1000);
 					}
-					else
-					{
-						// This is a scheduled process. If the next runtime 
-						ScheduleProcess(processItem, time(NULL));
-					}
 				}
 			}
 			// Use the throwing version of get to find the debug filename.
@@ -180,6 +175,8 @@ namespace
 		void IncrementNextRuntimeField(ProcessItem& processItem)
 		{
 			processItem.m_nextRunTime = processItem.m_nextRunTime + (60 * 60 * 24);
+			struct tm tmNext = *::gmtime(&processItem.m_nextRunTime);
+			process_manager_utils::logMessage("nextruntime: " + std::string(::asctime(&tmNext)));
 		}
 
 		// Stop all running processes.

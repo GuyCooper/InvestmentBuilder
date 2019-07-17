@@ -57,6 +57,11 @@ namespace InvestmentBuilderCore
         /// </summary>
         IEnumerable<ScheduledTaskDetails> ScheduledTasks { get; }
 
+        /// <summary>
+        /// Path to audit file. Logs all input and output message
+        /// </summary>
+        string AuditFileName { get; }
+
         #endregion
 
         #region Public Methods
@@ -126,9 +131,10 @@ namespace InvestmentBuilderCore
         public string TemplatePath { get; set; }
         [XmlElement("scriptFolder")]
         public string ScriptFolder { get; set; }
+        [XmlElement("auditFile")]
+        public string AuditFileName { get; set; }
         [XmlArray("schedule")]
         public ScheduledTaskDetails[] ScheduledTasks { get; set; }
-
     }
 
     /// <summary>
@@ -160,6 +166,11 @@ namespace InvestmentBuilderCore
         /// List of scheduled tasks.
         /// </summary>
         public IEnumerable<ScheduledTaskDetails> ScheduledTasks { get { return _configuration.ScheduledTasks; } }
+
+        /// <summary>
+        /// Audit file name.
+        /// </summary>
+        public string AuditFileName { get { return _configuration.AuditFileName; } }
 
         #endregion
 

@@ -74,6 +74,11 @@ namespace SQLServerDataLayer
         /// </summary>
         public DateTime? GetLatestValuationDate(UserAccountToken userToken)
         {
+            if(userToken.HasInvalidAccount())
+            {
+                return null;
+            }
+
             userToken.AuthorizeUser(AuthorizationLevel.READ);
             using (var connection = OpenConnection())
             {

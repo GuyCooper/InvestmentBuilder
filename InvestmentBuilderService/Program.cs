@@ -10,6 +10,7 @@ using InvestmentBuilderService.Session;
 using System.Threading;
 using InvestmentBuilderCore.Schedule;
 using System.Threading.Tasks;
+using InvestmentBuilderAuditLogger;
 
 namespace InvestmentBuilderService
 {
@@ -43,12 +44,13 @@ namespace InvestmentBuilderService
                 ContainerManager.RegisterType(typeof(CashAccountTransactionManager), true);
                 ContainerManager.RegisterType(typeof(CashFlowManager), true);
                 ContainerManager.RegisterType(typeof(IInvestmentReportWriter), typeof(InvestmentReportGenerator.InvestmentReportWriter), true);
+                ContainerManager.RegisterType(typeof(IMessageLogger), typeof(SQLiteAuditLogger), true);
+                ContainerManager.RegisterType(typeof(ServiceAggregator), true);
 
                 using (var child = ContainerManager.CreateChildContainer())
                 {
                     var configSettings = ContainerManager.ResolveValue<IConfigurationSettings>();
-                    var connectionSettings = ContainerManager.ResolveValue<IConnectionSettings>();                    
-
+                    var connectionSettings = ContainerManager.ResolveValue<IConnectionSettings>();
                     var authData = new SQLAuthData(configSettings.AuthDatasourceString);
                     var authSession = new MiddlewareSession(connectionSettings.AuthServerConnection, "InvestmentBuilder-AuthService");
                     var userManager = new UserSessionManager(authSession, authData, ContainerManager.ResolveValue<AccountManager>());

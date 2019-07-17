@@ -24,10 +24,10 @@ namespace InvestmentBuilderService.Channels
         /// <summary>
         /// Constructor
         /// </summary>
-        public UndoLastTransactionChannel(AccountService accountService, IDataLayer dataLayer) : 
-            base("UNDO_LAST_TRANSACTION_REQUEST", "UNDO_LAST_TRANSACTION_RESPONSE", accountService)
+        public UndoLastTransactionChannel(ServiceAggregator aggregator) : 
+            base("UNDO_LAST_TRANSACTION_REQUEST", "UNDO_LAST_TRANSACTION_RESPONSE", aggregator)
         {
-            _clientData = dataLayer.ClientData;
+            _clientData = aggregator.DataLayer.ClientData;
         }
 
         #endregion

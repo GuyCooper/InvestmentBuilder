@@ -14,8 +14,8 @@ namespace InvestmentBuilderService.Channels
     /// </summary>
     class GetAccountNamesChannel : EndpointChannel<Dto, ChannelUpdater>
     {
-        public GetAccountNamesChannel(AccountService accountService) :
-            base("GET_ACCOUNT_NAMES_REQUEST", "GET_ACCOUNT_NAMES_RESPONSE", accountService)
+        public GetAccountNamesChannel(ServiceAggregator aggregator) :
+            base("GET_ACCOUNT_NAMES_REQUEST", "GET_ACCOUNT_NAMES_RESPONSE", aggregator)
         { }
 
         /// <summary>

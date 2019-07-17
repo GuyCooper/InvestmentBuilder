@@ -7,6 +7,7 @@ using System;
 using MiddlewareInterfaces;
 using InvestmentBuilderService.Utils;
 using System.Threading.Tasks;
+using InvestmentBuilderAuditLogger;
 
 namespace InvestmentBuilderService
 {
@@ -69,11 +70,12 @@ namespace InvestmentBuilderService
         /// <summary>
         /// Constructor.
         /// </summary>
-        protected EndpointChannel(string requestName, string responseName, AccountService accountService)
+        protected EndpointChannel(string requestName, string responseName, ServiceAggregator aggregator)
         {
             RequestName = requestName;
             ResponseName = responseName;
-            _accountService = accountService;
+            _accountService = aggregator.AccountService;
+            _auditLogger = aggregator.AuditLogger;
         }
 
         #endregion
@@ -85,6 +87,9 @@ namespace InvestmentBuilderService
         /// </summary>
         public async void ProcessMessage(IConnectionSession session, UserSession userSession, string payload, string sourceId, string requestId)
         {
+            _auditLogger.LogIncomingMessage(requestId, userSession.UserName, userSession.AccountName != null ?
+                userSession.AccountName.Name : "", RequestName, payload);
+
             var requestPayload = ConvertToRequestPayload(payload);
             var updater = GetUpdater(session, userSession, sourceId, requestId);
             if (updater != null)
@@ -105,6 +110,8 @@ namespace InvestmentBuilderService
 
             if ((responsePayload != null) && (string.IsNullOrEmpty(ResponseName) == false))
             {
+                _auditLogger.LogOutgoingMessage(requestId, ResponseName, payload);
+
                 if (responsePayload.GetType() == typeof(BinaryDto))
                 {
                     session.SendMessageToChannel(ResponseName, null, sourceId, requestId, ((BinaryDto)responsePayload).Payload);
@@ -198,6 +205,7 @@ namespace InvestmentBuilderService
         private readonly List<IChannelUpdater> _updaterList = new List<IChannelUpdater>();
         private readonly AccountService _accountService;
         private static Logger logger = LogManager.GetCurrentClassLogger();
+        private readonly IMessageLogger _auditLogger;
 
         #endregion
     }

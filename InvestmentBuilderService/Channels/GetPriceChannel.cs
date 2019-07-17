@@ -31,10 +31,10 @@ namespace InvestmentBuilderService.Channels
         /// <summary>
         /// Constructor.
         /// </summary>
-        public GetPriceChannel(AccountService accountService, IMarketDataSource marketDataSource)
-            : base("GET_PRICE_REQUEST", "GET_PRICE_RESPONSE", accountService)
+        public GetPriceChannel(ServiceAggregator aggregator)
+            : base("GET_PRICE_REQUEST", "GET_PRICE_RESPONSE", aggregator)
         {
-            _marketDataSource = marketDataSource;
+            _marketDataSource = aggregator.MarketDataSource;
         }
 
         #endregion

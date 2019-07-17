@@ -26,10 +26,10 @@ namespace InvestmentBuilderService.Channels
         /// <summary>
         /// Constructor
         /// </summary>
-        public GetRedemptionsChannel(AccountService accountService, InvestmentBuilder.InvestmentBuilder builder) : 
-            base("GET_REDEMPTIONS_REQUEST", "GET_REDEMPTIONS_RESPONSE", accountService)
+        public GetRedemptionsChannel(ServiceAggregator aggregator) : 
+            base("GET_REDEMPTIONS_REQUEST", "GET_REDEMPTIONS_RESPONSE", aggregator)
         {
-            _builder = builder;
+            _builder = aggregator.Builder;
         }
 
         #endregion

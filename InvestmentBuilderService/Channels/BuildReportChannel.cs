@@ -53,17 +53,13 @@ namespace InvestmentBuilderService.Channels
     internal class BuildReportChannel : EndpointChannel<Dto, BuildReportUpdater>
     {
         #region Constructor
-        public BuildReportChannel(AccountService accountService, 
-                                  InvestmentBuilder.InvestmentBuilder builder,
-                                  PerformanceBuilderLib.PerformanceBuilder chartBuilder,
-                                  IConfigurationSettings settings,
-                                  IConnectionSettings connectionSettings) 
-            : base("BUILD_REPORT_REQUEST", "BUILD_REPORT_RESPONSE", accountService)
+        public BuildReportChannel(ServiceAggregator aggregator)
+            : base("BUILD_REPORT_REQUEST", "BUILD_REPORT_RESPONSE", aggregator)
         {
-            _builder = builder;
-            _chartBuilder = chartBuilder;
-            m_settings = settings;
-            m_connectionSettings = connectionSettings;
+            _builder = aggregator.Builder;
+            _chartBuilder = aggregator.ChartBuilder;
+            m_settings = aggregator.Settings;
+            m_connectionSettings = aggregator.ConnectionSettings;
         }
 
         #endregion

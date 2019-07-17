@@ -11,14 +11,14 @@ bugs
 2. Delete button for cash transaction not working (again!!!) DONE
 
 TODO 23-05-2019
-1. setup email server for forgotton passwords etc..
+1. setup email server for forgotton passwords etc.. DONE
 2. test everything with new user (possibly create and maintain a few dummy accounts)
-3. test with another argyll investments user
+3. test with another argyll investments user DONE
 4. replace php with python
-5. add ROI per investment to investment report
+5. add ROI per investment to investment report DONE
 6. explore possibilities of obtaining / deriving more data for investment reports. for example, sector information for each investment.
 7. update out of date libraries on both web client and server.
 8. Add 10 minute auto logout timer to web client DONE
 9. Add Earlier reports button to reports view. DONE
 10. Add minified js libs DONE
-11. Auto reload prices on a daily basis.
+11. Auto reload prices on a daily basis. DONE

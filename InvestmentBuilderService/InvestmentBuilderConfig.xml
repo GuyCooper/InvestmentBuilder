@@ -45,7 +45,8 @@
   <schedule>
     <task>
       <name>Yahoo</name>
-      <scheduled>17:37:00</scheduled>
+      <scheduled>18:45:00</scheduled>
     </task>
   </schedule>
+  <auditFile>InvestmentBuilderAudit.dat</auditFile>
 </configuration>

@@ -113,6 +113,7 @@
     <Compile Include="EndpointChannel.cs" />
     <Compile Include="EndpointManager.cs" />
     <Compile Include="Channels\GetBrokersChannel.cs" />
+    <Compile Include="ServiceAggregator.cs" />
     <Compile Include="Session\IConnectionSession.cs" />
     <Compile Include="Dtos\InvestmentSummaryModel.cs" />
     <Compile Include="Program.cs" />
@@ -130,6 +131,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\InvestmentBuilderAuditLogger\InvestmentBuilderAuditLogger.csproj">
+      <Project>{8a24f235-600a-47e1-adb2-56681f0eec0b}</Project>
+      <Name>InvestmentBuilderAuditLogger</Name>
+    </ProjectReference>
     <ProjectReference Include="..\InvestmentBuilderCore\InvestmentBuilderCore.csproj">
       <Project>{a1b060c6-10fa-443b-8191-556d1b03102f}</Project>
       <Name>InvestmentBuilderCore</Name>

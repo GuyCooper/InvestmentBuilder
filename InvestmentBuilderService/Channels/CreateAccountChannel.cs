@@ -13,8 +13,8 @@ namespace InvestmentBuilderService.Channels
     {
         #region Constructor
 
-        public CreateAccountChannel(AccountService accountService) :
-            base("CREATE_ACCOUNT_REQUEST", "CREATE_ACCOUNT_RESPONSE", accountService)
+        public CreateAccountChannel(ServiceAggregator aggregator) :
+            base("CREATE_ACCOUNT_REQUEST", "CREATE_ACCOUNT_RESPONSE", aggregator)
         {
         }
 

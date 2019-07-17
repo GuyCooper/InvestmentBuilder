@@ -5,6 +5,9 @@ using InvestmentBuilderCore;
 
 namespace InvestmentBuilderService.Channels
 {
+    /// <summary>
+    /// Response dto for RecentValutionDates list.
+    /// </summary>
     internal class RecentValuationDatesListDto : Dto
     {
         public IEnumerable<string> Dates { get; set; }
@@ -17,10 +20,10 @@ namespace InvestmentBuilderService.Channels
     {
         protected IClientDataInterface _clientData;
 
-        public GetRecentValutationDatesChannel(AccountService accountService, IDataLayer dataLayer) 
-            : base("GET_RECENT_VALUATION_DATES_REQUEST", "GET_RECENT_VALUATION_DATES_RESPONSE", accountService)
+        public GetRecentValutationDatesChannel(ServiceAggregator aggregator) 
+            : base("GET_RECENT_VALUATION_DATES_REQUEST", "GET_RECENT_VALUATION_DATES_RESPONSE", aggregator)
         {
-            _clientData = dataLayer.ClientData;
+            _clientData = aggregator.DataLayer.ClientData;
         }
 
         protected override Dto HandleEndpointRequest(UserSession userSession, Dto payload, ChannelUpdater update)

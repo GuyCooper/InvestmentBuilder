@@ -8,6 +8,8 @@ using System.IO;
 using InvestmentBuilder;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PerformanceBuilderLib;
+using InvestmentBuilderAuditLogger;
+using InvestmentBuilderCore.Schedule;
 
 namespace InvestmentBuilderMSTests
 {
@@ -96,6 +98,9 @@ namespace InvestmentBuilderMSTests
             ContainerManager.RegisterType(typeof(IInvestmentRecordDataManager), typeof(InvestmentRecordBuilder), true);
             ContainerManager.RegisterType(typeof(FunctionalTestContainer), typeof(FunctionalTestContainer), true);
             ContainerManager.RegisterType(typeof(IInvestmentReportWriter), typeof(InvestmentReportGenerator.InvestmentReportWriter), true);
+            ContainerManager.RegisterType(typeof(IMessageLogger), typeof(FileMessageLogger), true);
+            ContainerManager.RegisterType(typeof(CashAccountTransactionManager), true);
+            ContainerManager.RegisterType(typeof(ScheduledTaskFactory), true);
 
             _interfaces = ContainerManager.ResolveValueOnContainer<FunctionalTestContainer>(_childContainer);
         }
@@ -138,6 +143,8 @@ namespace InvestmentBuilderMSTests
                 AddUsers();
                 Console.WriteLine("setup successful");
                 When_getting_users();
+
+
                 var token = When_adding_a_new_account(_TestAccount);
 
                 //now remove any generated files from previous tests
@@ -149,9 +156,9 @@ namespace InvestmentBuilderMSTests
                 }
 
                 //now copy the templates file into the output folder templates folder
-                var templatesFolder = Path.Combine(_interfaces.ConfigSettings.OutputFolder, "Templates");
-                Directory.CreateDirectory(templatesFolder);
-                File.Copy(@"..\..\..\Templates\template.xls", Path.Combine(templatesFolder,"template.xls"), true);
+                //var templatesFolder = Path.Combine(_interfaces.ConfigSettings.OutputFolder, "Templates");
+                //Directory.CreateDirectory(templatesFolder);
+                //File.Copy(@"..\..\..\Templates\template.xls", Path.Combine(templatesFolder,"template.xls"), true);
 
                 When_adding_members_to_account(token);
                 When_adding_subscription_amounts(token);

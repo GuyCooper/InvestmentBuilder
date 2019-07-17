@@ -21,11 +21,10 @@ namespace InvestmentBuilderService.Channels
         /// <summary>
         /// Constructor.
         /// </summary>
-        public RemoveTransactionChannel(AccountService accountService,
-                                        CashAccountTransactionManager cashTransactionManager)
-            : base("REMOVE_TRANSACTION_REQUEST", "REMOVE_TRANSACTION_RESPONSE", accountService)
+        public RemoveTransactionChannel(ServiceAggregator aggregator)
+            : base("REMOVE_TRANSACTION_REQUEST", "REMOVE_TRANSACTION_RESPONSE", aggregator)
         {
-            _cashTransactionManager = cashTransactionManager;
+            _cashTransactionManager = aggregator.CashTransactionManager;
         }
 
         #endregion

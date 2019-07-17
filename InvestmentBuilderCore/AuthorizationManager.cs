@@ -28,6 +28,13 @@ namespace InvestmentBuilderCore
 
         public bool IsAdministrator { get { return _authorization == AuthorizationLevel.ADMINISTRATOR; } } 
 
+        /// <summary>
+        /// Returns true if this user has an invalid account. False if it is valid.
+        /// </summary>
+        public bool HasInvalidAccount()
+        {
+            return (Account == null) || (string.IsNullOrEmpty(Account.Name) || Account.AccountId == 0) ;
+        }
         #endregion
 
         #region Public Methods

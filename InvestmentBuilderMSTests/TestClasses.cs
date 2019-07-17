@@ -175,6 +175,11 @@ namespace InvestmentBuilderMSTests
         /// </summary>
         public IEnumerable<ScheduledTaskDetails> ScheduledTasks { get { return Enumerable.Empty<ScheduledTaskDetails>(); } }
 
+        /// <summary>
+        /// Audit file name.
+        /// </summary>
+        public string AuditFileName { get { return null; } }
+
         #endregion
 
         #region Public Methods
@@ -451,6 +456,11 @@ namespace InvestmentBuilderMSTests
         /// List of scheduled tasks.
         /// </summary>
         public virtual IEnumerable<ScheduledTaskDetails> ScheduledTasks { get { return Enumerable.Empty<ScheduledTaskDetails>(); } }
+
+        /// <summary>
+        /// Audit file name.
+        /// </summary>
+        public string AuditFileName { get { return null; } }
 
         #endregion
 

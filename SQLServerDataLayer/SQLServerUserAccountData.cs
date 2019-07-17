@@ -189,7 +189,7 @@ namespace SQLServerDataLayer
         /// </summary>
         public AccountModel GetUserAccountData(UserAccountToken userToken)
         {
-            if(userToken == null || userToken.Account == null)
+            if(userToken.HasInvalidAccount() == true)
             {
                 return null;
             }

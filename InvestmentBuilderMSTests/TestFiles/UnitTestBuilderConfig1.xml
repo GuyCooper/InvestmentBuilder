@@ -5,10 +5,12 @@
   <indexes>
   </indexes>
   <formats>
-    <format>EXCEL</format>
     <format>PDF</format>
   </formats>
+  <schedule>   
+  </schedule> 
   <marketDataSource>C:\Projects\InvestmentBuilder\InvestmentBuilderMSTests\TestFiles\UnitTestMarketData.txt</marketDataSource>
   <outputCachedMarketDataFile>C:\Projects\TestData\InvestmentBuilder\output\CachedData.txt</outputCachedMarketDataFile>
   <maxAccountsPerUser>5</maxAccountsPerUser>
+  <auditFile>InvestmentBuilderAudit.log</auditFile>
 </configuration>

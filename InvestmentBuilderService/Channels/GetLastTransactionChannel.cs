@@ -4,6 +4,9 @@ using System;
 
 namespace InvestmentBuilderService.Channels
 {
+    /// <summary>
+    /// Cash Transaction Dto
+    /// </summary>
     internal class TransactionDto : Dto
     {
         public bool Success { get; set; }
@@ -23,10 +26,10 @@ namespace InvestmentBuilderService.Channels
         /// <summary>
         /// Constructor
         /// </summary>
-        public GetLastTransactionChannel(AccountService accountService, IDataLayer dataLayer) : 
-            base("GET_LAST_TRANSACTION_REQUEST", "GET_LAST_TRANSACTION_RESPONSE", accountService)
+        public GetLastTransactionChannel(ServiceAggregator aggregator) : 
+            base("GET_LAST_TRANSACTION_REQUEST", "GET_LAST_TRANSACTION_RESPONSE", aggregator)
         {
-            _clientData = dataLayer.ClientData;
+            _clientData = aggregator.DataLayer.ClientData;
         }
 
         #endregion

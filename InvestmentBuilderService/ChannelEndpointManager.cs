@@ -142,7 +142,7 @@ namespace InvestmentBuilderService
         // List of channels
         private readonly Dictionary<string, IEndpointChannel> _channels = new Dictionary<string, IEndpointChannel>();
         private readonly ISessionManager _sessionManager;
-        private static Logger logger = LogManager.GetCurrentClassLogger();
+        private static NLog.Logger logger = LogManager.GetCurrentClassLogger();
 
         #endregion
     }

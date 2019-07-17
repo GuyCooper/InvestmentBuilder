@@ -17,10 +17,10 @@ namespace InvestmentBuilderService.Channels
         /// <summary>
         /// Constructor
         /// </summary>
-        public GetCurrenciesChannel(AccountService accountService, InvestmentBuilder.InvestmentBuilder builder) : 
-            base("GET_CURRENCIES_REQUEST", "GET_CURRENCIES_RESPONSE", accountService)
+        public GetCurrenciesChannel(ServiceAggregator aggregator) : 
+            base("GET_CURRENCIES_REQUEST", "GET_CURRENCIES_RESPONSE", aggregator)
         {
-            _builder = builder;
+            _builder = aggregator.Builder;
         }
 
         /// <summary>

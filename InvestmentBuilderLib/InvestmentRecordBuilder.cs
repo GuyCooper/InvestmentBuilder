@@ -295,7 +295,7 @@ namespace InvestmentBuilder
                 }
 
                 company.ProfitLoss = company.NetSellingValue - company.TotalCost;
-                company.TotalReturn = (company.ProfitLoss / company.TotalCost) * 100;
+                company.TotalReturn = ((company.ProfitLoss + company.Dividend) / company.TotalCost) * 100;
 
                 if (bSnapshot == false && company.Quantity == 0)
                 {

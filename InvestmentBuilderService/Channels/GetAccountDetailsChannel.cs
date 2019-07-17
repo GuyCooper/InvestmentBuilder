@@ -19,8 +19,8 @@ namespace InvestmentBuilderService.Channels
     {
         #region Constructor
 
-        public GetAccountDetailsChannel(AccountService accountService) : 
-            base("GET_ACCOUNT_DETAILS_REQUEST", "GET_ACCOUNT_DETAILS_RESPONSE", accountService)
+        public GetAccountDetailsChannel(ServiceAggregator aggregator) : 
+            base("GET_ACCOUNT_DETAILS_REQUEST", "GET_ACCOUNT_DETAILS_RESPONSE", aggregator)
         {
         }
 

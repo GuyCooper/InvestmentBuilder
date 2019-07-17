@@ -40,13 +40,12 @@ namespace InvestmentBuilderService.Channels
         /// <summary>
         /// Constructor.
         /// </summary>
-        public GetRecentReportFiles(AccountService accountService, IDataLayer dataLayer, InvestmentBuilder.InvestmentBuilder builder,
-            IConnectionSettings settings) 
-            : base("GET_RECENT_REPORTS_REQUEST", "GET_RECENT_REPORTS_RESPONSE", accountService)
+        public GetRecentReportFiles(ServiceAggregator aggregator)
+            : base("GET_RECENT_REPORTS_REQUEST", "GET_RECENT_REPORTS_RESPONSE", aggregator)
         {
-            m_clientData = dataLayer.ClientData;
-            m_builder = builder;
-            m_connectionSettings = settings;
+            m_clientData = aggregator.DataLayer.ClientData;
+            m_builder = aggregator.Builder;
+            m_connectionSettings = aggregator.ConnectionSettings;
         }
 
         #endregion

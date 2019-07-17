@@ -21,8 +21,8 @@ namespace InvestmentBuilderService.Channels
         /// <summary>
         /// Constructor
         /// </summary>
-        public GetAccountMembersChannel(AccountService accountService) :
-            base("GET_ACCOUNT_MEMBERS_REQUEST", "GET_ACCOUNT_MEMBERS_RESPONSE", accountService)
+        public GetAccountMembersChannel(ServiceAggregator aggregator) :
+            base("GET_ACCOUNT_MEMBERS_REQUEST", "GET_ACCOUNT_MEMBERS_RESPONSE", aggregator)
         {
         }
 

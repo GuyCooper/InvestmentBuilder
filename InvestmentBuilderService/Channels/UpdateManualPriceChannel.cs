@@ -1,19 +1,31 @@
 ﻿
 namespace InvestmentBuilderService.Channels
 {
+    /// <summary>
+    /// Investment price  update dto.
+    /// </summary>
     internal class InvestmentPriceUpdateDto : Dto
     {
         public string Investment { get; set; }
         public double Price { get; set; }
     }
 
+    /// <summary>
+    /// Class handles request to manuallly update an investment price.
+    /// </summary>
     internal class UpdateManualPriceChannel : EndpointChannel<InvestmentPriceUpdateDto, ChannelUpdater>
     {
-        public UpdateManualPriceChannel(AccountService accountService) : 
-            base("UPDATE_INVESTMENT_PRICE_REQUEST", "UPDATE_INVESTMENT_PRICE_RESPONSE", accountService)
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public UpdateManualPriceChannel(ServiceAggregator aggregator) : 
+            base("UPDATE_INVESTMENT_PRICE_REQUEST", "UPDATE_INVESTMENT_PRICE_RESPONSE", aggregator)
         {
         }
 
+        /// <summary>
+        /// Handle update manual price request.
+        /// </summary>
         protected override Dto HandleEndpointRequest(UserSession userSession, InvestmentPriceUpdateDto payload, ChannelUpdater update)
         {
             if(userSession.UserPrices.ContainsKey(payload.Investment) == false)

@@ -17,10 +17,10 @@ namespace InvestmentBuilderService
         /// <summary>
         /// Constructor.
         /// </summary>
-        public GetBrokersChannel(AccountService accountService, BrokerManager manager) : 
-            base("GET_BROKERS_REQUEST", "GET_BROKERS_RESPONSE", accountService)
+        public GetBrokersChannel(ServiceAggregator aggregator) : 
+            base("GET_BROKERS_REQUEST", "GET_BROKERS_RESPONSE", aggregator)
         {
-            _manager = manager;
+            _manager = aggregator.BrokerManager;
         }
 
         /// <summary>

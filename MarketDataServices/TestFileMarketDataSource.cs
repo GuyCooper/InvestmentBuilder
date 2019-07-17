@@ -181,6 +181,8 @@ namespace MarketDataServices
                 return;
             }
 
+            logger.Info($"Loading market data from file {filename}");
+
             using (var reader = new StreamReader(filename))
             {
                 string line;
