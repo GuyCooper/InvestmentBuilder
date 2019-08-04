@@ -4,6 +4,9 @@ using System.Xml.Serialization;
 using System.IO;
 using System.Linq;
 using InvestmentBuilderCore.Schedule;
+using System;
+using NLog;
+using System.Reflection;
 
 namespace InvestmentBuilderCore
 {
@@ -176,12 +179,41 @@ namespace InvestmentBuilderCore
 
         #region Constructor
 
-        public ConfigurationSettings(string filename)
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public ConfigurationSettings(string filename, List<KeyValuePair<string,string>> overrides)
         {
             using (var fs = new FileStream(filename, FileMode.Open))
             {
                 XmlSerializer serialiser = new XmlSerializer(typeof(Configuration));
                 _configuration = (Configuration)serialiser.Deserialize(fs);
+            }
+
+            //now apply the overrides
+            var props = _configuration.GetType().
+                GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public).ToList();
+
+            foreach(var ovride in overrides)
+            {
+                var propinfo = props.FirstOrDefault(p => MatchPropertyInfoXmlName(p, ovride.Key));
+                if(propinfo != null)
+                {
+                    logger.Info($"Override configuration. setting {propinfo.Name} to {ovride.Value}");
+
+                    if(propinfo.PropertyType == typeof(int))
+                    {
+                        propinfo.SetValue(_configuration, Convert.ToInt32(ovride.Value));
+                    }
+                    else if (propinfo.PropertyType == typeof(double))
+                    {
+                        propinfo.SetValue(_configuration, Convert.ToDouble(ovride.Value));
+                    }
+                    else if (propinfo.PropertyType == typeof(string))
+                    {
+                        propinfo.SetValue(_configuration, ovride.Value);
+                    }
+                }
             }
         }
 
@@ -189,6 +221,9 @@ namespace InvestmentBuilderCore
 
         #region Public Methods
 
+        /// <summary>
+        /// update the datasource
+        /// </summary>
         public bool UpdateDatasource(string dataSource)
         {
             if (dataSource != _configuration.DatasourceString)
@@ -234,9 +269,28 @@ namespace InvestmentBuilderCore
 
         #endregion
 
+        #region Private Methods
+
+        /// <summary>
+        /// Method matches the xmlattribute of the propertyinfo to the supplied name.
+        /// </summary>
+        private bool MatchPropertyInfoXmlName(PropertyInfo propInfo, string name)
+        {
+            var xmlAttr = propInfo.CustomAttributes.FirstOrDefault(p => p.AttributeType.Name == "XmlElementAttribute");
+            if(xmlAttr != null)
+            {
+                var arg = xmlAttr.ConstructorArguments.FirstOrDefault(c => string.Equals(c.Value.ToString(),name,StringComparison.CurrentCultureIgnoreCase));
+                return arg != null;
+            }
+            return false;
+        }
+
+        #endregion
+
         #region Private Data
 
         private Configuration _configuration;
+        private static Logger logger = LogManager.GetCurrentClassLogger();
 
         #endregion
 

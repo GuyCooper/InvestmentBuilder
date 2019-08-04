@@ -41,6 +41,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestmentBuilderAuditLogge
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestmentBuilderAuditViewer", "InvestmentBuilderAuditViewer\InvestmentBuilderAuditViewer.csproj", "{5D7A0AD7-5DDD-46A8-9964-76E0CFAED389}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestmentBuilderServiceTestRunner", "InvestmentBuilderServiceTestRunner\InvestmentBuilderServiceTestRunner.csproj", "{4A92ED66-F595-49DE-9CF6-890EEDB908EE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|InvestBuild = Debug|InvestBuild
@@ -107,6 +109,9 @@ Global
 		{5D7A0AD7-5DDD-46A8-9964-76E0CFAED389}.Debug|InvestBuild.Build.0 = Debug|x64
 		{5D7A0AD7-5DDD-46A8-9964-76E0CFAED389}.Release|InvestBuild.ActiveCfg = Release|x64
 		{5D7A0AD7-5DDD-46A8-9964-76E0CFAED389}.Release|InvestBuild.Build.0 = Release|x64
+		{4A92ED66-F595-49DE-9CF6-890EEDB908EE}.Debug|InvestBuild.ActiveCfg = Debug|x64
+		{4A92ED66-F595-49DE-9CF6-890EEDB908EE}.Debug|InvestBuild.Build.0 = Debug|x64
+		{4A92ED66-F595-49DE-9CF6-890EEDB908EE}.Release|InvestBuild.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

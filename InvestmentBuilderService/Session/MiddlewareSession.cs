@@ -88,6 +88,14 @@ namespace InvestmentBuilderService.Session
         }
 
         /// <summary>
+        /// Broadcast a message ona channel. will be picked up by all listeners on that channel
+        /// </summary>
+        public void BroadcastMessage(string channel, string payload)
+        {
+            _middleware.PublishMessage(_session, channel, payload);
+        }
+
+        /// <summary>
         /// Register Channel Listener
         /// </summary>
         public async void RegisterChannelListener(string channel)

@@ -11,6 +11,7 @@ using System.Threading;
 using InvestmentBuilderCore.Schedule;
 using System.Threading.Tasks;
 using InvestmentBuilderAuditLogger;
+using System.Collections.Generic;
 
 namespace InvestmentBuilderService
 {
@@ -24,15 +25,32 @@ namespace InvestmentBuilderService
         /// <summary>
         /// console app for hosting the investment builder core. interfaces to the middleware
         /// service to allow remote clients access to the investment builder services
+        /// any configuration parameter overrides can be passed in on the command line
+        /// should have the format name=value
         /// </summary>
         static void Main(string[] args)
         {
             try
             {
+                logger.Info($"InvestmentBuilderService starting...");
+                logger.Info($"command line {string.Join(",",args)}");
+
+                var overrides = new List<KeyValuePair<string, string>>();
+                foreach(var arg in args)
+                {
+                    var index = arg.IndexOf('=');
+                    if(index > 0)
+                    {
+                        var key = arg.Substring(0, index);
+                        var val = arg.Substring(index + 1);
+                        overrides.Add(new KeyValuePair<string, string>(key,val));
+                    }
+                }
+
                 logger.Info("InvestmentBuilderService starting...");
                 ContainerManager.RegisterType(typeof(ScheduledTaskFactory), true);
                 ContainerManager.RegisterType(typeof(IAuthorizationManager), typeof(SQLAuthorizationManager), true);
-                ContainerManager.RegisterType(typeof(IConfigurationSettings), typeof(ConfigurationSettings), true, "InvestmentBuilderConfig.xml");
+                ContainerManager.RegisterType(typeof(IConfigurationSettings), typeof(ConfigurationSettings), true,  "InvestmentBuilderConfig.xml", overrides);
                 ContainerManager.RegisterType(typeof(IConnectionSettings), typeof(ConnectionSettings), true, "Connections.xml");
                 ContainerManager.RegisterType(typeof(IMarketDataService), typeof(MarketDataService), true);
                 MarketDataRegisterService.RegisterServices();
@@ -67,7 +85,6 @@ namespace InvestmentBuilderService
 
                     logger.Info("InvestmentBuilderService Started.");
 
-                    
                     var scheduler = new Scheduler(schedulerFactory, configSettings.ScheduledTasks);
                     scheduler.Run();
 

@@ -89,7 +89,11 @@ namespace InvestmentBuilderService
                     {
                         var userSession = new UserSession(login.UserName, message.SourceId);
                         var accounts = _accountManager.GetAccountNames(login.UserName).ToList();
-                        userSession.AccountName = accounts.FirstOrDefault();
+                        var defaultAccount = accounts.FirstOrDefault();
+                        if(defaultAccount != null)
+                        {
+                            userSession.AccountName = defaultAccount;
+                        }
                         _userSessions.Add(message.SourceId, userSession);
                     }
                     GetSession().SendAuthenticationResult(authenticated, authenticated ? "authentication succeded" : "authentication failed", message.RequestId);

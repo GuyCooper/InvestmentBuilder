@@ -107,18 +107,8 @@ namespace InvestmentBuilderMSTests
 
         private bool InitialiseDatabase()
         {
-            //Console.WriteLine("restoring unit test database against server {0}, database {1}...", server, database);
-            var process = new System.Diagnostics.Process();
-            //"sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddNewShares.sql"
-            process.StartInfo.FileName = @"C:\Projects\InvestmentBuilder\scripts\GenerateUnitTestDatabase.bat";
-            process.StartInfo.CreateNoWindow = false;
-            process.StartInfo.ErrorDialog = true;
-            process.StartInfo.UseShellExecute = true;
-            process.StartInfo.WorkingDirectory = @"C:\Projects\InvestmentBuilder\scripts";
-            process.Start();
-            process.WaitForExit();
-            var result = process.ExitCode;
-
+            var ret = ProcessLauncher.RunProcessAndWaitForCompletion(@"C:\Projects\InvestmentBuilder\scripts\GenerateUnitTestDatabase.bat", "");
+            Console.WriteLine("return code from initialisedatabase : {0}", ret);
             return true;
         }
 
