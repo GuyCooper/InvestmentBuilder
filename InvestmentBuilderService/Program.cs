@@ -67,11 +67,13 @@ namespace InvestmentBuilderService
 
                 using (var child = ContainerManager.CreateChildContainer())
                 {
+                    var dataLayer = ContainerManager.ResolveValue<IDataLayer>(); 
                     var configSettings = ContainerManager.ResolveValue<IConfigurationSettings>();
                     var connectionSettings = ContainerManager.ResolveValue<IConnectionSettings>();
                     var authData = new SQLAuthData(configSettings.AuthDatasourceString);
                     var authSession = new MiddlewareSession(connectionSettings.AuthServerConnection, "InvestmentBuilder-AuthService");
-                    var userManager = new UserSessionManager(authSession, authData, ContainerManager.ResolveValue<AccountManager>());
+                    var accountManager = ContainerManager.ResolveValue<AccountManager>();
+                    var userManager = new UserSessionManager(authSession, authData, accountManager, dataLayer.UserAccountData);
                     var serverSession = new MiddlewareSession(connectionSettings.ServerConnection, "InvestmentBuilder-Channels");
                     var endpointManager = new ChannelEndpointManager(serverSession, userManager);
 

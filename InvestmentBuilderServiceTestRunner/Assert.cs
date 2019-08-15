@@ -48,19 +48,34 @@ namespace InvestmentBuilderServiceTestRunner
         }
 
         /// <summary>
-        /// Assert if not equal.
+        /// Assert if not null
         /// </summary>
-        public static void AreEqual<T>(T val1, T val2, string description) where T : IEquatable<T>
+        public static void IsNull(object result, string description)
         {
-            if(val1.Equals(val2))
+            if (result == null)
             {
                 logger.Info($"{description} PASSED");
             }
             else
             {
-                throw new AssertionFailedException($"{description} FAILED. Expected true. was false");
+                throw new AssertionFailedException($"{description} FAILED. Expected null. was not null.");
             }
+        }
 
+
+        /// <summary>
+        /// Assert if not equal.
+        /// </summary>
+        public static void AreEqual<T>(T expected, T actual, string description) where T : IEquatable<T>
+        {
+            if(expected.Equals(actual))
+            {
+                logger.Info($"{description} PASSED");
+            }
+            else
+            {
+                throw new AssertionFailedException($"{description} FAILED. Expected {expected}. was {actual}");
+            }
         }
 
         #endregion

@@ -242,9 +242,9 @@ namespace SQLServerDataLayer
                             return new Transaction
                             {
                                 InvestmentName = GetDBValue<string>("Name", reader),
-                                Quantity = GetDBValue<double>("Quantity", reader),
-                                Amount = GetDBValue<double>("TotalCost", reader),
-                                TransactionType = (TradeType)Enum.Parse(typeof(TradeType), GetDBValue<string>("trade_Action", reader))
+                                Quantity = GetDBValue<int>("quantity", reader),
+                                Amount = GetDBValue<double>("total_cost", reader),
+                                TransactionType = (TradeType)Enum.Parse(typeof(TradeType), GetDBValue<string>("trade_action", reader))
                             };
                         }
                     }
@@ -259,7 +259,7 @@ namespace SQLServerDataLayer
         /// </summary>
         public DateTime? GetPreviousAccountValuationDate(UserAccountToken userToken, DateTime dtValuation)
         {
-            if(userToken.Account == null)
+            if(userToken.Account == null || userToken.Account.AccountId == 0)
             {
                 //user is not a member of any account
                 return null;

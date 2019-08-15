@@ -333,10 +333,6 @@ namespace InvestmentBuilder
         /// but NOT persisting to the database. the report is generated from the last known valuation date
         /// as this snapshot does notyet exist in the database
         /// </summary>
-        /// <param name="account"></param>
-        /// <param name="dtValuationDate"></param>
-        /// <param name="dtPreviousValuationDate"></param>
-        /// <returns></returns>
         public IEnumerable<CompanyData> GetInvestmentRecordSnapshot(UserAccountToken userToken, AccountModel account, ManualPrices manualPrices)
         {
             DateTime? dtPreviousValuationDate = _investmentRecordData.GetLatestRecordInvestmentValuationDate(userToken);

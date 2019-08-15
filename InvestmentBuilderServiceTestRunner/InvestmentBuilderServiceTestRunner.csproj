@@ -66,10 +66,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assert.cs" />
+    <Compile Include="Dtos.cs" />
     <Compile Include="RequestEndpoint.cs" />
+    <Compile Include="Requests\AddTransactionRequest.cs" />
+    <Compile Include="Requests\CreateAccountChannelRequest.cs" />
+    <Compile Include="Requests\GetAccountNamesRequest.cs" />
+    <Compile Include="Requests\GetCashFlowRequest.cs" />
+    <Compile Include="Requests\GetInvestmentSummaryRequest.cs" />
+    <Compile Include="Requests\GetPortfolioRequest.cs" />
+    <Compile Include="Requests\UpdateAccountDetailsRequest.cs" />
     <Compile Include="TestRunner.cs" />
     <Compile Include="ConnectionService.cs" />
-    <Compile Include="Requests.cs" />
     <Compile Include="InvestmentBuilderServiceTestRunner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tests.cs" />

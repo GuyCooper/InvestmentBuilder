@@ -39,13 +39,12 @@
     </index>
   </indexes>
   <formats>
-    <format>EXCEL</format>
     <format>PDF</format>
   </formats>
   <schedule>
     <task>
       <name>Yahoo</name>
-      <scheduled>18:45:00</scheduled>
+      <scheduled>18:31:00</scheduled>
     </task>
   </schedule>
   <auditFile>InvestmentBuilderAudit.dat</auditFile>

@@ -1,11 +1,6 @@
-﻿using Middleware;
-using MiddlewareInterfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using MiddlewareInterfaces;
+using NLog;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace InvestmentBuilderServiceTestRunner
 {
@@ -42,6 +37,8 @@ namespace InvestmentBuilderServiceTestRunner
         where Request : Dto, new()
         where Result : Dto, new()
     {
+        #region Nested classes
+
         /// <summary>
         /// TestResult class, wraps the result of the request as well as information about the
         /// success of the request and any error message.
@@ -53,6 +50,10 @@ namespace InvestmentBuilderServiceTestRunner
             public string Error { get; set; }
         }
 
+        #endregion
+
+        #region Public Properties
+
         /// <summary>
         /// Request Channel.
         /// </summary>
@@ -62,6 +63,10 @@ namespace InvestmentBuilderServiceTestRunner
         /// Response Channel.
         /// </summary>
         public string ResponseChannel { get; private set; }
+
+        #endregion
+
+        #region Public Methods
 
         /// <summary>
         /// Constructor.
@@ -106,6 +111,23 @@ namespace InvestmentBuilderServiceTestRunner
                 Success = true
             };
         }
+
+        #endregion
+
+        #region Protected Methods
+
+        /// <summary>
+        /// Log a message
+        /// </summary>
+        protected void LogMessage(string message)
+        {
+            logger.Info(message);
+        }
+
+        #endregion
+
+        #region Private Methods
+
         /// <summary>
         /// Method handles the response for the request.
         /// </summary>
@@ -115,9 +137,17 @@ namespace InvestmentBuilderServiceTestRunner
             m_ReceiveEvent.Set();
         }
 
+        #endregion
+
+        #region Private Data
+
         private readonly ManualResetEvent m_ReceiveEvent = new ManualResetEvent(false);
 
         private readonly int m_timeoutMS = 30000;
         private string m_payload;
+
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
+        #endregion
     }
 }

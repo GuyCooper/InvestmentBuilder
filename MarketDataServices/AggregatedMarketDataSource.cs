@@ -10,7 +10,10 @@ namespace MarketDataServices
 {
     /// <summary>
     /// aggregates all market data sources and iterates through each one to get 
-    /// source data until succeeds
+    /// source data until succeeds. Uses the MEF service locator to load all known
+    /// marketdatasources in this assembley. Each datasource has a priority (1  = highest)
+    /// this class acts as a broker forwarding market data requests to each of the registered
+    /// market data sources in priority order until the request is satisifed.
     /// </summary>
     internal class AggregatedMarketDataSource : IMarketDataSource
     {

@@ -56,7 +56,6 @@ namespace UserManagementService
         private static void RegisterHandlers(Endpoint endpoint, Configuration configuration)
         {
             var authData = new SQLAuthData(configuration.AuthenticationDatabase);
-            var userDatabase = new SQLServerUserAccountData(configuration.ApplicationDatabase);
             var userNotifer = new TestNotifier();
             //var userNotifer = new SmtpNotifier(configuration.SmtpServer,
             //                                   configuration.OurEmailAddress,
@@ -68,7 +67,7 @@ namespace UserManagementService
             var changePasswordUrl = $"{configuration.HostURL}/{configuration.ChangePasswordPage}";
             var validateNewUserUrl= $"{configuration.HostURL}/{configuration.ValidateNewUserPage}";
 
-            endpoint.AddHandler(new Handlers.RegisterNewUserHandler(authData, userDatabase, userNotifer, validateNewUserUrl));
+            endpoint.AddHandler(new Handlers.RegisterNewUserHandler(authData, userNotifer, validateNewUserUrl));
             endpoint.AddHandler(new Handlers.ForgottonPasswordHandler(userNotifer, changePasswordUrl, authData));
             endpoint.AddHandler(changePasswordHandler);
             endpoint.AddHandler(new Handlers.ValidateNewUserHandler(authData));

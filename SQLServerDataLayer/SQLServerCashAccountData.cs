@@ -94,7 +94,7 @@ namespace SQLServerDataLayer
         /// </summary>
         public void GetCashAccountTransactions(UserAccountToken userToken, string side, DateTime valuationDate, Action<System.Data.IDataReader> fnAddTransaction)
         {
-            if (userToken.Account == null || fnAddTransaction == null)
+            if (userToken.Account == null || userToken.Account.AccountId == 0 || fnAddTransaction == null)
             {
                 return;
             }

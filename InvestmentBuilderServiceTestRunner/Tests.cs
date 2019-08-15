@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using InvestmentBuilderServiceTestRunner.Requests;
 
 namespace InvestmentBuilderServiceTestRunner
 {
@@ -18,7 +19,11 @@ namespace InvestmentBuilderServiceTestRunner
         /// </summary>
         public void Run(ConnectionService connectionService)
         {
-            GetAccountNames(connectionService);
+            //m_getAccountNames.GetAccountNamesEmptyUser(connectionService);
+            //m_getCashFlow.GetCashFlowEmptyUser(connectionService);
+            //m_getInvestmentSummary.GetInvestmentSummaryEmptyUser(connectionService);
+            //m_createAccount.AddNewAccount(connectionService);
+            m_getPortfolio.GetPortfolioEmpty(connectionService);
         }
 
         /// <summary>
@@ -62,22 +67,6 @@ namespace InvestmentBuilderServiceTestRunner
 
         #endregion
 
-        #region Test Methods
-
-        /// <summary>
-        /// Test get account names.
-        /// </summary>
-        private void GetAccountNames(ConnectionService connectionService)
-        {
-            // Get account names..
-            logger.Info("GetAccountNames");
-            var result = m_getAccountNames.SendRequest(new Dto(), connectionService);
-            Assert.IsTrue(result.Success, "GetAccountNames", result.Error);
-            Assert.AreEqual(result.Result.AccountNames.Count(), 0, "GetAccountNames");
-        }
-
-        #endregion
-
         #region Private Data
 
         private static Logger logger = LogManager.GetCurrentClassLogger();
@@ -87,6 +76,11 @@ namespace InvestmentBuilderServiceTestRunner
         #region Public request endpoints
 
         public GetAccountNamesRequest m_getAccountNames = new GetAccountNamesRequest();
+        public GetCashFlowRequest m_getCashFlow = new GetCashFlowRequest();
+        public GetInvestmentSummaryRequest m_getInvestmentSummary = new GetInvestmentSummaryRequest();
+        public CreateAccountChannelRequest m_createAccount = new CreateAccountChannelRequest();
+        public UpdateAccountDetailsRequest m_updateAccountDetails = new UpdateAccountDetailsRequest();
+        public GetPortfolioRequest m_getPortfolio = new GetPortfolioRequest();
 
         #endregion
 

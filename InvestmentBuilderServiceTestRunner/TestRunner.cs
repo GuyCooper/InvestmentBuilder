@@ -46,27 +46,20 @@ namespace InvestmentBuilderServiceTestRunner
                 ProcessLauncher.RunProcess(@"C:\Projects\InvestmentBuilder\InvestmentBuilderService\bin\Release\InvestmentBuilderService.exe", commandLine);
 
                 // Give the process some time to start
-                m_ServiceReadyEvent.WaitOne(3000);
+                m_ServiceReadyEvent.WaitOne(30000);
             }
 
             logger.Info("InvestmentBuilderServiceRunning...");
 
             //Now try and connect to the service...
             //connect to the middleware
-            var maxAttempts = 10;
-            for(int attempt = 0; attempt < maxAttempts; attempt++)
+            logger.Info($"Connecting to server...");
+
+            var connected = await m_connectionService.Connect(m_url, "user@test.com", "TestUserPassword123");
+            if(connected)
             {
-                var connected = await m_connectionService.Connect(m_url, "user@test.com", "TestUserPassword123");
-                if(connected)
-                {
-                    logger.Info("Connected to server");
-                    m_connectionSucceded = await m_tests.RegisterEndpoints(m_connectionService);
-                    break;
-                }
-                else
-                {
-                    m_ServiceReadyEvent.WaitOne(6000);
-                }
+                logger.Info("Connected to server");
+                m_connectionSucceded = await m_tests.RegisterEndpoints(m_connectionService);
             }
 
             if(!m_connectionSucceded)

@@ -35,10 +35,9 @@ namespace UserManagementService.Handlers
         /// <summary>
         /// Constructor
         /// </summary>
-        public RegisterNewUserHandler(IAuthDataLayer authtdata, IUserAccountInterface userAccountData, IUserNotifier notifier, string validateNewUserUrl) : base("RegisterUser")
+        public RegisterNewUserHandler(IAuthDataLayer authtdata, IUserNotifier notifier, string validateNewUserUrl) : base("RegisterUser")
         {
             m_authdata = authtdata;
-            m_userAccountData = userAccountData;
             m_userNotifier = notifier;
             m_validateNewUserUrl = validateNewUserUrl;
         }
@@ -82,7 +81,6 @@ namespace UserManagementService.Handlers
                     m_userNotifier.NotifyUser(request.EMailAddress, link, "ValidateNewUser.html", "Validate New User");
 
                     response.ResultMessage = "Register New User Succeded.\n\nYou will shortly receive an email to validate the request.";
-                    m_userAccountData.AddUser(request.EMailAddress, request.UserName);
                 }
                 else
                 {
@@ -110,7 +108,6 @@ namespace UserManagementService.Handlers
         #region Private Member Data
 
         private readonly IAuthDataLayer m_authdata;
-        private readonly IUserAccountInterface m_userAccountData;
 
         private static Logger logger = LogManager.GetCurrentClassLogger();
         private readonly IUserNotifier m_userNotifier;

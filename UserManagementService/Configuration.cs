@@ -11,10 +11,6 @@ namespace UserManagementService
     public interface IConfiguration
     {
         /// <summary>
-        /// Datasource for application datbase
-        /// </summary>
-        string ApplicationDatabase { get; }
-        /// <summary>
         /// Datasource for authentication database
         /// </summary>
         string AuthenticationDatabase { get;}
@@ -61,8 +57,6 @@ namespace UserManagementService
     [XmlRoot(ElementName = "configuration")]
     public class ConfigurationImpl
     {
-        [XmlElement("appdatabase")]
-        public string ApplicationDatabase { get; set; }
         [XmlElement("authdatabase")]
         public string AuthenticationDatabase { get; set; }
 
@@ -103,8 +97,6 @@ namespace UserManagementService
     internal class Configuration : IConfiguration
     {
         #region IConfiguration
-
-        public string ApplicationDatabase { get { return _configuration.ApplicationDatabase; } }
 
         public string AuthenticationDatabase { get { return _configuration.AuthenticationDatabase; } }
 
