@@ -1,0 +1,26 @@
+﻿<form name="RegisterUserForm" role="form">
+    <div class="form-group">
+        <label>Email Address</label>
+        <input class="form-control" ng-model="EMailAddress" name="EMailAddress" placeholder="email address" />
+    </div>
+
+    <div class="form-group">
+        <label>Password</label>
+        <input type="password" class="form-control" ng-model="Password" name="Password" placeholder="password" />
+    </div>
+
+    <div class="form-group">
+        <label>Confirm Password</label>
+        <input type="password" class="form-control" ng-model="ConfirmPassword" name="ConfirmPassword" placeholder="password" />
+    </div>
+
+    <div>
+        <input type="button" value="Register" ng-click="registerUser()" />
+    </div>
+
+    <div>
+        <ul ng-show="IsError">
+            <li class="text-danger" ng-repeat="error in ErrorList" ng-bind="error"></li>
+        </ul>
+    </div>
+</form>

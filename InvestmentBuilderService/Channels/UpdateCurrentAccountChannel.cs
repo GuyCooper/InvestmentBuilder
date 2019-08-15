@@ -1,22 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using InvestmentBuilderCore;
 
 namespace InvestmentBuilderService.Channels
 {
+    /// <summary>
+    /// UpdateCurrentAccount request dto.
+    /// </summary>
     internal class UpdateCurrentAccountRequestDto : Dto
     {
-        public string AccountName { get; set; }
+        public AccountIdentifier AccountName { get; set; }
     }
 
+    /// <summary>
+    /// Class handles Updatecurrentaccount request.
+    /// </summary>
     class UpdateCurrentAccountChannel : EndpointChannel<UpdateCurrentAccountRequestDto, ChannelUpdater>
     {
-        public UpdateCurrentAccountChannel(AccountService accountService) :
-            base("UPDATE_CURRENT_ACCOUNT_REQUEST", "UPDATE_CURRENT_ACCOUNT_RESPONSE", accountService)
-        { }
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public UpdateCurrentAccountChannel(ServiceAggregator aggregator) :
+            base("UPDATE_CURRENT_ACCOUNT_REQUEST", "UPDATE_CURRENT_ACCOUNT_RESPONSE", aggregator)
+        {
+        }
 
+        /// <summary>
+        /// Handle update current account request.
+        /// </summary>
         protected override Dto HandleEndpointRequest(UserSession userSession, UpdateCurrentAccountRequestDto payload, ChannelUpdater update)
         {
             GetCurrentUserToken(userSession, payload.AccountName);

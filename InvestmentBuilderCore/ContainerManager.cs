@@ -22,7 +22,7 @@ namespace InvestmentBuilderCore
             _container.RegisterType(typeFrom, lifetimeManager);
         }
 
-        public static void RegisterType(Type typeFrom, Type typeTo, bool bHierachialLifetime, params string[] prm)
+        public static void RegisterType(Type typeFrom, Type typeTo, bool bHierachialLifetime, params object[] prm)
         {
             var lifetimeManager = bHierachialLifetime ? new HierarchicalLifetimeManager() : new ContainerControlledLifetimeManager();
             if (prm == null || prm.Length == 0)

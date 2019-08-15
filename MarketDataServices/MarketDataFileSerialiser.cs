@@ -1,26 +1,38 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using InvestmentBuilderCore;
 
 namespace MarketDataServices
 {
     /// <summary>
-    /// market data file serialiser class. saves data to a file
+    /// Market data file serialiser class. saves market data to a file.
     /// </summary>
     internal class MarketDataFileSerialiser : IMarketDataSerialiser
     {
-        private string _fileName;
-        private StreamWriter _writer;
-
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public MarketDataFileSerialiser(IConfigurationSettings settings)
         {
             _fileName = settings.OutputCachedMarketData;
         }
 
+        #region IMarketDataSerialiser
+
+        /// <summary>
+        /// Starts a data serialiser. 
+        /// </summary>
+        public void StartSerialiser()
+        {
+            if (_fileName != null && _writer == null)
+            {
+                _writer = new StreamWriter(_fileName);
+            }
+        }
+
+        /// <summary>
+        /// Close a serialiser.
+        /// </summary>
         public void EndSerialiser()
         {
             if(_writer != null)
@@ -30,6 +42,9 @@ namespace MarketDataServices
             }
         }
 
+        /// <summary>
+        /// Serialise some data.
+        /// </summary>
         public void SerialiseData(string data, params object[] prm)
         {
             if(_writer != null)
@@ -38,14 +53,10 @@ namespace MarketDataServices
             }
         }
 
-        public void StartSerialiser()
-        {
-            if (_fileName != null &&_writer == null)
-            {
-                _writer = new StreamWriter(_fileName);
-            }
-        }
-
+        /// <summary>
+        /// Load all the data from a serialiser. For each block of data call the processRecord
+        /// delegate.
+        /// </summary>
         public void LoadData(Action<string> processRecord)
         {
             if(_fileName == null)
@@ -65,5 +76,14 @@ namespace MarketDataServices
                 }
             }
         }
+
+        #endregion
+
+        #region Private Data
+
+        private string _fileName;
+        private StreamWriter _writer;
+
+        #endregion
     }
 }

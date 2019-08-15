@@ -8,6 +8,7 @@ using MigraDoc.DocumentObjectModel.Tables;
 using PdfSharp;
 using PdfSharp.Pdf;
 using PdfSharp.Drawing;
+using NLog;
 
 namespace InvestmentReportGenerator
 {
@@ -18,38 +19,15 @@ namespace InvestmentReportGenerator
         public bool LastPart { get; set; }
     }
 
+    /// <summary>
+    /// Class generates the pdf investment report.
+    /// </summary>
     public class PdfInvestmentReportWriter : IInvestmentReportWriter, IDisposable
     {
-        //private MigraDoc.DocumentObjectModel.Document _document = null;
-        private PdfDocument _pdfDocument = null;
-        private const double dataCellWidth = 2.1;
-        private const double HeaderRowHeight = 1.3d;
-        private const double RowHeight = 0.45d;
-        private const double DoubleRowHeight = 0.9d;
-        private const int MaxAssetsPerChart = 17;
-
-        private const int MaxXLabelCount = 12;
-
-        private static readonly Unit _MaxTableHeight = Unit.FromCentimeter(15);
-
-        private static readonly List<KeyValuePair<string,double>> _headerNames = new List<KeyValuePair<string,double>>
-        {
-            new KeyValuePair<string, double>("Investment",3.5),
-            new KeyValuePair<string, double>("Last Bought", 2.5 ),
-            new KeyValuePair<string, double>("Quantity",dataCellWidth ),
-            new KeyValuePair<string, double>( @"Price Paid \Share", dataCellWidth ),
-            new KeyValuePair<string, double>( "Total Cost",dataCellWidth ),
-            new KeyValuePair<string, double>( @"Selling Price \Share",dataCellWidth ),
-            new KeyValuePair<string, double>( "Net Selling Value",dataCellWidth ),
-            new KeyValuePair<string, double>( "PnL",dataCellWidth ),
-            new KeyValuePair<string, double>( @"Change \Month",dataCellWidth ),
-            new KeyValuePair<string, double>( @"%\Month",dataCellWidth ),
-            new KeyValuePair<string, double>( "Dividends",dataCellWidth )
-        };
+        #region Public Methods
 
         public PdfInvestmentReportWriter()
         {
-
         }
 
         public static string GetPdfReportFile(DateTime ValuationDate)
@@ -62,9 +40,173 @@ namespace InvestmentReportGenerator
             return GetPdfReportFile(ValuationDate);
         }
 
+        /// <summary>
+        /// Write asset report to pdf.
+        /// </summary>
+        public void WriteAssetReport(AssetReport report, double startOfYear, string outputPath, ProgressCounter progress)
+        {
+            logger.Log(LogLevel.Info, "Writing pdf asset report");
+
+            var reportFileName = Path.Combine(outputPath, GetReportFileName(report.ValuationDate));
+            if (File.Exists(reportFileName))
+                File.Delete(reportFileName);
+
+            string title = string.Format("Valuation Report For {0} - {1}", report.AccountName.Name, report.ValuationDate.ToShortDateString());
+            _CreateDocument(title);
+
+            //before we can render the table, we need to break down the
+            //company data information into sizes that can fit onto a page
+            var parts = _breakdownAssets(report.Assets);
+
+            progress.Initialise("writing pdf asset report", parts.Count);
+
+            foreach (var part in parts)
+            {
+                var document = new Document();
+                Section section = createSection(document);
+                var heading = createHeading(section, report.AccountName.Name, report.ValuationDate, report.ReportingCurrency);
+
+                Table table = createTable(section, "0.25", "0.25", "0.5", "0.5", Colors.CornflowerBlue);
+
+                //add header row
+                Row header = createTableHeader(table, Colors.LightBlue, _headerNames);
+
+                //table.SetEdge(0, 0, 6, 2, Edge.Box, BorderStyle.Single, 0.75, Color.Empty);
+                Row row;
+
+                //now populate the rows
+                foreach (var asset in part.Companies)
+                {
+                    row = table.AddRow();
+                    int cell = 0;
+                    _AddCellEntry(row, cell++, asset.Name);
+                    _AddCellEntry(row, cell++, asset.LastBrought.ToShortDateString());
+                    _AddCellEntry(row, cell++, asset.Quantity.ToString());
+                    _AddCellEntry(row, cell++, asset.AveragePricePaid.ToString("#.##"));
+                    _AddCellEntry(row, cell++, asset.TotalCost.ToString("#.##"));
+                    _AddCellEntry(row, cell++, asset.SharePrice.ToString("#.###"));
+                    _AddCellEntry(row, cell++, asset.NetSellingValue.ToString("#.##"));
+                    _AddCellEntry(row, cell++, asset.ProfitLoss.ToString("#.##"));
+                    _AddCellEntry(row, cell++, asset.TotalReturn.ToString("#.##"));
+                    _AddCellEntry(row, cell++, asset.MonthChange.ToString("#.##"));
+                    _AddCellEntry(row, cell++, asset.MonthChangeRatio.ToString("#.#"));
+                    _AddCellEntry(row, cell++, asset.Dividend.ToString("#.##"));
+                }
+
+                Table totalsTable = null;
+                Table summaryTable = null;
+
+                if (part.LastPart == true)
+                {
+                    totalsTable = _CreateInfoTable(section);
+                    for (int i = 0; i < 6; ++i)
+                    {
+                        totalsTable.AddColumn(Unit.FromCentimeter(dataCellWidth));
+                    }
+
+                    row = totalsTable.AddRow();
+                    row.Cells[0].AddParagraph().AddFormattedText("Total Asset Value", TextFormat.Bold);
+                    row.Cells[1].AddParagraph().AddFormattedText(report.TotalAssetValue.ToString("#.##"));
+                    row.Cells[2].AddParagraph().AddFormattedText(report.Assets.Sum(x => x.ProfitLoss).ToString("#.##"));
+                    row.Cells[4].AddParagraph().AddFormattedText(report.Assets.Sum(x => x.MonthChange).ToString("#.##"));
+                    row.Cells[6].AddParagraph().AddFormattedText(report.Assets.Sum(x => x.Dividend).ToString("#.##"));
+
+                    summaryTable = _CreateInfoTable(section);
+                    summaryTable.AddColumn(Unit.FromCentimeter(dataCellWidth));
+                    _AddAmountRow(summaryTable, "Bank Balance", report.BankBalance);
+                    _AddAmountRow(summaryTable, "Total Assets", report.TotalAssets);
+                    _AddAmountRow(summaryTable, "Total Liabilities", report.TotalLiabilities);
+                    _AddAmountRow(summaryTable, "Net Assets", report.NetAssets);
+                    _AddAmountRow(summaryTable, "Issued Units", report.IssuedUnits);
+                    _AddAmountRow(summaryTable, "Value Per Unit", report.ValuePerUnit);
+                    _AddAmountRow(summaryTable, "YTD", report.YearToDatePerformance);
+                }
+
+                _RenderAssetTable(document,
+                                    heading,
+                                    table,
+                                    totalsTable,
+                                    summaryTable,
+                                    part.Height);
+
+                progress.Increment();
+            }
+
+            _WriteRedemptionsList(report);
+
+            logger.Log(LogLevel.Info, "Finished writing pdf asset report");
+
+            //_pdfDocument.Save(_reportFileName);
+            //_pdfDocument.Close();
+        }
+
+        /// <summary>
+        /// Methods persists all the performance data to a pdf document.
+        /// </summary>
+        public void WritePerformanceData(IList<IndexedRangeData> data, string outputPath, DateTime dtValuation, ProgressCounter progress)
+        {
+            progress.Initialise("writing performance data to pdf report", data.Count + 2);
+            string title = string.Format(@"{0}\Performance Report-{1}", outputPath, dtValuation);
+            var reportFileName = Path.Combine(outputPath, GetReportFileName(dtValuation));
+
+            _CreateDocument(title);
+
+            progress.Increment();
+            foreach (var rangeIndex in data.Reverse())
+            {
+                if (rangeIndex.Data.Count == 0)
+                {
+                    continue;
+                }
+
+                bool bRepeated = false;
+                var subRangeData = _breakdownIndexData(rangeIndex);
+                foreach (var subRangeIndex in subRangeData)
+                {
+                    PdfSharp.Charting.ChartType chartType = subRangeIndex.IsHistorical == true ?
+                    PdfSharp.Charting.ChartType.Line : PdfSharp.Charting.ChartType.Column2D;
+
+                    var yAxisKey = subRangeIndex.IsHistorical ? "Unit Price" : subRangeIndex.Name;
+                    var xAxisKey = subRangeIndex.IsHistorical ? "Date" : subRangeIndex.KeyName;
+
+                    if (subRangeIndex.IsHistorical == true)
+                    {
+                        _NormaliseData(subRangeIndex.Data);
+                    }
+
+                    var xAxisValues = subRangeIndex.Data[0].Data.Select(x =>
+                    {
+                        return x.Date.HasValue ? x.Date.Value.ToString("MM-yy") : x.Key;
+                    }).ToList();
+
+                    var chart = _CreateChart(chartType, xAxisKey, yAxisKey, xAxisValues, subRangeIndex.Data, subRangeIndex.MinValue,
+                                             subRangeIndex.IsHistorical);
+
+                    string fullTitle = string.Format("{0} {1} {2}", subRangeIndex.Title, subRangeIndex.Name, bRepeated == true ? "Contd..." : "");
+                    _RenderChart(_pdfDocument, fullTitle, chart);
+                    bRepeated = true;
+                }
+                progress.Increment();
+            }
+
+            _pdfDocument.Save(reportFileName);
+            _pdfDocument.Dispose();
+            _pdfDocument = null;
+
+            progress.Increment();
+        }
+
+        #endregion
+
+        #region IDisposable
+
         public void Dispose()
         {
         }
+
+        #endregion
+
+        #region Private Methods
 
         private void _DefineStyles()
         {
@@ -81,23 +223,23 @@ namespace InvestmentReportGenerator
             }
         }
 
-        private void _AddColumnEntry(Row row, int column, string data)
+        /// <summary>
+        /// Helper method to set a cell value.
+        /// </summary>
+        private void _AddCellEntry(Row row, int column, string data)
         {
             row.Cells[column].Format.Alignment = ParagraphAlignment.Center;
             row.Cells[column].VerticalAlignment = VerticalAlignment.Center;
             row.Cells[column].AddParagraph(data);
         }
 
+        /// <summary>
+        /// Helper method to create an info table.
+        /// </summary>
         private Table _CreateInfoTable(Section section)
         {
-            Table table = section.AddTable();
-            table.Style = "Table";
-            table.Borders.Width = "0.25";
-            table.Borders.Left.Width = "0.5";
-            table.Borders.Right.Width = "0.5";
+            Table table = createTable(section, "0.25", "0.25", "0.5", "0.5", Colors.CornflowerBlue);
             table.Rows.Alignment = RowAlignment.Left;
-            //table.Rows.LeftIndent = Unit.FromCentimeter(10);
-            table.Borders.Color = Colors.CornflowerBlue;
             Column col = table.AddColumn(Unit.FromCentimeter(4.2));
             col.Shading.Color = Colors.LightBlue;
             return table;
@@ -167,130 +309,6 @@ namespace InvestmentReportGenerator
             return result;
         }
 
-        public void WriteAssetReport(AssetReport report, double startOfYear, string outputPath, ProgressCounter progress)
-        {
-            var reportFileName = Path.Combine(outputPath, GetReportFileName(report.ValuationDate));
-            if (File.Exists(reportFileName))
-                File.Delete(reportFileName);
-
-            string title = string.Format("Valuation Report For {0} - {1}", report.AccountName, report.ValuationDate.ToShortDateString());
-            _CreateDocument(title);
-
-            //before we can render the table, we need to break down the
-            //company data information into sizes that can fit onto a page
-            var parts = _breakdownAssets(report.Assets);
-
-            progress.Initialise("writing pdf asset report", parts.Count);
-
-            foreach (var part in parts)
-            {
-                var document = new MigraDoc.DocumentObjectModel.Document();
-                Section section = document.AddSection();
-                section.PageSetup.HeaderDistance = Unit.FromCentimeter(0);
-                section.PageSetup.TopMargin = Unit.FromCentimeter(1);
-                section.PageSetup.FooterDistance = Unit.FromCentimeter(0);
-                section.PageSetup.BottomMargin = Unit.FromCentimeter(1);
-                section.PageSetup.Orientation = Orientation.Landscape;
-                Paragraph heading = section.AddParagraph();
-                heading.Format.SpaceBefore = Unit.FromCentimeter(1);
-                heading.Format.SpaceAfter = Unit.FromCentimeter(1);
-                heading.AddFormattedText(report.AccountName, TextFormat.Bold);
-                heading.AddLineBreak();
-                heading.AddFormattedText(string.Format("Valuation Date: {0}", report.ValuationDate.ToShortDateString()));
-                heading.AddLineBreak();
-                heading.AddFormattedText(string.Format("Reporting Currency: {0}", report.ReportingCurrency));
-
-                Table table = section.AddTable();
-                table.Style = "Table";
-                table.Borders.Width = "0.25";
-                table.Borders.Left.Width = "0.5";
-                table.Borders.Right.Width = "0.5";
-                table.Rows.LeftIndent = 0;
-                table.Borders.Color = Colors.CornflowerBlue;
-
-                foreach (var cell in _headerNames)
-                {
-                    Column column = table.AddColumn(Unit.FromCentimeter(cell.Value));
-                    column.Format.Alignment = ParagraphAlignment.Center;
-                }
-
-                //add header row
-                Row header = table.AddRow();
-                header.HeadingFormat = true;
-                header.Format.Alignment = ParagraphAlignment.Center;
-                header.Format.Font.Bold = true;
-                header.Shading.Color = Colors.LightBlue;
-
-                for (int i = 0; i < _headerNames.Count; ++i)
-                {
-                    header.Cells[i].AddParagraph(_headerNames[i].Key);
-                    header.Cells[i].Format.Alignment = ParagraphAlignment.Center;
-                    header.Cells[i].VerticalAlignment = VerticalAlignment.Center;
-                }
-
-                //table.SetEdge(0, 0, 6, 2, Edge.Box, BorderStyle.Single, 0.75, Color.Empty);
-                Row row;
-
-                //now populate the rows
-                foreach (var asset in part.Companies)
-                {
-                    row = table.AddRow();
-                    int cell = 0;
-                    _AddColumnEntry(row, cell++, asset.Name);
-                    _AddColumnEntry(row, cell++, asset.LastBrought.ToShortDateString());
-                    _AddColumnEntry(row, cell++, asset.Quantity.ToString());
-                    _AddColumnEntry(row, cell++, asset.AveragePricePaid.ToString("#.##"));
-                    _AddColumnEntry(row, cell++, asset.TotalCost.ToString("#.##"));
-                    _AddColumnEntry(row, cell++, asset.SharePrice.ToString("#.###"));
-                    _AddColumnEntry(row, cell++, asset.NetSellingValue.ToString("#.##"));
-                    _AddColumnEntry(row, cell++, asset.ProfitLoss.ToString("#.##"));
-                    _AddColumnEntry(row, cell++, asset.MonthChange.ToString("#.##"));
-                    _AddColumnEntry(row, cell++, asset.MonthChangeRatio.ToString("#.#"));
-                    _AddColumnEntry(row, cell++, asset.Dividend.ToString("#.##"));
-                }
-
-                Table totalsTable = null;
-                Table summaryTable = null;
-
-                if (part.LastPart == true)
-                {
-                    totalsTable = _CreateInfoTable(section);
-                    for (int i = 0; i < 5; ++i)
-                    {
-                        totalsTable.AddColumn(Unit.FromCentimeter(dataCellWidth));
-                    }
-
-                    row = totalsTable.AddRow();
-                    row.Cells[0].AddParagraph().AddFormattedText("Total Asset Value", TextFormat.Bold);
-                    row.Cells[1].AddParagraph().AddFormattedText(report.TotalAssetValue.ToString("#.##"));
-                    row.Cells[2].AddParagraph().AddFormattedText(report.Assets.Sum(x => x.ProfitLoss).ToString("#.##"));
-                    row.Cells[3].AddParagraph().AddFormattedText(report.Assets.Sum(x => x.MonthChange).ToString("#.##"));
-                    row.Cells[5].AddParagraph().AddFormattedText(report.Assets.Sum(x => x.Dividend).ToString("#.##"));
-
-                    summaryTable = _CreateInfoTable(section);
-                    summaryTable.AddColumn(Unit.FromCentimeter(dataCellWidth));
-                    _AddAmountRow(summaryTable, "Bank Balance", report.BankBalance);
-                    _AddAmountRow(summaryTable, "Total Assets", report.TotalAssets);
-                    _AddAmountRow(summaryTable, "Total Liabilities", report.TotalLiabilities);
-                    _AddAmountRow(summaryTable, "Net Assets", report.NetAssets);
-                    _AddAmountRow(summaryTable, "Issued Units", report.IssuedUnits);
-                    _AddAmountRow(summaryTable, "Value Per Unit", report.ValuePerUnit);
-                    _AddAmountRow(summaryTable, "YTD", report.YearToDatePerformance);
-                }
-
-                _RenderAssetTable(document,
-                                    heading,
-                                    table,
-                                    totalsTable,
-                                    summaryTable,
-                                    part.Height);
-
-                progress.Increment();
-            }
-            //_pdfDocument.Save(_reportFileName);
-            //_pdfDocument.Close();
-        }
-
         private PdfSharp.Charting.Chart _CreateChart(PdfSharp.Charting.ChartType chartType,
                                                      string xAxis, string yAxis, 
                                                      IList<string> xAxisValues,
@@ -346,8 +364,136 @@ namespace InvestmentReportGenerator
             return chart;
         }
 
+        /// <summary>
+        /// Create a section and setup the margins etc...
+        /// </summary>
+        private Section createSection(Document document)
+        {
+            Section section = document.AddSection();
+            section.PageSetup.HeaderDistance = Unit.FromCentimeter(0);
+            section.PageSetup.TopMargin = Unit.FromCentimeter(1);
+            section.PageSetup.FooterDistance = Unit.FromCentimeter(0);
+            section.PageSetup.BottomMargin = Unit.FromCentimeter(1);
+            section.PageSetup.Orientation = Orientation.Landscape;
+            return section;
+        }
 
-        private void _RenderAssetTable(MigraDoc.DocumentObjectModel.Document document, 
+        /// <summary>
+        /// Helper method to create a heading
+        /// </summary>
+        private Paragraph createHeading(Section section, string title, DateTime valuationDate, string currency)
+        {
+            Paragraph heading = section.AddParagraph();
+            heading.Format.SpaceBefore = Unit.FromCentimeter(1);
+            heading.Format.SpaceAfter = Unit.FromCentimeter(1);
+            heading.AddFormattedText(title, TextFormat.Bold);
+            heading.AddLineBreak();
+            heading.AddFormattedText(string.Format("Valuation Date: {0}", valuationDate.ToShortDateString()));
+            heading.AddLineBreak();
+            heading.AddFormattedText(string.Format("Reporting Currency: {0}", currency));
+            return heading;
+        }
+
+        /// <summary>
+        /// Helper method for creting a pdf Table
+        /// </summary>
+        /// <returns></returns>
+        private Table createTable(Section section, string topBorderWidth, string bottomBorderWidth, string leftBorderWidth, string rightBorderWidth, Color borderColor)
+        {
+            Table table = section.AddTable();
+            table.Style = "Table";
+            table.Borders.Top.Width = topBorderWidth;
+            table.Borders.Bottom.Width = bottomBorderWidth;
+            table.Borders.Left.Width = leftBorderWidth;
+            table.Borders.Right.Width = rightBorderWidth;
+            table.Rows.LeftIndent = 0;
+            table.Borders.Color = borderColor;
+            return table;
+        }
+
+        /// <summary>
+        /// Helper method to create a header row on a table, headers parameter is the list of header names
+        /// to use including the width for each column
+        /// </summary>
+        private Row createTableHeader(Table table, Color color, List<KeyValuePair<string, double>> headers)
+        {
+            foreach (var cell in headers)
+            {
+                Column column = table.AddColumn(Unit.FromCentimeter(cell.Value));
+                column.Format.Alignment = ParagraphAlignment.Center;
+            }
+
+            //add header row
+            Row header = table.AddRow();
+            header.HeadingFormat = true;
+            header.Format.Alignment = ParagraphAlignment.Center;
+            header.Format.Font.Bold = true;
+            header.Shading.Color = color;
+
+            for (int i = 0; i < headers.Count; ++i)
+            {
+                header.Cells[i].AddParagraph(headers[i].Key);
+                header.Cells[i].Format.Alignment = ParagraphAlignment.Center;
+                header.Cells[i].VerticalAlignment = VerticalAlignment.Center;
+            }
+
+            return header;
+        }
+
+        /// <summary>
+        /// Write redemptions list if there are any redemptions.
+        /// </summary>
+        private void _WriteRedemptionsList(AssetReport report)
+        {
+            if(report.Redemptions != null && report.Redemptions.Any())
+            {
+                var yPos = XUnit.FromCentimeter(1);
+                var xPos = XUnit.FromCentimeter(1);
+                var width = XUnit.FromCentimeter(20);
+
+                var document = new Document();
+                Section section = createSection(document);
+                var heading = createHeading(section, "Redemptions", report.ValuationDate, report.ReportingCurrency);
+
+                Table table = createTable(section, "0.25", "0.25", "0.5", "0.5", Colors.CornflowerBlue);
+
+                //add header row
+                var header = createTableHeader(table, Colors.LightBlue, _redemptionHeaders);
+
+                foreach(var redemption in report.Redemptions)
+                {
+                    int cell = 0;
+                    var row = table.AddRow();
+                    _AddCellEntry(row, cell++, redemption.User);
+                    _AddCellEntry(row, cell++, redemption.Amount.ToString("#.##"));
+                    _AddCellEntry(row, cell++, redemption.TransactionDate.ToShortDateString());
+                    _AddCellEntry(row, cell++, redemption.RedeemedUnits.ToString("#.##"));
+                    _AddCellEntry(row, cell++, redemption.Status.ToString());
+                }
+
+                MigraDoc.Rendering.DocumentRenderer docRenderer = new MigraDoc.Rendering.DocumentRenderer(document);
+                docRenderer.PrepareDocument();
+
+                PdfPage page = _pdfDocument.AddPage();
+
+                page.Size = PageSize.A4;
+                page.Orientation = PageOrientation.Landscape;
+                XGraphics gfx = XGraphics.FromPdfPage(page);
+                gfx.MUH = PdfFontEncoding.Unicode;
+                gfx.MFEH = PdfFontEmbedding.Default;
+
+                docRenderer.RenderObject(gfx, xPos, yPos, width, heading);
+                yPos += XUnit.FromCentimeter(2);
+                //assetTable.Rows.Height = Unit.FromCentimeter(20);
+
+                docRenderer.RenderObject(gfx, xPos, yPos, width, table);
+            }
+        }
+
+        /// <summary>
+        /// Render the asset report items to the pdf
+        /// </summary>
+        private void _RenderAssetTable(Document document, 
                                        Paragraph heading,
                                        Table assetTable,
                                        Table totalsTable,
@@ -506,57 +652,49 @@ namespace InvestmentReportGenerator
             }
         }
 
-        public void WritePerformanceData(IList<IndexedRangeData> data, string outputPath, DateTime dtValuation, ProgressCounter progress)
+        #endregion
+
+        #region Private Data
+
+        //private MigraDoc.DocumentObjectModel.Document _document = null;
+        private PdfDocument _pdfDocument = null;
+        private const double dataCellWidth = 2.1;
+        private const double HeaderRowHeight = 1.3d;
+        private const double RowHeight = 0.45d;
+        private const double DoubleRowHeight = 0.9d;
+        private const int MaxAssetsPerChart = 17;
+
+        private const int MaxXLabelCount = 12;
+
+        private static readonly Unit _MaxTableHeight = Unit.FromCentimeter(15);
+
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
+        private static readonly List<KeyValuePair<string, double>> _headerNames = new List<KeyValuePair<string, double>>
         {
-            progress.Initialise("writing performance data to pdf report", data.Count+2);
-            string title = string.Format(@"{0}\Performance Report-{1}", outputPath, dtValuation);
-            var reportFileName = Path.Combine(outputPath, GetReportFileName(dtValuation));
- 
-            _CreateDocument(title);
+            new KeyValuePair<string, double>("Investment",3.5),
+            new KeyValuePair<string, double>("Last Bought", 2.5 ),
+            new KeyValuePair<string, double>("Quantity",dataCellWidth ),
+            new KeyValuePair<string, double>( @"Price Paid \Share", dataCellWidth ),
+            new KeyValuePair<string, double>( "Total Cost",dataCellWidth ),
+            new KeyValuePair<string, double>( @"Selling Price \Share",dataCellWidth ),
+            new KeyValuePair<string, double>( "Net Selling Value",dataCellWidth ),
+            new KeyValuePair<string, double>( "PnL",dataCellWidth ),
+            new KeyValuePair<string, double>( "Total Return%",dataCellWidth ),
+            new KeyValuePair<string, double>( @"Change \Month",dataCellWidth ),
+            new KeyValuePair<string, double>( @"%\Month",dataCellWidth ),
+            new KeyValuePair<string, double>( "Dividends",dataCellWidth )
+        };
 
-            progress.Increment();
-            foreach (var rangeIndex in data.Reverse())
-            {
-                if (rangeIndex.Data.Count == 0)
-                {
-                    continue;
-                }
+        private static readonly List<KeyValuePair<string, double>> _redemptionHeaders = new List<KeyValuePair<string, double>>
+        {
+            new KeyValuePair<string, double>("User",9.0),
+            new KeyValuePair<string, double>("Amount", 2.5 ),
+            new KeyValuePair<string, double>("Date",2.5 ),
+            new KeyValuePair<string, double>("Units", 2.5 ),
+            new KeyValuePair<string, double>( "Status", 3 )
+        };
 
-                bool bRepeated = false;
-                var subRangeData = _breakdownIndexData(rangeIndex);
-                foreach (var subRangeIndex in subRangeData)
-                {
-                    PdfSharp.Charting.ChartType chartType = subRangeIndex.IsHistorical == true ?
-                    PdfSharp.Charting.ChartType.Line : PdfSharp.Charting.ChartType.Column2D;
-
-                    var yAxisKey = subRangeIndex.IsHistorical ? "Unit Price" : subRangeIndex.Name;
-                    var xAxisKey = subRangeIndex.IsHistorical ? "Date" : subRangeIndex.KeyName;
-
-                    if (subRangeIndex.IsHistorical == true)
-                    {
-                        _NormaliseData(subRangeIndex.Data);
-                    }
-
-                    var xAxisValues = subRangeIndex.Data[0].Data.Select(x =>
-                    {
-                        return x.Date.HasValue ? x.Date.Value.ToString("MM-yy") : x.Key;
-                    }).ToList();
-
-                    var chart = _CreateChart(chartType, xAxisKey, yAxisKey, xAxisValues, subRangeIndex.Data, subRangeIndex.MinValue,
-                                             subRangeIndex.IsHistorical);
-
-                    string fullTitle = string.Format("{0} {1} {2}", subRangeIndex.Title, subRangeIndex.Name, bRepeated == true ? "Contd..." : "");
-                    _RenderChart(_pdfDocument, fullTitle, chart);
-                    bRepeated = true;
-                }
-                progress.Increment();
-            }
-
-            _pdfDocument.Save(reportFileName);
-            _pdfDocument.Dispose();
-            _pdfDocument = null;
-
-            progress.Increment();
-        }
+        #endregion
     }
 }

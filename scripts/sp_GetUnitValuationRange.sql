@@ -12,23 +12,19 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_GetUnitValuationRange](@Account as VARCHAR(30), @dateFrom as DATETIME, @dateTo as DATETIME) AS
+CREATE PROCEDURE [dbo].[sp_GetUnitValuationRange](@Account as INT, @dateFrom as DATETIME, @dateTo as DATETIME) AS
 BEGIN
 
 SELECT  
 	Unit_Price 
 FROM
 	Valuations V
-INNER JOIN
-	Accounts A
-ON 
-	V.account_id = A.[Account_Id]
 WHERE
 	Valuation_Date >= @dateFrom
-	and
+AND
 	Valuation_Date <= @dateTo
 AND
-	A.Name = @Account
+	V.account_id = @Account
 END
 GO
 

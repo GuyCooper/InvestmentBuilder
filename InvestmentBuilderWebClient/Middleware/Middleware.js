@@ -28,7 +28,7 @@ var Middleware = function () {
                 if(msg.id === message.RequestId) {
                     //message found. remove it from queue
                     callQueue.splice(i, 1);
-                    if(success) {
+                    if (success) {
                         msg.succeed(message.RequestId, message.Payload);
                     }
                     else {
@@ -39,9 +39,9 @@ var Middleware = function () {
             }
         };
 
-        var loginSuccess = function (message) {
+        var loginSuccess = function (message, payload) {
             if (onopen != null) {
-                onopen(message);
+                onopen(payload);
             }
         };
 
@@ -60,18 +60,18 @@ var Middleware = function () {
                 Version: "1.0"
             };
 
-            processRequestInternal("LOGIN", "DOLOGIN", 0, JSON.stringify(loginRequest), null, null, loginSuccess, loginFail);
+            processRequestInternal("LOGIN", "DOLOGIN", 0, loginRequest, null, loginSuccess, loginFail);
         };
 
         ws.onmessage = function (data) {
-            console.log("data received: " + data.data);
+            console.log("data received...");
             var message = JSON.parse(data.data);
             if (message != null && message != undefined) {
                 switch (message.Type) {
                     case 0:
                     case 1:
                         //request or update. just forward to client
-                        onmessage(message);
+                        onmessage(message.RequestId, JSON.parse(message.Payload), message.BinaryPayload);
                         break;
                     case 2:
                         //error response
@@ -86,18 +86,24 @@ var Middleware = function () {
                         break;
                 }
             }
-
         };
     };
 
-    var processRequestInternal = function(channel, command, type, data, destination, requestId, resolve, reject) {
-        var id  = (requestId === null || requestId === undefined) ? "test_" + uid++ : requestId;
+    this.Disconnect = function () {
+        if (ws != null && ws != undefined) {
+            ws.close();
+            ws = null;
+        }
+    };
+
+    var processRequestInternal = function(channel, command, type, data, destination, resolve, reject) {
+        var id = "test_" + uid++;
         var payload = {
             RequestId: id,
             Command: command,
             Channel: channel,
             Type: type,
-            Payload: data,
+            Payload: JSON.stringify(data),
             DestinationId: destination
         };
 
@@ -111,33 +117,35 @@ var Middleware = function () {
             });
         }
 
+        //var arrData = new Blob([JSON.stringify(payload)], { type: 'application/json' })
+        //var serialisedData = JSON.stringify(payload);
         ws.send(JSON.stringify(payload));
     }
 
-    var processRequest = function(channel, command, type, data, destination, requestId) {
+    var processRequest = function(channel, command, type, data, destination) {
         return new Promise(function (resolve, reject) {
-            processRequestInternal(channel, command, type, data, destination, requestId, resolve, reject);
+            processRequestInternal(channel, command, type, data, destination, resolve, reject);
         });
 
     };
 
     this.SubscribeChannel = function (channel) {
-        return processRequest(channel, "SUBSCRIBETOCHANNEL", 0, null, null, null);
+        return processRequest(channel, "SUBSCRIBETOCHANNEL", 0, null, null);
     };
 
-    this.SendMessage  = function(channel, message, destination, requestId) {
-        return processRequest(channel, "SENDMESSAGE", 1, message, destination, requestId);
+    this.SendMessage  = function(channel, message, destination) {
+        return processRequest(channel, "SENDMESSAGE", 1, message, destination);
     }
 
     this.AddListener = function (channel) {
-        return processRequest(channel, "ADDLISTENER", 0, null, null, null);
+        return processRequest(channel, "ADDLISTENER", 0, null, null);
     }
 
     this.SendRequest = function(channel, message) {
-        return processRequest(channel, "SENDREQUEST", 0, message, null, null);
+        return processRequest(channel, "SENDREQUEST", 0, message);
     }
 
     this.PublishMessage = function(channel, message) {
-        return processRequest(channel, "PUBLISHMESSAGE", 1, message, null, null);
+        return processRequest(channel, "PUBLISHMESSAGE", 1, message);
     }
 }

@@ -35,5 +35,6 @@ namespace InvestmentBuilderCore
             Contract.Requires(data.Count > 0);
             Contract.Requires(string.IsNullOrEmpty(outputPath) == false);
         }
+
     }
 }

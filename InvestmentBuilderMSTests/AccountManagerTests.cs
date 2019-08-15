@@ -38,7 +38,8 @@ namespace InvestmentBuilderMSTests
             var result = UoT.GetAccountData(_userToken, TestDataCache._currentValuationDate);
 
             Assert.IsNotNull(result);
-            Assert.AreEqual(TestDataCache._TestAccount, result.Name);
+            Assert.AreEqual(TestDataCache._TestAccount.Name, result.Identifier.Name);
+            Assert.AreEqual(TestDataCache._TestAccount.AccountId, result.Identifier.AccountId);
             Assert.AreEqual(TestDataCache._Currency, result.ReportingCurrency);
             Assert.AreEqual(TestDataCache._TestAccountType, result.Type);
             Assert.AreEqual(1, result.Members.Count);
@@ -84,7 +85,7 @@ namespace InvestmentBuilderMSTests
                                              new AccountMember(TestDataCache._testUser, AuthorizationLevel.ADMINISTRATOR)
                                          });
 
-            bool bUpdatedOk = UoT.UpdateUserAccount(TestAuthorizationManager.TestUser, account, TestDataCache._currentValuationDate);
+            bool bUpdatedOk = UoT.CreateUserAccount(TestAuthorizationManager.TestUser, account, TestDataCache._currentValuationDate);
 
             Assert.IsTrue(bUpdatedOk);
 
@@ -114,7 +115,7 @@ namespace InvestmentBuilderMSTests
             account.ClearAllMembers();
             account.AddMember(TestDataCache._testUser1, AuthorizationLevel.ADMINISTRATOR);
 
-            var bUpdatedOk = UoT.UpdateUserAccount(TestAuthorizationManager.TestUser, account, TestDataCache._currentValuationDate);
+            var bUpdatedOk = UoT.CreateUserAccount(TestAuthorizationManager.TestUser, account, TestDataCache._currentValuationDate);
 
             Assert.IsTrue(bUpdatedOk);
 
@@ -135,20 +136,11 @@ namespace InvestmentBuilderMSTests
             var account = new AccountModel(TestDataCache._TestAccount, TestDataCache._Description,
                                           TestDataCache._Currency, TestDataCache._TestAccountType, true,
                                          TestDataCache._Broker, new List<AccountMember>{
-                                             new AccountMember(TestDataCache._testUser, AuthorizationLevel.ADMINISTRATOR)
+                                             new AccountMember(TestDataCache._dodgyUser, AuthorizationLevel.ADMINISTRATOR)
                                          });
 
-            bool gotcha = false;
-            try
-            {
-                UoT.UpdateUserAccount(TestDataCache._dodgyUser, account, TestDataCache._currentValuationDate);
-            }
-            catch(UnauthorizedAccessException)
-            {
-                gotcha = true;
-            }
-
-            Assert.IsTrue(gotcha);          
+            bool result = UoT.CreateUserAccount(TestDataCache._testUser, account, TestDataCache._currentValuationDate);
+            Assert.IsFalse(result); 
         }
 
         [TestMethod]
@@ -205,7 +197,7 @@ namespace InvestmentBuilderMSTests
 
             bool bUpdatedOk = UoT.CreateUserAccount(TestDataCache._testUser, account, TestDataCache._currentValuationDate);
 
-            Assert.IsFalse(bUpdatedOk);
+            Assert.IsTrue(bUpdatedOk);
         }
     }
 }

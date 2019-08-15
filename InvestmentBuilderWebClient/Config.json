@@ -1,0 +1,4 @@
+{
+  "url": "ws://localhost:8080/MWARE",
+  "registerurl": "http://localhost:8080/MANAGE"  
+}

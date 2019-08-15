@@ -5,13 +5,15 @@ function NotifyService() {
     //notify service acts as a broker service between the controllers. it contains
     //several lists of listeners that need to be called when a particular view is
     //selected.
-    var PortfolioListeners = [];
-    var AddTradeListeners = [];
-    var CashFlowListeners = [];
-    var ReportsListeners = [];
+    var PortfolioListeners = []; //list of listeners that are invoked when the user clicks on the Portfolio view
+    var AddTradeListeners = []; //list of listeners that are invoked when the user clicks on the AddTrade view
+    var CashFlowListeners = []; //list of listeners that are invoked when the user clicks on the CashFlow view
+    var ReportsListeners = []; //list of listeners that are invoked when the user clicks on the Reports view
+    var RedemptionListeners = []; //list of listeners that are invoked when the user clicks on the Redemptions view
     var BuildStatusListeners = []; //this of listeners that should be invoked when the build status changes
     var AccountListeners = []; //this is a list of listeners that should be invoked when the account is changed
     var ConnectionListeners = []; //this list contains a list of handlers that should be called once connection to the middleware is complete
+    var DisconnectionListeners = []; //this list contains a list of handlers that should be called when the session is ended
 
     //listeners for the current view
     var listeners = null;
@@ -19,13 +21,16 @@ function NotifyService() {
     var busyStateChangedListener = null;
     //flag to determine if system is busy with request / connecting etc..
     var isBusy = false;
+    //store the sessionid of the connection to allow secure file requests to the server
+    var sessionid = null;
+
     this.RegisterBusyStateChangedListener = function (listener) {
         busyStateChangedListener = listener;
     }
-    this.UpdateBusyState = function (busy) {
+    this.UpdateBusyState = function (busy, applyScope) {
         isBusy = busy;
         if (busyStateChangedListener != null) {
-            busyStateChangedListener(busy);
+            busyStateChangedListener(busy, applyScope);
         }
     }
     //register callback methods 
@@ -49,8 +54,16 @@ function NotifyService() {
         ReportsListeners.push(listener);
     };
 
+    this.RegisterRedemptionListener = function (listener) {
+        RedemptionListeners.push(listener);
+    };
+
     this.RegisterConnectionListener = function (listener) {
         ConnectionListeners.push(listener);
+    };
+
+    this.RegisterDisconnectionListener = function (listener) {
+        DisconnectionListeners.push(listener);
     };
 
     this.RegisterBuildStatusListener = function (listener) {
@@ -92,6 +105,11 @@ function NotifyService() {
         invokeListeners();
     };
 
+    this.InvokeRedemptions = function () {
+        listeners = RedemptionListeners;
+        invokeListeners();
+    };
+
     //call this method if the account is changed. Calls the exisitng view listener and all the 
     //account listeners
     this.InvokeAccountChange = function () {
@@ -104,8 +122,13 @@ function NotifyService() {
         invokeCallbacks(BuildStatusListeners, status);
     }
 
-    this.InvokeConnectionListeners = function (username) {
+    this.OnConnected = function (connectionID, username) {
+        sessionid = connectionID;
         invokeCallbacks(ConnectionListeners, username);
+    };
+
+    this.InvokeDisconnectionListeners = function () {
+        invokeCallbacks(DisconnectionListeners);
     };
 
     this.SetBusyState = function (busy) {
@@ -114,5 +137,9 @@ function NotifyService() {
 
     this.GetBusyState = function () {
         return IsBusy;
+    };
+
+    this.GetSessionID = function () {
+        return sessionid;
     };
 }

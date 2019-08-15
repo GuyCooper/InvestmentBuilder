@@ -8,6 +8,8 @@ using System.IO;
 using InvestmentBuilder;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PerformanceBuilderLib;
+using InvestmentBuilderAuditLogger;
+using InvestmentBuilderCore.Schedule;
 
 namespace InvestmentBuilderMSTests
 {
@@ -43,7 +45,7 @@ namespace InvestmentBuilderMSTests
     }
     ///  <summary>
     /// This class contains full acceptance tests of InvestmentBuilder
-    /// suite. not unit tests. Requires a db restore
+    /// suite. not unit tests. Requires a db restore. starts from an empty database
     /// </summary>
     [TestClass]
     public class FullFunctionalTests
@@ -67,11 +69,6 @@ namespace InvestmentBuilderMSTests
         private readonly DateTime _dtValuationDate2 = DateTime.Parse(_TestValuationDate2);
         private readonly DateTime _dtTransactionDate1 = DateTime.Parse("06/09/2015");
         private readonly double _testSubscription1 = 50.0d;
-
-        private UserAccountToken _userToken = new UserAccountToken(
-                                                    _TestUser,
-                                                    _TestAccount,
-                                                    AuthorizationLevel.ADMINISTRATOR);
 
         private FunctionalTestContainer _interfaces;
         private Microsoft.Practices.Unity.IUnityContainer _childContainer;
@@ -101,24 +98,17 @@ namespace InvestmentBuilderMSTests
             ContainerManager.RegisterType(typeof(IInvestmentRecordDataManager), typeof(InvestmentRecordBuilder), true);
             ContainerManager.RegisterType(typeof(FunctionalTestContainer), typeof(FunctionalTestContainer), true);
             ContainerManager.RegisterType(typeof(IInvestmentReportWriter), typeof(InvestmentReportGenerator.InvestmentReportWriter), true);
+            ContainerManager.RegisterType(typeof(IMessageLogger), typeof(FileMessageLogger), true);
+            ContainerManager.RegisterType(typeof(CashAccountTransactionManager), true);
+            ContainerManager.RegisterType(typeof(ScheduledTaskFactory), true);
 
             _interfaces = ContainerManager.ResolveValueOnContainer<FunctionalTestContainer>(_childContainer);
         }
 
         private bool InitialiseDatabase()
         {
-            //Console.WriteLine("restoring unit test database against server {0}, database {1}...", server, database);
-            var process = new System.Diagnostics.Process();
-            //"sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddNewShares.sql"
-            process.StartInfo.FileName = @"C:\Projects\InvestmentBuilder\scripts\GenerateUnitTestDatabase.bat";
-            process.StartInfo.CreateNoWindow = false;
-            process.StartInfo.ErrorDialog = true;
-            process.StartInfo.UseShellExecute = true;
-            process.StartInfo.WorkingDirectory = @"C:\Projects\InvestmentBuilder\scripts";
-            process.Start();
-            process.WaitForExit();
-            var result = process.ExitCode;
-
+            var ret = ProcessLauncher.RunProcessAndWaitForCompletion(@"C:\Projects\InvestmentBuilder\scripts\GenerateUnitTestDatabase.bat", "");
+            Console.WriteLine("return code from initialisedatabase : {0}", ret);
             return true;
         }
 
@@ -136,28 +126,34 @@ namespace InvestmentBuilderMSTests
                 return;
             }
 
-            Console.WriteLine("run full tests...");
-
-            //first remove any generated files from previous tests
-
-            var outfolder = _interfaces.ConfigSettings.GetOutputPath(_TestAccount);
-
-            var files = Directory.EnumerateFiles(outfolder);
-            foreach (var file in files)
-            {
-                File.Delete(file);
-            }
+            Console.WriteLine("run functional tests...");
 
             if (m_bOk == true)
             {
                 AddUsers();
                 Console.WriteLine("setup successful");
                 When_getting_users();
-                When_adding_a_new_account(_userToken);
-                When_adding_members_to_account(_userToken);
-                When_adding_subscription_amounts(_userToken);
-                When_generating_first_Asset_report(_userToken);
-                When_adding_an_investment_1(_userToken);
+
+
+                var token = When_adding_a_new_account(_TestAccount);
+
+                //now remove any generated files from previous tests
+                var outfolder = _interfaces.ConfigSettings.GetOutputPath(token.Account.GetPathName());
+                var files = Directory.EnumerateFiles(outfolder);
+                foreach (var file in files)
+                {
+                    File.Delete(file);
+                }
+
+                //now copy the templates file into the output folder templates folder
+                //var templatesFolder = Path.Combine(_interfaces.ConfigSettings.OutputFolder, "Templates");
+                //Directory.CreateDirectory(templatesFolder);
+                //File.Copy(@"..\..\..\Templates\template.xls", Path.Combine(templatesFolder,"template.xls"), true);
+
+                When_adding_members_to_account(token);
+                When_adding_subscription_amounts(token);
+                When_generating_first_Asset_report(token);
+                When_adding_an_investment_1(token);
             }
         }
 
@@ -178,19 +174,29 @@ namespace InvestmentBuilderMSTests
             Assert.IsTrue(_interfaces.DataLayer.UserAccountData.GetUserId(_InvalidUser) == -1);
         }
 
-        private void When_adding_a_new_account(UserAccountToken userToken)
+        private UserAccountToken When_adding_a_new_account(string accountName)
         {
             Console.WriteLine("When_adding_a_new_account");
             var member = new AccountMember(_TestUser, AuthorizationLevel.ADMINISTRATOR);
             var members = new List<AccountMember> { member };
-            var account = new AccountModel(_TestAccount, _TestAccount, _TestCurrency, "Club", true, "ShareCentre", members);
 
-            bool added =_interfaces.AccountManager.CreateUserAccount(userToken.User, account, _dtValuationDate1);
+            var accountIdentifer = new AccountIdentifier
+            {
+                Name = accountName
+            };
+
+            var account = new AccountModel(accountIdentifer, accountName, _TestCurrency, "Club", true, "ShareCentre", members);
+
+            bool added =_interfaces.AccountManager.CreateUserAccount(_TestUser, account, _dtValuationDate1);
             Assert.IsTrue(added);
 
-            var result = _interfaces.AccountManager.GetAccountData(userToken, _dtValuationDate1);
-            Assert.AreEqual(_TestAccount, result.Name);
+            var token = _interfaces.AuthorizationManager.GetUserAccountToken(_TestUser, accountIdentifer);
+            var result = _interfaces.AccountManager.GetAccountData(token, _dtValuationDate1);
+            Assert.AreEqual(accountName, result.Identifier.Name);
+            Assert.AreEqual(accountIdentifer.AccountId, result.Identifier.AccountId);
             Assert.AreEqual(1, result.Members.Count);
+
+            return token;
         }
 
         private void When_adding_members_to_account(UserAccountToken userToken)
@@ -202,7 +208,8 @@ namespace InvestmentBuilderMSTests
             bool updated = _interfaces.AccountManager.UpdateUserAccount(userToken.User, account, _dtValuationDate1);
             Assert.IsTrue(updated);
             var result = _interfaces.AccountManager.GetAccountData(userToken, _dtValuationDate1);
-            Assert.AreEqual(_TestAccount, result.Name);
+            Assert.AreEqual(userToken.Account.Name, result.Identifier.Name);
+            Assert.AreEqual(userToken.Account.AccountId, result.Identifier.AccountId);
             Assert.AreEqual(3, result.Members.Count);
         }
 
@@ -232,7 +239,7 @@ namespace InvestmentBuilderMSTests
             Console.WriteLine("When_generating_first_Asset_report");
             var assetReport = _interfaces.InvestmentBuilder.BuildAssetReport(userToken, _dtValuationDate1, true, null, null);
             Assert.IsNotNull(assetReport);
-            Assert.AreEqual(_TestAccount, assetReport.AccountName);
+            Assert.AreEqual(_TestAccount, assetReport.AccountName.Name);
             Assert.AreEqual(0, assetReport.Assets.Count());
             Assert.AreEqual(150d, assetReport.BankBalance);
             Assert.AreEqual(150d, assetReport.IssuedUnits);

@@ -15,7 +15,7 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_GetUserCompanies](@ValuationDate as DATETIME, @Account as VARCHAR(30)) AS
+CREATE PROCEDURE [dbo].[sp_GetUserCompanies](@ValuationDate as DATETIME, @Account as INT) AS
 BEGIN
 
 SELECT 
@@ -27,16 +27,12 @@ INNER JOIN
 	Companies C
 ON
 	IR.Company_id = C.Company_Id
-INNER JOIN
-	Accounts A
-ON 
-	IR.account_id = A.[Account_Id]
 WHERE
     IR.Valuation_Date = @ValuationDate
 AND
 	IR.is_active = 1
 AND
-	A.Name = @Account
+	IR.account_id = @Account
 END
 
 GO

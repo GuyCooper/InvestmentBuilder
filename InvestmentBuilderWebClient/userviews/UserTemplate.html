@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@[title]</title>
+    <link rel="stylesheet" href="styles/jquery-ui.css" type="text/css">
+    <link rel="stylesheet" href="styles/jquery-ui.structure.css" type="text/css">
+    <link rel="stylesheet" href="styles/jquery-ui.theme.css" type="text/css">
+    <link rel="stylesheet" href="styles/bootstrap.css" type="text/css">
+    <link rel="stylesheet" href="styles/investmentBuilder.css" type="text/css"></head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="Index.html">Investment Builder</a>
+            </div>
+        </div>
+    </div>
+    <!--<div class="container body-content">-->
+    <div class="container body-content layoutTop">
+        <div ng-app="InvestmentBuilderRegister">
+            <div class="editor" ng-controller="RegisterUser">
+                <div ng-hide="IsBusy">
+                    <div ng-hide="Complete">
+                        @[templateurl]
+                    </div>
+                    <div ng-show="Complete">
+                        <h3>{{ResultMessage}}</h3>
+                        <div ng-hide="Success">
+                            <br />
+                            <ul>
+                                <li class="text-danger" ng-repeat="error in ErrorList" ng-bind="error"></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div ng-show="IsBusy" class="loader">
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="js/registerlibsmin.js"></script>
+    <script type="text/javascript" src="js/registerUser.js"></script>
+</body>
+</html>

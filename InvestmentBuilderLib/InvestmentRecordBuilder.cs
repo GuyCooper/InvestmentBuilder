@@ -20,9 +20,9 @@ namespace InvestmentBuilder
     [ContractClass(typeof(InvestmentRecordDataManagerContract))]
     public interface IInvestmentRecordDataManager
     {
-        bool UpdateInvestmentRecords(UserAccountToken userToken, UserAccountData account, Trades trades, CashAccountData cashData, DateTime valuationDate, ManualPrices manualPrices, DateTime? dtPreviousValuation, ProgressCounter progress);
-        IEnumerable<CompanyData> GetInvestmentRecords(UserAccountToken userToken, UserAccountData account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate, ManualPrices manualPrices, bool bSnapshot);
-        IEnumerable<CompanyData> GetInvestmentRecordSnapshot(UserAccountToken userToken, UserAccountData account, ManualPrices manualPrices);
+        bool UpdateInvestmentRecords(UserAccountToken userToken, AccountModel account, Trades trades, CashAccountData cashData, DateTime valuationDate, ManualPrices manualPrices, DateTime? dtPreviousValuation, ProgressCounter progress);
+        IEnumerable<CompanyData> GetInvestmentRecords(UserAccountToken userToken, AccountModel account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate, ManualPrices manualPrices, bool bSnapshot);
+        IEnumerable<CompanyData> GetInvestmentRecordSnapshot(UserAccountToken userToken, AccountModel account, ManualPrices manualPrices);
         DateTime? GetLatestRecordValuationDate(UserAccountToken userToken);
     }
         
@@ -56,7 +56,7 @@ namespace InvestmentBuilder
                                                       valuationDate);
         }
 
-        private IEnumerable<CompanyData> _GetCompanyDataImpl(UserAccountToken userToken, UserAccountData account, DateTime dtValuationDate, bool bUpdatePrice, ManualPrices manualPrices )
+        private IEnumerable<CompanyData> _GetCompanyDataImpl(UserAccountToken userToken, AccountModel account, DateTime dtValuationDate, bool bUpdatePrice, ManualPrices manualPrices )
         {
             var investments = _investmentRecordData.GetInvestmentRecordData(userToken, dtValuationDate).ToList();
             foreach (var investment in investments)
@@ -69,7 +69,7 @@ namespace InvestmentBuilder
                                            companyData.Exchange,
                                            investment.Name,
                                            companyData.Currency,
-                                           account.Currency,
+                                           account.ReportingCurrency,
                                            companyData.ScalingFactor,
                                            manualPrices,
                                            out dClosing);
@@ -88,6 +88,9 @@ namespace InvestmentBuilder
             return investments;
         }
 
+        /// <summary>
+        /// Update the monthly data stats for a single investment.
+        /// </summary>
         private void _updateMonthlyData(CompanyData currentData, CompanyData previousData, Trades trades)
         {
             //difference between current selling value and previous selling value, must also
@@ -126,12 +129,7 @@ namespace InvestmentBuilder
         /// this method rolls all the investments in the investment record
         /// table and updates the trades
         /// </summary>
-        /// <param name="account"></param>
-        /// <param name="trades"></param>
-        /// <param name="cashData"></param>
-        /// <param name="valuationDate"></param>
-        /// <param name="previousValuation"></param>
-        public bool UpdateInvestmentRecords(UserAccountToken userToken, UserAccountData account, Trades trades, CashAccountData cashData, DateTime valuationDate, ManualPrices manualPrices, DateTime? dtPreviousValuation, ProgressCounter progress)
+        public bool UpdateInvestmentRecords(UserAccountToken userToken, AccountModel account, Trades trades, CashAccountData cashData, DateTime valuationDate, ManualPrices manualPrices, DateTime? dtPreviousValuation, ProgressCounter progress)
         {
             Log.Log(LogLevel.Info, "building investment records...");
             //Console.WriteLine("building investment records...");
@@ -151,7 +149,7 @@ namespace InvestmentBuilder
             {
                 double dPrice = 0d;
                 var companyInfo = investment.CompanyData;
-                var priceResult = _tryGetClosingPrice(companyInfo.Symbol, companyInfo.Exchange, investment.Name, companyInfo.Currency, account.Currency, companyInfo.ScalingFactor, manualPrices, out dPrice);
+                var priceResult = _tryGetClosingPrice(companyInfo.Symbol, companyInfo.Exchange, investment.Name, companyInfo.Currency, account.ReportingCurrency, companyInfo.ScalingFactor, manualPrices, out dPrice);
                 if (companyInfo != null && priceResult == GetPriceResult.FoundPrice)
                 {
                     //validation, compare price with last known price for this investment, if price change> 90%
@@ -218,7 +216,7 @@ namespace InvestmentBuilder
                 //if we have the correct comapy data then calculate the closing price forthis company
                 double dPrice = 0d;
                 var companyInfo = investment.CompanyData;
-                var priceResult = _tryGetClosingPrice(companyInfo.Symbol, companyInfo.Exchange, investment.Name, companyInfo.Currency, account.Currency, companyInfo.ScalingFactor, manualPrices, out dPrice);
+                var priceResult = _tryGetClosingPrice(companyInfo.Symbol, companyInfo.Exchange, investment.Name, companyInfo.Currency, account.ReportingCurrency, companyInfo.ScalingFactor, manualPrices, out dPrice);
                 if (companyInfo != null && priceResult != GetPriceResult.NoPrice)
                 {
                     investment.UpdateClosingPrice(valuationDate, dPrice);
@@ -237,7 +235,7 @@ namespace InvestmentBuilder
                                     newTrade.Exchange,
                                     newTrade.Name,
                                     newTrade.Currency,
-                                    account.Currency,
+                                    account.ReportingCurrency,
                                     newTrade.ScalingFactor,
                                     manualPrices, 
                                     out dClosing);
@@ -278,7 +276,10 @@ namespace InvestmentBuilder
             }
         }
 
-        private IEnumerable<CompanyData> _GetInvestmentRecordsImpl(UserAccountToken userToken, UserAccountData account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate, bool bSnapshot, ManualPrices manualPrices)
+        /// <summary>
+        /// Returns the valuations for each investment in the account.
+        /// </summary>
+        private IEnumerable<CompanyData> _GetInvestmentRecordsImpl(UserAccountToken userToken, AccountModel account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate, bool bSnapshot, ManualPrices manualPrices)
         {
             var lstCurrentData = _GetCompanyDataImpl(userToken, account, dtValuationDate, bSnapshot, manualPrices).ToList();
             var lstPreviousData = dtPreviousValuationDate.HasValue ? _GetCompanyDataImpl(userToken, account, dtPreviousValuationDate.Value, false, null).ToList() : new List<CompanyData>();
@@ -292,7 +293,10 @@ namespace InvestmentBuilder
                 {
                     _updateMonthlyData(company, previousData, trades);
                 }
+
                 company.ProfitLoss = company.NetSellingValue - company.TotalCost;
+                company.TotalReturn = ((company.ProfitLoss + company.Dividend) / company.TotalCost) * 100;
+
                 if (bSnapshot == false && company.Quantity == 0)
                 {
                     _DeactivateInvestment(company.Name, userToken);
@@ -300,14 +304,11 @@ namespace InvestmentBuilder
             }
             return lstCurrentData;
         }
+
         /// <summary>
         /// this method returns the current investment records from persistence layer
         /// </summary>
-        /// <param name="account"></param>
-        /// <param name="dtValuationDate"></param>
-        /// <param name="dtPreviousValuationDate"></param>
-        /// <returns></returns>
-        public IEnumerable<CompanyData> GetInvestmentRecords(UserAccountToken userToken, UserAccountData account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate, ManualPrices manualPrices, bool bSnapshot)
+        public IEnumerable<CompanyData> GetInvestmentRecords(UserAccountToken userToken, AccountModel account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate, ManualPrices manualPrices, bool bSnapshot)
         {
             //dtPreviousValuationDate parameteris the previous valuation date.we need to extract the previous record
             //valuation date from this to retrieve the correct previous record data from the database
@@ -332,11 +333,7 @@ namespace InvestmentBuilder
         /// but NOT persisting to the database. the report is generated from the last known valuation date
         /// as this snapshot does notyet exist in the database
         /// </summary>
-        /// <param name="account"></param>
-        /// <param name="dtValuationDate"></param>
-        /// <param name="dtPreviousValuationDate"></param>
-        /// <returns></returns>
-        public IEnumerable<CompanyData> GetInvestmentRecordSnapshot(UserAccountToken userToken, UserAccountData account, ManualPrices manualPrices)
+        public IEnumerable<CompanyData> GetInvestmentRecordSnapshot(UserAccountToken userToken, AccountModel account, ManualPrices manualPrices)
         {
             DateTime? dtPreviousValuationDate = _investmentRecordData.GetLatestRecordInvestmentValuationDate(userToken);
             if (dtPreviousValuationDate.HasValue) //

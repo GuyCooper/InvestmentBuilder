@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <configuration>
-	<dataSource>Data Source=DESKTOP-JJ9QOJA\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest99;Integrated Security=True</dataSource>
+	<dataSource>Data Source=DESKTOP-JJ9QOJA\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest3;Integrated Security=True</dataSource>
   <authdataSource>Data Source=DESKTOP-JJ9QOJA\SQLEXPRESS;Initial Catalog=UserAuthentication;Integrated Security=True</authdataSource>
-  <outputFolder>C:\Users\guy\Documents\Guy\InvestmentBuilderTest</outputFolder>
-  <outputLinkFolder>Reports</outputLinkFolder>
+  <outputFolder>C:\Users\guy\Documents\Guy\InvestmentBuilder</outputFolder>
+  <templatePath>C:\Projects\InvestmentBuilder\Templates</templatePath>
   <marketDataSource>C:\Users\guy\AppData\Roaming\InvestmentRecordBuilder\yahooMarketData.txt</marketDataSource>
   <outputCachedMarketDataFile>C:\Users\guy\AppData\Roaming\InvestmentRecordBuilder\CachedData.txt</outputCachedMarketDataFile>
+  <scriptFolder>C:\Projects\InvestmentBuilder\php</scriptFolder>
   <maxAccountsPerUser>5</maxAccountsPerUser>
   <indexes>
 		<index>
@@ -38,7 +39,13 @@
     </index>
   </indexes>
   <formats>
-    <format>EXCEL</format>
     <format>PDF</format>
   </formats>
+  <schedule>
+    <task>
+      <name>Yahoo</name>
+      <scheduled>18:31:00</scheduled>
+    </task>
+  </schedule>
+  <auditFile>InvestmentBuilderAudit.dat</auditFile>
 </configuration>

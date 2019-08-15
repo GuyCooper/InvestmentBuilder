@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+  <appdatabase>Data Source=DESKTOP-JJ9QOJA\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest99;Integrated Security=True</appdatabase>
+  <authdatabase>Data Source=DESKTOP-JJ9QOJA\SQLEXPRESS;Initial Catalog=UserAuthentication;Integrated Security=True</authdatabase>
+  <listenurl>http://localhost:8080/MANAGE/</listenurl>
+  <hosturl>http://localhost:8091</hosturl>
+  <changepasswordpage>ChangePassword.html</changepasswordpage>
+  <validatenewuserpage>ValidateNewUser.html</validatenewuserpage>
+  <maxconnections>5</maxconnections>
+  <root>C:\Projects\InvestmentBuilder\InvestmentBuilderWebClient\dist</root>
+  <smtpserver>smtp.ionos.co.uk</smtpserver>
+  <smtpuser>postmaster@guycoopercambridge.co.uk</smtpuser>
+  <smtppassword>pMb.H2x5yjbvzyD</smtppassword>
+  <address>postmaster@guycoopercambridge.co.uk</address>
+</configuration>

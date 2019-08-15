@@ -62,9 +62,16 @@ namespace InvestmentBuilderCore
             return null;
         }
 
-        public void UndoLastTransaction(UserAccountToken userToken)
+        public int UndoLastTransaction(UserAccountToken userToken, DateTime fromValuationDate)
         {
             Contract.Requires(userToken != null);
+            return 0;
+        }
+
+        public Transaction GetLastTransaction(UserAccountToken userToken, DateTime fromValuationDate)
+        {
+            Contract.Requires(userToken != null);
+            return null;
         }
     }
 
@@ -192,12 +199,13 @@ namespace InvestmentBuilderCore
     [ContractClassFor(typeof(ICashAccountInterface))]
     internal abstract class ICashAccountContract : ICashAccountInterface
     {
-        public void AddCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate, string type, string parameter, double amount)
+        public int AddCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate, string type, string parameter, double amount)
         {
             Contract.Requires(userToken != null);
             Contract.Requires(string.IsNullOrEmpty(type) == false);
             Contract.Requires(string.IsNullOrEmpty(parameter) == false);
             Contract.Requires(amount > 0);
+            return 0;
         }
 
         public double GetBalanceInHand(UserAccountToken userToken, DateTime valuationDate)
@@ -220,11 +228,9 @@ namespace InvestmentBuilderCore
             Contract.Requires(string.IsNullOrEmpty(side) == false);
         }
 
-        public void RemoveCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate, string type, string parameter)
+        public void RemoveCashAccountTransaction(UserAccountToken userToken, int transactionID)
         {
             Contract.Requires(userToken != null);
-            Contract.Requires(string.IsNullOrEmpty(type) == false);
-            Contract.Requires(string.IsNullOrEmpty(parameter) == false);
         }
     }
 
@@ -279,10 +285,10 @@ namespace InvestmentBuilderCore
             return 0;
         }
 
-        public UserAccountData GetUserAccountData(UserAccountToken userToken)
+        public AccountModel GetUserAccountData(UserAccountToken userToken)
         {
             Contract.Requires(userToken != null);
-            Contract.Ensures(Contract.Result<UserAccountData>() != null);
+            Contract.Ensures(Contract.Result<AccountModel>() != null);
             return null;
         }
 
@@ -304,12 +310,13 @@ namespace InvestmentBuilderCore
             Contract.Requires(dAmount > 0);
         }
 
-        public void UpdateRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount, double units)
+        public RedemptionStatus UpdateRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount, double units)
         {
             Contract.Requires(userToken != null);
             Contract.Requires(string.IsNullOrEmpty(user) == false);
             Contract.Requires(amount > 0);
             Contract.Requires(units> 0);
+            return RedemptionStatus.Complete;
         }
 
         public IEnumerable<string> GetAccountMembers(UserAccountToken userToken, DateTime valuationDate)
@@ -332,9 +339,15 @@ namespace InvestmentBuilderCore
             Contract.Requires(string.IsNullOrEmpty(member) == false);
         }
 
-        public void CreateAccount(UserAccountToken userToken, AccountModel account)
+        public void UpdateAccount(UserAccountToken userToken, AccountModel account)
         {
             Contract.Requires(userToken != null);
+        }
+
+        public int CreateAccount(UserAccountToken userToken, AccountModel account)
+        {
+            Contract.Requires(userToken != null);
+            return 0;
         }
 
         public AccountModel GetAccount(UserAccountToken userToken)
@@ -344,10 +357,10 @@ namespace InvestmentBuilderCore
             return null;
         }
 
-        public IEnumerable<string> GetAccountNames(string user, bool bCheckAdmin)
+        public IEnumerable<AccountIdentifier> GetAccountNames(string user, bool bCheckAdmin)
         {
             Contract.Requires(string.IsNullOrEmpty(user) == false);
-            Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
+            Contract.Ensures(Contract.Result<IEnumerable<AccountIdentifier>>() != null);
             return null;
         }
 
@@ -358,9 +371,10 @@ namespace InvestmentBuilderCore
             return null;
         }
 
-        public bool InvestmentAccountExists(string accountName)
+        public bool InvestmentAccountExists(AccountIdentifier account)
         {
-            Contract.Requires(string.IsNullOrEmpty(accountName) == false);
+            Contract.Requires(account != null);
+            Contract.Requires(string.IsNullOrEmpty(account.Name) == false);
             return false;
         }
 

@@ -1,10 +1,11 @@
 'use strict'
 
-function YesNoPicker($uibModalInstance, title, description, name) {
+function YesNoPicker($uibModalInstance, title, description, name, ok) {
     var $item = this;
     $item.Title = title;
     $item.Description = description;
     $item.Name = name;
+    $item.Ok = ok;
     $item.ok = function () {
         $uibModalInstance.close({
             name: $item.Name
@@ -22,13 +23,15 @@ function NotifyService() {
     //notify service acts as a broker service between the controllers. it contains
     //several lists of listeners that need to be called when a particular view is
     //selected.
-    var PortfolioListeners = [];
-    var AddTradeListeners = [];
-    var CashFlowListeners = [];
-    var ReportsListeners = [];
+    var PortfolioListeners = []; //list of listeners that are invoked when the user clicks on the Portfolio view
+    var AddTradeListeners = []; //list of listeners that are invoked when the user clicks on the AddTrade view
+    var CashFlowListeners = []; //list of listeners that are invoked when the user clicks on the CashFlow view
+    var ReportsListeners = []; //list of listeners that are invoked when the user clicks on the Reports view
+    var RedemptionListeners = []; //list of listeners that are invoked when the user clicks on the Redemptions view
     var BuildStatusListeners = []; //this of listeners that should be invoked when the build status changes
     var AccountListeners = []; //this is a list of listeners that should be invoked when the account is changed
     var ConnectionListeners = []; //this list contains a list of handlers that should be called once connection to the middleware is complete
+    var DisconnectionListeners = []; //this list contains a list of handlers that should be called when the session is ended
 
     //listeners for the current view
     var listeners = null;
@@ -36,13 +39,16 @@ function NotifyService() {
     var busyStateChangedListener = null;
     //flag to determine if system is busy with request / connecting etc..
     var isBusy = false;
+    //store the sessionid of the connection to allow secure file requests to the server
+    var sessionid = null;
+
     this.RegisterBusyStateChangedListener = function (listener) {
         busyStateChangedListener = listener;
     }
-    this.UpdateBusyState = function (busy) {
+    this.UpdateBusyState = function (busy, applyScope) {
         isBusy = busy;
         if (busyStateChangedListener != null) {
-            busyStateChangedListener(busy);
+            busyStateChangedListener(busy, applyScope);
         }
     }
     //register callback methods 
@@ -66,8 +72,16 @@ function NotifyService() {
         ReportsListeners.push(listener);
     };
 
+    this.RegisterRedemptionListener = function (listener) {
+        RedemptionListeners.push(listener);
+    };
+
     this.RegisterConnectionListener = function (listener) {
         ConnectionListeners.push(listener);
+    };
+
+    this.RegisterDisconnectionListener = function (listener) {
+        DisconnectionListeners.push(listener);
     };
 
     this.RegisterBuildStatusListener = function (listener) {
@@ -109,6 +123,11 @@ function NotifyService() {
         invokeListeners();
     };
 
+    this.InvokeRedemptions = function () {
+        listeners = RedemptionListeners;
+        invokeListeners();
+    };
+
     //call this method if the account is changed. Calls the exisitng view listener and all the 
     //account listeners
     this.InvokeAccountChange = function () {
@@ -121,8 +140,13 @@ function NotifyService() {
         invokeCallbacks(BuildStatusListeners, status);
     }
 
-    this.InvokeConnectionListeners = function (username) {
+    this.OnConnected = function (connectionID, username) {
+        sessionid = connectionID;
         invokeCallbacks(ConnectionListeners, username);
+    };
+
+    this.InvokeDisconnectionListeners = function () {
+        invokeCallbacks(DisconnectionListeners);
     };
 
     this.SetBusyState = function (busy) {
@@ -132,23 +156,32 @@ function NotifyService() {
     this.GetBusyState = function () {
         return IsBusy;
     };
+
+    this.GetSessionID = function () {
+        return sessionid;
+    };
 }
 
 'use strict'
 
 //controller handles management of the build report progress and the view tab
-function Layout($scope, $log, $uibModal, NotifyService, MiddlewareService) {
-    $scope.ProgressCount = 0;
-    $scope.Section = null;
-    $scope.IsBuilding = false;
-    $scope.CanBuild = false;
-    $scope.LoggedIn = false;
-    $scope.BuildStatus = "Not Building";
-    $scope.UserName = "guy@guycooper.plus.com";
-    $scope.Password = "rangers";
-    $scope.IsBusy = false;
+function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService, Idle, Keepalive) {
 
-    var servername = "ws://localhost:8080";
+    var initialiseLayout = function () {
+        $scope.ProgressCount = 0;
+        $scope.Section = null;
+        $scope.IsBuilding = false;
+        $scope.CanBuild = false;
+        $scope.LoggedIn = false;
+        $scope.BuildStatus = "Not Building";
+        $scope.UserName = localStorage.getItem('userName');
+        $scope.Password = localStorage.getItem('password');
+        $scope.IsBusy = false;
+        $scope.SaveCredentials = true;
+        $scope.LoginFailed = false;
+    };
+     
+    var servername = ""; //"ws://localhost:8080/MWARE";
 
     //callback displays the account summary details
     var onLoadAccountSummary = function (response) {
@@ -159,6 +192,9 @@ function Layout($scope, $log, $uibModal, NotifyService, MiddlewareService) {
 
         $scope.BankBalance = response.BankBalance;
         $scope.MonthlyPnL = response.MonthlyPnL;
+
+        var dtValuation = new Date(response.ValuationDate);
+        $scope.ValuationDate = dtValuation.toDateString();
         $scope.$apply();
     };
 
@@ -184,7 +220,8 @@ function Layout($scope, $log, $uibModal, NotifyService, MiddlewareService) {
             if ($scope.IsBuilding == true && buildStatus.IsBuilding == false) {
                 $scope.IsBuilding = buildStatus.IsBuilding;
                 //now display a dialog to show any errors during the build
-                onReportFinished(buildStatus.Errors);
+                loadAccountSummary();
+                onReportFinished(buildStatus.Errors, buildStatus.CompletedReport);
             }
             else {
                 $scope.IsBuilding = buildStatus.IsBuilding;
@@ -201,7 +238,7 @@ function Layout($scope, $log, $uibModal, NotifyService, MiddlewareService) {
         }
     };
     
-    var onReportFinished = function (errors) {
+    var onReportFinished = function (errors, completedReport) {
         var modalInstance = $uibModal.open({
             animation: true,
             ariaLabelledBy: 'modal-title',
@@ -213,6 +250,9 @@ function Layout($scope, $log, $uibModal, NotifyService, MiddlewareService) {
             resolve: {
                 errors: function () {
                     return errors;
+                },
+                completedReport: function () {
+                    return completedReport;
                 }
             }
         });
@@ -222,7 +262,7 @@ function Layout($scope, $log, $uibModal, NotifyService, MiddlewareService) {
         NotifyService.InvokePortfolio();
     };
 
-    $scope.onAddTrade = function () {
+    $scope.onAddInvestment = function () {
         NotifyService.InvokeAddTrade();
     };
 
@@ -234,46 +274,135 @@ function Layout($scope, $log, $uibModal, NotifyService, MiddlewareService) {
         NotifyService.InvokeReports();
     };
 
+    $scope.onRedemptions = function () {
+        NotifyService.InvokeRedemptions();
+    };
+
     $scope.buildReport = function () {
         MiddlewareService.BuildReport(onBuildProgress);
     };
 
     //connect to middleware layer with user supplied username and password
     $scope.doLogin = function () {
+        $scope.LoginFailed = false;
         NotifyService.UpdateBusyState(true);
         //once conncted inform any connection listeners that connection is complete
-        MiddlewareService.Connect(servername, $scope.UserName, $scope.Password).then(function () {
+        MiddlewareService.Connect(servername, $scope.UserName, $scope.Password).then(function (result) {
             console.log("connection to middleware succeded!");
+            
+            if ($scope.SaveCredentials) {
+                localStorage.setItem('userName', $scope.UserName);
+                localStorage.setItem('password', $scope.Password);
+            }
+            else {
+                localStorage.removeItem('userName');
+                localStorage.removeItem('password');
+            }
+
             NotifyService.UpdateBusyState(false);
             $scope.LoggedIn = true;
-            NotifyService.InvokeConnectionListeners($scope.UserName);
+            $scope.LoginFailed = false;
+            var loginResult = JSON.parse(result);
+            NotifyService.OnConnected(loginResult.ConnectionId, $scope.UserName);
+            
         },
         function (error) {
+            NotifyService.UpdateBusyState(false);
+            $scope.LoginFailed = true;
+            $scope.$apply();
             console.log("connection to middleware failed" + error);
         });
     }
 
     //method updates the isBusy state
-    var busyStateChanged = function (busy) {
+    var busyStateChanged = function (busy, applyScope) {
         $scope.IsBusy = busy;
+        if (applyScope === true) {
+            $scope.$apply();
+        }
     };
 
-    //register handler to be invoked every time the isBusy state is changed
-    NotifyService.RegisterBusyStateChangedListener(busyStateChanged);
-    //ensure this view is reloaded on connection
-    NotifyService.RegisterConnectionListener(loadAccountSummary);
-    //ensure this view is reloaded if the account is changed
-    NotifyService.RegisterAccountListener(loadAccountSummary);
-    //ensure this view is updated when the build status changes
-    NotifyService.RegisterBuildStatusListener(onBuildStatusChanged);
+    var closeConnection = function () {
+        MiddlewareService.Disconnect();
+        initialiseLayout();
+    };
+
+    NotifyService.RegisterDisconnectionListener(closeConnection);
+
+    initialiseLayout();
+
+    function closeModals() {
+        if ($scope.warning) {
+            $scope.warning.close();
+            $scope.warning = null;
+        }
+
+        if ($scope.timedout) {
+            $scope.timedout.close();
+            $scope.timedout = null;
+        }
+    }
+
+    var startIdleWatcher = function () {
+        $log.log("starting idle watcher");
+        closeModals();
+        Idle.watch();
+    };
+
+    var stopIdleWatcher = function () {
+        $log.log("stoping idle watcher");
+        closeModals();
+        Idle.unwatch();
+    };
+
+    //load the config
+    $http.get("./config.json").then(function (data) {
+        servername = data.data.url;
+        console.log('config loaded. url: ' + servername);
+        //register handler to be invoked every time the isBusy state is changed
+        NotifyService.RegisterBusyStateChangedListener(busyStateChanged);
+        //ensure this view is reloaded on connection
+        NotifyService.RegisterConnectionListener(loadAccountSummary);
+        //ensure this view is reloaded if the account is changed
+        NotifyService.RegisterAccountListener(loadAccountSummary);
+        //ensure this view is updated when the build status changes
+        NotifyService.RegisterBuildStatusListener(onBuildStatusChanged);
+        //start the idle watcher on connection
+        NotifyService.RegisterConnectionListener(startIdleWatcher);
+        //stop the idle watcher on disconnect
+        NotifyService.RegisterDisconnectionListener(stopIdleWatcher);
+
+    },function (error) {
+        alert("unable to load config file: " + error);
+    });
+
+    $scope.$on('IdleStart', function () {
+        closeModals();
+
+        $scope.warning = $uibModal.open({
+            templateUrl: 'warning-dialog.html',
+            windowClass: 'modal-danger'
+        });
+    });
+
+    $scope.$on('IdleEnd', function () {
+        closeModals();
+    });
+
+    $scope.$on('IdleTimeout', function () {
+        closeModals();
+        $log.log("idle timeout expired.logging out...");
+        NotifyService.InvokeDisconnectionListeners();
+    });
 };
 
 //controller to handle the report completion view
-function ReportCompletion($uibModalInstance, errors) {
+function ReportCompletion($uibModalInstance, NotifyService, errors, completedReport) {
     var $report = this;
     $report.success = errors == null || errors.length == 0;
     $report.errors = errors;
 
+    $report.CompletedReport = completedReport + ";session=" + NotifyService.GetSessionID();
     $report.ok = function () {
         $uibModalInstance.dismiss('cancel');
     };
@@ -283,7 +412,7 @@ function ReportCompletion($uibModalInstance, errors) {
 
 function MiddlewareService()
 {
-    var mw = new Middleware();
+    var mw = null;
     var subscriptionList = [];
     var pendingRequestList = [];
 
@@ -303,13 +432,13 @@ function MiddlewareService()
         return object === null || object === undefined;
     }
 
-    var onMessage = function (message) {
+    var onMessage = function (requestId, payload, binaryPayload) {
         for (var i = 0; i < pendingRequestList.length; i++) {
             var request = pendingRequestList[i];
-            if (request.pendingId === message.RequestId) {
+            if (request.pendingId === requestId) {
                 //pendingRequestList.splice(i, 1);
                 if (isNullOrUndefined(request.callback) === false) {
-                    request.callback(JSON.parse(message.Payload));
+                    request.callback(payload, binaryPayload);
                 }
                 break;
             }
@@ -317,6 +446,9 @@ function MiddlewareService()
     };
 
     this.Connect = function (server, username, password) {
+        mw = new Middleware();
+        subscriptionList = [];
+        pendingRequestList = [];
         server_ = server;
         username_ = username;
         password_ = password;
@@ -325,9 +457,12 @@ function MiddlewareService()
         });
     };
 
+    this.Disconnect = function () {
+        mw.Disconnect();
+    };
+
     var sendRequestToChannel = function (channel, message, handler) {
-        var payload = message != null ? JSON.stringify(message) : null;
-        mw.SendRequest(channel, payload).then((id) => {
+        mw.SendRequest(channel, message).then((id) => {
             pendingRequestList.push({"pendingId": id,"callback": handler });
         }, (error) => { console.log("unable to send request to channel " + channel + ". error: " +  error); });
     };
@@ -403,17 +538,25 @@ function MiddlewareService()
         doCommand("GET_INVESTMENT_SUMMARY_REQUEST", "GET_INVESTMENT_SUMMARY_RESPONSE", null, handler);
     };
 
-    this.LoadRecentReports = function (handler) {
-        doCommand("GET_RECENT_REPORTS_REQUEST", "GET_RECENT_REPORTS_RESPONSE", null, handler);
+    this.LoadRecentReports = function (request, handler) {
+        doCommand("GET_RECENT_REPORTS_REQUEST", "GET_RECENT_REPORTS_RESPONSE", request, handler);
     };
 
     this.UpdateAccountDetails = function (account, handler) {
         doCommand("UPDATE_ACCOUNT_DETAILS_REQUEST", "UPDATE_ACCOUNT_DETAILS_RESPONSE", account, handler);
     };
 
+    this.CreateAccount = function (account, handler) {
+        doCommand("CREATE_ACCOUNT_REQUEST", "CREATE_ACCOUNT_RESPONSE", account, handler);
+    };
+
     this.GetAccountDetails = function (accountName, handler) {
         var dto = { AccountName: accountName };
         doCommand("GET_ACCOUNT_DETAILS_REQUEST", "GET_ACCOUNT_DETAILS_RESPONSE", dto, handler);
+    };
+
+    this.GetAccountMembers = function (handler) {
+        doCommand("GET_ACCOUNT_MEMBERS_REQUEST", "GET_ACCOUNT_MEMBERS_RESPONSE", null, handler);
     };
 
     this.GetCurrencies = function (handler) {
@@ -423,7 +566,118 @@ function MiddlewareService()
     this.GetBrokers = function (handler) {
         doCommand("GET_BROKERS_REQUEST", "GET_BROKERS_RESPONSE", null, handler);
     };
+
+    this.GetLastTransaction = function (handler) {
+        doCommand("GET_LAST_TRANSACTION_REQUEST", "GET_LAST_TRANSACTION_RESPONSE", null, handler);
+    }
+
+    this.UndoLastTransaction = function (handler) {
+        doCommand("UNDO_LAST_TRANSACTION_REQUEST", "UNDO_LAST_TRANSACTION_RESPONSE", null, handler);
+    }
+
+    this.GetRedemptions = function (handler) {
+        doCommand("GET_REDEMPTIONS_REQUEST", "GET_REDEMPTIONS_RESPONSE", null, handler);
+    };
+
+    this.RequestRedemption = function (request, handler) {
+        doCommand("REQUEST_REDEMPTION_REQUEST", "REQUEST_REDEMPTION_RESPONSE", request, handler);
+    };
+
+    this.LoadReport = function (request, handler) {
+        doCommand("LOAD_REPORT_REQUEST", "LOAD_REPORT_RESPONSE", request, handler);
+    };
+
+    this.GetPrice = function (request, handler) {
+        doCommand("GET_PRICE_REQUEST", "GET_PRICE_RESPONSE", request, handler);
+    }
 }
+"use strict"
+
+function CashTransaction($scope, $uibModalInstance, transactionType, paramTypes, dateFrom, MiddlewareService) {
+    var $transaction = this;
+    if (transactionType == 'receipt') {
+        $transaction.title = 'Add Receipt';
+    }
+    else {
+        $transaction.title = 'Add Payment';
+    }
+
+    //$transaction.dt = null;
+    $transaction.ParamTypes = paramTypes;
+    $transaction.SelectedParamType = '';
+    if (paramTypes.length > 0) {
+        $transaction.SelectedParamType = paramTypes[0];
+    }
+    $scope.Parameters = [];
+    $transaction.SelectedParameter = '';
+    $transaction.Amount = 0;
+
+    $transaction.ok = function () {
+        var sendParams = [];
+        if ($transaction.SelectedParameter == "ALL") {
+            sendParams = $scope.Parameters.slice(0, $scope.Parameters.length - 1);
+        }
+        else {
+            sendParams.push($transaction.SelectedParameter)
+        }
+
+        $uibModalInstance.close({
+            TransactionDate: $transaction.dt,
+            ParamType: $transaction.SelectedParamType,
+            Parameter: sendParams,
+            Amount: $transaction.Amount,
+            DateRequestedFrom: dateFrom
+        });
+    };
+
+    $transaction.cancel = function () {
+        $uibModalInstance.dismiss('cancel');
+    };
+
+    $transaction.today = function () {
+        $transaction.dt = new Date();
+    };
+
+    $transaction.dateOptions = {
+        dateDisabled: false,
+        formatYear: 'yy',
+        maxDate: new Date(2020, 5, 22),
+        minDate: null,
+        startingDay: 1
+    };
+
+    $transaction.openDatePicker = function () {
+        $transaction.datepicker.opened = true;
+    };
+
+    $transaction.format = 'dd-MMMM-yyyy';
+    $transaction.altInputFormats = ['M!/d!/yyyy'];
+
+    $transaction.datepicker = {
+        opened: false
+    };
+
+    $transaction.today();
+
+    $transaction.onLoadParameters = function (response) {
+        if (response) {
+            $scope.Parameters = response.Parameters;
+            if ($scope.Parameters.length > 0) {
+                $transaction.SelectedParameter = $scope.Parameters[0];
+            }
+            $scope.$apply();
+        }
+    };
+
+    $transaction.changeParamType = function () {
+
+        MiddlewareService.GetTransactionParameters(
+            { ParameterType: $transaction.SelectedParamType }, $transaction.onLoadParameters);
+    };
+
+    $transaction.changeParamType();
+};
+
 "use strict"
 
 function CashFlow($scope, $uibModal, $log, NotifyService, MiddlewareService) {
@@ -496,11 +750,8 @@ function CashFlow($scope, $uibModal, $log, NotifyService, MiddlewareService) {
 
     this.deleteTransaction = function (transaction) {
         MiddlewareService.RemoveTransaction({
-            valuationDate: transaction.ValuationDate,
-            transactionDate: transaction.TransactionDate,
-            transactionType: transaction.TransactionType,
-            parameter: transaction.Parameter
-        }, onLoadContents);
+            TransactionID: transaction.TransactionID
+        }, this.reloadContents);
     };
 
     this.deleteReceipt = function (index) {
@@ -545,101 +796,21 @@ function CashFlow($scope, $uibModal, $log, NotifyService, MiddlewareService) {
     //}
 }
 
-function CashTransaction($scope, $uibModalInstance, transactionType, paramTypes, dateFrom, MiddlewareService) {
-    var $transaction = this;
-    if (transactionType == 'receipt') {
-        $transaction.title = 'Add Receipt';
-    }
-    else {
-        $transaction.title = 'Add Payment';
-    }
-
-    //$transaction.dt = null;
-    $transaction.ParamTypes = paramTypes;
-    $transaction.SelectedParamType = '';
-    if (paramTypes.length > 0) {
-        $transaction.SelectedParamType = paramTypes[0];
-    }
-    $scope.Parameters = [];
-    $transaction.SelectedParameter = '';
-    $transaction.Amount = 0;
-
-    $transaction.ok = function () {
-        var sendParams = [];
-        if ($transaction.SelectedParameter == "ALL") {
-            sendParams = $scope.Parameters.slice(0, $scope.Parameters.length - 1);
-        }
-        else {
-            sendParams.push($transaction.SelectedParameter)
-        }
-
-        $uibModalInstance.close({
-            TransactionDate: $transaction.dt,
-            ParamType: $transaction.SelectedParamType,
-            Parameter: sendParams,
-            Amount: $transaction.Amount,
-            DateRequestedFrom : dateFrom
-        });
-    };
-
-    $transaction.cancel = function () {
-        $uibModalInstance.dismiss('cancel');
-    };
-
-    $transaction.today = function () {
-        $transaction.dt = new Date();
-    };
-
-    $transaction.dateOptions = {
-        dateDisabled: false,
-        formatYear: 'yy',
-        maxDate: new Date(2020, 5, 22),
-        minDate: null,
-        startingDay: 1
-    };
-
-    $transaction.openDatePicker = function () {
-        $transaction.datepicker.opened = true;
-    };
-
-    $transaction.format = 'dd-MMMM-yyyy';
-    $transaction.altInputFormats = ['M!/d!/yyyy'];
-
-    $transaction.datepicker = {
-        opened: false
-    };
-
-    $transaction.today();
-
-    $transaction.onLoadParameters = function (response) {
-        if (response) {
-            $scope.Parameters = response.Parameters;
-            if ($scope.Parameters.length > 0) {
-                $transaction.SelectedParameter = $scope.Parameters[0];
-            }
-            $scope.$apply();
-        }
-    };
-
-    $transaction.changeParamType = function () {
-        
-    MiddlewareService.GetTransactionParameters(
-        { ParameterType: $transaction.SelectedParamType }, $transaction.onLoadParameters);
-    };
-
-    $transaction.changeParamType();
-};
 
 
 'use strict'
 
-function CreateTrade(NotifyService, MiddlewareService) {
-    var addTrade = this;
-    addTrade.today = function () {
-        addTrade.dt = new Date();
+function AddInvestment($uibModal, $scope, NotifyService, MiddlewareService) {
+
+    $scope.Busy = false;
+
+    $scope.today = function () {
+        $scope.dt = new Date();
     };
 
-    addTrade.dateOptions = {
+    $scope.ValidatingSymbol = false;
+
+    $scope.dateOptions = {
         dateDisabled: false,
         formatYear: 'yy',
         maxDate: new Date(2020, 5, 22),
@@ -647,43 +818,87 @@ function CreateTrade(NotifyService, MiddlewareService) {
         startingDay: 1
     };
 
-    addTrade.openDatePicker = function () {
-        addTrade.datepicker.opened = true;
+    $scope.openDatePicker = function () {
+        $scope.datepicker.opened = true;
     };
 
-    addTrade.format = 'dd-MMMM-yyyy';
-    addTrade.altInputFormats = ['M!/d!/yyyy'];
+    $scope.format = 'dd-MMMM-yyyy';
+    $scope.altInputFormats = ['M!/d!/yyyy'];
 
     var onTradeSubmitted = function (response) {
+        $scope.Busy = false;
+        var description = "";
         if (response.status == 'fail') {
-            //trade submission failed. display error messages in error dialog
-
+            description = "Add investment failed";
         }
+        else {
+            description = "Add investment succeded";
+            NotifyService.InvokeAccountChange();
+        }
+
+        var logoutModal = $uibModal.open({
+            animation: true,
+            ariaLabelledBy: 'modal-title',
+            ariaDescribedBy: 'modal-body',
+            templateUrl: 'views/YesNoChooser.html',
+            controller: 'YesNoController',
+            controllerAs: '$item',
+            size: 'lg',
+            resolve: {
+                title: function () {
+                    return "Add Investment";
+                },
+                description: function () {
+                    return description;
+                },
+                name: function () { return null},
+                ok: function () { return true;}
+            }
+        });
     };
 
-    addTrade.datepicker = {
+    var onSymbolValidated = function (response) {
+        $scope.Busy = false;
+        $scope.SymbolValidated = response.IsError === false;
+        $scope.$apply();
+    };
+
+    $scope.datepicker = {
         opened: false
     };
 
-    addTrade.submitTrade = function () {
-        MiddlewareService.UpdateTrade({
-            TransactionDate: addTrade.dt,
-            ItemName: addTrade.Name,
-            Symbol: addTrade.Symbol,
-            Quantity: addTrade.Quantity,
-            ScalingFactor: addTrade.ScalingFactor,
-            Currency: addTrade.currency,
-            Exchange: addTrade.Exchange,
-            TotalCost: addTrade.totalCost
-        }, onTradeSubmitted);
+    $scope.submitTrade = function () {
+
+        var trade = {
+            TransactionDate: $scope.dt,
+            ItemName: $scope.Name,
+            Symbol: $scope.Symbol,
+            Quantity: $scope.Quantity,
+            Currency: $scope.Currency,
+            TotalCost: $scope.TotalCost,
+            Action: "Buy"
+        };
+
+        $scope.Busy = true;
+        MiddlewareService.UpdateTrade(trade,onTradeSubmitted);
     };
 
-    addTrade.cancel = function () {
+    $scope.cancel = function () {
 
+    };
+
+    $scope.ValidateSymbol = function () {
+        $scope.ValidatingSymbol = true;
+        var payload = {
+            Symbol: $scope.Symbol
+        };
+
+        $scope.Busy = true;
+        MiddlewareService.GetPrice(payload, onSymbolValidated);
     };
 
     NotifyService.RegisterAddTradeListener = function () {
-        addTrade.today();
+        $scope.today();
     };
 }
 "use strict"
@@ -705,13 +920,15 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
         { headerName: "Options", cellRenderer:editTradeRenderer }
     ];
 
+    var reloadPortfolio = false;
+
     var onLoadContents = function (data) {
 
         if (data && data.Portfolio) {
             $scope.gridOptions.api.setRowData(data.Portfolio);
             $scope.gridOptions.api.sizeColumnsToFit();
         }
-        NotifyService.UpdateBusyState(false);
+        NotifyService.UpdateBusyState(false, false);
     }.bind(this);
 
     function editTradeRenderer() {
@@ -724,8 +941,11 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
     }
 
     function loadPortfolio() {
-        NotifyService.UpdateBusyState(true);
-        MiddlewareService.LoadPortfolio(onLoadContents);
+        if (reloadPortfolio === true) {
+            NotifyService.UpdateBusyState(true, false);
+            MiddlewareService.LoadPortfolio(onLoadContents);
+            reloadPortfolio = false;
+        }
     };
 
     $scope.gridOptions = {
@@ -758,7 +978,7 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
         editModal.result.then(function (trade) {
             //$ctrl.selected = selectedItem;
             //use has clicked ok , we need to update the trade
-            MiddlewareService.UpdateTrade(trade, loadPortfolio);
+            MiddlewareService.UpdateTrade(trade, refreshPortfolio);
         }, function () {
             $log.info('Modal dismissed at: ' + new Date());
         });
@@ -786,14 +1006,15 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
                 },
                 name: function () {
                     return name;
-                }
+                },
+                ok: function () { return false; }
             }
         });
         
         sellModal.result.then(function (param) {
             //$ctrl.selected = selectedItem;
             //use has clicked ok , we need to update the trade
-            MiddlewareService.SellTrade(param, loadPortfolio);
+            MiddlewareService.SellTrade(param, refreshPortfolio);
         }, function () {
             $log.info('Modal dismissed at: ' + new Date());
         });
@@ -805,7 +1026,19 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
 
     //also, we want the portfolio to be loaded on startup so add is as a connectionlistener as well.
     //this means it will be loaded once the connection to the server has been made
-    NotifyService.RegisterConnectionListener(loadPortfolio);
+    NotifyService.RegisterConnectionListener(refreshPortfolio);
+
+    // reload the portfolio from the server
+    function refreshPortfolio() {
+        reloadPortfolio = true;
+        loadPortfolio();
+    };
+
+    function onAccountChanged() {
+        reloadPortfolio = true;
+    };
+
+    NotifyService.RegisterAccountListener(onAccountChanged);
 };
 
 function TradeEditor($uibModalInstance, name) {
@@ -867,7 +1100,7 @@ function TradeEditor($uibModalInstance, name) {
 function AddAccount($scope, $uibModalInstance, user, currencies, account, brokers) {
 
     //set the default values
-    $scope.AccountName = "";
+    $scope.AccountName = {};
     $scope.AccountDescription;
     $scope.Currencies = currencies;
     $scope.Brokers = brokers;
@@ -938,7 +1171,7 @@ function AddAccount($scope, $uibModalInstance, user, currencies, account, broker
     $scope.onTypeChange();
 
     $scope.accountNameChanged = function () {
-        $scope.CanSubmit = $scope.AccountName != "";
+        $scope.CanSubmit = $scope.AccountName.Name != "";
     };
 
     $scope.accountNameChanged();
@@ -969,7 +1202,7 @@ function AddAccount($scope, $uibModalInstance, user, currencies, account, broker
             AccountType: $scope.AccountType,
             Enabled : true,
             Members : members
-            });
+        }, $scope.EditAccount);
     };
 
     $scope.cancel = function () {
@@ -982,7 +1215,8 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
 
     $scope.IsConnected = false;
 
-    var loggedInUser;
+    $scope.LoggedInUser = "";
+
     var currencies = null;
     var brokers = null;
 
@@ -998,7 +1232,7 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
     //method called when web app has successfully connected and logged in
     var onConnected = function (username) {
         $scope.IsConnected = true;
-        loggedInUser = username;
+        $scope.LoggedInUser = username;
 
         //retrieve the list of account names for logged in user
         MiddlewareService.GetAccountsForUser(onLoadAccountNames);
@@ -1014,6 +1248,10 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
         });
     };
 
+    var onDisconnected = function () {
+        $scope.IsConnected = false;
+    };
+
     $scope.SelectedAcount = "";
     $scope.UpdateAccount = function () {
         MiddlewareService.UpdateCurrentAccount($scope.SelectedAcount, function (data) {
@@ -1022,7 +1260,12 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
     };
 
    //invoke the add account dialog view
-    var showAccountPopup = function (title, account) {
+    var showAccountPopup = function (title, account, isError) {
+
+        if (isError === true) {
+            return;
+        }
+
         var modalInstance = $uibModal.open({
             animation: true,
             ariaLabelledBy: 'modal-title',
@@ -1033,7 +1276,7 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
             size: 'lg',
             resolve: {
                 user: function () {
-                    return loggedInUser;
+                    return $scope.LoggedInUser;
                 },
                 currencies: function () {
                     return currencies;
@@ -1047,19 +1290,25 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
             }
         });
 
-        modalInstance.result.then(function (account) {
+        var onAccountUpdated = function (data) {
+            if (data.Status === false) {
+                alert("update account failed: " + data.Error);
+            }
+            else {
+                //successfull, reload the account names
+                onLoadAccountNames(data);
+            }
+        };
+
+        modalInstance.result.then(function (account, edit) {
             //$ctrl.selected = selectedItem;
             //user has clicked ok , we need to update the account information for this user
-            MiddlewareService.UpdateAccountDetails(account, function (data) {
-                if (data.Status === false) {
-                    alert("update account failed: " + data.Error);
-                }
-                else {
-                    //successfull, reload the account names
-                    onLoadAccountNames(data);
-                }
-            });
-
+            if (edit === true) {
+                MiddlewareService.UpdateAccountDetails(account, onAccountUpdated);
+            }
+            else {
+                MiddlewareService.CreateAccount(account, onAccountUpdated);
+            }
             //updateMethod(transaction);
         }, function () {
             $log.info('Modal dismissed at: ' + new Date());
@@ -1068,15 +1317,77 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
 
     $scope.editAccount = function () {
         MiddlewareService.GetAccountDetails($scope.SelectedAcount, (account) => {
-            showAccountPopup("Edit Account", account);
+            showAccountPopup("Edit Account", account, account.IsError);
         });
     };
 
     $scope.addAccount = function () {
-        showAccountPopup("Add Account", null);
-    }
+        showAccountPopup("Add Account", null, false);
+    };
 
+    // Display the last transaction and give the user the option to undo it.
+    $scope.getLastTransaction = function () {
+        MiddlewareService.GetLastTransaction((transaction) => {
+            var lastTransactionModal = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'views/LastTransaction.html',
+                controller: 'LastTransactionController',
+                size: 'lg',
+                resolve: {
+                    transaction: function () {
+                        return transaction;
+                    }
+                }
+            });
+
+            lastTransactionModal.result.then(function () {
+                MiddlewareService.UndoLastTransaction(function (result) {
+                    //undo succeded, refresh all data...
+                    NotifyService.InvokeAccountChange();
+                });
+            }, function () {
+                $log.info('LastTransactionModal dismissed at: ' + new Date());
+            });
+
+        });
+    };
+
+    $scope.logout = function () {
+        var title = "logout";
+        var description = "Are you sure?";
+        var logoutModal = $uibModal.open({
+            animation: true,
+            ariaLabelledBy: 'modal-title',
+            ariaDescribedBy: 'modal-body',
+            templateUrl: 'views/YesNoChooser.html',
+            controller: 'YesNoController',
+            controllerAs: '$item',
+            size: 'lg',
+            resolve: {
+                title: function () {
+                    return title;
+                },
+                description: function () {
+                    return description;
+                },
+                name: function () { return null },
+                ok: function () { return false; }
+            }
+        });
+
+        logoutModal.result.then(function (param) {
+            //use wants to logout. do it here...
+            NotifyService.InvokeDisconnectionListeners();
+
+        }, function () {
+            $log.info('Modal dismissed at: ' + new Date());
+        });
+    }
+    NotifyService.RegisterDisconnectionListener(onDisconnected);
     NotifyService.RegisterConnectionListener(onConnected);
+
 }
 "use strict"
 
@@ -1084,19 +1395,226 @@ function Reports($scope, NotifyService, MiddlewareService) {
 
     $scope.RecentReports = [];
 
+    var dt = new Date();
+    var latestDate = dt.toDateString();
+    
+    // Handler for load reports.
     var onLoadContents = function (response) {
-        $scope.RecentReports = response.RecentReports;
+        $scope.RecentReports = response.RecentReports.map(report => 
+        {
+            report.Link = report.Link + ";session=" + NotifyService.GetSessionID();
+            return report;
+        });
+
         $scope.$apply();
     };
 
+    // Call server to load the reports...
+    var loadReports = function (dt) { 
+
+        var request = {
+            DateFrom: dt
+        };
+        MiddlewareService.LoadRecentReports(request, onLoadContents);
+    };
+
+    // Load the previous 5 reports.
+    $scope.previous = function () {
+        if ($scope.RecentReports.length > 0) {
+            var fromDate = $scope.RecentReports[$scope.RecentReports.length - 1].ValuationDate;
+            loadReports(fromDate);
+        }
+    };
+
+    // Load the most recent reports
+    $scope.recent = function () {
+        loadReports(latestDate);
+    };
+
+    // register listener so when page is displayed the reports are loaded.
     NotifyService.RegisterReportsListener(function () {
-        MiddlewareService.LoadRecentReports(onLoadContents);
+        loadReports(latestDate);
     });
 }
 
 "use strict"
 
-var module = angular.module("InvestmentRecord", ["ui.bootstrap","agGrid"]);
+// Controller for LastTransaction Page
+function LastTransaction($scope, $uibModalInstance, transaction) {
+
+    $scope.Name =  transaction.InvestmentName;
+    $scope.TransactionType = transaction.TransactionType;
+    $scope.Quantity = transaction.Quantity;
+    $scope.Amount = transaction.Amount;
+
+    $scope.ok = function () {
+        $uibModalInstance.close();
+    }
+
+    $scope.cancel = function () {
+        $uibModalInstance.dismiss('cancel');
+    };
+}
+'use strict'
+
+// Redemptions view controller.
+function Redemptions($scope, $log, $uibModal, NotifyService, MiddlewareService) {
+    var columnDefs = [
+        { headerName: "User", field: "User" },
+        { headerName: "Amount", field: "Amount" },
+        { headerName: "TransactionDate", field: "TransactionDate", cellFormatter: dateFormatter },
+        { headerName: "Status", field: "Status" }
+    ];
+
+    $scope.RedemptionRequestFailed = false;
+    $scope.RedemptionRequestError = '';
+
+    var members = [];
+
+    var onLoadMembers = function (data) {
+        if (data && data.Members) {
+            members = data.Members;
+        }
+    };
+
+    var onLoadContents = function (data) {
+
+        if (data && data.Redemptions) {
+            $scope.gridOptions.api.setRowData(data.Redemptions);
+            $scope.gridOptions.api.sizeColumnsToFit();
+        }
+    }.bind(this);
+
+    function dateFormatter(val) {
+        var dateobj = new Date(val.value);
+        return dateobj.toLocaleDateString();
+    }
+
+    function loadRedemptions() {
+        MiddlewareService.GetRedemptions(onLoadContents);
+        MiddlewareService.GetAccountMembers(onLoadMembers);
+    };
+
+    $scope.gridOptions = {
+        columnDefs: columnDefs,
+        rowData: null,
+        angularCompileRows: true,
+        enableColResize: true,
+        enableSorting: true,
+        enableFilter: true
+    };
+
+    //User requesting a new redemption
+    $scope.requestRedemption = function () {
+        var requestRedemptionModal = $uibModal.open({
+            animation: true,
+            ariaLabelledBy: 'modal-title',
+            ariaDescribedBy: 'modal-body',
+            templateUrl: 'views/RequestRedemption.html',
+            controller: 'RequestRedemptionController',
+            size: 'lg',
+            resolve: {
+                users: function () {
+                    return members;
+                }
+            }
+        });
+
+        requestRedemptionModal.result.then(function (redemption) {
+            MiddlewareService.RequestRedemption(redemption, (response) => {
+                if (response.Success === true) {
+                    loadRedemptions();
+                }
+                else {
+                    $scope.RedemptionRequestFailed = true;
+                    $scope.RedemptionRequestError = response.Error;
+                }
+            });
+        },
+        function () {
+            $log.info('RequestRdemptionModal dismissed at: ' + new Date());
+        });
+    };
+
+    NotifyService.RegisterRedemptionListener(loadRedemptions);
+};
+"use strict"
+
+//Controller for Request Redemption dialog page.
+function RequestRedemption($scope, $uibModalInstance, users) {
+
+    $scope.UserName = '';
+    $scope.Amount = 0;
+    $scope.Users = users;
+
+    $scope.ok = function () {
+        $uibModalInstance.close({
+            TransactionDate: $scope.dt,
+            UserName: $scope.UserName,
+            Amount : $scope.Amount
+        });
+    };
+
+    $scope.cancel = function () {
+        $uibModalInstance.dismiss('cancel');
+    };
+
+    //datetime picker scoped methods
+
+    $scope.today = function () {
+        $scope.dt = new Date();
+    };
+
+    $scope.dateOptions = {
+        dateDisabled: false,
+        formatYear: 'yy',
+        maxDate: new Date(2020, 5, 22),
+        minDate: null,
+        startingDay: 1
+    };
+
+    $scope.openDatePicker = function () {
+        $scope.datepicker.opened = true;
+    };
+
+    $scope.format = 'dd-MMMM-yyyy';
+    $scope.altInputFormats = ['M!/d!/yyyy'];
+
+    $scope.datepicker = {
+        opened: false
+    };
+
+    $scope.today();
+
+};
+"use strict"
+
+var module = angular.module("InvestmentRecord", ["ui.bootstrap", "agGrid", "ngIdle"])
+
+//module.config([
+//   '$compileProvider',
+//    'KeepaliveProvider',
+//    'IdleProvider',
+//    function ($compileProvider) {
+//        $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|file|blob|ftp|mailto|chrome-extension):/);
+//        // Angular before v1.2 uses $compileProvider.urlSanitizationWhitelist(...)
+//    },
+//    function (KeepaliveProvider, IdleProvider) {
+//    IdleProvider.idle(30);
+//    IdleProvider.timeout(10);
+//    KeepaliveProvider.interval(10);
+//    }
+//]);
+
+module.config([
+    'KeepaliveProvider',
+    'IdleProvider',
+    function (KeepaliveProvider, IdleProvider) {
+    IdleProvider.idle(300);
+    IdleProvider.timeout(30);
+    KeepaliveProvider.interval(10);
+    }
+]);
 
 agGrid.initialiseAgGridWithAngular1(angular);
 
@@ -1119,10 +1637,16 @@ module.controller('ReportCompletion', ReportCompletion);
 
 module.controller('YesNoController', YesNoPicker);
 
-module.controller('AddTradeController', CreateTrade);
+module.controller('AddInvestmentController', AddInvestment);
 
 module.controller('LayoutController', Layout);
 
 module.controller('ReportsController', Reports);
 
 module.controller('AddAccount', AddAccount);
+
+module.controller('LastTransactionController', LastTransaction);
+
+module.controller('RedemptionsController', Redemptions);
+
+module.controller('RequestRedemptionController', RequestRedemption);

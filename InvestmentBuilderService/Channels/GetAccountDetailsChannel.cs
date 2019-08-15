@@ -9,7 +9,7 @@ namespace InvestmentBuilderService.Channels
     /// </summary>
     internal class GetAccountDetailsRequestDto : Dto
     {
-        public string AccountName { get; set; }
+        public AccountIdentifier AccountName { get; set; }
     }
 
     /// <summary>
@@ -19,8 +19,8 @@ namespace InvestmentBuilderService.Channels
     {
         #region Constructor
 
-        public GetAccountDetailsChannel(AccountService accountService) : 
-            base("GET_ACCOUNT_DETAILS_REQUEST", "GET_ACCOUNT_DETAILS_RESPONSE", accountService)
+        public GetAccountDetailsChannel(ServiceAggregator aggregator) : 
+            base("GET_ACCOUNT_DETAILS_REQUEST", "GET_ACCOUNT_DETAILS_RESPONSE", aggregator)
         {
         }
 
@@ -47,7 +47,7 @@ namespace InvestmentBuilderService.Channels
         {
             return new AccountDetailsDto
             {
-                AccountName = account.Name,
+                AccountName = account.Identifier,
                 AccountType = account.Type,
                 Broker = account.Broker,
                 Description = account.Description,

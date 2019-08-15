@@ -1,21 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using InvestmentBuilderCore;
 using System.Data.SqlClient;
 using System.Data;
 
 namespace SQLServerDataLayer
 {
+    /// <summary>
+    /// SQL Server implementation of the IInvestmentRecordInterface interface.
+    /// </summary>
     public class SQLServerInvestmentRecordData : SQLServerBase, IInvestmentRecordInterface
     {
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public SQLServerInvestmentRecordData(string connectionStr)
         {
             ConnectionStr = connectionStr;
         }
 
+        /// <summary>
+        /// Roll the specified investment from the previous valuation date to the new valuation date.
+        /// </summary>
         public void RollInvestment(UserAccountToken userToken, string investment, DateTime dtValuation, DateTime dtPreviousValaution)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
@@ -27,12 +33,16 @@ namespace SQLServerDataLayer
                     command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
                     command.Parameters.Add(new SqlParameter("@previousDate", dtPreviousValaution));
                     command.Parameters.Add(new SqlParameter("@company", investment));
-                    command.Parameters.Add(new SqlParameter("@account", userToken.Account));
+                    command.Parameters.Add(new SqlParameter("@account", userToken.Account.AccountId));
                     command.ExecuteNonQuery();
                 }
             }
         }
 
+        /// <summary>
+        /// UPdate the quantity of the specified investment. Will change the average price calculation for this
+        /// investment but not the value.
+        /// </summary>
         public void UpdateInvestmentQuantity(UserAccountToken userToken, string investment, DateTime dtValuation, int quantity)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
@@ -44,12 +54,15 @@ namespace SQLServerDataLayer
                     command.Parameters.Add(new SqlParameter("@holding", quantity));
                     command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
                     command.Parameters.Add(new SqlParameter("@company", investment));
-                    command.Parameters.Add(new SqlParameter("@account", userToken.Account));
+                    command.Parameters.Add(new SqlParameter("@account", userToken.Account.AccountId));
                     command.ExecuteNonQuery();
                 }
             }
         }
 
+        /// <summary>
+        /// Add to quantity of specified investment in account specified in user token.
+        /// </summary>
         public void AddNewShares(UserAccountToken userToken, string investment, int quantity, DateTime dtValaution, double dTotalCost)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
@@ -62,12 +75,15 @@ namespace SQLServerDataLayer
                     command.Parameters.Add(new SqlParameter("@company", investment));
                     command.Parameters.Add(new SqlParameter("@shares", quantity));
                     command.Parameters.Add(new SqlParameter("@totalCost", dTotalCost));
-                    command.Parameters.Add(new SqlParameter("@account", userToken.Account));
+                    command.Parameters.Add(new SqlParameter("@account", userToken.Account.AccountId));
                     command.ExecuteNonQuery();
                 }
             }
         }
 
+        /// <summary>
+        /// reduce quantity of specified investment for account specified in user token.
+        /// </summary>
         public void SellShares(UserAccountToken userToken, string investment, int quantity, DateTime dtValuation)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
@@ -79,12 +95,16 @@ namespace SQLServerDataLayer
                     command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
                     command.Parameters.Add(new SqlParameter("@company", investment));
                     command.Parameters.Add(new SqlParameter("@shares", quantity));
-                    command.Parameters.Add(new SqlParameter("@account", userToken.Account));
+                    command.Parameters.Add(new SqlParameter("@account", userToken.Account.AccountId));
                     command.ExecuteNonQuery();
                 }
             }
         }
 
+        /// <summary>
+        /// Update the closing price for the specified investment for the specified accunt on the specified
+        /// valuation date.
+        /// </summary>
         public void UpdateClosingPrice(UserAccountToken userToken, string investment, DateTime dtValuation, double price)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
@@ -96,12 +116,15 @@ namespace SQLServerDataLayer
                     updateCommand.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
                     updateCommand.Parameters.Add(new SqlParameter("@investment", investment));
                     updateCommand.Parameters.Add(new SqlParameter("@closingPrice", price));
-                    updateCommand.Parameters.Add(new SqlParameter("@account", userToken.Account));
+                    updateCommand.Parameters.Add(new SqlParameter("@account", userToken.Account.AccountId));
                     updateCommand.ExecuteNonQuery();
                 }
             }
         }
 
+        /// <summary>
+        /// Update the amount of dividends paid for the specified investment on the specified valuation date.
+        /// </summary>
         public void UpdateDividend(UserAccountToken userToken, string investment, DateTime dtValuation, double dividend)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
@@ -113,12 +136,15 @@ namespace SQLServerDataLayer
                     updateCommand.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
                     updateCommand.Parameters.Add(new SqlParameter("@company", investment));
                     updateCommand.Parameters.Add(new SqlParameter("@dividend", dividend));
-                    updateCommand.Parameters.Add(new SqlParameter("@account", userToken.Account));
+                    updateCommand.Parameters.Add(new SqlParameter("@account", userToken.Account.AccountId));
                     updateCommand.ExecuteNonQuery();
                 }
             }
         }
 
+        /// <summary>
+        /// Returns the investment details for the specified investment.
+        /// </summary>
         public InvestmentInformation GetInvestmentDetails(string investment)
         {
             InvestmentInformation data = null;
@@ -149,6 +175,10 @@ namespace SQLServerDataLayer
             return data;
         }
 
+        /// <summary>
+        /// Returns the list of active investments for the account specified in user token for the 
+        /// specified date.
+        /// </summary>
         public IEnumerable<KeyValuePair<string, double>> GetInvestments(UserAccountToken userToken, DateTime dtValuation)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
@@ -158,7 +188,7 @@ namespace SQLServerDataLayer
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
-                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
                     var reader = command.ExecuteReader();
                     while (reader.Read())
                     {
@@ -171,6 +201,9 @@ namespace SQLServerDataLayer
             }
         }
 
+        /// <summary>
+        /// Create a new investment for the specified account on the specified valuation date.
+        /// </summary>
         public void CreateNewInvestment(UserAccountToken userToken, string investment, string symbol, string currency, int quantity, double scalingFactor, double totalCost, double price, string exchange, DateTime dtValuation)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
@@ -187,7 +220,7 @@ namespace SQLServerDataLayer
                     command.Parameters.Add(new SqlParameter("@shares", quantity));
                     command.Parameters.Add(new SqlParameter("@totalCost", totalCost));
                     command.Parameters.Add(new SqlParameter("@closingPrice", price));
-                    command.Parameters.Add(new SqlParameter("@account", userToken.Account));
+                    command.Parameters.Add(new SqlParameter("@account", userToken.Account.AccountId));
                     command.Parameters.Add(new SqlParameter("@exchange", exchange ?? string.Empty));
 
                     command.ExecuteNonQuery();
@@ -195,6 +228,10 @@ namespace SQLServerDataLayer
             }
         }
 
+        /// <summary>
+        /// Returns the investment details for the specified investmenton the spcified investment date.
+        /// This includes all the calulcated values such as qunatity, price and net selling value.
+        /// </summary>
         public IEnumerable<CompanyData> GetInvestmentRecordData(UserAccountToken userToken, DateTime dtValuation)
         {
             userToken.AuthorizeUser(AuthorizationLevel.READ);
@@ -204,7 +241,7 @@ namespace SQLServerDataLayer
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
-                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
                     var reader = command.ExecuteReader();
                     while (reader.Read())
                     {
@@ -232,6 +269,9 @@ namespace SQLServerDataLayer
             }
         }
 
+        /// <summary>
+        /// Deactivate the specified investment for the account specified in user token.
+        /// </summary>
         public void DeactivateInvestment(UserAccountToken userToken, string investment)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
@@ -241,12 +281,17 @@ namespace SQLServerDataLayer
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@Name", investment));
-                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
                     command.ExecuteNonQuery();
                 }
             }
         }
 
+        /// <summary>
+        /// Return latest Record investment value date for specified account. This differs from the latest account
+        /// valuation date which is only generated when the account is valued by being added whenever an investment
+        /// has changed.
+        /// </summary>
         public DateTime? GetLatestRecordInvestmentValuationDate(UserAccountToken userToken)
         {
             userToken.AuthorizeUser(AuthorizationLevel.READ);
@@ -255,13 +300,22 @@ namespace SQLServerDataLayer
                 using (var command = new SqlCommand("sp_GetLatestRecordValuationDate", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
                     var objResult = command.ExecuteScalar();
                     return objResult is DateTime ? (DateTime?)objResult : null;
                 }
             }
         }
 
+        /// <summary>
+        /// returns the previously changed valuation date in the investment record from the specified valuation date. 
+        /// so if  the investments were changed on the following dates:
+        /// 03/03/2018
+        /// 04/03/2018
+        /// 05/03/2018
+        /// and dtValuation is set to 04/03/208. This method will return 03/03/2018. if there is not a previous
+        /// date value then it will return null.
+        /// </summary>
         public DateTime? GetPreviousRecordInvestmentValuationDate(UserAccountToken userToken, DateTime dtValuation)
         {
             userToken.AuthorizeUser(AuthorizationLevel.READ);
@@ -270,7 +324,7 @@ namespace SQLServerDataLayer
                 using (var command = new SqlCommand("sp_GetPreviousRecordValuationDate", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
                     command.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
                     var objResult = command.ExecuteScalar();
                     return objResult is DateTime ? (DateTime?)objResult : null;
@@ -278,14 +332,12 @@ namespace SQLServerDataLayer
             }
         }
 
+        /// <summary>
+        /// Add the specified investment transactions to the investment records table for the specified 
+        /// valuation date.
+        /// </summary>
         public void AddTradeTransactions(IEnumerable<Stock> trades, TradeType action, UserAccountToken userToken, DateTime dtValuation)
         {
-            /*
-            CREATE PROCEDURE sp_AddTransactionHistory(@transactionDate AS datetime, @company as varchar(50), 
-										  @action as varchar(10), @quantity as int,
-										  @total_cost as float, @account as varchar(30), @user as varchar(50)) AS
-
-             */
             if (trades == null)
                 return;
 
@@ -304,7 +356,7 @@ namespace SQLServerDataLayer
                         command.Parameters.Add(new SqlParameter("@action", action.ToString()));
                         command.Parameters.Add(new SqlParameter("@quantity", trade.Quantity));
                         command.Parameters.Add(new SqlParameter("@total_cost", trade.TotalCost));
-                        command.Parameters.Add(new SqlParameter("@account", userToken.Account));
+                        command.Parameters.Add(new SqlParameter("@account", userToken.Account.AccountId));
                         command.Parameters.Add(new SqlParameter("@user", userToken.User));
                         command.ExecuteNonQuery();
                     }
@@ -312,11 +364,9 @@ namespace SQLServerDataLayer
             }
         }
 
+        //Return the list of investment transactions between the following dates
         public Trades GetHistoricalTransactions(DateTime dtFrom, DateTime dtTo, UserAccountToken userToken)
         {
-            //CREATE PROCEDURE sp_GetTransactionHistory(@dateFrom AS datetime, @dateTo AS datetime, @account as varchar(30)) AS
-            //BEGIN
-            // C.[Name], T.[trade_action], T.[quantity], T.[total_cost]
             List<Stock> buys = new List<Stock>();
             List<Stock> sells = new List<Stock>();
             List<Stock> changed = new List<Stock>();
@@ -329,7 +379,7 @@ namespace SQLServerDataLayer
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@dateFrom", dtFrom));
                     command.Parameters.Add(new SqlParameter("@dateTo", dtTo));
-                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    command.Parameters.Add(new SqlParameter("@account", userToken.Account.AccountId));
                     var reader = command.ExecuteReader();
                     while (reader.Read())
                     {
@@ -365,6 +415,10 @@ namespace SQLServerDataLayer
 
         }
 
+        /// <summary>
+        /// Return the full investment details for the specified investment. This includes the 
+        /// static investment details such as symbol etc.. and also the price details such as
+        /// quantity, price, selling values etc..
         public IEnumerable<CompanyData> GetFullInvestmentRecordData(UserAccountToken userToken)
         {
             userToken.AuthorizeUser(AuthorizationLevel.READ);
@@ -373,7 +427,7 @@ namespace SQLServerDataLayer
                 using (var command = new SqlCommand("sp_GetFullInvestmentRecordData", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
                     var reader = command.ExecuteReader();
                     while (reader.Read())
                     {
@@ -401,6 +455,10 @@ namespace SQLServerDataLayer
             }
         }
 
+        /// <summary>
+        /// Returns true if the specified valuation date is a valid record valuation date for the account
+        /// specified in user token.
+        /// </summary>
         public bool IsExistingRecordValuationDate(UserAccountToken userToken, DateTime dtValuation)
         {
             userToken.AuthorizeUser(AuthorizationLevel.READ);
@@ -410,7 +468,7 @@ namespace SQLServerDataLayer
                 {
                     sqlCommand.CommandType = CommandType.StoredProcedure;
                     sqlCommand.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
-                    sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
                     var result = sqlCommand.ExecuteScalar();
                     return result != null;
                 }

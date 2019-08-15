@@ -8,6 +8,7 @@ using NLog;
 using InvestmentBuilderService.Session;
 using Microsoft.Practices.Unity;
 using InvestmentBuilder;
+using MiddlewareInterfaces;
 
 namespace InvestmentBuilderService
 {
@@ -29,11 +30,12 @@ namespace InvestmentBuilderService
         /// <summary>
         /// Constructor.
         /// </summary>
-        public UserSessionManager(IConnectionSession session, IAuthDataLayer authtdata, AccountManager accountManager)
+        public UserSessionManager(IConnectionSession session, IAuthDataLayer authtdata, AccountManager accountManager, IUserAccountInterface userAccountData)
             : base(session)
         {
             _authdata = authtdata;
             _accountManager = accountManager;
+            _userAccountData = userAccountData;
         }
 
         //return the usersession for this session. If it returns null then
@@ -79,19 +81,25 @@ namespace InvestmentBuilderService
                 //quite slow so marshall onto a separate thread and let that respond when it is ready
                 Task.Factory.StartNew(() =>
                 {
-                    var login = JsonConvert.DeserializeObject<LoginPayload>(message.Payload);
+                    var login = MiddlewareUtils.DeserialiseObject<LoginPayload>(message.Payload);
                     var salt = _authdata.GetSalt(login.UserName);
                     var hash = SaltedHash.GenerateHash(login.Password, salt);
 
                     bool authenticated = _authdata.AuthenticateUser(login.UserName, hash);
                     if (authenticated == true)
                     {
+                        _userAccountData.AddUser(login.UserName, login.UserName);
+
                         var userSession = new UserSession(login.UserName, message.SourceId);
                         var accounts = _accountManager.GetAccountNames(login.UserName).ToList();
-                        userSession.AccountName = accounts.FirstOrDefault();
+                        var defaultAccount = accounts.FirstOrDefault();
+                        if(defaultAccount != null)
+                        {
+                            userSession.AccountName = defaultAccount;
+                        }
                         _userSessions.Add(message.SourceId, userSession);
                     }
-                    GetSession().SendAuthenticationResult(authenticated, authenticated ? "authentication succeded" : "authenitcation failed", message.RequestId);
+                    GetSession().SendAuthenticationResult(authenticated, authenticated ? "authentication succeded" : "authentication failed", message.RequestId);
 
                 });
             }
@@ -105,6 +113,7 @@ namespace InvestmentBuilderService
         private IAuthDataLayer _authdata;
         private static Logger logger = LogManager.GetCurrentClassLogger();
         private AccountManager _accountManager;
+        private readonly IUserAccountInterface _userAccountData;
 
         #endregion
     }

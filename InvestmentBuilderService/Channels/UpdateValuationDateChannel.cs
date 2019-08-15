@@ -16,8 +16,8 @@ namespace InvestmentBuilderService.Channels
     /// </summary>
     class UpdateValuationDateChannel : EndpointChannel<UpdateValuationDateDto, ChannelUpdater>
     {
-        public UpdateValuationDateChannel(AccountService accountService) 
-            : base("UPDATE_VALUTION_DATE_REQUEST", "UPDATE_VALUATION_DATE_RESPONSE", accountService)
+        public UpdateValuationDateChannel(ServiceAggregator aggregator) 
+            : base("UPDATE_VALUTION_DATE_REQUEST", "UPDATE_VALUATION_DATE_RESPONSE", aggregator)
         {
         }
 

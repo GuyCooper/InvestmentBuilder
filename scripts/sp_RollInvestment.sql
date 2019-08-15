@@ -11,7 +11,7 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_RollInvestment](@valuationDate as DATETIME, @previousDate as DATETIME, @company as VARCHAR(50), @account as VARCHAR(30)) AS
+CREATE PROCEDURE [dbo].[sp_RollInvestment](@valuationDate as DATETIME, @previousDate as DATETIME, @company as VARCHAR(50), @account as INT) AS
 BEGIN
 
 INSERT INTO InvestmentRecord
@@ -22,10 +22,8 @@ FROM
 	 InvestmentRecord IR 
 INNER JOIN 
 	Companies C ON IR.Company_id = C.Company_Id
-INNER JOIN
-	Accounts A ON IR.account_id = A.[Account_Id]
 WHERE 
 	IR.Valuation_Date = @previousDate AND
 	C.Name = @company AND
-	A.Name = @account
+	IR.account_id = @account
 END

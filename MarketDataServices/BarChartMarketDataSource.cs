@@ -7,6 +7,7 @@ using InvestmentBuilderCore;
 using NLog;
 using Newtonsoft.Json;
 using System.ComponentModel.Composition;
+using InvestmentBuilderCore.Schedule;
 
 namespace MarketDataServices
 {
@@ -163,7 +164,7 @@ namespace MarketDataServices
         }
 
         private IMarketDataReader DataReader { get; set; }
-        public void Initialise(IConfigurationSettings settings) { }
+        public void Initialise(IConfigurationSettings settings, ScheduledTaskFactory scheduledTaskFactory) { }
 
         public Task<MarketDataPrice> RequestPrice(string symbol, string exchange, string source)
         {

@@ -11,7 +11,7 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_UpdateHolding](@holding as INT, @valuationDate as DATETIME, @company as VARCHAR(50), @account as VARCHAR(30)) AS
+CREATE PROCEDURE [dbo].[sp_UpdateHolding](@holding as INT, @valuationDate as DATETIME, @company as VARCHAR(50), @account as INT) AS
 BEGIN
 
 UPDATE	
@@ -25,11 +25,10 @@ INNER JOIN
 	 Companies C 
 ON 
 	IR.Company_Id = C.Company_Id
-INNER JOIN
-	Accounts A
-ON IR.account_id = A.[Account_Id]	
+WHERE
+IR.account_id = @account
 AND C.Name = @company
 AND IR.Valuation_Date = @valuationDate
-AND A.Name = @account
+
 
 END

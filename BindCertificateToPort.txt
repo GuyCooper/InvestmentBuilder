@@ -1,0 +1,4 @@
+netsh http add sslcert ipport=0.0.0.0:8083 certhash=‎76d33e1a7a6d3c4ef45c629a16940bd4e81f7137 appid={E51B14C8-918C-478F-8CD8-B5C23206050C} certstorename=WebHosting
+
+
+‎76d33e1a7a6d3c4ef45c629a16940bd4e81f7137

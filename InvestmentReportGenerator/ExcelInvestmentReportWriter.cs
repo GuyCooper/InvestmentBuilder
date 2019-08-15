@@ -32,7 +32,7 @@ namespace InvestmentReportGenerator
 
         public ExcelInvestmentReportWriter(string templateBookLocation)
         {
-            _app = new Microsoft.Office.Interop.Excel.Application();
+            _app = new Application();
             //open the template book
             _templateFileName = Path.Combine(templateBookLocation, TemplateBookName);
         }
@@ -93,7 +93,7 @@ namespace InvestmentReportGenerator
                 newSheet.EnableCalculation = true;
                 newSheet.Name = newSheetName;
 
-                newSheet.get_Range("A1").Value = report.AccountName;
+                newSheet.get_Range("A1").Value = report.AccountName.Name;
                 newSheet.get_Range("C4").Value = report.ValuationDate;
 
                 newSheet.get_Range("B16").Value = report.ReportingCurrency;
@@ -150,6 +150,7 @@ namespace InvestmentReportGenerator
                     newSheet.get_Range("J" + count).Value = company.MonthChange;
                     newSheet.get_Range("K" + count).Value = company.MonthChangeRatio;
                     newSheet.get_Range("L" + count).Value = company.Dividend;
+                    newSheet.get_Range("M" + count).Value = company.TotalReturn;
                     count++;
                     progress.Increment();
                 }

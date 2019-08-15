@@ -15,8 +15,10 @@ namespace InvestmentBuilderClient.View
     internal partial class ManageUserView : Form
     {
         private InvestmentDataModel _dataModel;
-        public ManageUserView(string account, InvestmentDataModel dataModel)
+        private AccountIdentifier _accountID;
+        public ManageUserView(AccountIdentifier account, InvestmentDataModel dataModel)
         {
+            _accountID = account;
             _dataModel = dataModel;
             InitializeComponent();
             //chkEnableAccount.Checked = true;
@@ -40,9 +42,9 @@ namespace InvestmentBuilderClient.View
             return result;
         }
 
-        public string GetAccountName()
+        public AccountIdentifier GetAccountIdentifer()
         {
-            return txtAccountName.Text;
+            return _accountID;
         }
 
         public bool GetIsEnabled()
@@ -123,7 +125,7 @@ namespace InvestmentBuilderClient.View
             {
                 if(string.IsNullOrEmpty(txtAccountName.Text))
                 {
-                    txtAccountName.Text = modelData.Name;
+                    txtAccountName.Text = modelData.Identifier.Name;
                 }
                 txtDescription.Text = modelData.Description;
                 //txtPassword.Text = modelData.Password;
@@ -144,7 +146,7 @@ namespace InvestmentBuilderClient.View
         {
             if(e.KeyChar == '\r')
             {
-                InitialiseFromData(_dataModel.GetAccountData(txtAccountName.Text));
+                InitialiseFromData(_dataModel.GetAccountData(_accountID));
                 e.Handled = true;
             }
         }

@@ -16,20 +16,24 @@ namespace InvestmentBuilderService.Channels
         private IClientDataInterface _clientData;
         private InvestmentBuilder.InvestmentBuilder _builder;
 
-        public GetInvestmentSummaryChannel(AccountService accountService, IDataLayer dataLayer, InvestmentBuilder.InvestmentBuilder builder) :
-            base("GET_INVESTMENT_SUMMARY_REQUEST", "GET_INVESTMENT_SUMMARY_RESPONSE", accountService)
+        public GetInvestmentSummaryChannel(ServiceAggregator aggregator) :
+            base("GET_INVESTMENT_SUMMARY_REQUEST", "GET_INVESTMENT_SUMMARY_RESPONSE", aggregator)
         {
-            _clientData = dataLayer.ClientData;
-            _builder = builder;
+            _clientData = aggregator.DataLayer.ClientData;
+            _builder = aggregator.Builder;
         }
 
+        /// <summary>
+        /// Method called when a request for an investnent summary is received.
+        /// </summary>
         protected override Dto HandleEndpointRequest(UserSession userSession, Dto payload, ChannelUpdater update)
         {
             var userToken = GetCurrentUserToken(userSession);
-            var dtPrevious = _clientData.GetPreviousAccountValuationDate(userToken, userSession.ValuationDate);
-            if (dtPrevious.HasValue)
+            var dtValuation = _clientData.GetLatestValuationDate(userToken);
+            //var dtPrevious = _clientData.GetPreviousAccountValuationDate(userToken, userSession.ValuationDate);
+            if (dtValuation.HasValue)
             {
-                return _builder.BuildAssetReport(userToken, dtPrevious.Value, false, null, null).ToInvestmentSummaryModel();
+                return _builder.BuildAssetReport(userToken, dtValuation.Value, false, null, null).ToInvestmentSummaryModel();
             }
             else
             {

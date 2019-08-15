@@ -11,19 +11,15 @@ END
 
 GO
 
-CREATE PROCEDURE sp_IsExistingRecordValuationDate(@ValuationDate as DateTime, @Account as varchar(30)) AS
+CREATE PROCEDURE sp_IsExistingRecordValuationDate(@ValuationDate as DateTime, @Account as INT) AS
 BEGIN
 
 SELECT
 	 1 
 FROM 
 	InvestmentRecord IR
-INNER JOIN 
-	Accounts A
-ON 
-	IR.[account_id] = A.[Account_Id]		 
 WHERE 
 	IR.Valuation_Date = @ValuationDate
 AND
-	A.Name = @Account
+	IR.[account_id] = @Account
 END

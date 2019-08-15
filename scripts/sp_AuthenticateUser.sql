@@ -25,23 +25,24 @@ BEGIN
 END
 ELSE
 BEGIN
-	SELECT @Result = COUNT(*) 
-	FROM UserDetails
-	WHERE Email = @EMail
-	AND PasswordHash = @PasswordHash
 
-	IF(@Result = 0)
+	IF EXISTS(SELECT 1 FROM [UserDetails]
+			  WHERE [Email] = @EMail
+			  AND [PasswordHash] = @PasswordHash
+			  AND [EmailConfirmed] = 1)
 	BEGIN
+	    SET @Result = 1
 		UPDATE UserDetails
-		SET AccessFailedCount = AccessFailedCount+1
+		SET LoginCount = LoginCount+1,
+		UserLastLogin = GETDATE()
 		FROM UserDetails
 		WHERE Email = @EMail
 	END
 	ELSE
 	BEGIN
+		SET @Result = 0
 		UPDATE UserDetails
-		SET LoginCount = LoginCount+1,
-		UserLastLogin = GETDATE()
+		SET AccessFailedCount = AccessFailedCount+1
 		FROM UserDetails
 		WHERE Email = @EMail
 	END

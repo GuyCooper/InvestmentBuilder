@@ -12,7 +12,12 @@ namespace InvestmentBuilderMSTests
 {
     internal static class InvestmentRecordStaticTestData
     {
-        public static readonly string TestAccount = "Guy SIPP";
+        public static readonly AccountIdentifier TestAccount = new AccountIdentifier
+        {
+            Name = "Guy SIPP",
+            AccountId = 123
+        };
+
         public static readonly double TestPrice = 25.54;
         public static readonly string TestUser = "TestUser";
         public static readonly DateTime dtValuation = DateTime.Parse("15/10/2015");
@@ -150,12 +155,15 @@ namespace InvestmentBuilderMSTests
 
     public class InvestmentRecordTestsBase
     {
-        protected readonly UserAccountData _userData = new UserAccountData
+        protected readonly AccountModel _userData = new AccountModel
         (
             InvestmentRecordStaticTestData.TestAccount,
-            "GBP",
             "Test Account",
-            "ShareCentre"
+            "GBP",
+            "",
+            true,
+            "ShareCentre",
+            null
         );
 
         protected CashAccountData _cashData;

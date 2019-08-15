@@ -9,25 +9,32 @@ using InvestmentBuilderService.Translators;
 
 namespace InvestmentBuilderService.Channels
 {
+    /// <summary>
+    /// SellTrade request dto.
+    /// </summary>
     internal class SellTradeRequestDto : Dto
     {
         public string TradeName { get; set; }
     }
 
+    /// <summary>
+    /// Handler class for selling a trade.
+    /// </summary>
     internal class SellTradeRequestChannel : EndpointChannel<SellTradeRequestDto, ChannelUpdater>
     {
-        private IClientDataInterface _clientData;
-        private InvestmentBuilder.InvestmentBuilder _builder;
-
-        public SellTradeRequestChannel(AccountService accountService, 
-                                       IDataLayer dataLayer,
-                                       InvestmentBuilder.InvestmentBuilder builder) : 
-            base("SELL_TRADE_REQUEST", "SELL_TRADE_RESPONSE", accountService)
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public SellTradeRequestChannel(ServiceAggregator aggregator) : 
+            base("SELL_TRADE_REQUEST", "SELL_TRADE_RESPONSE", aggregator)
         {
-            _clientData = dataLayer.ClientData;
-            _builder = builder;
+            _clientData = aggregator.DataLayer.ClientData;
+            _builder = aggregator.Builder;
         }
 
+        /// <summary>
+        /// Handle sell trade request.
+        /// </summary>
         protected override Dto HandleEndpointRequest(UserSession userSession, SellTradeRequestDto payload, ChannelUpdater update)
         {
             var token = GetCurrentUserToken(userSession);
@@ -43,5 +50,13 @@ namespace InvestmentBuilderService.Channels
                 Status = result
             };
         }
+
+        #region Private Data
+
+        private readonly IClientDataInterface _clientData;
+        private readonly InvestmentBuilder.InvestmentBuilder _builder;
+
+        #endregion
+
     }
 }

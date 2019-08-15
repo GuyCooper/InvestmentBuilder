@@ -28,7 +28,7 @@ namespace ManageUsersApp
             }
 
             var settings = new ConfigurationSettings("InvestmentBuilderConfig.xml");
-            var authData = new SQLAuthData(settings);
+            var authData = new SQLAuthData(settings.AuthDatasourceString);
             var salt = SaltedHash.GenerateSalt();
             var result = authData.AddNewUser(txtUserName.Text,
                                 txtEmailAddress.Text,

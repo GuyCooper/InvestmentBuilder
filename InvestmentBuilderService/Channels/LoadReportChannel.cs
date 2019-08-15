@@ -1,20 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using InvestmentBuilder;
+﻿using InvestmentBuilderCore;
+using System;
+using System.IO;
 
 namespace InvestmentBuilderService.Channels
 {
+    /// <summary>
+    /// LoadReport request dto.
+    /// </summary>
     internal class LoadReportRequestDto : Dto
     {
         public string ValuationDate { get; set; }
-    }
-
-    internal class ReportLocationDto : Dto
-    {
-        public string Location { get; set; }
     }
 
     /// <summary>
@@ -22,24 +17,58 @@ namespace InvestmentBuilderService.Channels
     /// </summary>
     internal class LoadReportChannel : EndpointChannel<LoadReportRequestDto, ChannelUpdater>
     {
-        InvestmentBuilder.InvestmentBuilder _builder;
-
-        public LoadReportChannel(AccountService accountService, InvestmentBuilder.InvestmentBuilder builder) : 
-            base("LOAD_REPORT_REQUEST", "LOAD_REPORT_RESPONSE", accountService)
+        public LoadReportChannel(ServiceAggregator aggregator) :
+            base("LOAD_REPORT_REQUEST", "LOAD_REPORT_RESPONSE", aggregator)
         {
-            _builder = builder;
+            _builder = aggregator.Builder;
+            _settings = aggregator.Settings;
         }
 
         protected override Dto HandleEndpointRequest(UserSession userSession, LoadReportRequestDto payload, ChannelUpdater update)
         {
             var token = GetCurrentUserToken(userSession);
             var dtValuation = payload.ValuationDate != null ? DateTime.Parse(payload.ValuationDate) : userSession.ValuationDate;
-            var reportFile = _builder.GetInvestmentReport(token, dtValuation);
+            var reportFile = Path.Combine(_settings.OutputFolder, token.Account.GetPathName(),  _builder.GetInvestmentReport(token, dtValuation));
 
-            return new ReportLocationDto
+            return new BinaryDto
             {
-                Location = reportFile
+                Payload = readBytesFromFile(reportFile)
             };
         }
+
+        /// <summary>
+        /// Method loads the report file and encodes it into a byte array using an ASCII encoding.
+        /// </summary>
+        private byte[] readBytesFromFile(string filename)
+        {
+            using (var stream = File.OpenRead(filename))
+            {
+                using (var reader = new StreamReader(stream,true))
+                {
+                    using (var outStream = new MemoryStream())
+                    {
+                        using (var writer = new StreamWriter(outStream, reader.CurrentEncoding))
+                        {
+                            int charsRead;
+                            char[] buffer = new char[128 * 1024];
+                            while ((charsRead = reader.ReadBlock(buffer, 0, buffer.Length)) > 0)
+                            {
+                                writer.Write(buffer, 0, charsRead);
+                            }
+                        }
+                        return outStream.ToArray();
+                    }
+                }
+            }
+        }
+
+        #region Private Data
+
+        private readonly InvestmentBuilder.InvestmentBuilder _builder;
+
+        private readonly IConfigurationSettings _settings;
+
+        #endregion
+
     }
 }

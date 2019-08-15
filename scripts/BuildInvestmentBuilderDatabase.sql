@@ -1,18 +1,18 @@
 use master
 
-if exists(select 1 from sysdatabases where name = 'InvestmentBuilderUnitTest1')
+if exists(select 1 from sysdatabases where name = '$(dbname)')
 begin
-	alter database InvestmentBuilderUnitTest1 set single_user with
+	alter database $(dbname) set single_user with
 	rollback immediate
-	drop database InvestmentBuilderUnitTest1
+	drop database $(dbname)
 end
 
 go
 
-create database InvestmentBuilderUnitTest1
+create database $(dbname)
 go
 
-use InvestmentBuilderUnitTest1
+use $(dbname)
 go
 
 create table dbo.TransactionType
@@ -48,11 +48,13 @@ create table dbo.Accounts
 	[Enabled]		  tinyint not null,
 	[Broker] varchar(30) default(null), 
 
-	constraint UN_AccountName unique([Name]),
-
 	constraint FK_AccountType_User foreign key
 	([Type_Id]) references AccountTypes([Type_Id])
 )
+
+create index IDX_AccountName on
+dbo.Accounts([Name])
+go
 
 insert into dbo.AccountTypes ([Type]) values ('Club')
 insert into dbo.AccountTypes ([Type]) values ('Personal')
@@ -66,7 +68,8 @@ go
 
 create table dbo.CashAccount
 (
-	[valuation_date] datetime not null,
+	[transaction_id]   int identity(1,1),
+	[valuation_date]   datetime not null,
 	[transaction_date] datetime not null,
 	[type_id]		   int not null,
 	[parameter]        nvarchar(256),

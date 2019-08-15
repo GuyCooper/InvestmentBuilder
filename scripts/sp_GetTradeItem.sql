@@ -14,18 +14,14 @@ END
 GO
 
 CREATE PROCEDURE [dbo].sp_GetTradeItem(@Company as VARCHAR(50),
-									   @Account as VARCHAR(30)) AS
+									   @Account as INT) AS
 BEGIN
 
 DECLARE @latestDate DATETIME
 DECLARE @AccountID INT
 
-SELECT @AccountID = [Account_Id]
-FROM [Accounts]
-WHERE [Name] = @Account
-
 SELECT @latestDate = MAX(Valuation_Date) FROM InvestmentRecord
-WHERE account_id = @AccountID
+WHERE account_id = @Account
 
 IF(@@ROWCOUNT = 0)
 BEGIN
@@ -46,7 +42,7 @@ FROM InvestmentRecord IR JOIN Companies C
 ON IR.Company_id = C.Company_Id 
 WHERE 
 IR.Valuation_Date = @latestDate
-AND IR.account_id = @AccountID
+AND IR.account_id = @Account
 AND C.[Name] = @Company
 AND C.IsActive = 1
  

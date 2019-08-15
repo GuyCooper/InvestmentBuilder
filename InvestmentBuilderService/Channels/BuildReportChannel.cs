@@ -2,6 +2,9 @@
 using InvestmentBuilderService.Utils;
 using System.Timers;
 using InvestmentBuilderService.Session;
+using InvestmentBuilderCore;
+using System;
+using System.IO;
 
 namespace InvestmentBuilderService.Channels
 {
@@ -49,25 +52,23 @@ namespace InvestmentBuilderService.Channels
     /// </summary>
     internal class BuildReportChannel : EndpointChannel<Dto, BuildReportUpdater>
     {
-        #region Private Data Members
-        private readonly InvestmentBuilder.InvestmentBuilder _builder;
-        private readonly PerformanceBuilderLib.PerformanceBuilder _chartBuilder;
-
-        #endregion
-
         #region Constructor
-        public BuildReportChannel(AccountService accountService, 
-                                  InvestmentBuilder.InvestmentBuilder builder,
-                                  PerformanceBuilderLib.PerformanceBuilder chartBuilder) 
-            : base("BUILD_REPORT_REQUEST", "BUILD_REPORT_RESPONSE", accountService)
+        public BuildReportChannel(ServiceAggregator aggregator)
+            : base("BUILD_REPORT_REQUEST", "BUILD_REPORT_RESPONSE", aggregator)
         {
-            _builder = builder;
-            _chartBuilder = chartBuilder;
+            _builder = aggregator.Builder;
+            _chartBuilder = aggregator.ChartBuilder;
+            m_settings = aggregator.Settings;
+            m_connectionSettings = aggregator.ConnectionSettings;
         }
 
         #endregion
 
         #region Public Methods
+
+        /// <summary>
+        /// Handle BuildReport request.
+        /// </summary>
         protected override Dto HandleEndpointRequest(UserSession userSession, Dto payload, BuildReportUpdater updater)
         {
             var token = GetCurrentUserToken(userSession);
@@ -80,23 +81,28 @@ namespace InvestmentBuilderService.Channels
             //asynchronously
             Task.Factory.StartNew(() =>
             {
-                DummyBuildRun(monitor);
+                //DummyBuildRun(monitor);
 
-                //var report = _builder.BuildAssetReport(token
-                //                    , userSession.ValuationDate
-                //                    , true
-                //                    , userSession.UserPrices
-                //                    , monitor.GetProgressCounter());
+                var report = _builder.BuildAssetReport(token
+                                    , userSession.ValuationDate
+                                    , true
+                                    , userSession.UserPrices
+                                    , monitor.GetProgressCounter());
 
-                //if (report != null)
-                //{
-                //    //now generate the performance charts. by doing this the whole report will be persisted
-                //    //to a pdf file
-                //    _chartBuilder.Run(token, userSession.ValuationDate, monitor.GetProgressCounter());
-                //}
+                if (report != null)
+                {
+                    //now generate the performance charts. by doing this the whole report will be persisted
+                    //to a pdf filen
+                    _chartBuilder.Run(token, userSession.ValuationDate, monitor.GetProgressCounter());
+                }
 
-                //TODO. we could add the completed report to the monitor which can then be sent back to the client
-                monitor.StopBuiliding();
+                //this command creates a new valuation snapshot. reset the valuation date to allow
+                //any subsequent updates.
+                userSession.ValuationDate = DateTime.Now;
+
+                var reportFile = CreateReportLink(m_connectionSettings, token.Account, userSession.ValuationDate);
+
+                monitor.StopBuiliding(reportFile);
             });
 
             return new BuildStatusResponseDto { Status = monitor.GetReportStatus() };
@@ -139,6 +145,15 @@ namespace InvestmentBuilderService.Channels
                 }
             }
         }
+        #endregion
+
+        #region Private Data Members
+
+        private readonly InvestmentBuilder.InvestmentBuilder _builder;
+        private readonly PerformanceBuilderLib.PerformanceBuilder _chartBuilder;
+        private readonly IConfigurationSettings m_settings;
+        private readonly IConnectionSettings m_connectionSettings;
+
         #endregion
     }
 }

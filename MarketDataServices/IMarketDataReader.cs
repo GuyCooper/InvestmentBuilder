@@ -15,7 +15,7 @@ namespace MarketDataServices
     }
 
     /// <summary>
-    /// abstract interface for reading raw data from a data source
+    /// Abstract interface for reading raw data from a data source.
     /// </summary>
     [ContractClass(typeof(MarketDataReaderContracts))]
     public interface IMarketDataReader

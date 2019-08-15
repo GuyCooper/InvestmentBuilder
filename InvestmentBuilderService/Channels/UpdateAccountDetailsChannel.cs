@@ -6,6 +6,9 @@ using NLog;
 
 namespace InvestmentBuilderService.Channels
 {
+    /// <summary>
+    /// AccountMember dto.
+    /// </summary>
     internal class AccountMemberDto
     {
         public string Name { get; set; }
@@ -16,7 +19,7 @@ namespace InvestmentBuilderService.Channels
     /// </summary>
     internal class AccountDetailsDto : Dto
     {
-        public string AccountName { get; set; }
+        public AccountIdentifier AccountName { get; set; }
         public string Description { get; set; }
         public string ReportingCurrency { get; set; }
         public string AccountType { get; set; }
@@ -32,8 +35,7 @@ namespace InvestmentBuilderService.Channels
     internal class UpdateAccountResponseDto : Dto
     {
         public bool Status { get; set; }
-        public string Error { get; set; }
-        public IEnumerable<string> AccountNames { get; set; }
+        public IEnumerable<AccountIdentifier> AccountNames { get; set; }
     }
 
     /// <summary>
@@ -43,8 +45,8 @@ namespace InvestmentBuilderService.Channels
     {
         #region Constructor
 
-        public UpdateAccountDetailsChannel(AccountService accountService) :
-            base("UPDATE_ACCOUNT_DETAILS_REQUEST", "UPDATE_ACCOUNT_DETAILS_RESPONSE", accountService)
+        public UpdateAccountDetailsChannel(ServiceAggregator aggregator) :
+            base("UPDATE_ACCOUNT_DETAILS_REQUEST", "UPDATE_ACCOUNT_DETAILS_RESPONSE", aggregator)
         {
         }
 

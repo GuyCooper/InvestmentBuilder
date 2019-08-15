@@ -11,7 +11,7 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_UpdateDividend](@valuationDate as DATETIME, @company as VARCHAR(50), @dividend as float, @account as VARCHAR(30)) AS
+CREATE PROCEDURE [dbo].[sp_UpdateDividend](@valuationDate as DATETIME, @company as VARCHAR(50), @dividend as float, @account as INT) AS
 BEGIN
 
 UPDATE
@@ -23,12 +23,9 @@ FROM
 INNER JOIN
 	 Companies C 
 ON IR.Company_Id = C.Company_Id
-INNER JOIN
-	Accounts A
-ON IR.account_id = A.[Account_Id]
 WHERE
 C.Name = @company
 AND IR.Valuation_Date = @valuationDate
-AND A.Name =@account
+AND IR.account_id = @account
  
 END

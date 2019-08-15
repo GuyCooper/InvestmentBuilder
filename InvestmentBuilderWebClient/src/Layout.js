@@ -1,18 +1,23 @@
 ﻿'use strict'
 
 //controller handles management of the build report progress and the view tab
-function Layout($scope, $log, $uibModal, NotifyService, MiddlewareService) {
-    $scope.ProgressCount = 0;
-    $scope.Section = null;
-    $scope.IsBuilding = false;
-    $scope.CanBuild = false;
-    $scope.LoggedIn = false;
-    $scope.BuildStatus = "Not Building";
-    $scope.UserName = "guy@guycooper.plus.com";
-    $scope.Password = "rangers";
-    $scope.IsBusy = false;
+function Layout($scope, $log, $uibModal, $http, NotifyService, MiddlewareService, Idle, Keepalive) {
 
-    var servername = "ws://localhost:8080";
+    var initialiseLayout = function () {
+        $scope.ProgressCount = 0;
+        $scope.Section = null;
+        $scope.IsBuilding = false;
+        $scope.CanBuild = false;
+        $scope.LoggedIn = false;
+        $scope.BuildStatus = "Not Building";
+        $scope.UserName = localStorage.getItem('userName');
+        $scope.Password = localStorage.getItem('password');
+        $scope.IsBusy = false;
+        $scope.SaveCredentials = true;
+        $scope.LoginFailed = false;
+    };
+     
+    var servername = ""; //"ws://localhost:8080/MWARE";
 
     //callback displays the account summary details
     var onLoadAccountSummary = function (response) {
@@ -23,6 +28,9 @@ function Layout($scope, $log, $uibModal, NotifyService, MiddlewareService) {
 
         $scope.BankBalance = response.BankBalance;
         $scope.MonthlyPnL = response.MonthlyPnL;
+
+        var dtValuation = new Date(response.ValuationDate);
+        $scope.ValuationDate = dtValuation.toDateString();
         $scope.$apply();
     };
 
@@ -48,7 +56,8 @@ function Layout($scope, $log, $uibModal, NotifyService, MiddlewareService) {
             if ($scope.IsBuilding == true && buildStatus.IsBuilding == false) {
                 $scope.IsBuilding = buildStatus.IsBuilding;
                 //now display a dialog to show any errors during the build
-                onReportFinished(buildStatus.Errors);
+                loadAccountSummary();
+                onReportFinished(buildStatus.Errors, buildStatus.CompletedReport);
             }
             else {
                 $scope.IsBuilding = buildStatus.IsBuilding;
@@ -65,7 +74,7 @@ function Layout($scope, $log, $uibModal, NotifyService, MiddlewareService) {
         }
     };
     
-    var onReportFinished = function (errors) {
+    var onReportFinished = function (errors, completedReport) {
         var modalInstance = $uibModal.open({
             animation: true,
             ariaLabelledBy: 'modal-title',
@@ -77,6 +86,9 @@ function Layout($scope, $log, $uibModal, NotifyService, MiddlewareService) {
             resolve: {
                 errors: function () {
                     return errors;
+                },
+                completedReport: function () {
+                    return completedReport;
                 }
             }
         });
@@ -86,7 +98,7 @@ function Layout($scope, $log, $uibModal, NotifyService, MiddlewareService) {
         NotifyService.InvokePortfolio();
     };
 
-    $scope.onAddTrade = function () {
+    $scope.onAddInvestment = function () {
         NotifyService.InvokeAddTrade();
     };
 
@@ -98,46 +110,135 @@ function Layout($scope, $log, $uibModal, NotifyService, MiddlewareService) {
         NotifyService.InvokeReports();
     };
 
+    $scope.onRedemptions = function () {
+        NotifyService.InvokeRedemptions();
+    };
+
     $scope.buildReport = function () {
         MiddlewareService.BuildReport(onBuildProgress);
     };
 
     //connect to middleware layer with user supplied username and password
     $scope.doLogin = function () {
+        $scope.LoginFailed = false;
         NotifyService.UpdateBusyState(true);
         //once conncted inform any connection listeners that connection is complete
-        MiddlewareService.Connect(servername, $scope.UserName, $scope.Password).then(function () {
+        MiddlewareService.Connect(servername, $scope.UserName, $scope.Password).then(function (result) {
             console.log("connection to middleware succeded!");
+            
+            if ($scope.SaveCredentials) {
+                localStorage.setItem('userName', $scope.UserName);
+                localStorage.setItem('password', $scope.Password);
+            }
+            else {
+                localStorage.removeItem('userName');
+                localStorage.removeItem('password');
+            }
+
             NotifyService.UpdateBusyState(false);
             $scope.LoggedIn = true;
-            NotifyService.InvokeConnectionListeners($scope.UserName);
+            $scope.LoginFailed = false;
+            var loginResult = JSON.parse(result);
+            NotifyService.OnConnected(loginResult.ConnectionId, $scope.UserName);
+            
         },
         function (error) {
+            NotifyService.UpdateBusyState(false);
+            $scope.LoginFailed = true;
+            $scope.$apply();
             console.log("connection to middleware failed" + error);
         });
     }
 
     //method updates the isBusy state
-    var busyStateChanged = function (busy) {
+    var busyStateChanged = function (busy, applyScope) {
         $scope.IsBusy = busy;
+        if (applyScope === true) {
+            $scope.$apply();
+        }
     };
 
-    //register handler to be invoked every time the isBusy state is changed
-    NotifyService.RegisterBusyStateChangedListener(busyStateChanged);
-    //ensure this view is reloaded on connection
-    NotifyService.RegisterConnectionListener(loadAccountSummary);
-    //ensure this view is reloaded if the account is changed
-    NotifyService.RegisterAccountListener(loadAccountSummary);
-    //ensure this view is updated when the build status changes
-    NotifyService.RegisterBuildStatusListener(onBuildStatusChanged);
+    var closeConnection = function () {
+        MiddlewareService.Disconnect();
+        initialiseLayout();
+    };
+
+    NotifyService.RegisterDisconnectionListener(closeConnection);
+
+    initialiseLayout();
+
+    function closeModals() {
+        if ($scope.warning) {
+            $scope.warning.close();
+            $scope.warning = null;
+        }
+
+        if ($scope.timedout) {
+            $scope.timedout.close();
+            $scope.timedout = null;
+        }
+    }
+
+    var startIdleWatcher = function () {
+        $log.log("starting idle watcher");
+        closeModals();
+        Idle.watch();
+    };
+
+    var stopIdleWatcher = function () {
+        $log.log("stoping idle watcher");
+        closeModals();
+        Idle.unwatch();
+    };
+
+    //load the config
+    $http.get("./config.json").then(function (data) {
+        servername = data.data.url;
+        console.log('config loaded. url: ' + servername);
+        //register handler to be invoked every time the isBusy state is changed
+        NotifyService.RegisterBusyStateChangedListener(busyStateChanged);
+        //ensure this view is reloaded on connection
+        NotifyService.RegisterConnectionListener(loadAccountSummary);
+        //ensure this view is reloaded if the account is changed
+        NotifyService.RegisterAccountListener(loadAccountSummary);
+        //ensure this view is updated when the build status changes
+        NotifyService.RegisterBuildStatusListener(onBuildStatusChanged);
+        //start the idle watcher on connection
+        NotifyService.RegisterConnectionListener(startIdleWatcher);
+        //stop the idle watcher on disconnect
+        NotifyService.RegisterDisconnectionListener(stopIdleWatcher);
+
+    },function (error) {
+        alert("unable to load config file: " + error);
+    });
+
+    $scope.$on('IdleStart', function () {
+        closeModals();
+
+        $scope.warning = $uibModal.open({
+            templateUrl: 'warning-dialog.html',
+            windowClass: 'modal-danger'
+        });
+    });
+
+    $scope.$on('IdleEnd', function () {
+        closeModals();
+    });
+
+    $scope.$on('IdleTimeout', function () {
+        closeModals();
+        $log.log("idle timeout expired.logging out...");
+        NotifyService.InvokeDisconnectionListeners();
+    });
 };
 
 //controller to handle the report completion view
-function ReportCompletion($uibModalInstance, errors) {
+function ReportCompletion($uibModalInstance, NotifyService, errors, completedReport) {
     var $report = this;
     $report.success = errors == null || errors.length == 0;
     $report.errors = errors;
 
+    $report.CompletedReport = completedReport + ";session=" + NotifyService.GetSessionID();
     $report.ok = function () {
         $uibModalInstance.dismiss('cancel');
     };

@@ -11,6 +11,7 @@ using InvestmentBuilderClient.ViewModel;
 using InvestmentBuilderClient.DataModel;
 using InvestmentBuilder;
 using NLog;
+using InvestmentBuilderCore;
 
 namespace InvestmentBuilderClient.View
 {
@@ -25,6 +26,7 @@ namespace InvestmentBuilderClient.View
 
         public CashAccountView(InvestmentDataModel dataModel)
         {
+            logger.Info("creating cash account view");
             InitializeComponent();
             SetupGrid();
             _dataModel = dataModel;
@@ -98,17 +100,14 @@ namespace InvestmentBuilderClient.View
         {
             foreach(DataGridViewRow row in cashAccountGrid.SelectedRows)
             {
-                var transaction = row.DataBoundItem as Transaction;
+                var transaction = row.DataBoundItem as InvestmentBuilder.CashTransaction;
                 //if(!transaction.Added)
                 //{
                 //    MessageBox.Show("Can only delete transactions that have not been comitted");
                 //}
                 //else
                 //{
-                    _dataModel.RemoveCashTransaction(transaction.ValuationDate,
-                                                     transaction.TransactionDate,
-                                                     transaction.TransactionType,
-                                                     transaction.Parameter);
+                _dataModel.RemoveCashTransaction(transaction.TransactionID);
                     _GetCashAccountData(transaction.ValuationDate);
                 //}
             }
@@ -135,14 +134,14 @@ namespace InvestmentBuilderClient.View
 
         private void cashAccountGrid_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
         {
-            var transaction = cashAccountGrid.Rows[e.RowIndex].DataBoundItem as Transaction;
+            var transaction = cashAccountGrid.Rows[e.RowIndex].DataBoundItem as InvestmentBuilder.CashTransaction;
             if (transaction != null)
             {
                 cashAccountGrid.Rows[e.RowIndex].ReadOnly = transaction.Added == false;
             }
         }
 
-        public void UpdateAccountName(string account)
+        public void UpdateAccountName(AccountIdentifier account)
         {
         }
     }

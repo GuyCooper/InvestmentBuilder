@@ -2,7 +2,7 @@
 
 function MiddlewareService()
 {
-    var mw = new Middleware();
+    var mw = null;
     var subscriptionList = [];
     var pendingRequestList = [];
 
@@ -22,13 +22,13 @@ function MiddlewareService()
         return object === null || object === undefined;
     }
 
-    var onMessage = function (message) {
+    var onMessage = function (requestId, payload, binaryPayload) {
         for (var i = 0; i < pendingRequestList.length; i++) {
             var request = pendingRequestList[i];
-            if (request.pendingId === message.RequestId) {
+            if (request.pendingId === requestId) {
                 //pendingRequestList.splice(i, 1);
                 if (isNullOrUndefined(request.callback) === false) {
-                    request.callback(JSON.parse(message.Payload));
+                    request.callback(payload, binaryPayload);
                 }
                 break;
             }
@@ -36,6 +36,9 @@ function MiddlewareService()
     };
 
     this.Connect = function (server, username, password) {
+        mw = new Middleware();
+        subscriptionList = [];
+        pendingRequestList = [];
         server_ = server;
         username_ = username;
         password_ = password;
@@ -44,9 +47,12 @@ function MiddlewareService()
         });
     };
 
+    this.Disconnect = function () {
+        mw.Disconnect();
+    };
+
     var sendRequestToChannel = function (channel, message, handler) {
-        var payload = message != null ? JSON.stringify(message) : null;
-        mw.SendRequest(channel, payload).then((id) => {
+        mw.SendRequest(channel, message).then((id) => {
             pendingRequestList.push({"pendingId": id,"callback": handler });
         }, (error) => { console.log("unable to send request to channel " + channel + ". error: " +  error); });
     };
@@ -122,17 +128,25 @@ function MiddlewareService()
         doCommand("GET_INVESTMENT_SUMMARY_REQUEST", "GET_INVESTMENT_SUMMARY_RESPONSE", null, handler);
     };
 
-    this.LoadRecentReports = function (handler) {
-        doCommand("GET_RECENT_REPORTS_REQUEST", "GET_RECENT_REPORTS_RESPONSE", null, handler);
+    this.LoadRecentReports = function (request, handler) {
+        doCommand("GET_RECENT_REPORTS_REQUEST", "GET_RECENT_REPORTS_RESPONSE", request, handler);
     };
 
     this.UpdateAccountDetails = function (account, handler) {
         doCommand("UPDATE_ACCOUNT_DETAILS_REQUEST", "UPDATE_ACCOUNT_DETAILS_RESPONSE", account, handler);
     };
 
+    this.CreateAccount = function (account, handler) {
+        doCommand("CREATE_ACCOUNT_REQUEST", "CREATE_ACCOUNT_RESPONSE", account, handler);
+    };
+
     this.GetAccountDetails = function (accountName, handler) {
         var dto = { AccountName: accountName };
         doCommand("GET_ACCOUNT_DETAILS_REQUEST", "GET_ACCOUNT_DETAILS_RESPONSE", dto, handler);
+    };
+
+    this.GetAccountMembers = function (handler) {
+        doCommand("GET_ACCOUNT_MEMBERS_REQUEST", "GET_ACCOUNT_MEMBERS_RESPONSE", null, handler);
     };
 
     this.GetCurrencies = function (handler) {
@@ -142,4 +156,28 @@ function MiddlewareService()
     this.GetBrokers = function (handler) {
         doCommand("GET_BROKERS_REQUEST", "GET_BROKERS_RESPONSE", null, handler);
     };
+
+    this.GetLastTransaction = function (handler) {
+        doCommand("GET_LAST_TRANSACTION_REQUEST", "GET_LAST_TRANSACTION_RESPONSE", null, handler);
+    }
+
+    this.UndoLastTransaction = function (handler) {
+        doCommand("UNDO_LAST_TRANSACTION_REQUEST", "UNDO_LAST_TRANSACTION_RESPONSE", null, handler);
+    }
+
+    this.GetRedemptions = function (handler) {
+        doCommand("GET_REDEMPTIONS_REQUEST", "GET_REDEMPTIONS_RESPONSE", null, handler);
+    };
+
+    this.RequestRedemption = function (request, handler) {
+        doCommand("REQUEST_REDEMPTION_REQUEST", "REQUEST_REDEMPTION_RESPONSE", request, handler);
+    };
+
+    this.LoadReport = function (request, handler) {
+        doCommand("LOAD_REPORT_REQUEST", "LOAD_REPORT_RESPONSE", request, handler);
+    };
+
+    this.GetPrice = function (request, handler) {
+        doCommand("GET_PRICE_REQUEST", "GET_PRICE_RESPONSE", request, handler);
+    }
 }

@@ -4,16 +4,27 @@ using System.Linq;
 using InvestmentBuilderCore;
 using System.Data.SqlClient;
 using System.Data;
+using NLog;
 
 namespace SQLServerDataLayer
 {
+    /// <summary>
+    /// SQL Server implementation of IUserAccountInterface interface.
+    /// </summary>
     public class SQLServerUserAccountData : SQLServerBase, IUserAccountInterface
     {
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public SQLServerUserAccountData(string connectionStr)
         {
             ConnectionStr = connectionStr;
         }
 
+        /// <summary>
+        /// Rollback the valuation for the specified valuation date for the account specified
+        /// in user token.
+        /// </summary>
         public void RollbackValuationDate(UserAccountToken userToken, DateTime dtValuation)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
@@ -22,13 +33,15 @@ namespace SQLServerDataLayer
                 using (var updateCommand = new SqlCommand("sp_RollbackUpdate", connection))
                 {
                     updateCommand.CommandType = System.Data.CommandType.StoredProcedure;
-                    updateCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    updateCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
                     updateCommand.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation));
                     updateCommand.ExecuteNonQuery();
                 }
             }
         }
 
+        /// <summary>
+        /// update the specified users capital account.
         public void UpdateMemberAccount(UserAccountToken userToken, DateTime dtValuation, string member, double dAmount)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
@@ -40,12 +53,16 @@ namespace SQLServerDataLayer
                     updateCommand.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation.Date));
                     updateCommand.Parameters.Add(new SqlParameter("@Member", member));
                     updateCommand.Parameters.Add(new SqlParameter("@Units", dAmount));
-                    updateCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    updateCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
                     updateCommand.ExecuteNonQuery();
                 }
             }
         }
 
+        /// <summary>
+        /// Return the total subscription for the specified user on the account specified in user token
+        /// on the specified valuation date.
+        /// </summary>
         public double GetMemberSubscription(UserAccountToken userToken, DateTime dtValuation, string member)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
@@ -57,12 +74,7 @@ namespace SQLServerDataLayer
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@Member", member));
                     command.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation.Date));
-                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
-                    //var oSubscription = (double)command.ExecuteScalar();
-                    //if(oSubscription != null)
-                    //{
-                    //    dSubscription = (double)oSubscription;
-                    //}
+                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
                     using (var reader = command.ExecuteReader())
                     {
                         if (reader.Read())
@@ -76,6 +88,10 @@ namespace SQLServerDataLayer
             return dSubscription;
         }
 
+        /// <summary>
+        /// Returns the total capital for the specified member on the account specified in user token for the
+        /// specified valuation date.
+        /// </summary>
         public IEnumerable<KeyValuePair<string, double>> GetMemberAccountData(UserAccountToken userToken, DateTime dtValuation)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
@@ -85,7 +101,7 @@ namespace SQLServerDataLayer
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@ValuationDate", dtValuation.Date));
-                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
 
                     using (var reader = command.ExecuteReader())
                     {
@@ -101,6 +117,10 @@ namespace SQLServerDataLayer
             }
         }
 
+        /// <summary>
+        /// Returns the previous unit price for the account specified in user token from the optional
+        /// previous date. 
+        /// </summary>
         public double GetPreviousUnitValuation(UserAccountToken userToken, DateTime? previousDate)
         {
             userToken.AuthorizeUser(AuthorizationLevel.READ);
@@ -115,12 +135,15 @@ namespace SQLServerDataLayer
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@valuationDate", previousDate.Value));
-                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
                     return (double)command.ExecuteScalar();
                 }
             }
         }
 
+        /// <summary>
+        /// Add a new unit valuation for the account on the specified valuation date
+        /// </summary>
         public void SaveNewUnitValue(UserAccountToken userToken, DateTime dtValuation, double dUnitValue)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
@@ -131,22 +154,25 @@ namespace SQLServerDataLayer
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
                     command.Parameters.Add(new SqlParameter("@unitValue", dUnitValue));
-                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
                     command.ExecuteNonQuery();
                 }
             }
         }
 
+        /// <summary>
+        /// return the total number of issued units for an account on the specified valuation date.
+        /// </summary>
         public double GetIssuedUnits(UserAccountToken userToken, DateTime dtValuation)
         {
-            userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
+            userToken.AuthorizeUser(AuthorizationLevel.READ);
             using (var connection = OpenConnection())
             {
                 using (var command = new SqlCommand("sp_GetIssuedUnits", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation.Date));
-                    command.Parameters.Add(new SqlParameter("@AccountName", userToken.Account));
+                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
 
                     var result = command.ExecuteScalar();
                     if (result is double)
@@ -158,30 +184,36 @@ namespace SQLServerDataLayer
             return 0d;
         }
 
-        public UserAccountData GetUserAccountData(UserAccountToken userToken)
+        /// <summary>
+        /// returns the account details for the account defined in the usertoken.
+        /// </summary>
+        public AccountModel GetUserAccountData(UserAccountToken userToken)
         {
-            if(userToken == null || userToken.Account == null)
+            if(userToken.HasInvalidAccount() == true)
             {
                 return null;
             }
 
-            userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
+            userToken.AuthorizeUser(AuthorizationLevel.READ);
             using (var connection = OpenConnection())
             {
-                using (var command = new SqlCommand("sp_GetUserData", connection))
+                using (var command = new SqlCommand("sp_GetAccountData", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@Name", userToken.Account));
+                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
                     using (var reader = command.ExecuteReader())
                     {
                         if (reader.Read())
                         {
-                            return new UserAccountData
+                            return new AccountModel
                             (
                                 userToken.Account,
-                                (string)reader["Currency"],
                                 GetDBValue<string>("Description", reader),
-                                GetDBValue<string>("Broker", reader)
+                                (string)reader["Currency"],
+                                null,
+                                true,
+                                GetDBValue<string>("Broker", reader),
+                                null
                             );
                         }
                     }
@@ -190,6 +222,10 @@ namespace SQLServerDataLayer
             return null;
         }
 
+        /// <summary>
+        /// Returns the unit valuation for an account at the start of year relative to the specifed
+        /// valuation date.
+        /// </summary>
         public double GetStartOfYearValuation(UserAccountToken userToken, DateTime valuationDate)
         {
             userToken.AuthorizeUser(AuthorizationLevel.READ);
@@ -204,7 +240,7 @@ namespace SQLServerDataLayer
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@valuationDate", dtStartOfYear));
-                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
                     var objResult = command.ExecuteScalar();
                     if (objResult != null)
                     {
@@ -215,6 +251,10 @@ namespace SQLServerDataLayer
             return 1d;
         }
 
+        /// <summary>
+        /// Returns a list of any redemptions for an account for the specified valuation date. These are
+        /// all redemptions issued between the valuation date and the previous valuation date.
+        /// </summary>
         public IEnumerable<Redemption> GetRedemptions(UserAccountToken userToken, DateTime valuationDate)
         {
             using (var connection = OpenConnection())
@@ -222,11 +262,11 @@ namespace SQLServerDataLayer
                 using (var sqlCommand = new SqlCommand("sp_GetRedemptions", connection))
                 {
                     sqlCommand.CommandType = CommandType.StoredProcedure;
-                    sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
                     sqlCommand.Parameters.Add(new SqlParameter("@TransactionDate", valuationDate));
                     using (var reader = sqlCommand.ExecuteReader())
                     {
-                        while (reader.Read())
+                        while(reader.Read())
                         {
                             yield return new Redemption
                             (
@@ -241,6 +281,9 @@ namespace SQLServerDataLayer
             }
         }
  
+        /// <summary>
+        /// Add a redemption request to an account with the specified transaction date.
+        /// </summary>
         public void AddRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
@@ -250,7 +293,7 @@ namespace SQLServerDataLayer
                 using (var command = new SqlCommand("sp_AddRedemption", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
                     command.Parameters.Add(new SqlParameter("@User", user));
                     command.Parameters.Add(new SqlParameter("@TransactionDate", transactionDate.Date));
                     command.Parameters.Add(new SqlParameter("@Amount", amount));
@@ -261,8 +304,13 @@ namespace SQLServerDataLayer
             }
         }
 
-        public void UpdateRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount, double units)
+        /// <summary>
+        /// Update a requested redemtion on an account. This is used for changing the status of the redemtion to complete
+        /// and specifiying the actual amount redeemed.
+        /// </summary>
+        public RedemptionStatus UpdateRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount, double units)
         {
+            var result = RedemptionStatus.Complete;
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
 
             using (var connection = OpenConnection())
@@ -270,32 +318,40 @@ namespace SQLServerDataLayer
                 using (var command = new SqlCommand("sp_UpdateRedemption", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
                     command.Parameters.Add(new SqlParameter("@User", user));
                     command.Parameters.Add(new SqlParameter("@TransactionDate", transactionDate.Date));
                     command.Parameters.Add(new SqlParameter("@Amount", amount));
                     command.Parameters.Add(new SqlParameter("@UnitsRedeemed", units));
-                    command.Parameters.Add(new SqlParameter("@Status", RedemptionStatus.Complete.ToString()));
+                    command.Parameters.Add(new SqlParameter("@Status", result.ToString()));
 
                     command.ExecuteScalar();
                 }
             }
+
+            return result;
         }
 
+        /// <summary>
+        /// return a list of all the account members for an account on a specified valuation date.
+        /// </summary>
         public IEnumerable<string> GetAccountMembers(UserAccountToken userToken, DateTime valuationDate)
         {
             return GetAccountMemberDetails(userToken, valuationDate).Select(x => x.Name);
         }
 
+        /// <summary>
+        /// return a list of all the account members for an account on a specified valuation date.
+        /// </summary>
         public IEnumerable<AccountMember> GetAccountMemberDetails(UserAccountToken userToken, DateTime valuationDate)
         {
-            userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
+            userToken.AuthorizeUser(AuthorizationLevel.READ);
             using (var connection = OpenConnection())
             {
                 using (var command = new SqlCommand("sp_GetAccountMembers", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
                     command.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
@@ -311,6 +367,9 @@ namespace SQLServerDataLayer
             }
         }
 
+        /// <summary>
+        /// Add or update a member for an account
+        /// </summary>
         public void UpdateMemberForAccount(UserAccountToken userToken, string member, AuthorizationLevel level, bool add)
         {
             userToken.AuthorizeUser(AuthorizationLevel.ADMINISTRATOR);
@@ -319,7 +378,7 @@ namespace SQLServerDataLayer
                 using (var sqlCommand = new SqlCommand("sp_UpdateMemberForAccount", connection))
                 {
                     sqlCommand.CommandType = CommandType.StoredProcedure;
-                    sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
                     sqlCommand.Parameters.Add(new SqlParameter("@Member", member));
                     sqlCommand.Parameters.Add(new SqlParameter("@Level", (int)level));
                     sqlCommand.Parameters.Add(new SqlParameter("@Add", add ? 1 : 0));
@@ -328,15 +387,18 @@ namespace SQLServerDataLayer
             }
         }
 
-        public void CreateAccount(UserAccountToken userToken, AccountModel account)
+        /// <summary>
+        /// Update an existing account
+        /// </summary>
+        public void UpdateAccount(UserAccountToken userToken, AccountModel account)
         {
             userToken.AuthorizeUser(AuthorizationLevel.ADMINISTRATOR);
             using (var connection = OpenConnection())
             {
-                using (var sqlCommand = new SqlCommand("sp_CreateAccount", connection))
+                using (var sqlCommand = new SqlCommand("sp_UpdateAccount", connection))
                 {
                     sqlCommand.CommandType = CommandType.StoredProcedure;
-                    sqlCommand.Parameters.Add(new SqlParameter("@Name", account.Name));
+                    sqlCommand.Parameters.Add(new SqlParameter("@Account", account.Identifier.AccountId));
                     sqlCommand.Parameters.Add(new SqlParameter("@Currency", account.ReportingCurrency));
                     sqlCommand.Parameters.Add(new SqlParameter("@AccountType", account.Type));
                     sqlCommand.Parameters.Add(new SqlParameter("@Enabled", account.Enabled));
@@ -345,8 +407,39 @@ namespace SQLServerDataLayer
                     sqlCommand.ExecuteNonQuery();
                 }
             }
+
         }
 
+        /// <summary>
+        /// Create a new account.
+        /// </summary>
+        public int CreateAccount(UserAccountToken userToken, AccountModel account)
+        {
+            Int32 result = 0;
+            userToken.AuthorizeUser(AuthorizationLevel.ADMINISTRATOR);
+            using (var connection = OpenConnection())
+            {
+                using (var sqlCommand = new SqlCommand("sp_CreateAccount", connection))
+                {
+                    sqlCommand.CommandType = CommandType.StoredProcedure;
+                    sqlCommand.Parameters.Add(new SqlParameter("@Name", account.Identifier.Name));
+                    sqlCommand.Parameters.Add(new SqlParameter("@Currency", account.ReportingCurrency));
+                    sqlCommand.Parameters.Add(new SqlParameter("@AccountType", account.Type));
+                    sqlCommand.Parameters.Add(new SqlParameter("@Enabled", account.Enabled));
+                    sqlCommand.Parameters.Add(new SqlParameter("@Description", account.Description));
+                    sqlCommand.Parameters.Add(new SqlParameter("@Broker", account.Broker));
+                    var objResult = sqlCommand.ExecuteScalar();
+                    if (objResult != null)
+                    {
+                        result = (int)Math.Floor((Decimal)objResult);
+                    }
+                }
+            }
+            return result;
+        }
+        /// <summary>
+        /// Return the account details for the specified account.
+        /// </summary>
         public AccountModel GetAccount(UserAccountToken userToken)
         {
             userToken.AuthorizeUser(AuthorizationLevel.ADMINISTRATOR);
@@ -355,16 +448,16 @@ namespace SQLServerDataLayer
                 using (var sqlCommand = new SqlCommand("sp_GetAccountData", connection))
                 {
                     sqlCommand.CommandType = CommandType.StoredProcedure;
-                    sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
                     using (var reader = sqlCommand.ExecuteReader())
                     {
                         if (reader.Read())
                         {
                             //var obj = reader["Enabled"];
-                            return new AccountModel(GetDBValue<string>("Name", reader),
+                            return new AccountModel(userToken.Account,
                                                     GetDBValue<string>("Description", reader),
                                                     GetDBValue<string>("Currency", reader),
-                                                    GetDBValue<string>("Type", reader),
+                                                    GetDBValue<string>("AccountType", reader),
                                                     (byte)reader["Enabled"] != 0 ? true : false,
                                                     GetDBValue<string>("Broker", reader),
                                                     null
@@ -376,8 +469,12 @@ namespace SQLServerDataLayer
             return null;
         }
 
-        public IEnumerable<string> GetAccountNames(string user, bool bCheckAdmin)
+        /// <summary>
+        /// returns a list of accounts that this user is a member of.
+        /// </summary>
+        public IEnumerable<AccountIdentifier> GetAccountNames(string user, bool bCheckAdmin)
         {
+            logger.Info($"GetAccountNames for user {user}");
             //return the list of accounts that this user is able to see
             using (var connection = OpenConnection())
             {
@@ -390,13 +487,21 @@ namespace SQLServerDataLayer
                     {
                         while (reader.Read())
                         {
-                            yield return reader.GetString(0);
+                            yield return new AccountIdentifier
+                            {
+                                Name = GetDBValue<string>("Name", reader),
+                                AccountId = GetDBValue<int>("Account_Id", reader)
+                            };
                         }
                     }
                 }
             }
         }
 
+        /// <summary>
+        /// Return the list of active investments for this account.
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<string> GetActiveCompanies(UserAccountToken userToken, DateTime valuationDate)
         {
             userToken.AuthorizeUser(AuthorizationLevel.READ);
@@ -405,7 +510,7 @@ namespace SQLServerDataLayer
                 using (var command = new SqlCommand("sp_GetActiveCompanies", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
                     command.Parameters.Add(new SqlParameter("@ValuationDate", valuationDate));
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
@@ -418,14 +523,18 @@ namespace SQLServerDataLayer
             }
         }
 
-        public bool InvestmentAccountExists(string accountName)
+        /// <summary>
+        /// Return true if this account already exists otherwise return false
+        /// </summary>
+        /// <returns></returns>
+        public bool InvestmentAccountExists(AccountIdentifier accountName)
         {
             using (var connection = OpenConnection())
             {
                 using (var command = new SqlCommand("sp_InvestmentAccountExists", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@Name", accountName));
+                    command.Parameters.Add(new SqlParameter("@Account", accountName.AccountId));
                     var objResult = command.ExecuteScalar();
                     if (objResult != null)
                     {
@@ -436,6 +545,9 @@ namespace SQLServerDataLayer
             return false;
         }
 
+        /// <summary>
+        /// Returns a list of unit valuations for an account with the specified dateFrom - dateTo range.
+        /// </summary>
         public IEnumerable<double> GetUnitValuationRange(UserAccountToken userToken, DateTime dateFrom, DateTime dateTo)
         {
             userToken.AuthorizeUser(AuthorizationLevel.READ);
@@ -445,7 +557,7 @@ namespace SQLServerDataLayer
                 using (var command = new SqlCommand("sp_GetUnitValuationRange", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
                     command.Parameters.Add(new SqlParameter("@dateFrom", dateFrom));
                     command.Parameters.Add(new SqlParameter("@dateTo", dateTo));
                     using (SqlDataReader reader = command.ExecuteReader())
@@ -497,5 +609,7 @@ namespace SQLServerDataLayer
                 }
             }
         }
+
+        private static Logger logger = LogManager.GetCurrentClassLogger();
     }
 }

@@ -16,7 +16,7 @@ GO
 CREATE PROCEDURE [dbo].[sp_CreateNewInvestment](@valuationDate as DATETIME, @investment as VARCHAR(50), @symbol as CHAR(10),
 				 @currency as CHAR(3), @scalingFactor as FLOAT, @shares as INT,
 				 @totalCost as FLOAT, @closingPrice as FLOAT,
-				 @account as VARCHAR(30), @exchange as VARCHAR(10)) AS
+				 @account as INT, @exchange as VARCHAR(10)) AS
 BEGIN
 
 	IF NOT EXISTS (SELECT 1 FROM Companies WHERE Name = @investment)
@@ -26,21 +26,16 @@ BEGIN
 	END
 
 	DECLARE @CompanyId INT
-	DECLARE @AccountId INT
 
 	SELECT @CompanyId = Company_Id
 	FROM Companies
 	WHERE Name = @investment
 
-	SELECT @AccountId = [Account_Id]
-	FROM Accounts
-	WHERE Name = @Account
-
 	INSERT INTO InvestmentRecord
 	 ([Company_Id],[Valuation_Date],[Shares_Bought],[Total_Cost],[Selling_Price],[Dividends_Received], [account_id], [is_active], [last_bought])
 	SELECT 
 		@CompanyId, @valuationDate, @shares, @totalCost, @closingPrice, 0,
-		@AccountId, 1, @valuationDate
+		@Account, 1, @valuationDate
 	
 	return @@ROWCOUNT		 
 END

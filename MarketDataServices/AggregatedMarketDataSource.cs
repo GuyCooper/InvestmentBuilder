@@ -1,36 +1,57 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Reflection;
 using InvestmentBuilderCore;
 using NLog;
+using InvestmentBuilderCore.Schedule;
 
 namespace MarketDataServices
 {
     /// <summary>
     /// aggregates all market data sources and iterates through each one to get 
-    /// source data until succeeds
+    /// source data until succeeds. Uses the MEF service locator to load all known
+    /// marketdatasources in this assembley. Each datasource has a priority (1  = highest)
+    /// this class acts as a broker forwarding market data requests to each of the registered
+    /// market data sources in priority order until the request is satisifed.
     /// </summary>
     internal class AggregatedMarketDataSource : IMarketDataSource
     {
-        private static Logger logger = LogManager.GetCurrentClassLogger();
+        #region Constructor
 
-        private IMarketSourceLocator _sourceLocator;
-
-        public string Name { get { return "Aggregated"; } }
-
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public AggregatedMarketDataSource(IMarketSourceLocator sourceLocator)
         {
             _sourceLocator = sourceLocator;
         }
 
+        #endregion
+
+        #region IMarketDataSource
+
+        /// <summary>
+        /// Name of datasource.
+        /// </summary>
+        public string Name { get { return "Aggregated"; } }
+
+        /// <summary>
+        /// Priority of datasource
+        /// </summary>
+        public int Priority { get { return 0; } }
+
+        /// <summary>
+        /// Returns the list of sources for the aggregated data source.
+        /// </summary>
         public IList<string> GetSources()
         {
             return _sourceLocator.Sources.SelectMany(x => x.GetSources()).ToList();
         }
 
+        /// <summary>
+        /// Try  to get market price for symbol.
+        /// </summary>
         public bool TryGetMarketData(string symbol, string exchange, string source, out MarketDataPrice marketData)
         {
             foreach(var element in _GetOrderedDataSources(source))
@@ -45,6 +66,9 @@ namespace MarketDataServices
             return false;
         }
 
+        /// <summary>
+        /// Try to fx rate for ccy pair, return true for success, false for fail. 
+        /// </summary>
         public bool TryGetFxRate(string baseCurrency, string contraCurrency, string exchange, string source, out double dFxRate)
         {
             foreach (var element in _GetOrderedDataSources(source))
@@ -59,6 +83,9 @@ namespace MarketDataServices
             return false;
         }
 
+        /// <summary>
+        /// Try to retrieve historical data for instrument, return data if success, null for fail.
+        /// </summary>
         public IEnumerable<HistoricalData> GetHistoricalData(string instrument, string exchange, string source,  DateTime dtFrom)
         {
             foreach (var element in _GetOrderedDataSources(source))
@@ -72,6 +99,35 @@ namespace MarketDataServices
             return null;
         }
 
+        /// <summary>
+        /// Initialise method with configuration settings.
+        /// </summary>
+        public void Initialise(IConfigurationSettings settings, ScheduledTaskFactory scheduledTaskFactory) { }
+
+        /// <summary>
+        /// Asynchronously request a price from the data source.
+        /// </summary>
+        public async Task<MarketDataPrice> RequestPrice(string symbol, string exchange, string source)
+        {
+            foreach (var dataSource in _GetOrderedDataSources(source))
+            {
+                var marketData = await dataSource.RequestPrice(symbol, exchange, source);
+                if (marketData != null)
+                {
+                    return marketData;
+                }
+            }
+            return null;
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        /// Returns the list of datasources in priority order (Each datasource is assigned a priority
+        /// 1 = highest.
+        /// </summary>
         private IList<IMarketDataSource> _GetOrderedDataSources(string source)
         {
             if(string.IsNullOrEmpty(source) == false)
@@ -86,21 +142,12 @@ namespace MarketDataServices
             return _sourceLocator.Sources.OrderBy(x => x.Priority).ToList();
             
         }
-        public int Priority { get { return 0; } }
 
-        public void Initialise(IConfigurationSettings settings) { }
+        #endregion
 
-        public async Task<MarketDataPrice> RequestPrice(string symbol, string exchange, string source)
-        {
-            foreach (var dataSource in _GetOrderedDataSources(source))
-            {
-                var marketData = await dataSource.RequestPrice(symbol, exchange, source); 
-                if(marketData !=  null)
-                {
-                    return marketData;
-                }
-            }
-            return null;
-        }
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
+        private IMarketSourceLocator _sourceLocator;
+
     }
 }

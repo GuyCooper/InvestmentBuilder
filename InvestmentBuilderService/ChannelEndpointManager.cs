@@ -105,10 +105,14 @@ namespace InvestmentBuilderService
             IEndpointChannel channel;
             if (_channels.TryGetValue(message.Channel, out channel) == true)
             {
-                Task.Factory.StartNew(() =>
+                try
                 {
                     channel.ProcessMessage(GetSession(), userSession, message.Payload, message.SourceId, message.RequestId);
-                });
+                }
+                catch(Exception ex)
+                {
+                    logger.Log(LogLevel.Error, ex);
+                }
             }
             else
             {
@@ -138,7 +142,7 @@ namespace InvestmentBuilderService
         // List of channels
         private readonly Dictionary<string, IEndpointChannel> _channels = new Dictionary<string, IEndpointChannel>();
         private readonly ISessionManager _sessionManager;
-        private static Logger logger = LogManager.GetCurrentClassLogger();
+        private static NLog.Logger logger = LogManager.GetCurrentClassLogger();
 
         #endregion
     }

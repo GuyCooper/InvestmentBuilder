@@ -1,4 +1,5 @@
-﻿using System;
+﻿using InvestmentBuilderCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,6 +10,6 @@ namespace InvestmentBuilderClient.View
     interface IInvestmentBuilderView
     {
         void UpdateValuationDate(DateTime dtValuation);
-        void UpdateAccountName(string account);
+        void UpdateAccountName(AccountIdentifier account);
     }
 }

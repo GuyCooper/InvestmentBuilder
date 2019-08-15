@@ -18,32 +18,32 @@ namespace InvestmentBuilderClient.DataModel
         public double? ManualPrice { get; set; }
     }   
 
-    internal class InvestmentDataModel : IDisposable
+    /// <summary>
+    /// Investment Builder data model. class holds state of investment builder
+    /// </summary>
+    internal class InvestmentDataModel 
     {
-        private static Logger logger = LogManager.GetCurrentClassLogger();
-        private IDataLayer _dataLayer;
-        private IClientDataInterface _clientData;
-        private IInvestmentRecordInterface _recordData;
-        private IAuthorizationManager _authorizationManager;
-        private BrokerManager _brokerManager;
-        private CashAccountTransactionManager _cashAccountManager;
-        private InvestmentBuilder.InvestmentBuilder _investmentBuilder;
-        private PerformanceBuilder _performanceBuilder;
-        private AccountManager _accountManager;
-
-        private UserAccountToken _userToken; //cache user token
-        private int _TradeUpdateCount;
+        #region Public Properties and events
 
         public DateTime? LatestValuationDate { get; set; }
 
-        private DateTime LatestRecordValuationDate { get; set; }
-
         public List<CompanyData> PortfolioItemsList { get; set; }
 
-        public event Func<bool, bool> TradeUpdateEvent; 
+        public event Func<bool, bool> TradeUpdateEvent;
 
-        private string _userName = string.Format(@"{0}\{1}", Environment.UserDomainName, Environment.UserName).ToUpper();
+        #endregion
 
+        #region Private properties
+
+        private DateTime LatestRecordValuationDate { get; set; }
+
+        #endregion
+
+        #region Constructor
+
+        /// <summary>
+        /// Constructor. Inject all dependencies
+        /// </summary>
         public InvestmentDataModel(IDataLayer dataLayer, 
                                    InvestmentBuilder.InvestmentBuilder investmentBuilder,
                                    IAuthorizationManager authorizationManager,
@@ -63,14 +63,14 @@ namespace InvestmentBuilderClient.DataModel
             _accountManager = accountManager;
         }
 
-        private void UpdateTradeUpdateEvent()
-        {
-            if(TradeUpdateEvent != null)
-            {
-                TradeUpdateEvent(_TradeUpdateCount > 0);
-            }
-        }
+        #endregion
 
+        #region Public Methods
+
+        /// <summary>
+        /// Return a list of recent valuation dates for the current account. if none then just
+        /// return todays date
+        /// </summary>
         public IEnumerable<DateTime> GetValuationDates()
         {
             var dates = _clientData.GetRecentValuationDates(_userToken, DateTime.Now).ToList();
@@ -81,61 +81,81 @@ namespace InvestmentBuilderClient.DataModel
             return dates;
         }
 
+        /// <summary>
+        /// Return a list of transaction types for the specifed side (payment or receipt).
+        /// </summary>
         public IEnumerable<string> GetsTransactionTypes(string side)
         {
             return _cashAccountManager.GetTransactionTypes(side).Where(x => string.Equals(x, "Redemption") == false);
         }
 
+        /// <summary>
+        /// return a list of parameters for the transaction type. e.g. return  list of companies for dividend type.
+        /// </summary>
         public IEnumerable<string> GetParametersForType(string type)    
         {
             return _investmentBuilder.GetParametersForTransactionType(_userToken, LatestRecordValuationDate, type);
         }
 
-        private void SetLatestValuationDate()
-        {
-            LatestValuationDate = _clientData.GetLatestValuationDate(_userToken);
-            LatestRecordValuationDate = _recordData.GetLatestRecordInvestmentValuationDate(_userToken) ?? DateTime.Today;
-        }
-
+        /// <summary>
+        /// Reload the database.
+        /// </summary>
         public void ReloadData(string dataSource)
         {
             _dataLayer.ConnectNewDatasource(dataSource);
             logger.Log(LogLevel.Info, "reload from datasource {0}", dataSource);
         }
 
-        public IEnumerable<string> GetAccountNames()
+        /// <summary>
+        /// Return a list of accounts for this user.
+        /// </summary>
+        public IEnumerable<AccountIdentifier> GetAccountNames()
         {
             return _accountManager.GetAccountNames(_userName);
         }
 
+        /// <summary>
+        /// Determines if requested date is a valuation date or not.
+        /// </summary>
         public bool IsExistingValuationDate(DateTime dtValuation)
         {
             return _clientData.IsExistingValuationDate(_userToken, dtValuation);
         }
 
+        /// <summary>
+        /// Returns a list of members for the current account
+        /// </summary>
         public IEnumerable<AccountMember> GetAccountMembers(UserAccountToken token)
         {
             return _accountManager.GetAccountMembers(token, LatestValuationDate ?? DateTime.Today);
         }
 
+        /// <summary>
+        /// Update the account with the specified account details.
+        /// </summary>
         public void UpdateUserAccount(AccountModel account)
         {
             _accountManager.UpdateUserAccount(_userName, account, LatestValuationDate ?? DateTime.Today);
         }
 
+        /// <summary>
+        /// Return a list of possibkle account types (currently Club or personal).
+        /// </summary>
         public IEnumerable<string> GetAccountTypes()
         {
             return _clientData.GetAccountTypes();
         }
 
-        public AccountModel GetAccountData(string account)
+        /// <summary>
+        /// Return the account details for the specified account.
+        /// </summary>
+        public AccountModel GetAccountData(AccountIdentifier account)
         {
-          
             var tmpToken = _authorizationManager.GetUserAccountToken(_userName, account);
             return _accountManager.GetAccountData(tmpToken, LatestValuationDate ?? DateTime.Today);
         }
 
-        public void UpdateAccountName(string account)
+        public void UpdateAccountName(AccountIdentifier account)
         {
             logger.Log(LogLevel.Info, "updating to account {0} ", account);
             _userToken = _authorizationManager.GetUserAccountToken(_userName, account);
@@ -144,28 +164,17 @@ namespace InvestmentBuilderClient.DataModel
             UpdateTradeUpdateEvent();
         }
 
+        /// <summary>
+        /// Return the investment details for the specified investment.
+        /// </summary>
         public InvestmentInformation GetInvestmentDetails(string name)
         {
             return _recordData.GetInvestmentDetails(name);
         }
 
-        private ManualPrices GetManualPrices()
-        {
-            ManualPrices manualPrices = new ManualPrices();
-            if (PortfolioItemsList != null)
-            {
-                PortfolioItemsList.ForEach(x =>
-                {
-                    double dPrice;
-                    if ((string.IsNullOrEmpty(x.ManualPrice) == false) && (Double.TryParse(x.ManualPrice, out dPrice) == true))
-                    {
-                        manualPrices.Add(x.Name, dPrice);
-                    }
-                });
-            }
-            return manualPrices;
-        }
-
+        /// <summary>
+        /// Load the portfolio for the current account.
+        /// </summary>
         public void LoadPortfolioItems()
         {
             ManualPrices manualPrices = GetManualPrices();
@@ -230,7 +239,8 @@ namespace InvestmentBuilderClient.DataModel
             if (_TradeUpdateCount > 0)
             {
                 --_TradeUpdateCount;
-                _clientData.UndoLastTransaction(_userToken);
+                var valuationDate = _clientData.GetLatestValuationDate(_userToken);
+                _clientData.UndoLastTransaction(_userToken, valuationDate ?? new DateTime());
                 UpdateTradeUpdateEvent();
             }
         }
@@ -263,10 +273,9 @@ namespace InvestmentBuilderClient.DataModel
                                                 type, parameter, amount);
         }
 
-        public void RemoveCashTransaction(DateTime dtValuationDate, DateTime dtTransactionDate,
-                                        string type, string parameter)
+        public void RemoveCashTransaction(int transactionID)
         {
-            _cashAccountManager.RemoveTransaction(_userToken, dtValuationDate, dtTransactionDate, type, parameter);
+            _cashAccountManager.RemoveTransaction(_userToken, transactionID);
         }
 
         public string GetPaymentMnenomic()
@@ -279,15 +288,78 @@ namespace InvestmentBuilderClient.DataModel
             return _cashAccountManager.ReceiptMnemomic;
         }
 
+        /// <summary>
+        /// Return the list of performance charts for the specified valuation date.
+        /// </summary>
         public IList<IndexedRangeData> GetPerformanceCharts(DateTime dtValaution)
         {
             return _performanceBuilder.Run(_userToken, dtValaution, null);
         }
 
-        public void Dispose()
+        /// <summary>
+        /// Update the current user.
+        /// </summary>
+        public void UpdateUsername(string username)
         {
-            //    _connection.Close();
-        //    _connection.Dispose();
+            _userName = username;
         }
+
+        #endregion
+
+        #region Private Methods
+
+        private void UpdateTradeUpdateEvent()
+        {
+            if (TradeUpdateEvent != null)
+            {
+                TradeUpdateEvent(_TradeUpdateCount > 0);
+            }
+        }
+
+        private void SetLatestValuationDate()
+        {
+            LatestValuationDate = _clientData.GetLatestValuationDate(_userToken);
+            LatestRecordValuationDate = _recordData.GetLatestRecordInvestmentValuationDate(_userToken) ?? DateTime.Today;
+        }
+
+        private ManualPrices GetManualPrices()
+        {
+            ManualPrices manualPrices = new ManualPrices();
+            if (PortfolioItemsList != null)
+            {
+                PortfolioItemsList.ForEach(x =>
+                {
+                    double dPrice;
+                    if ((string.IsNullOrEmpty(x.ManualPrice) == false) && (Double.TryParse(x.ManualPrice, out dPrice) == true))
+                    {
+                        manualPrices.Add(x.Name, dPrice);
+                    }
+                });
+            }
+            return manualPrices;
+        }
+
+        #endregion
+
+        #region Private Data
+
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+        private IDataLayer _dataLayer;
+        private IClientDataInterface _clientData;
+        private IInvestmentRecordInterface _recordData;
+        private IAuthorizationManager _authorizationManager;
+        private BrokerManager _brokerManager;
+        private CashAccountTransactionManager _cashAccountManager;
+        private InvestmentBuilder.InvestmentBuilder _investmentBuilder;
+        private PerformanceBuilder _performanceBuilder;
+        private AccountManager _accountManager;
+
+        private UserAccountToken _userToken; //cache user token
+        private int _TradeUpdateCount;
+
+        private string _userName = string.Format(@"{0}\{1}", Environment.UserDomainName, Environment.UserName).ToUpper();
+
+        #endregion
+
     }
 }

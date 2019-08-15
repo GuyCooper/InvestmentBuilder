@@ -11,6 +11,7 @@ using PerformanceBuilderLib;
 using Microsoft.Practices.Unity;
 using InvestmentBuilder;
 using System.IO;
+using InvestmentBuilderClient.View;
 
 namespace InvestmentBuilderClient
 {
@@ -38,21 +39,21 @@ namespace InvestmentBuilderClient
             }
             //todo,use servicelocator
             ContainerManager.RegisterType(typeof(IDataLayer), typeof(SQLServerDataLayer.SQLServerDataLayer), true);
-            //ContainerManager.RegisterType(typeof(InvestmentBuilder.InvestmentBuilder), typeof(InvestmentBuilder.InvestmentBuilder), true);
-            //ContainerManager.RegisterType(typeof(PerformanceBuilder), typeof(PerformanceBuilder), true);
-            //ContainerManager.RegisterType(typeof(DataModel.InvestmentDataModel), typeof(DataModel.InvestmentDataModel), true);
             ContainerManager.RegisterType(typeof(View.MainView), typeof(View.MainView), true);
-            //ContainerManager.RegisterType(typeof(InvestmentBuilder.BrokerManager), typeof(InvestmentBuilder.BrokerManager), true);
-            //ContainerManager.RegisterType(typeof(InvestmentBuilder.CashAccountTransactionManager), typeof(InvestmentBuilder.CashAccountTransactionManager), true);
             ContainerManager.RegisterType(typeof(IInvestmentReportWriter), typeof(InvestmentReportGenerator.InvestmentReportWriter), true);
             ContainerManager.RegisterType(typeof(IInvestmentRecordDataManager), typeof(InvestmentRecordBuilder), true);
-            //var connectstr = @"Data Source=TRAVELPC\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest;Integrated Security=True";
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            using (var child = ContainerManager.CreateChildContainer())
+            var login = new LoginView("guy@guycooper.plus.com", "rangers");
+            if (login.ShowDialog() == DialogResult.OK)
             {
-                Application.Run(ContainerManager.ResolveValueOnContainer<View.MainView>(child));
+                using (var child = ContainerManager.CreateChildContainer())
+                {
+                    var mainView = ContainerManager.ResolveValueOnContainer<View.MainView>(child);
+                    mainView.UpdateUser(login.GetUserName());
+                    Application.Run(mainView);
+                }
             }
         }
     }

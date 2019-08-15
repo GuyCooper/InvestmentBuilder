@@ -12,28 +12,22 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_AddNewUnitValuation](@valuationDate as DATETIME, @unitValue AS FLOAT, @Account as VARCHAR(30)) AS
+CREATE PROCEDURE [dbo].[sp_AddNewUnitValuation](@valuationDate as DATETIME, @unitValue AS FLOAT, @Account as INT) AS
 BEGIN
 
-DECLARE @accountID INT
-
-SELECT @accountID = [Account_Id]
-FROM Accounts
-WHERE [Name] = @Account
-
 IF EXISTS(SELECT [Unit_Price] FROM [Valuations] 
-		WHERE [account_id] = @accountID
+		WHERE [account_id] = @Account
 		AND [Valuation_Date] = @valuationDate)
 BEGIN
 	UPDATE [Valuations] 
 	SET [Unit_Price] = @unitValue
-	WHERE [account_id] = @accountID
+	WHERE [account_id] = @Account
 	AND [Valuation_Date] = @valuationDate
 END
 ELSE
 BEGIN
 	INSERT INTO dbo.Valuations (Valuation_Date, Unit_Price, account_id)
-	VALUES (@valuationDate, @unitValue, @accountID)
+	VALUES (@valuationDate, @unitValue, @Account)
 END
 				
 END

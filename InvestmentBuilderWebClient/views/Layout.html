@@ -2,7 +2,7 @@
     <div ng-hide="IsBusy">
         <div ng-show="!LoggedIn" class="loginBox" ng-cloak>
             <form ng-submit="doLogin()">
-                <strong>Login</strong>
+                <h3 class="headerLarge">Login</h3>
                 <br />
                 <div class="form-group">
                     <label>User Name</label>
@@ -12,6 +12,24 @@
                     <label>Password</label>
                     <input name="password" type="password" class="form-control" ng-model="Password" />
                 </div>
+
+                <div class="form-group">
+                    <input type="checkbox" ng-model="SaveCredentials" />
+                    <label>Save Credentials</label>
+                </div>
+
+                <div ng-show="LoginFailed">
+                    <p class="text-danger">Invalid Username or Password!</p>
+                </div>
+
+                <br/>
+                <div>
+                    <a href="RegisterUser.html">Register New User</a>
+                </div>
+                <div>
+                    <a href="ForgottenPassword.html">Forgotten Password</a>
+                </div>
+
                 <button class="btn btn-primary pull-right" type="submit">submit</button>
             </form>
         </div>
@@ -23,32 +41,35 @@
             </div>
 
             <div ng-show="!IsBuilding" ng-cloak>
-                <div class="row investmentSummary">
-                    <div class="pull-left">
-                        <h1>{{AccountName}}</h1>
+                <div class="row investmentSummaryContainer">
+                    <div class="investmentSummaryChild accountNameDisplay">
+                        <h1>{{AccountName.Name}}</h1>
                     </div>
-                    <div class="pull-right">
-                        <div style="display:inline-block">
+                    <div class="investmentSummaryChild">
+                        <div class="summaryDisplay">
+                            <div><strong>Reporting Currency</strong></div>
+                            <div>{{ReportingCurrency}}</div>
+                        </div>
+                        <div class="summaryDisplay">
+                            <div><strong>Valuation Date</strong></div>
+                            <div>{{ValuationDate}}</div>
+                        </div>
+                        <div class="summaryDisplay">
                             <div><strong>Value Per Unit</strong></div>
                             <div>{{ValuePerUnit}}</div>
                         </div>
-                        <div style="display:inline-block">
+                        <div class="summaryDisplay">
                             <div><strong>Net Assets</strong></div>
                             <div>{{NetAssets}}</div>
                         </div>
-                        <div style="display:inline-block">
+                        <div class="summaryDisplay">
                             <div><strong>Bank Balance</strong></div>
                             <div>{{BankBalance}}</div>
                         </div>
-                        <div style="display:inline-block">
+                        <div class="summaryDisplay">
                             <div><strong>Month PnL</strong></div>
                             <div>{{MonthlyPnL}}</div>
                         </div>
-                        <div style="display:inline-block">
-                            <div><strong>Build Status</strong></div>
-                            <div>{{BuildStatus}}</div>
-                        </div>
-
                         <div ng-click="buildReport()" ng-disabled="!CanBuild" class="btn btn-primary summaryButton">Build Report</div>
                     </div>
                 </div>
@@ -57,8 +78,8 @@
                     <uib-tab index="0" select="onPortfolio()" heading="Portfolio">
                         @[views/Portfolio.html]
                     </uib-tab>
-                    <uib-tab index="1" select="onAddTrade()" heading="Add Investment">
-                        @[views/CreateTrade.html]
+                    <uib-tab index="1" select="onAddInvestment()" heading="Add Investment">
+                        @[views/AddInvestment.html]
                     </uib-tab>
                     <uib-tab index="2" select="onCashFlow()" heading="Cash Flow">
                         @[views/CashFlow.html]
@@ -66,6 +87,10 @@
                     <uib-tab index="3" select="onReports()" heading="Reports">
                         @[views/Reports.html]
                     </uib-tab>
+                    <uib-tab index="4" select="onRedemptions()" heading="Redemptions">
+                        @[views/Redemptions.html]
+                    </uib-tab>
+
                 </uib-tabset>
                 <!--</div>-->
                 <footer>

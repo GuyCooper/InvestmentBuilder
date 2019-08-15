@@ -19,7 +19,11 @@ namespace InvestmentBuilderMSTests
     {
         private bool m_bOk = false;
 
-        private static string _TestAccount = "Guy SIPP";
+        private static AccountIdentifier _TestAccount = new AccountIdentifier
+        {
+            Name = "Guy SIPP",
+            AccountId = 123
+        };
         private static string _TestUser = "TestUser";
         private static string _NewTestTradeName = "Acme Plc";
         private static double _NewTradeTotalCost = 1284.45;
@@ -46,7 +50,11 @@ namespace InvestmentBuilderMSTests
                 ScalingFactor = 100
             };
 
-        private static string _NewTestAccount = "TestAcc";
+        private static AccountIdentifier _NewTestAccount = new AccountIdentifier
+        {
+            Name = "TestAcc",
+            AccountId = 4
+        };
         private static string _NewTestUser = "bobby bob";
 
         private UserAccountToken _newTestToken = new UserAccountToken(
@@ -126,14 +134,14 @@ namespace InvestmentBuilderMSTests
             _childContainer.Dispose(); 
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void RunFullTests()
         {
             Console.WriteLine("run full tests...");
 
             //first remove any generated files from previous tests
 
-            var outfolder = ContainerManager.ResolveValueOnContainer<IConfigurationSettings>(_childContainer).GetOutputPath(_NewTestAccount);
+            var outfolder = ContainerManager.ResolveValueOnContainer<IConfigurationSettings>(_childContainer).GetOutputPath(_NewTestAccount.GetPathName());
 
             var files = Directory.EnumerateFiles(outfolder);
             foreach (var file in files)
@@ -238,7 +246,7 @@ namespace InvestmentBuilderMSTests
             Assert.AreEqual(3000, companyData.Quantity);
 
             var dataLayer = ContainerManager.ResolveValueOnContainer<IDataLayer>(_childContainer);
-            dataLayer.ClientData.UndoLastTransaction(userToken);
+            dataLayer.ClientData.UndoLastTransaction(userToken, new DateTime());
 
             VerifyTradeTransactionResults(userToken);
         }

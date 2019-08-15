@@ -13,49 +13,56 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_AuthChangePassword](@EMail NVARCHAR(256), @OldPasswordHash NVARCHAR(max), @NewPasswordHash NVARCHAR(max), @NewSalt NVARCHAR(max)) AS
+CREATE PROCEDURE [dbo].[sp_AuthChangePassword](@EMail NVARCHAR(256), @Token NVARCHAR(256), @NewPasswordHash NVARCHAR(max), @NewSalt NVARCHAR(max)) AS
 										   
 BEGIN
 
 DECLARE @Result INT
-DECLARE @NewId INT
+DECLARE @UserId INT
+DECLARE @TokenDate DATETIME
 
-IF(@Email = '' OR @OldPasswordHash = '' OR @NewPasswordHash = '')
-BEGIN
-	SET @Result = 0
-END
-ELSE
-BEGIN
-	SELECT @NewId = [Id]
-	FROM UserDetails
-	WHERE Email = @EMail
-	AND PasswordHash = @OldPasswordHash
+SET @Result = 0
 
-	SET @Result = @@ROWCOUNT
-	IF(@Result <> 1)
-	BEGIN
-		SET @Result = 0
-	END
-	ELSE
+--first validate the email address and token
+SELECT @TokenDate = pc.AddTime, @UserId = pc.[User_Id]
+FROM PasswordChange pc
+INNER JOIN UserDetails ud
+ON ud.[Id] = pc.[User_Id]
+WHERE ud.[EMail] = @EMail
+and pc.[Token] = @Token
+
+IF(@@ROWCOUNT = 1)
+BEGIN
+	--if tokendate is more than 1 hour old then do not update password
+	IF (GETDATE() < DATEADD(hour, 1, @TokenDate)) 		
 	BEGIN
 		BEGIN TRANSACTION
-			UPDATE UserDetails
-			SET PasswordHash = @NewPasswordHash, PasswordCreationDate = GETDATE()
-			FROM UserDetails
-			WHERE Email = @EMail
+		-- update userdetails table with new password
+		UPDATE UserDetails
+		SET PasswordHash = @NewPasswordHash, PasswordCreationDate = GETDATE(), [TemporaryPassword] = 0
+		FROM UserDetails
+		WHERE Email = @EMail
 
-			DELETE FROM UserSalt WHERE [User_Id] = @NewId
+		--update usersalt table with new salt
+		DELETE FROM UserSalt WHERE [User_Id] = @UserId
 	
-			INSERT INTO UserSalt ([User_Id], [Salt])
-			VALUES (@NewId, @NewSalt)	
+		INSERT INTO UserSalt ([User_Id], [Salt])
+		VALUES (@UserId, @NewSalt)	
 
-			GOTO ALLGOOD
-ON_ERROR:
-		ROLLBACK TRANSACTION
-ALLGOOD:
-		COMMIT TRANSACTION			
+		GOTO ALLGOOD
+	ON_ERROR:
+			ROLLBACK TRANSACTION
+	ALLGOOD:
+			COMMIT TRANSACTION
+			SET @Result = 1			
 	END
 END
+
+--for security reasons we always remove the token from the PasswordChange table regardless of the outcome
+
+DELETE FROM PasswordChange
+WHERE [User_Id] = 
+(SELECT [Id] FROM UserDetails WHERE EMail = @EMail)
 
 SELECT @Result
 

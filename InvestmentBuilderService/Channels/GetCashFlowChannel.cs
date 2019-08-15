@@ -14,10 +14,10 @@ namespace InvestmentBuilderService.Channels
     {
         private CashFlowManager _cashFlowManager;
 
-        public GetCashFlowChannel(AccountService accountService, CashFlowManager cashFlowManager) : 
-            base("GET_CASH_FLOW_REQUEST", "GET_CASH_FLOW_RESPONSE", accountService)
+        public GetCashFlowChannel(ServiceAggregator aggregator) : 
+            base("GET_CASH_FLOW_REQUEST", "GET_CASH_FLOW_RESPONSE", aggregator)
         {
-            _cashFlowManager = cashFlowManager;
+            _cashFlowManager = aggregator.CashFlowManager;
         }
 
         protected override Dto HandleEndpointRequest(UserSession userSession, GetCashFlowRequestDto payload, ChannelUpdater update)

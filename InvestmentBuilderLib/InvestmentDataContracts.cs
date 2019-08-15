@@ -70,7 +70,7 @@ namespace InvestmentBuilder
     [ContractClassFor(typeof(IInvestmentRecordDataManager))]
     internal abstract class InvestmentRecordDataManagerContract : IInvestmentRecordDataManager
     {
-        public IEnumerable<CompanyData> GetInvestmentRecords(UserAccountToken userToken, UserAccountData account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate, ManualPrices manualPrices, bool bSnapshot)
+        public IEnumerable<CompanyData> GetInvestmentRecords(UserAccountToken userToken, AccountModel account, DateTime dtValuationDate, DateTime? dtPreviousValuationDate, ManualPrices manualPrices, bool bSnapshot)
         {
             Contract.Requires(userToken != null);
             Contract.Requires(account != null);
@@ -78,7 +78,7 @@ namespace InvestmentBuilder
             return null;
         }
 
-        public IEnumerable<CompanyData> GetInvestmentRecordSnapshot(UserAccountToken userToken, UserAccountData account, ManualPrices manualPrices)
+        public IEnumerable<CompanyData> GetInvestmentRecordSnapshot(UserAccountToken userToken, AccountModel account, ManualPrices manualPrices)
         {
             Contract.Requires(userToken != null);
             Contract.Requires(account != null);
@@ -92,7 +92,7 @@ namespace InvestmentBuilder
             return null;
         }
 
-        public bool UpdateInvestmentRecords(UserAccountToken userToken, UserAccountData account, Trades trades, CashAccountData cashData, DateTime valuationDate, ManualPrices manualPrices, DateTime? dtPreviousValuation, ProgressCounter progress)
+        public bool UpdateInvestmentRecords(UserAccountToken userToken, AccountModel account, Trades trades, CashAccountData cashData, DateTime valuationDate, ManualPrices manualPrices, DateTime? dtPreviousValuation, ProgressCounter progress)
         {
             Contract.Requires(userToken != null);
             Contract.Requires(account != null);

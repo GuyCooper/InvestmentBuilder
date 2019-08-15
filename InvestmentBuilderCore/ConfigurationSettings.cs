@@ -3,7 +3,10 @@ using System.Xml;
 using System.Xml.Serialization;
 using System.IO;
 using System.Linq;
+using InvestmentBuilderCore.Schedule;
 using System;
+using NLog;
+using System.Reflection;
 
 namespace InvestmentBuilderCore
 {
@@ -12,6 +15,8 @@ namespace InvestmentBuilderCore
     /// </summary>
     public interface IConfigurationSettings
     {
+        #region Public Properties
+
         /// <summary>
         /// Datasource connection string (SQL Server connection)
         /// </summary>
@@ -24,10 +29,6 @@ namespace InvestmentBuilderCore
         /// Output folder where all reports are written
         /// </summary>
         string OutputFolder { get; }
-        /// <summary>
-        /// url link to output folder
-        /// </summary>
-        string OutputLinkFolder { get; }
         /// <summary>
         /// List of comparison indexes to use in report
         /// </summary>
@@ -50,6 +51,25 @@ namespace InvestmentBuilderCore
         /// </summary>
         int MaxAccountsPerUser { get; }
         /// <summary>
+        /// Folder containing any external scriopts to be run.
+        /// </summary>
+        string ScriptFolder { get; }
+        
+        /// <summary>
+        /// Lst of scheduled tasks.
+        /// </summary>
+        IEnumerable<ScheduledTaskDetails> ScheduledTasks { get; }
+
+        /// <summary>
+        /// Path to audit file. Logs all input and output message
+        /// </summary>
+        string AuditFileName { get; }
+
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
         /// Update datasource methnod
         /// </summary>
         bool UpdateDatasource(string dataSource);
@@ -71,12 +91,10 @@ namespace InvestmentBuilderCore
         /// </summary>
         string GetOutputPath(string account);
         /// <summary>
-        /// return full path to url link to report folder. This is used by the web app.
-        /// </summary>
-        string GetOutputLinkPath(string account);
-        /// <summary>
         /// Return path to template folder containing the excel templates.
         string GetTemplatePath();
+
+        #endregion
     }
 
     [XmlType("index")]
@@ -101,8 +119,6 @@ namespace InvestmentBuilderCore
         public string AuthDatasourceString { get; set; }
         [XmlElement("outputFolder")]
         public string OutputFolder {get;set;}
-        [XmlElement("outputLinkFolder")]
-        public string OutputLinkFolder { get; set; }
         [XmlArray("indexes")]
         public Index[] IndexArray{get;set;}
         [XmlArray("formats")]
@@ -114,20 +130,22 @@ namespace InvestmentBuilderCore
         public string OutputCachedMarketData { get; set; }
         [XmlElement("maxAccountsPerUser")]
         public int MaxAccountsPerUser { get; set; }
+        [XmlElement("templatePath")]
+        public string TemplatePath { get; set; }
+        [XmlElement("scriptFolder")]
+        public string ScriptFolder { get; set; }
+        [XmlElement("auditFile")]
+        public string AuditFileName { get; set; }
+        [XmlArray("schedule")]
+        public ScheduledTaskDetails[] ScheduledTasks { get; set; }
     }
 
+    /// <summary>
+    /// XML Implementation of IConfigurationSettings
+    /// </summary>
     public class ConfigurationSettings : IConfigurationSettings
     {
-        private Configuration _configuration;
-
-        public ConfigurationSettings(string filename)
-        {
-            using (var fs = new FileStream(filename, FileMode.Open))
-            {
-                XmlSerializer serialiser = new XmlSerializer(typeof(Configuration));
-                _configuration = (Configuration)serialiser.Deserialize(fs);
-            }
-        }
+        #region Public Properties
 
         public string DatasourceString { get { return _configuration.DatasourceString; } }
          
@@ -141,10 +159,71 @@ namespace InvestmentBuilderCore
 
         public string OutputFolder { get { return _configuration.OutputFolder; } }
 
-        public string OutputLinkFolder { get { return _configuration.OutputLinkFolder; } }
-
         public IEnumerable<Index> ComparisonIndexes { get { return _configuration.IndexArray; } }
 
+        public string ScriptFolder { get { return _configuration.ScriptFolder; } }
+
+        public IEnumerable<string> ReportFormats { get { return _configuration.ReportFormats; } }
+
+        /// <summary>
+        /// List of scheduled tasks.
+        /// </summary>
+        public IEnumerable<ScheduledTaskDetails> ScheduledTasks { get { return _configuration.ScheduledTasks; } }
+
+        /// <summary>
+        /// Audit file name.
+        /// </summary>
+        public string AuditFileName { get { return _configuration.AuditFileName; } }
+
+        #endregion
+
+        #region Constructor
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public ConfigurationSettings(string filename, List<KeyValuePair<string,string>> overrides)
+        {
+            using (var fs = new FileStream(filename, FileMode.Open))
+            {
+                XmlSerializer serialiser = new XmlSerializer(typeof(Configuration));
+                _configuration = (Configuration)serialiser.Deserialize(fs);
+            }
+
+            //now apply the overrides
+            var props = _configuration.GetType().
+                GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public).ToList();
+
+            foreach(var ovride in overrides)
+            {
+                var propinfo = props.FirstOrDefault(p => MatchPropertyInfoXmlName(p, ovride.Key));
+                if(propinfo != null)
+                {
+                    logger.Info($"Override configuration. setting {propinfo.Name} to {ovride.Value}");
+
+                    if(propinfo.PropertyType == typeof(int))
+                    {
+                        propinfo.SetValue(_configuration, Convert.ToInt32(ovride.Value));
+                    }
+                    else if (propinfo.PropertyType == typeof(double))
+                    {
+                        propinfo.SetValue(_configuration, Convert.ToDouble(ovride.Value));
+                    }
+                    else if (propinfo.PropertyType == typeof(string))
+                    {
+                        propinfo.SetValue(_configuration, ovride.Value);
+                    }
+                }
+            }
+        }
+
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        /// update the datasource
+        /// </summary>
         public bool UpdateDatasource(string dataSource)
         {
             if (dataSource != _configuration.DatasourceString)
@@ -183,17 +262,37 @@ namespace InvestmentBuilderCore
             return path;
         }
 
-        public string GetOutputLinkPath(string account)
-        {
-            return $"{_configuration.OutputLinkFolder}/{account}";
-        }
-
         public string GetTemplatePath()
         {
-            return Path.Combine(_configuration.OutputFolder, "templates");
+            return _configuration.TemplatePath;
         }
 
-        public IEnumerable<string> ReportFormats { get { return _configuration.ReportFormats; } }
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        /// Method matches the xmlattribute of the propertyinfo to the supplied name.
+        /// </summary>
+        private bool MatchPropertyInfoXmlName(PropertyInfo propInfo, string name)
+        {
+            var xmlAttr = propInfo.CustomAttributes.FirstOrDefault(p => p.AttributeType.Name == "XmlElementAttribute");
+            if(xmlAttr != null)
+            {
+                var arg = xmlAttr.ConstructorArguments.FirstOrDefault(c => string.Equals(c.Value.ToString(),name,StringComparison.CurrentCultureIgnoreCase));
+                return arg != null;
+            }
+            return false;
+        }
+
+        #endregion
+
+        #region Private Data
+
+        private Configuration _configuration;
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
+        #endregion
 
     }
 }

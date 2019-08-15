@@ -13,7 +13,7 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_GetPreviousValuationDate](@ValuationDate as DATETIME, @Account AS VARCHAR(30)) AS
+CREATE PROCEDURE [dbo].[sp_GetPreviousValuationDate](@ValuationDate as DATETIME, @Account AS INT) AS
 BEGIN
 
 --return the previous date from valuation table
@@ -21,12 +21,8 @@ SELECT
 	TOP 1 V.Valuation_Date 
 FROM
 	Valuations V
-INNER JOIN 
-	Accounts A
-ON 
-	V.[account_id] = A.[Account_Id]
 WHERE
-	A.Name = @Account
+	V.[account_id] = @Account
 AND
 	V.Valuation_Date < @ValuationDate
 ORDER BY

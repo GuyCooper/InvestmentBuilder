@@ -24,7 +24,7 @@ namespace InvestmentBuilderService
         /// <summary>
         /// Method returns the usertoken for the requested user.
         /// </summary>
-        public UserAccountToken GetUserAccountToken(UserSession userSession, string selectedAccount)
+        public UserAccountToken GetUserAccountToken(UserSession userSession, AccountIdentifier selectedAccount)
         {
             UserAccountToken token = null;
             var username = userSession.UserName;
@@ -40,7 +40,7 @@ namespace InvestmentBuilderService
         /// </summary>
         /// <param name="session"></param>
         /// <returns></returns>
-        public IEnumerable<string> GetAccountsForUser(UserSession session)
+        public IEnumerable<AccountIdentifier> GetAccountsForUser(UserSession session)
         {
             return _accountManager.GetAccountNames(session.UserName);
         }
@@ -53,12 +53,27 @@ namespace InvestmentBuilderService
             return _accountManager.UpdateUserAccount(userSession.UserName, account, userSession.ValuationDate);
         }
 
-        public AccountModel GetAccount(UserSession userSession, string accountName)
+        /// <summary>
+        /// Method creates a new account for the specified user
+        /// </summary>
+        public bool CreateUserAccount(UserSession userSession, AccountModel account)
+        {
+            return _accountManager.CreateUserAccount(userSession.UserName, account, userSession.ValuationDate);
+        }
+
+        public AccountModel GetAccount(UserSession userSession, AccountIdentifier accountName)
         {
             return _accountManager.GetAccountData(GetUserAccountToken(userSession, accountName),
                                                                       userSession.ValuationDate);
         }
 
+        /// <summary>
+        /// Return a list of members of an account
+        /// </summary>
+        public IEnumerable<AccountMember> GetAccountMembers(UserAccountToken userToken, DateTime dtValuationDate)
+        {
+            return _accountManager.GetAccountMembers(userToken, dtValuationDate);
+        }
         #endregion
 
         #region Private Data Members

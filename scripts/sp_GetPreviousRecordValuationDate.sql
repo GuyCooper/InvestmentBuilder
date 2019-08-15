@@ -13,7 +13,7 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].sp_GetPreviousRecordValuationDate(@Account AS VARCHAR(30), @ValuationDate as DATETIME) AS
+CREATE PROCEDURE [dbo].sp_GetPreviousRecordValuationDate(@Account AS INT, @ValuationDate as DATETIME) AS
 BEGIN
 
 --returns the most previous valuation date in the investmentrecord table fromthe
@@ -22,12 +22,8 @@ SELECT
 	TOP 1 IR.Valuation_Date 
 FROM
 	InvestmentRecord IR
-INNER JOIN 
-	Accounts A
-ON 
-	IR.[account_id] = A.[Account_Id]
 WHERE
-	A.Name = @Account
+	IR.[account_id] = @Account
 AND
 	IR.is_active = 1
 AND

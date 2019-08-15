@@ -1,8 +1,7 @@
 pushd
 
 set ServerName=DESKTOP-JJ9QOJA\SQLEXPRESS
-set DBName=InvestmentBuilderTest2
-
+set DBName=InvestmentBuilderTest99
 
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddCashAccountData.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddNewShares.sql
@@ -10,6 +9,7 @@ sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddNewUnitValuation.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddRedemption.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddTransactionHistory.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_CreateAccount.sql
+sqlcmd -S %ServerName% -E -d %DBName% -i sp_UpdateAccount.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_CreateNewInvestment.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_DeactivateCompany.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_GetAccountData.sql
@@ -42,7 +42,6 @@ sqlcmd -S %ServerName% -E -d %DBName% -i sp_GetUnitPriceData.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_GetUnitValuation.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_GetUnitValuationRange.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_GetUserCompanies.sql
-sqlcmd -S %ServerName% -E -d %DBName% -i sp_GetUserData.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_InvestmentAccountExists.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_IsAdministrator.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_IsExistingRecordValuationDate.sql
@@ -56,7 +55,6 @@ sqlcmd -S %ServerName% -E -d %DBName% -i sp_UndoLastTransaction.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_UpdateClosingPrice.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_UpdateDividend.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_UpdateHolding.sql
-sqlcmd -S %ServerName% -E -d %DBName% -i sp_UpdateInvesmentState.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_UpdateMemberForAccount.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_UpdateMembersCapitalAccount.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_updateRedemption.sql
@@ -65,6 +63,7 @@ sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddHistoricalData.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_GetHistoricalData.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddNewUser.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_GetUserId.sql
+
 pause
 popd
 

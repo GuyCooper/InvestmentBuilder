@@ -50,14 +50,15 @@ namespace InvestmentBuilderMSTests
             return CashAccountTestData._BalanceInHand;
         }
 
-        public override void AddCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate, string type, string parameter, double amount)
+        public override int AddCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate, string type, string parameter, double amount)
         {
+            return 0;
         }
     }
 
     public class CashAccountTestsBase
     {
-        protected static readonly UserAccountToken _usertoken = new UserAccountToken("testUser", "testAccount", AuthorizationLevel.UPDATE);
+        protected static readonly UserAccountToken _usertoken = new UserAccountToken("testUser", new AccountIdentifier { Name = "testAccount", AccountId = 2 }, AuthorizationLevel.UPDATE);
         protected static readonly DateTime _dtValuation = DateTime.Parse("10/12/2015");
 
         protected CashAccountTransactionManager _manager;
@@ -160,7 +161,7 @@ namespace InvestmentBuilderMSTests
             ValidateTotalTransaction(transactions[1]);
         }
 
-        private void ValidateTotalTransaction(Transaction transaction)
+        private void ValidateTotalTransaction(InvestmentBuilder.CashTransaction transaction)
         {
             Assert.AreEqual("TOTAL", transaction.Parameter);
             Assert.AreEqual(_dtValuation, transaction.TransactionDate);

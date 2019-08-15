@@ -5,6 +5,28 @@ using System.Diagnostics.Contracts;
 namespace InvestmentBuilderCore
 {
     /// <summary>
+    /// Class identifies a unique account.
+    /// </summary>
+    public class AccountIdentifier
+    {
+        public string Name { get; set; }
+        public int AccountId { get; set; }
+
+        /// <summary>
+        /// Method returns a unique path name for this account that contains the account name.
+        /// </summary>
+        public string GetPathName()
+        {
+            return $"{Name}_{AccountId}";
+        }
+
+        public override string ToString()
+        {
+            return $"{Name}_{AccountId}";
+        }
+    }
+
+    /// <summary>
     /// AccountMember class. Defines an account member
     /// </summary>
     public class AccountMember
@@ -41,7 +63,7 @@ namespace InvestmentBuilderCore
     {
         #region Public Properties
 
-        public string Name { get; private set; }
+        public AccountIdentifier Identifier { get; private set; }
         public string Description { get; private set; }
         public string ReportingCurrency { get; private set; }
         public string Type { get; private set; }
@@ -62,12 +84,12 @@ namespace InvestmentBuilderCore
         /// <summary>
         /// Constructor.
         /// </summary>
-        public AccountModel(string name, string description,
+        public AccountModel(AccountIdentifier identifer, string description,
                             string currency, string type, bool enabled, string broker,
                             IList<AccountMember> members)
         {
-            Name = name;
-            Description = description ?? Name;
+            Identifier = identifer;
+            Description = description ?? Identifier.Name;
             ReportingCurrency = currency;
             Type = type;
             Enabled = enabled;
@@ -124,7 +146,8 @@ namespace InvestmentBuilderCore
         [ContractInvariantMethod]
         protected void ObjectInvariantMethod()
         {
-            Contract.Invariant(string.IsNullOrEmpty(Name) == false);
+            Contract.Invariant(Identifier != null);
+            Contract.Invariant(string.IsNullOrEmpty(Identifier.Name) == false);
             Contract.Invariant(string.IsNullOrEmpty(ReportingCurrency) == false);
             Contract.Invariant(string.IsNullOrEmpty(Type) == false);
             Contract.Invariant(Members != null);

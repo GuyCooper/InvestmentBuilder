@@ -13,7 +13,7 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_DeactivateCompany](@Name VARCHAR(50), @Account as VARCHAR(30)) AS
+CREATE PROCEDURE [dbo].[sp_DeactivateCompany](@Name VARCHAR(50), @Account as INT) AS
 BEGIN
 
 UPDATE
@@ -26,14 +26,10 @@ INNER JOIN
 	Companies C
 ON
 	IR.Company_id = C.Company_Id
-INNER JOIN
-	Accounts A
-ON 
-	IR.account_id = A.[Account_Id]
 WHERE
     C.Name = @Name
 AND
-	A.Name = @Account
+	IR.account_id = @Account
 END
 GO
 

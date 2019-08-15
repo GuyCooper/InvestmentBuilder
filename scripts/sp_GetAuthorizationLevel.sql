@@ -11,7 +11,7 @@ END
 
 GO
 
-CREATE PROCEDURE sp_GetAuthorizationLevel(@User AS VARCHAR(50), @Account AS VARCHAR(30)) AS						 
+CREATE PROCEDURE sp_GetAuthorizationLevel(@User AS VARCHAR(50), @Account AS INT) AS						 
 BEGIN
 
 SELECT
@@ -19,15 +19,11 @@ SELECT
 FROM
 	Members m
 INNER JOIN
-	Accounts a
-ON
-	m.account_id = a.[Account_Id]
-INNER JOIN
 	[Users] u
 ON
 	u.[UserId] = m.[UserId]
 WHERE
-	a.[Name] = @Account
+	m.account_id = @Account
 AND
 	u.[UserName] = @User
 

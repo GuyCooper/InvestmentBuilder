@@ -13,7 +13,7 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].sp_GetLatestRecordValuationDate(@Account AS VARCHAR(30)) AS
+CREATE PROCEDURE [dbo].sp_GetLatestRecordValuationDate(@Account AS INT) AS
 BEGIN
 
 --return the latest date from valuation table
@@ -21,12 +21,8 @@ SELECT
 	TOP 1 IR.Valuation_Date 
 FROM
 	InvestmentRecord IR
-INNER JOIN 
-	Accounts A
-ON 
-	IR.[account_id] = A.[Account_Id]
 WHERE
-	A.Name = @Account
+	IR.[account_id] = @Account
 AND
 	IR.is_active = 1
 ORDER BY

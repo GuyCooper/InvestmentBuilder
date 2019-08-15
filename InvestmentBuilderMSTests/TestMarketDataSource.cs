@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MarketDataServices;
 using InvestmentBuilderCore;
+using InvestmentBuilderCore.Schedule;
 
 namespace InvestmentBuilderMSTests
 {
@@ -54,11 +55,12 @@ namespace InvestmentBuilderMSTests
             };
         }
 
-        public void Initialise(IConfigurationSettings settings) { }
+        public void Initialise(IConfigurationSettings settings, ScheduledTaskFactory scheduledTaskFactory) { }
 
         public Task<MarketDataPrice> RequestPrice(string symbol, string exchange, string source)
         {
             return null;
         }
+
     }
 }

@@ -13,7 +13,7 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_GetUnitPriceData](@Account AS VARCHAR(30)) AS
+CREATE PROCEDURE [dbo].[sp_GetUnitPriceData](@Account AS INT) AS
 BEGIN
 
 --return the latest date from valuation table
@@ -22,12 +22,8 @@ SELECT
 	 V.Unit_Price as Unit_Price 
 FROM
 	Valuations V
-INNER JOIN 
-	Accounts A
-ON 
-	V.[account_id] = A.[Account_Id]
 WHERE
-	A.Name = @Account
+	V.[account_id] = @Account
 ORDER BY
 	 Valuation_Date ASC
 

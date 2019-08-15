@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <servicename>MiddlewareService</servicename>
+  <processes>
+    <process>
+      <name>Middleware</name>
+      <path>C:\Projects\Middleware\Middleware\bin\release\Middleware.exe</path>
+      <workingpath>C:\Projects\Middleware\Middleware\bin\release</workingpath>
+      <instances>1</instances>
+    </process>
+  </processes>
+</configuration>

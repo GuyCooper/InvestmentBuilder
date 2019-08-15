@@ -22,20 +22,28 @@
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="userviews\ChangePassword.html" />
     <Content Include="Gruntfile.js" />
     <Content Include="gulpfile.js" />
     <Content Include="Index.html" />
     <Content Include="Middleware\Middleware.js" />
+    <Content Include="userviews\ForgottenPassword.html" />
+    <Content Include="userviews\RegisterUser.html" />
     <Content Include="src\AccountList.js" />
     <Content Include="src\AddAccount.js" />
     <Content Include="src\CashFlow.js" />
-    <Content Include="src\CreateTrade.js" />
+    <Content Include="src\CashTransaction.js" />
+    <Content Include="src\AddInvestment.js" />
+    <Content Include="src\LastTransaction.js" />
     <Content Include="src\Layout.js" />
     <Content Include="src\MiddlewareService.js" />
     <Content Include="src\NotifyService.js" />
     <Content Include="src\Portfolio.js" />
+    <Content Include="src\Redemptions.js" />
     <Content Include="src\RegisterModules.js" />
+    <Content Include="src\RegisterUser.js" />
     <Content Include="src\Reports.js" />
+    <Content Include="src\RequestRedemption.js" />
     <Content Include="src\Utils.js" />
     <Content Include="styles\css\InvestmentBuilderWeb.css" />
     <Content Include="styles\fonts\glyphicons-halflings-regular.svg" />
@@ -51,9 +59,15 @@
     <Content Include="styles\thirdParty\jquery-ui.theme.min.css" />
     <Content Include="styles\thirdParty\Site.css" />
     <Content Include="tasks\scaffold.js" />
+    <Content Include="userviews\UserTemplate.html" />
+    <Content Include="userviews\ValidateNewUser.html" />
     <Content Include="views\AccountList.html" />
     <Content Include="views\AddAccount.html" />
+    <Content Include="views\LastTransaction.html" />
     <Content Include="views\Layout.html" />
+    <Content Include="views\Redemptions.html" />
+    <Content Include="views\RequestRedemption.html" />
+    <Content Include="views\ShowIdle.html" />
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -64,15 +78,15 @@
     <Content Include="views\AddModalDialog.html" />
     <Content Include="views\AddTransaction.html" />
     <Content Include="views\CashFlow.html" />
-    <Content Include="views\CreateTrade.html" />
+    <Content Include="views\AddInvestment.html" />
     <Content Include="views\EditTrade.html" />
     <Content Include="views\Parameters.html" />
     <Content Include="views\Portfolio.html" />
-    <Content Include="views\RaiseAlert.html" />
     <Content Include="views\ReportCompletion.html" />
     <Content Include="views\Reports.html" />
     <Content Include="views\YesNoChooser.html" />
     <Content Include="package.json" />
+    <Content Include="Config.json" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MarketDataServices;
 using InvestmentBuilderCore;
+using InvestmentBuilderCore.Schedule;
 
 namespace InvestmentBuilderMSTests
 {
@@ -66,7 +67,7 @@ namespace InvestmentBuilderMSTests
             return false;
         }
 
-        public void Initialise(IConfigurationSettings settings) { }
+        public void Initialise(IConfigurationSettings settings, ScheduledTaskFactory scheduledTaskFactory) { }
 
         public Task<MarketDataPrice> RequestPrice(string symbol, string exchange, string source)
         {
@@ -103,7 +104,7 @@ namespace InvestmentBuilderMSTests
             return true;
         }
 
-        public void Initialise(IConfigurationSettings settings) { }
+        public void Initialise(IConfigurationSettings settings, ScheduledTaskFactory scheduledTaskFactory) { }
 
         public Task<MarketDataPrice> RequestPrice(string symbol, string exchange, string source)
         {

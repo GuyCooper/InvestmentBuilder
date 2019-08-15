@@ -13,18 +13,16 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_GetBankBalance](@ValuationDate as DATETIME, @Account as VARCHAR(30)) AS
+CREATE PROCEDURE [dbo].[sp_GetBankBalance](@ValuationDate as DATETIME, @Account as INT) AS
 BEGIN
 
 --return the latest balance in hand amount
 select sum(ca.amount) from dbo.CashAccount ca
 inner join TransactionType tt
 on ca.type_id = tt.type_id
-inner join Accounts a
-on ca.account_id = a.[Account_Id]
 and tt.type = 'BalanceInHandCF'
 and ca.valuation_date = @ValuationDate
-and a.Name = @Account
+and ca.account_id = @Account
 END
 
 GO

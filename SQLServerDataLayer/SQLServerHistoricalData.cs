@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using InvestmentBuilderCore;
 using System.Data.SqlClient;
-using System.Globalization;
 namespace SQLServerDataLayer
 {
+    /// <summary>
+    /// SQLServer implementation of IHistoricalData interface.
+    /// </summary>
     class SQLServerHistoricalData : SQLServerBase, IHistoricalDataReader
     {
         public SQLServerHistoricalData(string connectionStr)
@@ -15,6 +14,9 @@ namespace SQLServerDataLayer
             ConnectionStr = connectionStr;
         }
 
+        /// <summary>
+        /// Method returns all the historial unit prices for this account. 
+        /// </summary>
         public IEnumerable<HistoricalData> GetHistoricalAccountData(UserAccountToken userToken)
         {
             userToken.AuthorizeUser(AuthorizationLevel.READ);
@@ -23,7 +25,7 @@ namespace SQLServerDataLayer
                 using (var command = new SqlCommand("sp_GetUnitPriceData", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account));
+                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
                     using (var reader = command.ExecuteReader())
                     {
                         while (reader.Read())
@@ -40,6 +42,9 @@ namespace SQLServerDataLayer
             }
         }
 
+        /// <summary>
+        /// Returns all the historical prices for the index specified by the symbol
+        /// </summary>
         public string GetIndexHistoricalData(UserAccountToken userToken, string symbol)
         {
             userToken.AuthorizeUser(AuthorizationLevel.READ);

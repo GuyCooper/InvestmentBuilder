@@ -11,13 +11,13 @@ END
 
 GO
 
-CREATE PROCEDURE sp_InvestmentAccountExists(@Name VARCHAR(30)) AS
+CREATE PROCEDURE sp_InvestmentAccountExists(@Account as INT) AS
 BEGIN
 
 SELECT
 	 1 
-FROM 
+FROM
 	Accounts
 WHERE
-	[Name] = @Name
+	[Account_Id] = @Account
 END

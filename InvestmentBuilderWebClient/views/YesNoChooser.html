@@ -6,8 +6,13 @@
     <span>{{$item.Description}}</span>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-primary" type="button" ng-click="$item.ok()()">Yes</button>
-    <button class="btn btn-warning" type="button" ng-click="$item.cancel()">No</button>
+    <div ng-if="$item.Ok == false">
+        <button class="btn btn-primary" type="button" ng-click="$item.ok()()">Yes</button>
+        <button class="btn btn-warning" type="button" ng-click="$item.cancel()">No</button>
+    </div>
+    <div ng-if="$item.Ok == true">
+        <button class="btn btn-primary" type="button" ng-click="$item.ok()()">Ok</button>
+    </div>
 </div>
 
 

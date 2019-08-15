@@ -1,7 +1,13 @@
 ﻿<div class="container">
     <div ng-controller="ReportsController" id="reportsContainer" class="row">
-        <div ng-repeat="report in RecentReports">
-            <a href="{{report.FileName}}" target="_blank" rel=noopener>{{report.ValuationDate}}</a><br />
+        <div class="reportSection">
+            <div ng-repeat="report in RecentReports">
+                <a href="{{report.Link}}" target="_blank" rel=noopener>{{report.ValuationDate}}</a><br />
+            </div>
         </div>
-    </div> 
+        <div class="reportSection">
+            <button class="btn btn-default btn-xs" type="button" ng-click="recent()">&lt&lt</button>
+            <button class="btn btn-default btn-xs" type="button" ng-click="previous()">&gt&gt</button>
+        </div> 
+     </div>
 </div>

@@ -11,7 +11,7 @@ END
 
 GO
 
-CREATE PROCEDURE sp_GetTransactionHistory(@dateFrom AS datetime, @dateTo AS datetime, @account as varchar(30)) AS
+CREATE PROCEDURE sp_GetTransactionHistory(@dateFrom AS datetime, @dateTo AS datetime, @account as int) AS
 BEGIN
 
 SELECT
@@ -22,12 +22,8 @@ INNER JOIN
 	Companies C
 ON
 	T.[company_id] = C.[company_id]
-INNER JOIN
-	Accounts A
-ON
-	T.[account_id] = A.[Account_id]
 WHERE
-	A.[Name] = @account
+	T.[account_id] = @account
 AND
 	T.[transaction_date] >= @dateFrom
 AND

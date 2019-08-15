@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="styles/jquery-ui.theme.css" type="text/css">
     <link rel="stylesheet" href="styles/bootstrap.css" type="text/css">
     <link rel="stylesheet" href="styles/investmentBuilder.css" type="text/css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous" />
 </head>
 <body>
     <div ng-app="InvestmentRecord">
@@ -23,17 +24,18 @@
                     <a class="navbar-brand" href="Index.html">Investment Builder</a>
                 </div>
                 ﻿<div ng-controller="AccountListController">
-    <div class="navbar-collapse collapse" ng-show="IsConnected">
-        <ul class="nav navbar-nav navbar-right">
+    <div class="navbar-collapse collapse" ng-cloak>
+        <ul class="nav navbar-nav navbar-right" ng-show="IsConnected">
+            <li>
+                <p class="investmentNavigatorUser">{{LoggedInUser}}</p>
+            </li>
             <li>
                 <form name="accountDetailsForm" role="form" ng-submit="UpdateAccount()">
-                    <!--<select name="AccountName" class="form-control investmentNavigator1" ng-model="SelectedAcount" ng-change="UpdateAccount()">
-                        <option ng-repeat="account in Accounts">{{account}}</option>
-                    </select>-->
-                    <select name="AccountName" class="form-control investmentNavigator1" ng-model="SelectedAcount" ng-options="account for account in Accounts" ng-change="UpdateAccount()">
+                    <select name="AccountName" class="form-control investmentNavigator1" ng-model="SelectedAcount" ng-options="account.Name for account in Accounts" ng-change="UpdateAccount()">
                     </select>
                 </form>
             </li>
+
             <li class="dropdown">
                 <button type="button" class="btn dropdown-toggle investmentNavigator" id="dropdownMenu1" data-toggle="dropdown">
                     Options <span class="caret"></span>
@@ -45,21 +47,32 @@
                     <li role="presentation">
                         <a role="menuitem" ng-click="editAccount()">Edit Account</a>
                     </li>
+                    <li role="presentation">
+                        <a role="menuitem" ng-click="getLastTransaction()">Undo Last Transaction</a>
+                    </li>
                 </ul>
+            </li>
+            <li>
+                <span class="undolast" title="undo last transaction">
+                    <i class="fas fa-undo" ng-click="getLastTransaction()"></i>
+                </span>
+            </li>
+            <li>
+                <span class="logout" title="logout">
+                    <i class="fas fa-sign-out-alt" ng-click="logout()"></i>
+                </span>
             </li>
         </ul>
     </div>
 </div>
             </div>
         </div>
-        <div class="container body-content">
-            <hr />
-            <p />
+        <div class="container body-content layoutTop">
             ﻿<div ng-controller="LayoutController">
     <div ng-hide="IsBusy">
         <div ng-show="!LoggedIn" class="loginBox" ng-cloak>
             <form ng-submit="doLogin()">
-                <strong>Login</strong>
+                <h3 class="headerLarge">Login</h3>
                 <br />
                 <div class="form-group">
                     <label>User Name</label>
@@ -69,6 +82,24 @@
                     <label>Password</label>
                     <input name="password" type="password" class="form-control" ng-model="Password" />
                 </div>
+
+                <div class="form-group">
+                    <input type="checkbox" ng-model="SaveCredentials" />
+                    <label>Save Credentials</label>
+                </div>
+
+                <div ng-show="LoginFailed">
+                    <p class="text-danger">Invalid Username or Password!</p>
+                </div>
+
+                <br/>
+                <div>
+                    <a href="RegisterUser.html">Register New User</a>
+                </div>
+                <div>
+                    <a href="ForgottenPassword.html">Forgotten Password</a>
+                </div>
+
                 <button class="btn btn-primary pull-right" type="submit">submit</button>
             </form>
         </div>
@@ -80,32 +111,35 @@
             </div>
 
             <div ng-show="!IsBuilding" ng-cloak>
-                <div class="row investmentSummary">
-                    <div class="pull-left">
-                        <h1>{{AccountName}}</h1>
+                <div class="row investmentSummaryContainer">
+                    <div class="investmentSummaryChild accountNameDisplay">
+                        <h1>{{AccountName.Name}}</h1>
                     </div>
-                    <div class="pull-right">
-                        <div style="display:inline-block">
+                    <div class="investmentSummaryChild">
+                        <div class="summaryDisplay">
+                            <div><strong>Reporting Currency</strong></div>
+                            <div>{{ReportingCurrency}}</div>
+                        </div>
+                        <div class="summaryDisplay">
+                            <div><strong>Valuation Date</strong></div>
+                            <div>{{ValuationDate}}</div>
+                        </div>
+                        <div class="summaryDisplay">
                             <div><strong>Value Per Unit</strong></div>
                             <div>{{ValuePerUnit}}</div>
                         </div>
-                        <div style="display:inline-block">
+                        <div class="summaryDisplay">
                             <div><strong>Net Assets</strong></div>
                             <div>{{NetAssets}}</div>
                         </div>
-                        <div style="display:inline-block">
+                        <div class="summaryDisplay">
                             <div><strong>Bank Balance</strong></div>
                             <div>{{BankBalance}}</div>
                         </div>
-                        <div style="display:inline-block">
+                        <div class="summaryDisplay">
                             <div><strong>Month PnL</strong></div>
                             <div>{{MonthlyPnL}}</div>
                         </div>
-                        <div style="display:inline-block">
-                            <div><strong>Build Status</strong></div>
-                            <div>{{BuildStatus}}</div>
-                        </div>
-
                         <div ng-click="buildReport()" ng-disabled="!CanBuild" class="btn btn-primary summaryButton">Build Report</div>
                     </div>
                 </div>
@@ -122,26 +156,26 @@
 </div>
 
                     </uib-tab>
-                    <uib-tab index="1" select="onAddTrade()" heading="Add Investment">
+                    <uib-tab index="1" select="onAddInvestment()" heading="Add Investment">
                         ﻿
 <h2>Add Investment</h2>
 
 <p/>
 <div class="editor">
-    <div ng-controller="AddTradeController as addTrade">
+    <div ng-controller="AddInvestmentController">
         <form name="AddInvestment" role="form">
             <div class="form-group">
                 <label>Name</label>
-                <input class="form-control" ng-model="addTrade.Name" placeholder="name of investment" />
+                <input class="form-control" ng-model="Name" placeholder="name of investment" />
             </div>
             <div class="row">
                 <div class="col-md-4">
                     <div class="form-group">
                         <label>Transaction Date</label>
                         <p class="input-group">
-                            <input type="text" name="transactionDate" class="form-control" uib-datepicker-popup="{{addTrade.format}}" ng-model="addTrade.dt" is-open="addTrade.datepicker.opened" datepicker-options="addTrade.dateOptions" ng-required="true" close-text="Close" alt-input-formats="addTrade.altInputFormats" />
+                            <input type="text" name="transactionDate" class="form-control" uib-datepicker-popup="{{format}}" ng-model="dt" is-open="datepicker.opened" datepicker-options="dateOptions" ng-required="true" close-text="Close" alt-input-formats="altInputFormats" />
                             <span class="input-group-btn">
-                                <button type="button" class="btn btn-default" ng-click="addTrade.openDatePicker()"><i class="glyphicon glyphicon-calendar"></i></button>
+                                <button type="button" class="btn btn-default" ng-click="openDatePicker()"><i class="glyphicon glyphicon-calendar"></i></button>
                             </span>
                         </p>
                     </div>
@@ -149,34 +183,42 @@
             </div>
             <div class="form-group">
                 <label>Quantity</label>
-                <input class="form-control" type="number" ng-model="addTrade.Quantity" placeholder="amount bought" />
+                <input class="form-control" type="number" ng-model="Quantity" placeholder="amount bought" />
             </div>
 
             <div class="form-group">
                 <label>Symbol</label>
-                <input class="form-control" ng-model="addTrade.Symbol" placeholder="ticker symbol" />
+                <p class="input-group">
+                    <input class="form-control" ng-model="Symbol" placeholder="ticker symbol" />
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" ng-click="ValidateSymbol()">Validate</button>
+                    </span>
+                </p>
             </div>
-            <div class="form-group">
-                <label>Exchange</label>
-                <input class="form-control" ng-model="addTrade.Exchange" placeholder="optional" />
+            <div class="form-group" ng-show="ValidatingSymbol === true">
+                <div ng-show="Busy" class="loader">
+                </div>
+                <div ng-hide="Busy">
+                    <span class="validated" title="validated" ng-show="SymbolValidated === true">
+                        validated <i class="fas fa-check-circle"></i>
+                    </span>
+                    <span class="validationFailed" title="validation failed" ng-show="SymbolValidated === false">
+                        validation failed <i class="fas fa-times-circle"></i>
+                    </span>
+                </div>
             </div>
+
             <div class="form-group">
                 <label>Investment Currency</label>
-                <input class="form-control" ng-model="addTrade.Currency" />
+                <input class="form-control" ng-model="Currency" />
             </div>
-            <div class="form-group">
-                <label>Scaling Factor</label>
-                <input class="form-control" type="number" ng-model="addTrade.ScalingFactor" />
-            </div>
-
             <div class="form-group">
                 <label>Total Cost</label>
-                <input class="form-control" type="number" ng-model="addTrade.TotalCost" />
+                <input class="form-control" type="number" ng-model="TotalCost" />
             </div>
 
             <div class="form-group">
-                <button class="btn btn-primary" type="button" ng-click="addTrade.submitTrade()">Submit</button>
-                <button class="btn btn-warning" type="button" ng-click="addTrade.cancel()">Cancel</button>
+                <button class="btn btn-primary" ng-disabled="!SymbolValidated" type="button" ng-click="submitTrade()">Submit</button>
             </div>
         </form>
     </div>
@@ -189,7 +231,7 @@
 <div class="container">
     <div ng-controller="CashFlowController as cashFlow" id="cashflowContainer">        
             <div ng-repeat="cashFlowItem in cashFlows" class="row cashFlowBlock">
-                <div class="panel panel-default investmentSummary">
+                <div class="panel panel-default cashFlowSummary">
                     <div class="cashItemType">
                         <div class="navbar navbar-default">
                             <div class="navbar-header">
@@ -249,7 +291,7 @@
                     </div>
                 </div>
 
-                <div class="panel panel-default investmentSummary">
+                <div class="panel panel-default cashFlowSummary">
                     <div class="cashItemType">
                         <div class="navbar navbar-default">
                             <div class="navbar-header">
@@ -324,13 +366,32 @@
                     <uib-tab index="3" select="onReports()" heading="Reports">
                         ﻿<div class="container">
     <div ng-controller="ReportsController" id="reportsContainer" class="row">
-        <div ng-repeat="report in RecentReports">
-            <a href="{{report.FileName}}" target="_blank" rel=noopener>{{report.ValuationDate}}</a><br />
+        <div class="reportSection">
+            <div ng-repeat="report in RecentReports">
+                <a href="{{report.Link}}" target="_blank" rel=noopener>{{report.ValuationDate}}</a><br />
+            </div>
         </div>
-    </div> 
+        <div class="reportSection">
+            <button class="btn btn-default btn-xs" type="button" ng-click="recent()">&lt&lt</button>
+            <button class="btn btn-default btn-xs" type="button" ng-click="previous()">&gt&gt</button>
+        </div> 
+     </div>
 </div>
 
                     </uib-tab>
+                    <uib-tab index="4" select="onRedemptions()" heading="Redemptions">
+                        ﻿<div class="container">
+    <div ng-controller="RedemptionsController">
+        <div class="row midButton">
+            <button class="btn btn-primary" ng-click="requestRedemption()">Request Redemption</button>
+        </div>
+        <div class="row" style="height:600px">
+            <div ag-grid="gridOptions" style="height: 100%" class="ag-fresh"></div>
+        </div>
+    </div>
+</div>
+                    </uib-tab>
+
                 </uib-tabset>
                 <!--</div>-->
                 <footer>
@@ -344,7 +405,26 @@
 </div>
 
         </div>
-        <script type="text/javascript" src="js/libs.js"></script>
+        ﻿<script type="text/ng-template" id="warning-dialog.html">
+    <div class="modal-header">
+        <h3>Inactivity detected.</h3>
+    </div>
+    <div idle-countdown="countdown" ng-init="countdown=5" class="modal-body">
+        <uib-progressbar max="5" value="5" animate="true" class="progress-striped active">You'll be logged out in {{countdown}} second(s).</uib-progressbar>
+    </div>
+
+</script>
+<script type="text/ng-template" id="timedout-dialog.html">
+    <div class="modal-header">
+        <h3>You've Timed Out!</h3>
+    </div>
+    <div class="modal-body">
+        <p>
+            You were idle too long. Normally you'd be logged out, but in this demo just do anything and you'll be reset.
+        </p>
+    </div>
+</script>
+        <script type="text/javascript" src="js/libsmin.js"></script>
         <script type="text/javascript" src="js/app.js"></script>
     </div>
 </body>

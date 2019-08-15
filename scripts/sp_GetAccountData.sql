@@ -11,7 +11,7 @@ END
 
 GO
 
-CREATE PROCEDURE sp_GetAccountData(@Account AS VARCHAR(30)) AS						 
+CREATE PROCEDURE sp_GetAccountData(@Account AS INT) AS						 
 BEGIN
 
 SELECT
@@ -20,7 +20,7 @@ SELECT
 	A.Currency,
 	A.[Enabled],
 	A.[Broker],
-	T.[Type]
+	T.[Type] as  [AccountType]
 FROM
 	Accounts A
 INNER JOIN
@@ -28,7 +28,7 @@ INNER JOIN
 ON
 	A.[Type_Id] = T.[Type_Id]
 WHERE
-	Name = @Account
+	Account_Id = @Account
 END
 
 GO

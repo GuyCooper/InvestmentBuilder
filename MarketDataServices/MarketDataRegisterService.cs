@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using InvestmentBuilderCore;
-using System.IO;
+﻿using InvestmentBuilderCore;
 
 namespace MarketDataServices
 {
@@ -13,12 +7,14 @@ namespace MarketDataServices
     /// </summary>
     public static class MarketDataRegisterService
     {
+        /// <summary>
+        /// Register all the marketdata services.
+        /// </summary>
         public static void RegisterServices()
         {
-            //ContainerManager.RegisterType(typeof(IMarketDataReader), typeof(WebMarketDataReader), true);
-            ContainerManager.RegisterType(typeof(IMarketDataSerialiser), typeof(MarketDataFileSerialiser), true);
+            //ContainerManager.RegisterType(typeof(IMarketDataSerialiser), typeof(MarketDataFileSerialiser), true);
             ContainerManager.RegisterType(typeof(IMarketSourceLocator), typeof(MefMarketSourceLocator), true);
-            ContainerManager.RegisterType(typeof(IMarketDataSource), typeof(CachedMarketDataSource), true);
+            ContainerManager.RegisterType(typeof(IMarketDataSource), typeof(AggregatedMarketDataSource), true);
         }
     }
 }

@@ -4,6 +4,7 @@ using MiddlewareNetClient;
 using Middleware;
 using InvestmentBuilderService.Utils;
 using NLog;
+using MiddlewareInterfaces;
 
 namespace InvestmentBuilderService.Session
 {
@@ -51,7 +52,6 @@ namespace InvestmentBuilderService.Session
             if (_session != null)
             {
                 logger.Log(LogLevel.Debug, $"Registering {_appName} as an authentication server");
-
                 var response = await _middleware.RegisterAuthHandler(_session, identifier);
                 return response.Success;
             }
@@ -69,7 +69,7 @@ namespace InvestmentBuilderService.Session
                 var authResult = new AuthResult
                 {
                     Message = message,
-                    Success = result
+                    Result = result ? AuthResult.ResultType.SUCCESS : AuthResult.ResultType.FAILED
                 };
 
                 _middleware.SendAuthenticationResponse(_session, requestid, authResult);
@@ -79,12 +79,20 @@ namespace InvestmentBuilderService.Session
         /// <summary>
         /// Send Message to Channel
         /// </summary>
-        public void SendMessageToChannel(string channel, string payload, string destination, string requestId)
+        public void SendMessageToChannel(string channel, string payload, string destination, string requestId, byte[] binaryPayload)
         {
             if (_session != null)
             {
-                _middleware.SendMessageToChannel(_session, channel, payload, destination, requestId);
+                _middleware.SendMessageToChannel(_session, channel, payload, destination, requestId, binaryPayload);
             }
+        }
+
+        /// <summary>
+        /// Broadcast a message ona channel. will be picked up by all listeners on that channel
+        /// </summary>
+        public void BroadcastMessage(string channel, string payload)
+        {
+            _middleware.PublishMessage(_session, channel, payload);
         }
 
         /// <summary>
