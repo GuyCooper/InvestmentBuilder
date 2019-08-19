@@ -260,6 +260,9 @@ namespace InvestmentBuilder
             return true;
         }
 
+        /// <summary>
+        /// Update dividend for an investment.
+        /// </summary>
         private void UpdateDividend(DateTime valuationDate, DateTime? previousValulation, IInvestmentRecordData investment,  CashAccountData cashData )
         {
             //update any dividend. do not add dividend if just rerunning current valuation because

@@ -223,6 +223,10 @@ right: 1em;
     margin-bottom:5px;
 }
 
+.lastTransaction {
+    margin-left:5px;
+}
+
 /* Safari */
 @-webkit-keyframes spin {
   0% { -webkit-transform: rotate(0deg); }
