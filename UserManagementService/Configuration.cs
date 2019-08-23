@@ -2,6 +2,7 @@
 using System.Xml.Serialization;
 using System.IO;
 using System;
+using InvestmentBuilderCore;
 
 namespace UserManagementService
 {
@@ -98,49 +99,45 @@ namespace UserManagementService
     {
         #region IConfiguration
 
-        public string AuthenticationDatabase { get { return _configuration.AuthenticationDatabase; } }
+        public string AuthenticationDatabase { get { return m_configuration.AuthenticationDatabase; } }
 
-        public string ListenURL { get { return _configuration.ListenURL; } }
+        public string ListenURL { get { return m_configuration.ListenURL; } }
 
-        public string HostURL { get { return _configuration.HostURL; } }
+        public string HostURL { get { return m_configuration.HostURL; } }
 
-        public string ChangePasswordPage { get { return _configuration.ChangePasswordPage; } }
+        public string ChangePasswordPage { get { return m_configuration.ChangePasswordPage; } }
 
-        public string ValidateNewUserPage { get { return _configuration.ValidateNewUserPage; } }
+        public string ValidateNewUserPage { get { return m_configuration.ValidateNewUserPage; } }
 
-        public int MaxConnections { get { return _configuration.MaxConnections; } }
+        public int MaxConnections { get { return m_configuration.MaxConnections; } }
 
-        public string Root { get { return _configuration.Root; } }
+        public string Root { get { return m_configuration.Root; } }
 
-        public string SmtpServer { get { return _configuration.SmtpServer; } }
+        public string SmtpServer { get { return m_configuration.SmtpServer; } }
 
-        public string SmtpUserName { get { return _configuration.SmtpUserName; } }
+        public string SmtpUserName { get { return m_configuration.SmtpUserName; } }
 
-        public string SmtpPassword { get { return _configuration.SmtpPassword; } }
+        public string SmtpPassword { get { return m_configuration.SmtpPassword; } }
 
-        public string OurEmailAddress { get { return _configuration.OurEmailAddress; } }
+        public string OurEmailAddress { get { return m_configuration.OurEmailAddress; } }
 
         #endregion
 
         #region Constructor
 
         /// <summary>
-        /// Constructor. deserialise configuration from file
+        /// Constructor. deserialise configuration from file. 
         /// </summary>
-        public Configuration(string filename)
+        public Configuration(string filename, string certificate)
         {
-            using (var fs = new FileStream(filename, FileMode.Open))
-            {
-                XmlSerializer serialiser = new XmlSerializer(typeof(ConfigurationImpl));
-                _configuration = (ConfigurationImpl)serialiser.Deserialize(fs);
-            }
+            m_configuration = XmlConfigFileLoader.LoadConfiguration<ConfigurationImpl>(filename, certificate);
         }
 
         #endregion
 
         #region Private Members
 
-        private readonly ConfigurationImpl _configuration;
+        private ConfigurationImpl m_configuration;
 
         #endregion
     }

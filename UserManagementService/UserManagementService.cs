@@ -21,7 +21,15 @@ namespace UserManagementService
             {
                 logger.Info($"Starting UserManagementService");
 
-                var configuration = new Configuration("UserManagementConfiguration.xml");
+                if(args.Length == 0)
+                {
+                    logger.Error("Must speciify a certificate name in the commnad line");
+                    return;
+                }
+
+                var certificate = args[0];
+
+                var configuration = new Configuration("UserManagementConfiguration.enc", certificate);
 
                 //Instantiate the listener...
                 using (var endpoint = new Endpoint(configuration.ListenURL, configuration.HostURL))

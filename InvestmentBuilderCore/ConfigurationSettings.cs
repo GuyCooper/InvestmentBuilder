@@ -147,33 +147,33 @@ namespace InvestmentBuilderCore
     {
         #region Public Properties
 
-        public string DatasourceString { get { return _configuration.DatasourceString; } }
+        public string DatasourceString { get { return m_configuration.DatasourceString; } }
          
-        public string AuthDatasourceString { get { return _configuration.AuthDatasourceString; } }
+        public string AuthDatasourceString { get { return m_configuration.AuthDatasourceString; } }
 
-        public string MarketDatasource { get { return _configuration.MarketDatasourceString; } }
+        public string MarketDatasource { get { return m_configuration.MarketDatasourceString; } }
 
-        public string OutputCachedMarketData { get { return _configuration.OutputCachedMarketData; } }
+        public string OutputCachedMarketData { get { return m_configuration.OutputCachedMarketData; } }
 
-        public int MaxAccountsPerUser { get { return _configuration.MaxAccountsPerUser; } }
+        public int MaxAccountsPerUser { get { return m_configuration.MaxAccountsPerUser; } }
 
-        public string OutputFolder { get { return _configuration.OutputFolder; } }
+        public string OutputFolder { get { return m_configuration.OutputFolder; } }
 
-        public IEnumerable<Index> ComparisonIndexes { get { return _configuration.IndexArray; } }
+        public IEnumerable<Index> ComparisonIndexes { get { return m_configuration.IndexArray; } }
 
-        public string ScriptFolder { get { return _configuration.ScriptFolder; } }
+        public string ScriptFolder { get { return m_configuration.ScriptFolder; } }
 
-        public IEnumerable<string> ReportFormats { get { return _configuration.ReportFormats; } }
+        public IEnumerable<string> ReportFormats { get { return m_configuration.ReportFormats; } }
 
         /// <summary>
         /// List of scheduled tasks.
         /// </summary>
-        public IEnumerable<ScheduledTaskDetails> ScheduledTasks { get { return _configuration.ScheduledTasks; } }
+        public IEnumerable<ScheduledTaskDetails> ScheduledTasks { get { return m_configuration.ScheduledTasks; } }
 
         /// <summary>
         /// Audit file name.
         /// </summary>
-        public string AuditFileName { get { return _configuration.AuditFileName; } }
+        public string AuditFileName { get { return m_configuration.AuditFileName; } }
 
         #endregion
 
@@ -182,16 +182,12 @@ namespace InvestmentBuilderCore
         /// <summary>
         /// Constructor.
         /// </summary>
-        public ConfigurationSettings(string filename, List<KeyValuePair<string,string>> overrides)
+        public ConfigurationSettings(string filename, List<KeyValuePair<string,string>> overrides, string certificate)
         {
-            using (var fs = new FileStream(filename, FileMode.Open))
-            {
-                XmlSerializer serialiser = new XmlSerializer(typeof(Configuration));
-                _configuration = (Configuration)serialiser.Deserialize(fs);
-            }
+            m_configuration = XmlConfigFileLoader.LoadConfiguration<Configuration>(filename, certificate);
 
             //now apply the overrides
-            var props = _configuration.GetType().
+            var props = m_configuration.GetType().
                 GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public).ToList();
 
             foreach(var ovride in overrides)
@@ -203,15 +199,15 @@ namespace InvestmentBuilderCore
 
                     if(propinfo.PropertyType == typeof(int))
                     {
-                        propinfo.SetValue(_configuration, Convert.ToInt32(ovride.Value));
+                        propinfo.SetValue(m_configuration, Convert.ToInt32(ovride.Value));
                     }
                     else if (propinfo.PropertyType == typeof(double))
                     {
-                        propinfo.SetValue(_configuration, Convert.ToDouble(ovride.Value));
+                        propinfo.SetValue(m_configuration, Convert.ToDouble(ovride.Value));
                     }
                     else if (propinfo.PropertyType == typeof(string))
                     {
-                        propinfo.SetValue(_configuration, ovride.Value);
+                        propinfo.SetValue(m_configuration, ovride.Value);
                     }
                 }
             }
@@ -226,9 +222,9 @@ namespace InvestmentBuilderCore
         /// </summary>
         public bool UpdateDatasource(string dataSource)
         {
-            if (dataSource != _configuration.DatasourceString)
+            if (dataSource != m_configuration.DatasourceString)
             {
-                _configuration.DatasourceString = dataSource;
+                m_configuration.DatasourceString = dataSource;
                 return true;
             }
             return false;
@@ -236,9 +232,9 @@ namespace InvestmentBuilderCore
 
         public bool UpdateOutputFolder(string folder)
         {
-            if (_configuration.OutputFolder != folder)
+            if (m_configuration.OutputFolder != folder)
             {
-                _configuration.OutputFolder = folder;
+                m_configuration.OutputFolder = folder;
                 return true;
             }
             return false;
@@ -246,25 +242,25 @@ namespace InvestmentBuilderCore
 
         public bool UpdateComparisonIndexes(IEnumerable<Index> indexes)
         {
-            _configuration.IndexArray = indexes.ToArray();
+            m_configuration.IndexArray = indexes.ToArray();
             return true;
         }
 
         public string GetTradeFile(string account)
         {
-            return Path.Combine(_configuration.OutputFolder, account, "Trades.xml");
+            return Path.Combine(m_configuration.OutputFolder, account, "Trades.xml");
         }
 
         public string GetOutputPath(string account)
         {
-            var path = Path.Combine(_configuration.OutputFolder, account);
+            var path = Path.Combine(m_configuration.OutputFolder, account);
             Directory.CreateDirectory(path);
             return path;
         }
 
         public string GetTemplatePath()
         {
-            return _configuration.TemplatePath;
+            return m_configuration.TemplatePath;
         }
 
         #endregion
@@ -289,7 +285,8 @@ namespace InvestmentBuilderCore
 
         #region Private Data
 
-        private Configuration _configuration;
+        private Configuration m_configuration;
+
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
         #endregion
