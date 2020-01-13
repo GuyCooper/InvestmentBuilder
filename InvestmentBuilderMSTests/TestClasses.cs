@@ -64,15 +64,15 @@ namespace InvestmentBuilderMSTests
         //investment record interface
         //roll (copy) an investment from dtPrevious to dtValuation
         public virtual void RollInvestment(UserAccountToken userToken, string investment, DateTime dtValuation, DateTime dtPreviousValaution) { throw new NotImplementedException(); }
-        public virtual void UpdateInvestmentQuantity(UserAccountToken userToken, string investment, DateTime dtValuation, int quantity) { throw new NotImplementedException(); }
-        public virtual void AddNewShares(UserAccountToken userToken, string investment, int quantity, DateTime dtValaution, double dTotalCost) { throw new NotImplementedException(); }
-        public virtual void SellShares(UserAccountToken userToken, string investment, int quantity, DateTime dtValuation) { throw new NotImplementedException(); }
+        public virtual void UpdateInvestmentQuantity(UserAccountToken userToken, string investment, DateTime dtValuation, double quantity) { throw new NotImplementedException(); }
+        public virtual void AddNewShares(UserAccountToken userToken, string investment, double quantity, DateTime dtValaution, double dTotalCost) { throw new NotImplementedException(); }
+        public virtual void SellShares(UserAccountToken userToken, string investment, double quantity, DateTime dtValuation) { throw new NotImplementedException(); }
         public virtual void UpdateClosingPrice(UserAccountToken userToken, string investment, DateTime dtValuation, double price) { throw new NotImplementedException(); }
         public virtual void UpdateDividend(UserAccountToken userToken, string investment, DateTime dtValuation, double dividend) { throw new NotImplementedException(); }
         public virtual InvestmentInformation GetInvestmentDetails(string investment) { throw new NotImplementedException(); }
         public virtual IEnumerable<KeyValuePair<string, double>> GetInvestments(UserAccountToken userToken, DateTime dtValuation) { throw new NotImplementedException(); }
         public virtual void CreateNewInvestment(UserAccountToken userToken, string investment, string symbol, string currency,
-                                 int quantity, double scalingFactor, double totalCost, double price,
+                                 double quantity, double scalingFactor, double totalCost, double price,
                                  string exchange, DateTime dtValuation)
         { throw new NotImplementedException(); }
         public virtual IEnumerable<CompanyData> GetInvestmentRecordData(UserAccountToken userToken, DateTime dtValuation) { throw new NotImplementedException(); }
@@ -349,15 +349,15 @@ namespace InvestmentBuilderMSTests
         //investment record interface
         //roll (copy) an investment from dtPrevious to dtValuation
         public virtual void RollInvestment(UserAccountToken userToken, string investment, DateTime dtValuation, DateTime dtPreviousValaution) { }
-        public virtual void UpdateInvestmentQuantity(UserAccountToken userToken, string investment, DateTime dtValuation, int quantity) { }
-        public virtual void AddNewShares(UserAccountToken userToken, string investment, int quantity, DateTime dtValaution, double dTotalCost) { }
-        public virtual void SellShares(UserAccountToken userToken, string investment, int quantity, DateTime dtValuation) { }
+        public virtual void UpdateInvestmentQuantity(UserAccountToken userToken, string investment, DateTime dtValuation, double quantity) { }
+        public virtual void AddNewShares(UserAccountToken userToken, string investment, double quantity, DateTime dtValaution, double dTotalCost) { }
+        public virtual void SellShares(UserAccountToken userToken, string investment, double quantity, DateTime dtValuation) { }
         public virtual void UpdateClosingPrice(UserAccountToken userToken, string investment, DateTime dtValuation, double price) { }
         public virtual void UpdateDividend(UserAccountToken userToken, string investment, DateTime dtValuation, double dividend) { }
         public virtual InvestmentInformation GetInvestmentDetails(string investment) { return null; }
         public virtual IEnumerable<KeyValuePair<string, double>> GetInvestments(UserAccountToken userToken, DateTime dtValuation) { return Enumerable.Empty<KeyValuePair<string, double>>(); }
         public virtual void CreateNewInvestment(UserAccountToken userToken, string investment, string symbol, string currency,
-                                 int quantity, double scalingFactor, double totalCost, double price,
+                                 double quantity, double scalingFactor, double totalCost, double price,
                                  string exchange, DateTime dtValuation)
         { }
         public virtual IEnumerable<CompanyData> GetInvestmentRecordData(UserAccountToken userToken, DateTime dtValuation) { return Enumerable.Empty<CompanyData>(); }

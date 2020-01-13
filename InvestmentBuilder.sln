@@ -33,8 +33,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestmentBuilderService", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserManagementService", "UserManagementService\UserManagementService.csproj", "{001B4897-2A19-4CCC-B531-3C6F0C61D5ED}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InvestmentBuilderProcessLauncher", "InvestmentBuilderProcessLauncher\InvestmentBuilderProcessLauncher.vcxproj", "{7BDF41AE-CE53-4B1A-AAA6-5EB5DA95CAE7}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestmentBuilderFileHandler", "InvestmentBuilderFileHandler\InvestmentBuilderFileHandler.csproj", "{AFE75ECA-6C7D-46A0-B2A0-ED5D1BD81ED9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestmentBuilderAuditLogger", "InvestmentBuilderAuditLogger\InvestmentBuilderAuditLogger.csproj", "{8A24F235-600A-47E1-ADB2-56681F0EEC0B}"
@@ -93,10 +91,6 @@ Global
 		{001B4897-2A19-4CCC-B531-3C6F0C61D5ED}.Debug|InvestBuild.Build.0 = Debug|x64
 		{001B4897-2A19-4CCC-B531-3C6F0C61D5ED}.Release|InvestBuild.ActiveCfg = Release|x64
 		{001B4897-2A19-4CCC-B531-3C6F0C61D5ED}.Release|InvestBuild.Build.0 = Release|x64
-		{7BDF41AE-CE53-4B1A-AAA6-5EB5DA95CAE7}.Debug|InvestBuild.ActiveCfg = Debug|x64
-		{7BDF41AE-CE53-4B1A-AAA6-5EB5DA95CAE7}.Debug|InvestBuild.Build.0 = Debug|x64
-		{7BDF41AE-CE53-4B1A-AAA6-5EB5DA95CAE7}.Release|InvestBuild.ActiveCfg = Release|x64
-		{7BDF41AE-CE53-4B1A-AAA6-5EB5DA95CAE7}.Release|InvestBuild.Build.0 = Release|x64
 		{AFE75ECA-6C7D-46A0-B2A0-ED5D1BD81ED9}.Debug|InvestBuild.ActiveCfg = Debug|Any CPU
 		{AFE75ECA-6C7D-46A0-B2A0-ED5D1BD81ED9}.Debug|InvestBuild.Build.0 = Debug|Any CPU
 		{AFE75ECA-6C7D-46A0-B2A0-ED5D1BD81ED9}.Release|InvestBuild.ActiveCfg = Release|Any CPU

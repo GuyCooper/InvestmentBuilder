@@ -11,13 +11,13 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_UpdateHolding](@holding as INT, @valuationDate as DATETIME, @company as VARCHAR(50), @account as INT) AS
+CREATE PROCEDURE [dbo].[sp_UpdateHolding](@quantity as FLOAT, @valuationDate as DATETIME, @company as VARCHAR(50), @account as INT) AS
 BEGIN
 
 UPDATE	
 	 IR
 SET
-	IR.Shares_Bought = @holding,
+	IR.Shares_Bought = @quantity,
 	IR.[Bonus_Shares issued] = 0,
 	IR.Shares_Sold = 0
 FROM InvestmentRecord AS IR 

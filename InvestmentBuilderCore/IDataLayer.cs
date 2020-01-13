@@ -74,15 +74,15 @@ namespace InvestmentBuilderCore
         //investment record interface
         //roll (copy) an investment from dtPrevious to dtValuation
         void RollInvestment(UserAccountToken userToken, string investment, DateTime dtValuation, DateTime dtPreviousValaution);
-        void UpdateInvestmentQuantity(UserAccountToken userToken, string investment, DateTime dtValuation, int quantity);
-        void AddNewShares(UserAccountToken userToken, string investment, int quantity, DateTime dtValaution, double dTotalCost);
-        void SellShares(UserAccountToken userToken, string investment, int quantity, DateTime dtValuation);
+        void UpdateInvestmentQuantity(UserAccountToken userToken, string investment, DateTime dtValuation, double quantity);
+        void AddNewShares(UserAccountToken userToken, string investment, double quantity, DateTime dtValaution, double dTotalCost);
+        void SellShares(UserAccountToken userToken, string investment, double quantity, DateTime dtValuation);
         void UpdateClosingPrice(UserAccountToken userToken, string investment, DateTime dtValuation, double price);
         void UpdateDividend(UserAccountToken userToken, string investment, DateTime dtValuation, double dividend);
         InvestmentInformation GetInvestmentDetails(string investment);
         IEnumerable<KeyValuePair<string, double>> GetInvestments(UserAccountToken userToken, DateTime dtValuation);
         void CreateNewInvestment(UserAccountToken userToken, string investment, string symbol, string currency,
-                                 int quantity, double scalingFactor, double totalCost, double price,
+                                 double quantity, double scalingFactor, double totalCost, double price,
                                  string exchange, DateTime dtValuation);
         IEnumerable<CompanyData> GetInvestmentRecordData(UserAccountToken userToken, DateTime dtValuation);
         void DeactivateInvestment(UserAccountToken userToken, string investment);

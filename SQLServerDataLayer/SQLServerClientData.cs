@@ -181,7 +181,7 @@ namespace SQLServerDataLayer
                         if (reader.Read())
                         {
                             //var obj = reader["Enabled"];
-                            int quantity = GetDBValue<int>("Shares_Bought", reader) - GetDBValue<int>("Shares_Sold", reader);
+                            double quantity = GetDBValue<double>("Shares_Bought", reader) - GetDBValue<double>("Shares_Sold", reader);
                             return new Stock
                             {
                                 Name = GetDBValue<string>("Name", reader),
@@ -242,7 +242,7 @@ namespace SQLServerDataLayer
                             return new Transaction
                             {
                                 InvestmentName = GetDBValue<string>("Name", reader),
-                                Quantity = GetDBValue<int>("quantity", reader),
+                                Quantity = GetDBValue<double>("quantity", reader),
                                 Amount = GetDBValue<double>("total_cost", reader),
                                 TransactionType = (TradeType)Enum.Parse(typeof(TradeType), GetDBValue<string>("trade_action", reader))
                             };

@@ -38,7 +38,7 @@ namespace InvestmentBuilderClient.View
                 dteTransactionDate.Value = DateTime.Now;
                 cmboName.SelectedText = trade.Name;
                 cmboName.Text = trade.Name;
-                nmrcNumber.Value = trade.Quantity;
+                nmrcNumber.Value = (decimal)trade.Quantity;
                 nmrcScaling.Value = (decimal)trade.ScalingFactor;
                 txtSymbol.Text = trade.Symbol;
                 txtExchange.Text = trade.Exchange;
@@ -94,9 +94,9 @@ namespace InvestmentBuilderClient.View
             return (TradeType)Enum.Parse(typeof(TradeType),(string)cmboType.SelectedItem);
         }
 
-        public int GetAmount()
+        public double GetAmount()
         {
-            return (int)nmrcNumber.Value;
+            return (double)nmrcNumber.Value;
         }
 
         public string GetSymbol()

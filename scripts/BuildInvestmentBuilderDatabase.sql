@@ -92,7 +92,7 @@ create table dbo.Companies
 (
 	[Company_Id] int identity primary key clustered,
 	[Name] varchar(50) not null,
-	[Symbol] char(10) not null,
+	[Symbol] char(20) not null,
 	[Currency] char(3) not null,
 	[DividendDate] datetime,
 	[IsActive] tinyint not null default(1),
@@ -107,9 +107,9 @@ create table dbo.InvestmentRecord
 (
 	[Company_id] int not null,
 	[Valuation_Date] datetime not null,
-	[Shares_Bought] int,	
-	[Bonus_Shares issued] int default(0),
-	[Shares_Sold] int default(0),
+	[Shares_Bought] float,	
+	[Bonus_Shares issued] float default(0),
+	[Shares_Sold] float default(0),
 	[Total_Cost] float not null,
 	[Selling_Price] float not null,
 	[Dividends_Received] float default(0),
@@ -188,7 +188,7 @@ create table dbo.TransactionHistory
 	[transaction_date] datetime not null,
 	[company_id] int not null,
 	[trade_action] varchar(10) not null,
-	[quantity] int not null,
+	[quantity] float not null,
 	[total_cost] float not null,
 	[user] varchar(50)
 

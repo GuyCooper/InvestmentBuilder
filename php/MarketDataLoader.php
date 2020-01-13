@@ -160,7 +160,8 @@ function findCompanyName($element) {
 }
 
 function findCompanyCurrency($element) {
-	$result = findElementByClassName($element, 'C($c-fuji-grey-j) Fz(12px)');
+	//$result = findElementByClassName($element, 'C($c-fuji-grey-j) Fz(12px)');
+	$result = findElementByClassName($element, 'C($tertiaryColor) Fz(12px)');	
 	if($result !=  NULL) {
 		//return trim($result->nodeValue);
 		if(preg_match('/\w+$/', trim($result->nodeValue), $matches)) {

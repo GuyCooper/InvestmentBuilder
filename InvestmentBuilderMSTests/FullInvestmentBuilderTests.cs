@@ -212,7 +212,7 @@ namespace InvestmentBuilderMSTests
             Assert.AreEqual(1, results.Count);
 
             var companyData = results.First();
-            Assert.AreEqual(2500, companyData.Quantity);
+            Assert.AreEqual(2500.00, companyData.Quantity);
             MatchDoubleVal(companyData.NetSellingValue, "1297.6425");
             MatchDoubleVal(companyData.ProfitLoss, "13.192");
             MatchDoubleVal(companyData.MonthChange, "0.0");
@@ -243,7 +243,7 @@ namespace InvestmentBuilderMSTests
             var results = ContainerManager.ResolveValueOnContainer<InvestmentBuilder.InvestmentBuilder>(_childContainer).GetCurrentInvestments(userToken, null).ToList();
             Assert.AreEqual(1, results.Count);
             var companyData = results.First();
-            Assert.AreEqual(3000, companyData.Quantity);
+            Assert.AreEqual(3000.00, companyData.Quantity);
 
             var dataLayer = ContainerManager.ResolveValueOnContainer<IDataLayer>(_childContainer);
             dataLayer.ClientData.UndoLastTransaction(userToken, new DateTime());

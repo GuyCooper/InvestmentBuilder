@@ -62,7 +62,7 @@ namespace InvestmentBuilderMSTests
         private static string _TestValuationDate2 = "14/10/2015";
         private static string _TestTradeName = "ACME";
         private static string _TestTradeSymbol = "ACM.L";
-        private readonly int _TestTradeAmount = 100;
+        private readonly double _TestTradeAmount = 100;
         private readonly double _TestTradePrice = 1d;
 
         private readonly DateTime _dtValuationDate1 = DateTime.Parse(_TestValuationDate1);

@@ -29,7 +29,7 @@ namespace InvestmentBuilderMSTests
         public static readonly DateTime _previousRecordValutionDate = DateTime.Parse("23/10/2015 10:32:56");
 
         public static readonly string _TestCompany = "Acme PLC";
-        public static readonly int _TestQuantity = 72;
+        public static readonly double _TestQuantity = 72;
         public static readonly double _TestTotalCost = 1082.73;
         public static readonly double _TestDividend = 95.24;
         public static readonly double _TestNetSellingValue = 1328.42;
