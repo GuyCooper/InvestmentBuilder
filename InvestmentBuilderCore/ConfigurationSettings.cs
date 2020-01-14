@@ -180,6 +180,13 @@ namespace InvestmentBuilderCore
         #region Constructor
 
         /// <summary>
+        /// Constructor - just takes filename
+        /// </summary>
+        public ConfigurationSettings(string filename) : this(filename, new List<KeyValuePair<string, string>>(), null)
+        {
+        }
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public ConfigurationSettings(string filename, List<KeyValuePair<string,string>> overrides, string certificate)

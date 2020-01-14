@@ -20,7 +20,7 @@ namespace InvestmentBuilderService.Dtos
     {
         public string Currency { get; set; }
         public string ItemName { get; set; }
-        public int Quantity { get; set; }
+        public double Quantity { get; set; }
         public string Symbol { get; set; }
         public double TotalCost { get; set; }
         public DateTime? TransactionDate { get; set; }

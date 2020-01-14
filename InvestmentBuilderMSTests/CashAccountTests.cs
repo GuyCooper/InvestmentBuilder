@@ -11,6 +11,7 @@ namespace InvestmentBuilderMSTests
 {
     internal static class CashAccountTestData
     {
+        public static int _TransactionID = 1234;
         public static DateTime _transactionDate = DateTime.Parse("12/12/2015");
         public static string _PaymentParameter = "Purchase";
         public static string _PaymentTransactionType = "Purchase";
@@ -29,6 +30,7 @@ namespace InvestmentBuilderMSTests
 
             if (side == "P")
             {
+                reader.AddEntry("TransactionID", CashAccountTestData._TransactionID); 
                 reader.AddEntry("TransactionDate", CashAccountTestData._transactionDate);
                 reader.AddEntry("Parameter", CashAccountTestData._PaymentParameter);
                 reader.AddEntry("TransactionType", CashAccountTestData._PaymentTransactionType);
@@ -36,13 +38,13 @@ namespace InvestmentBuilderMSTests
             }
             else
             {
+                reader.AddEntry("TransactionID", CashAccountTestData._TransactionID);
                 reader.AddEntry("TransactionDate", CashAccountTestData._transactionDate);
                 reader.AddEntry("Parameter", CashAccountTestData._ReceiptParameter);
                 reader.AddEntry("TransactionType", CashAccountTestData._ReceiptTransactionType);
                 reader.AddEntry("Amount", CashAccountTestData._ReceiptAmount);
             }
             fnAddTransaction(reader);
-
         }
 
         public override double GetBalanceInHand(UserAccountToken userToken, DateTime valuationDate)
@@ -58,7 +60,7 @@ namespace InvestmentBuilderMSTests
 
     public class CashAccountTestsBase
     {
-        protected static readonly UserAccountToken _usertoken = new UserAccountToken("testUser", new AccountIdentifier { Name = "testAccount", AccountId = 2 }, AuthorizationLevel.UPDATE);
+        protected static readonly UserAccountToken _usertoken = new UserAccountToken("testUser", new AccountIdentifier { Name = "testAccount", AccountId = 2 }, AuthorizationLevel.ADMINISTRATOR);
         protected static readonly DateTime _dtValuation = DateTime.Parse("10/12/2015");
 
         protected CashAccountTransactionManager _manager;
@@ -154,7 +156,7 @@ namespace InvestmentBuilderMSTests
        
             var transaction = transactions[0];
             Assert.AreEqual("BalanceInHand", transaction.Parameter);
-            Assert.AreEqual(_dtValuation, transaction.TransactionDate);
+            Assert.AreEqual(_dtValuation.ToString("yyyy-MM-dd"), transaction.TransactionDate);
             Assert.AreEqual(0d, transaction.Amount);
             Assert.IsFalse(transaction.IsTotal);
 
@@ -164,7 +166,7 @@ namespace InvestmentBuilderMSTests
         private void ValidateTotalTransaction(InvestmentBuilder.CashTransaction transaction)
         {
             Assert.AreEqual("TOTAL", transaction.Parameter);
-            Assert.AreEqual(_dtValuation, transaction.TransactionDate);
+            Assert.AreEqual(_dtValuation.ToString("yyyy-MM-dd"), transaction.TransactionDate);
             Assert.AreEqual(0d, transaction.Amount);
             Assert.IsTrue(transaction.IsTotal);
         }
