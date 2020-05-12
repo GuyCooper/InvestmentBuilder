@@ -157,10 +157,10 @@ namespace InvestmentBuilder
                     double dMargin = investment.Price - (investment.Price / 10d);
                     if (Math.Abs(investment.Price - dPrice) > dMargin)
                     {
-                        Log.Error("invalid price for {0}. excessive price movement. price = {1}: previous = {2}",
+                        Log.Warn("Excessive price movement for {0}. price = {1}: previous = {2}",
                                     investment.Name, dPrice, investment.Price);
-                        bValidationFailed = true;
-                        break;
+                        //bValidationFailed = true;
+                        //break;
                     }
                 }   
             }

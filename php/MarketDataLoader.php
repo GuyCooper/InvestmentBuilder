@@ -49,6 +49,9 @@ function loadAllInstruments($servername, $connectionInfo, $fout) {
 	processFX("EURGBP", $fout);
 	processFX("USDGBP", $fout);
 	processFX("CHFGBP", $fout);	
+	processFX("DKKGBP", $fout);	
+	processFX("CADGBP", $fout);	
+	processFX("SEKGBP", $fout);	
 }	
 
 function processInstrument($symbol, $outfile) {
@@ -211,7 +214,7 @@ function loadListOfSymbols($servername, $connectionInfo) {
 	echo "connection ok!\n";
 	echo "retrieving list of symbols from database\n";		
 	
-	$sql="select Symbol from Companies";
+	$sql="select Symbol from Companies where IsActive = 1";
 
 	$stmt = sqlsrv_query( $conn, $sql);
 	if( $stmt === false ) {
