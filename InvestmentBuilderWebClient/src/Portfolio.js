@@ -111,7 +111,7 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
         sellModal.result.then(function (param) {
             //$ctrl.selected = selectedItem;
             //use has clicked ok , we need to update the trade
-            MiddlewareService.SellTrade(param, refreshPortfolio);
+            MiddlewareService.SellTrade(param.name, refreshPortfolio);
         }, function () {
             $log.info('Modal dismissed at: ' + new Date());
         });
