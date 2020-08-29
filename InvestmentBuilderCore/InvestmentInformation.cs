@@ -58,7 +58,7 @@ namespace InvestmentBuilderCore
         public string Name { get; set; }
         public DateTime ValuationDate { get; set; }
         public DateTime LastBrought {get;set;}
-        public int Quantity {get;set;}
+        public double Quantity {get;set;}
         public double AveragePricePaid { get; set; }
         public double TotalCost { get; set; }
         public double SharePrice { get; set; }

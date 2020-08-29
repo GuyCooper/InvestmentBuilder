@@ -27,7 +27,7 @@ namespace InvestmentBuilderMSTests
         public static readonly string TestCurrency = "EUR";
         public static readonly string TestSymbol = "ACME.DE";
         public static readonly double TestScaling = 1.0d;
-        public static readonly int TestQuantity = 132;
+        public static readonly double TestQuantity = 132;
         public static readonly double TestSharePrice = 26.43;
         public static readonly double TestTotalCost = 2676.43;
         public static readonly UserAccountToken UserToken = new UserAccountToken(
@@ -47,7 +47,7 @@ namespace InvestmentBuilderMSTests
     internal class InvestmentRecordTestData : InvestmentRecordInterfaceTest
     {
         private Dictionary<string, double> _investmentPriceList;
-        private int _addedQuantity = 0;
+        private double _addedQuantity = 0;
         private double _addedCost = 0;
 
         public InvestmentRecordTestData()
@@ -141,7 +141,7 @@ namespace InvestmentBuilderMSTests
             };
         }
 
-        public override void AddNewShares(UserAccountToken userToken, string investment, int quantity, DateTime dtValaution, double dTotalCost)
+        public override void AddNewShares(UserAccountToken userToken, string investment, double quantity, DateTime dtValaution, double dTotalCost)
         {
             _addedQuantity = quantity;
             _addedCost = dTotalCost;

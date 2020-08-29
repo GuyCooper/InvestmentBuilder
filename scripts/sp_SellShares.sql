@@ -11,7 +11,7 @@ END
 
 GO
 
-CREATE PROCEDURE sp_SellShares(@ValuationDate as DATETIME, @company as VARCHAR(50), @shares as INT, @account as int) AS
+CREATE PROCEDURE sp_SellShares(@ValuationDate as DATETIME, @company as VARCHAR(50), @shares as FLOAT, @account as int) AS
 BEGIN
 
 DECLARE @CompanyId INT

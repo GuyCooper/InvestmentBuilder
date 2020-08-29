@@ -43,7 +43,7 @@ namespace SQLServerDataLayer
         /// UPdate the quantity of the specified investment. Will change the average price calculation for this
         /// investment but not the value.
         /// </summary>
-        public void UpdateInvestmentQuantity(UserAccountToken userToken, string investment, DateTime dtValuation, int quantity)
+        public void UpdateInvestmentQuantity(UserAccountToken userToken, string investment, DateTime dtValuation, double quantity)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
             using (var connection = OpenConnection())
@@ -51,7 +51,7 @@ namespace SQLServerDataLayer
                 using (var command = new SqlCommand("sp_UpdateHolding", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@holding", quantity));
+                    command.Parameters.Add(new SqlParameter("@quantity", quantity));
                     command.Parameters.Add(new SqlParameter("@valuationDate", dtValuation));
                     command.Parameters.Add(new SqlParameter("@company", investment));
                     command.Parameters.Add(new SqlParameter("@account", userToken.Account.AccountId));
@@ -63,7 +63,7 @@ namespace SQLServerDataLayer
         /// <summary>
         /// Add to quantity of specified investment in account specified in user token.
         /// </summary>
-        public void AddNewShares(UserAccountToken userToken, string investment, int quantity, DateTime dtValaution, double dTotalCost)
+        public void AddNewShares(UserAccountToken userToken, string investment, double quantity, DateTime dtValaution, double dTotalCost)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
             using (var connection = OpenConnection())
@@ -84,7 +84,7 @@ namespace SQLServerDataLayer
         /// <summary>
         /// reduce quantity of specified investment for account specified in user token.
         /// </summary>
-        public void SellShares(UserAccountToken userToken, string investment, int quantity, DateTime dtValuation)
+        public void SellShares(UserAccountToken userToken, string investment, double quantity, DateTime dtValuation)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
             using (var connection = OpenConnection())
@@ -204,7 +204,7 @@ namespace SQLServerDataLayer
         /// <summary>
         /// Create a new investment for the specified account on the specified valuation date.
         /// </summary>
-        public void CreateNewInvestment(UserAccountToken userToken, string investment, string symbol, string currency, int quantity, double scalingFactor, double totalCost, double price, string exchange, DateTime dtValuation)
+        public void CreateNewInvestment(UserAccountToken userToken, string investment, string symbol, string currency, double quantity, double scalingFactor, double totalCost, double price, string exchange, DateTime dtValuation)
         {
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
             using (var connection = OpenConnection())
@@ -246,7 +246,7 @@ namespace SQLServerDataLayer
                     while (reader.Read())
                     {
                         double dTotalCost = GetDBValue<double>("TotalCost", reader);
-                        int dSharesHeld = GetDBValue<int>("Bought", reader) + GetDBValue<int>("Bonus", reader) - GetDBValue<int>("Sold", reader);
+                        double dSharesHeld = GetDBValue<double>("Bought", reader) + GetDBValue<double>("Bonus", reader) - GetDBValue<double>("Sold", reader);
                         double dAveragePrice = dTotalCost / dSharesHeld;
                         double dSharePrice = GetDBValue<double>("Price", reader);
                         double dDividend = GetDBValue<double>("Dividends", reader);
@@ -387,7 +387,7 @@ namespace SQLServerDataLayer
                         var trade = new Stock
                         {
                             Name = GetDBValue<string>("Name", reader),
-                            Quantity = GetDBValue<int>("quantity", reader),
+                            Quantity = GetDBValue<double>("quantity", reader),
                             TotalCost = GetDBValue<double>("total_cost", reader)
                         };
                         switch (action)
@@ -432,7 +432,7 @@ namespace SQLServerDataLayer
                     while (reader.Read())
                     {
                         double dTotalCost = GetDBValue<double>("TotalCost", reader);
-                        int dSharesHeld = GetDBValue<int>("Bought", reader) + GetDBValue<int>("Bonus", reader) - GetDBValue<int>("Sold", reader);
+                        double dSharesHeld = GetDBValue<double>("Bought", reader) + GetDBValue<double>("Bonus", reader) - GetDBValue<double>("Sold", reader);
                         double dAveragePrice = dTotalCost / dSharesHeld;
                         double dSharePrice = GetDBValue<double>("Price", reader);
                         double dDividend = GetDBValue<double>("Dividends", reader);

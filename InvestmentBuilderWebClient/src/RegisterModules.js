@@ -56,7 +56,7 @@ module.controller('ReportsController', Reports);
 
 module.controller('AddAccount', AddAccount);
 
-module.controller('LastTransactionController', LastTransaction);
+module.controller('LastTransaction', LastTransaction);
 
 module.controller('RedemptionsController', Redemptions);
 

@@ -12,7 +12,7 @@ END
 GO
 
 CREATE PROCEDURE sp_AddTransactionHistory(@valuationDate AS datetime, @transactionDate AS datetime, @company as varchar(50), 
-										  @action as varchar(10), @quantity as int,
+										  @action as varchar(10), @quantity as FLOAT,
 										  @total_cost as float, @account as int, @user as varchar(50)) AS
 BEGIN
 

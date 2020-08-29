@@ -122,7 +122,8 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
                 ariaLabelledBy: 'modal-title',
                 ariaDescribedBy: 'modal-body',
                 templateUrl: 'views/LastTransaction.html',
-                controller: 'LastTransactionController',
+                controller: 'LastTransaction',
+                controllerAs: '$lasttransaction',
                 size: 'lg',
                 resolve: {
                     transaction: function () {

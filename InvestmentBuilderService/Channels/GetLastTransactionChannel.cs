@@ -11,7 +11,7 @@ namespace InvestmentBuilderService.Channels
     {
         public bool Success { get; set; }
         public string InvestmentName { get; set; }
-        public TradeType TransactionType { get; set; }
+        public string TransactionType { get; set; }
         public double Quantity { get; set; }
         public double Amount { get; set; }
     }
@@ -51,7 +51,7 @@ namespace InvestmentBuilderService.Channels
                 {
                     Success = true,
                     InvestmentName = transaction.InvestmentName,
-                    TransactionType = transaction.TransactionType,
+                    TransactionType = transaction.TransactionType.ToString(),
                     Quantity = transaction.Quantity,
                     Amount = transaction.Amount
                 };

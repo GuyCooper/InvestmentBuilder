@@ -41,7 +41,7 @@ namespace InvestmentBuilder
             Contract.Requires(stock != null);
         }
 
-        public void ChangeShareHolding(DateTime valuationDate, int quantity)
+        public void ChangeShareHolding(DateTime valuationDate, double quantity)
         {
             Contract.Requires(quantity > 0);
         }

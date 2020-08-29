@@ -78,7 +78,7 @@ namespace InvestmentBuilderCore
     [ContractClassFor(typeof(IInvestmentRecordInterface))]
     internal abstract class IInvestmentRecordContract : IInvestmentRecordInterface
     {
-        public void AddNewShares(UserAccountToken userToken, string investment, int quantity, DateTime dtValaution, double dTotalCost)
+        public void AddNewShares(UserAccountToken userToken, string investment, double quantity, DateTime dtValaution, double dTotalCost)
         {
             Contract.Requires(userToken != null);
             Contract.Requires(string.IsNullOrEmpty(investment) == false);
@@ -92,7 +92,7 @@ namespace InvestmentBuilderCore
             Contract.Requires(trades != null);
         }
 
-        public void CreateNewInvestment(UserAccountToken userToken, string investment, string symbol, string currency, int quantity, double scalingFactor, double totalCost, double price, string exchange, DateTime dtValuation)
+        public void CreateNewInvestment(UserAccountToken userToken, string investment, string symbol, string currency, double quantity, double scalingFactor, double totalCost, double price, string exchange, DateTime dtValuation)
         {
             Contract.Requires(userToken != null);
             Contract.Requires(string.IsNullOrEmpty(investment) == false);
@@ -167,7 +167,7 @@ namespace InvestmentBuilderCore
             Contract.Requires(dtValuation > dtPreviousValaution);    
         }
 
-        public void SellShares(UserAccountToken userToken, string investment, int quantity, DateTime dtValuation)
+        public void SellShares(UserAccountToken userToken, string investment, double quantity, DateTime dtValuation)
         {
             Contract.Requires(userToken != null);
             Contract.Requires(string.IsNullOrEmpty(investment) == false);
@@ -188,7 +188,7 @@ namespace InvestmentBuilderCore
             Contract.Requires(dividend > 0);
         }
 
-        public void UpdateInvestmentQuantity(UserAccountToken userToken, string investment, DateTime dtValuation, int quantity)
+        public void UpdateInvestmentQuantity(UserAccountToken userToken, string investment, DateTime dtValuation, double quantity)
         {
             Contract.Requires(userToken != null);
             Contract.Requires(string.IsNullOrEmpty(investment) == false);

@@ -42,7 +42,7 @@ namespace InvestmentBuilderCore
         [XmlElement("currency")]
         public string Currency { get; set; }
         [XmlElement("number")]
-        public int Quantity { get; set; }
+        public double Quantity { get; set; }
         [XmlElement("totalcost")]
         public double TotalCost { get; set; }
         [XmlElement("scaling")]

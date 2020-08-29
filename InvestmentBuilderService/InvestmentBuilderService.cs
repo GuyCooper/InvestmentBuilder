@@ -18,7 +18,7 @@ namespace InvestmentBuilderService
     /// <summary>
     /// Main Entry point to InvestmentBuilderService.
     /// </summary>
-    class Program
+    class InvestmentBuilderService
     {
         #region Main
 
@@ -35,6 +35,7 @@ namespace InvestmentBuilderService
                 logger.Info($"InvestmentBuilderService starting...");
                 logger.Info($"command line {string.Join(",",args)}");
 
+                string certificate = null;
                 var overrides = new List<KeyValuePair<string, string>>();
                 foreach(var arg in args)
                 {
@@ -43,15 +44,26 @@ namespace InvestmentBuilderService
                     {
                         var key = arg.Substring(0, index);
                         var val = arg.Substring(index + 1);
-                        overrides.Add(new KeyValuePair<string, string>(key,val));
+                        if (string.Equals(key, "certificate", StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            certificate = val;
+                        }
+                        else
+                        {
+                            overrides.Add(new KeyValuePair<string, string>(key, val));
+                        }
                     }
                 }
+
+                var configfile = "InvestmentBuilderConfig";
+                var connectionsFile = "Connections";
+                var ext = string.IsNullOrEmpty(certificate) ? ".xml" : ".enc";
 
                 logger.Info("InvestmentBuilderService starting...");
                 ContainerManager.RegisterType(typeof(ScheduledTaskFactory), true);
                 ContainerManager.RegisterType(typeof(IAuthorizationManager), typeof(SQLAuthorizationManager), true);
-                ContainerManager.RegisterType(typeof(IConfigurationSettings), typeof(ConfigurationSettings), true,  "InvestmentBuilderConfig.xml", overrides);
-                ContainerManager.RegisterType(typeof(IConnectionSettings), typeof(ConnectionSettings), true, "Connections.xml");
+                ContainerManager.RegisterType(typeof(IConfigurationSettings), typeof(ConfigurationSettings), true,  configfile+ext, overrides, certificate);
+                ContainerManager.RegisterType(typeof(IConnectionSettings), typeof(ConnectionSettings), true, connectionsFile+ext, certificate);
                 ContainerManager.RegisterType(typeof(IMarketDataService), typeof(MarketDataService), true);
                 MarketDataRegisterService.RegisterServices();
                 ContainerManager.RegisterType(typeof(IDataLayer), typeof(SQLServerDataLayer.SQLServerDataLayer), true);

@@ -70,3 +70,7 @@ dist
 *.vcxproj.user
 /jamesRodgers.txt
 /nigel.txt
+/UserManagementService/UserManagementService.csproj.user
+*.csproj.user
+
+.vs

@@ -1,9 +1,12 @@
 ﻿using System.Xml;
 using System.Xml.Serialization;
-using System.IO;
+using InvestmentBuilderCore;
 
 namespace InvestmentBuilderService.Utils
 {
+    /// <summary>
+    /// Interface defines a connection to a datasource.
+    /// </summary>
     public interface IConnection
     {
         string ServerName { get; }
@@ -11,12 +14,18 @@ namespace InvestmentBuilderService.Utils
         string Password { get; }
     }
 
+    /// <summary>
+    /// Interface defines connections to a server and auth server datasource.
+    /// </summary>
     public interface IConnectionSettings
     {
         IConnection ServerConnection { get; }
         IConnection AuthServerConnection { get; }
     }
 
+    /// <summary>
+    /// Xml serialisable class contains settings for a datasource
+    /// </summary>
     [XmlType("connection")]
     public class Connection : IConnection
     {
@@ -28,6 +37,9 @@ namespace InvestmentBuilderService.Utils
         public string Password { get; set; }
     }
 
+    /// <summary>
+    /// Xml seriaisable Class contains a connection settings to a server and auth server datasource.
+    /// </summary>
     [XmlRoot(ElementName = "connections")]
     public class ConnectionSettingsImpl
     {
@@ -37,22 +49,37 @@ namespace InvestmentBuilderService.Utils
         public Connection AuthServerConnection { get; set; }
     }
 
+    /// <summary>
+    /// Class defines connections to a server and auth server datasource.
+    /// </summary>
     public class ConnectionSettings : IConnectionSettings
     {
-        ConnectionSettingsImpl _settings;
+        #region Constructor
 
-        public ConnectionSettings(string filename)
+        /// <summary>
+        /// Instantiaite the connection settings
+        /// </summary>
+        public ConnectionSettings(string filename, string certificate)
         {
-            using (var fs = new FileStream(filename, FileMode.Open))
-            {
-                XmlSerializer serialiser = new XmlSerializer(typeof(ConnectionSettingsImpl));
-                _settings = (ConnectionSettingsImpl)serialiser.Deserialize(fs);
-            }
+            m_settings = XmlConfigFileLoader.LoadConfiguration<ConnectionSettingsImpl>(filename, certificate);
         }
 
+        #endregion
+
+        #region IConnectionSettings
+
         [XmlElement("ServerConnection")]
-        public IConnection ServerConnection { get { return _settings.ServerConnection; } }
+        public IConnection ServerConnection { get { return m_settings.ServerConnection; } }
         [XmlElement("AuthServerConnection")]
-        public IConnection AuthServerConnection { get { return _settings.AuthServerConnection; } }
+        public IConnection AuthServerConnection { get { return m_settings.AuthServerConnection; } }
+
+        #endregion
+
+        #region Private Data
+
+        ConnectionSettingsImpl m_settings;
+
+        #endregion
+
     }
 }

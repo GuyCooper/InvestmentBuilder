@@ -1014,7 +1014,7 @@ function Portfolio($scope, $log, $uibModal, NotifyService, MiddlewareService) {
         sellModal.result.then(function (param) {
             //$ctrl.selected = selectedItem;
             //use has clicked ok , we need to update the trade
-            MiddlewareService.SellTrade(param, refreshPortfolio);
+            MiddlewareService.SellTrade(param.name, refreshPortfolio);
         }, function () {
             $log.info('Modal dismissed at: ' + new Date());
         });
@@ -1333,7 +1333,8 @@ function AccountList($scope, $log, NotifyService, $uibModal, MiddlewareService) 
                 ariaLabelledBy: 'modal-title',
                 ariaDescribedBy: 'modal-body',
                 templateUrl: 'views/LastTransaction.html',
-                controller: 'LastTransactionController',
+                controller: 'LastTransaction',
+                controllerAs: '$lasttransaction',
                 size: 'lg',
                 resolve: {
                     transaction: function () {
@@ -1442,11 +1443,6 @@ function Reports($scope, NotifyService, MiddlewareService) {
 // Controller for LastTransaction Page
 function LastTransaction($scope, $uibModalInstance, transaction) {
 
-    $scope.Name =  transaction.InvestmentName;
-    $scope.TransactionType = transaction.TransactionType;
-    $scope.Quantity = transaction.Quantity;
-    $scope.Amount = transaction.Amount;
-
     $scope.ok = function () {
         $uibModalInstance.close();
     }
@@ -1454,6 +1450,14 @@ function LastTransaction($scope, $uibModalInstance, transaction) {
     $scope.cancel = function () {
         $uibModalInstance.dismiss('cancel');
     };
+
+    $scope.Success = transaction.Success;
+    if ($scope.Success === true) {
+        $scope.Name = transaction.InvestmentName;
+        $scope.TransactionType = transaction.TransactionType;
+        $scope.Quantity = transaction.Quantity;
+        $scope.Amount = transaction.Amount;
+    }
 }
 'use strict'
 
@@ -1645,7 +1649,7 @@ module.controller('ReportsController', Reports);
 
 module.controller('AddAccount', AddAccount);
 
-module.controller('LastTransactionController', LastTransaction);
+module.controller('LastTransaction', LastTransaction);
 
 module.controller('RedemptionsController', Redemptions);
 
