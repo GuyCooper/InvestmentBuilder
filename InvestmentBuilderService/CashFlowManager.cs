@@ -28,12 +28,13 @@ namespace InvestmentBuilderService
         private AccountService _accountService;
         private IClientDataInterface _clientData;
         private CashAccountTransactionManager _cashTransactionManager;
-
+        private IUserAccountInterface _userAccountService;
         public CashFlowManager(AccountService accountService, IDataLayer dataLayer,
             CashAccountTransactionManager cashTransactionManager)
         {
             _accountService = accountService;
             _clientData = dataLayer.ClientData;
+            _userAccountService = dataLayer.UserAccountData;
             _cashTransactionManager = cashTransactionManager;
         }
 
@@ -91,6 +92,13 @@ namespace InvestmentBuilderService
         public IEnumerable<string> GetPaymentParamTypes()
         {
             return _cashTransactionManager.GetTransactionTypes(_cashTransactionManager.PaymentMnemomic);
+        }
+
+        public string GetReportingCurrency(UserSession userSession)
+        {
+            var token = _accountService.GetUserAccountToken(userSession, null);
+            var account = _userAccountService.GetAccount(token);
+            return account?.ReportingCurrency;
         }
     }
 }

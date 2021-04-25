@@ -5,6 +5,7 @@ function CashFlow($scope, $uibModal, $log, NotifyService, MiddlewareService) {
     $scope.cashFlows = [];
     this.receiptParamTypes = null;
     this.paymentParamTypes = null;
+    this.reportingCurrency = null;
 
     this.cashFlowFromDate = new Date();
 
@@ -14,6 +15,7 @@ function CashFlow($scope, $uibModal, $log, NotifyService, MiddlewareService) {
             $scope.cashFlows = response.CashFlows;
             this.receiptParamTypes = response.ReceiptParamTypes;
             this.paymentParamTypes = response.PaymentParamTypes;
+            this.reportingCurrency = response.ReportingCUrrency;
         }
 
         if ($scope.cashFlows.length > 0) {
@@ -29,7 +31,7 @@ function CashFlow($scope, $uibModal, $log, NotifyService, MiddlewareService) {
         MiddlewareService.GetCashFlowContents(null, onLoadContents);
     });
 
-    this.addTransactionDialog = function (title, paramTypes, dateFrom, updateMethod) {
+    this.addTransactionDialog = function (title, paramTypes, dateFrom, currency, updateMethod) {
         var modalInstance = $uibModal.open({
             animation: true,
             ariaLabelledBy: 'modal-title',
@@ -47,6 +49,9 @@ function CashFlow($scope, $uibModal, $log, NotifyService, MiddlewareService) {
                 },
                 dateFrom: function () {
                     return dateFrom;
+                },
+                currency: function () {
+                    return currency;
                 }
             }
         });
@@ -61,11 +66,11 @@ function CashFlow($scope, $uibModal, $log, NotifyService, MiddlewareService) {
     }.bind(this);
 
     this.addReceipt = function () {
-        this.addTransactionDialog('receipt', this.receiptParamTypes, this.cashFlowFromDate, function (transaction) { MiddlewareService.AddReceiptTransaction(transaction, onLoadContents); });
+        this.addTransactionDialog('receipt', this.receiptParamTypes, this.cashFlowFromDate, this.reportingCurrency, function (transaction) { MiddlewareService.AddReceiptTransaction(transaction, onLoadContents); });
     }.bind(this);
 
     this.addPayment = function () {
-        this.addTransactionDialog('payment', this.paymentParamTypes, this.cashFlowFromDate, function (transaction) { MiddlewareService.AddPaymentTransaction(transaction, onLoadContents); });
+        this.addTransactionDialog('payment', this.paymentParamTypes, this.cashFlowFromDate, this.reportingCurrency, function (transaction) { MiddlewareService.AddPaymentTransaction(transaction, onLoadContents); });
     };
 
     this.deleteTransaction = function (transaction) {

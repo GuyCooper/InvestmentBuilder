@@ -1,3 +1,0 @@
-﻿@model System.DateTime?
-@Html.TextBox("", (Model.HasValue ? Model.Value.ToShortDateString() : DateTime.Today.ToShortDateString()),
-                new { @class="datetime"})

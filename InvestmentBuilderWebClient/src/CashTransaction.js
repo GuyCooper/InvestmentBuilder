@@ -1,6 +1,6 @@
 ﻿"use strict"
 
-function CashTransaction($scope, $uibModalInstance, transactionType, paramTypes, dateFrom, MiddlewareService) {
+function CashTransaction($scope, $uibModalInstance, transactionType, paramTypes, dateFrom, currency, MiddlewareService) {
     var $transaction = this;
     if (transactionType == 'receipt') {
         $transaction.title = 'Add Receipt';
@@ -18,6 +18,7 @@ function CashTransaction($scope, $uibModalInstance, transactionType, paramTypes,
     $scope.Parameters = [];
     $transaction.SelectedParameter = '';
     $transaction.Amount = 0;
+    $transaction.Currency = currency;
 
     $transaction.ok = function () {
         var sendParams = [];
@@ -33,7 +34,8 @@ function CashTransaction($scope, $uibModalInstance, transactionType, paramTypes,
             ParamType: $transaction.SelectedParamType,
             Parameter: sendParams,
             Amount: $transaction.Amount,
-            DateRequestedFrom: dateFrom
+            DateRequestedFrom: dateFrom,
+            Currency : $transaction.Currency
         });
     };
 

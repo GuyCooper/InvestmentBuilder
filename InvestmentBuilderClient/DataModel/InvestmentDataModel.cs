@@ -270,7 +270,7 @@ namespace InvestmentBuilderClient.DataModel
                                    string type, string parameter, double amount)
         {
             _cashAccountManager.AddTransaction(_userToken, dtValuation, dtTransactionDate,
-                                                type, parameter, amount);
+                                                type, parameter, amount, null);
         }
 
         public void RemoveCashTransaction(int transactionID)

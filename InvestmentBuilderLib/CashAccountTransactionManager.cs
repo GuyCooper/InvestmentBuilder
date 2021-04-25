@@ -4,6 +4,7 @@ using System.Linq;
 using InvestmentBuilderCore;
 using NLog;
 using System.Diagnostics.Contracts;
+using MarketDataServices;
 
 namespace InvestmentBuilder
 {
@@ -60,9 +61,11 @@ namespace InvestmentBuilder
         /// <summary>
         /// Constructor
         /// </summary>
-        public CashAccountTransactionManager(IDataLayer dataLayer)
+        public CashAccountTransactionManager(IDataLayer dataLayer, IMarketDataSource marketSource)
         {
             _cashAccountData = dataLayer.CashAccountData;
+            _marketSource = marketSource;
+            _userAccountData = dataLayer.UserAccountData;
 
             _transactionLookup = new Dictionary<string, Dictionary<string, string>>
             {
@@ -125,7 +128,7 @@ namespace InvestmentBuilder
                     //we also need to add the balance in hand transaction to the database
                     //so the validation will work
                     AddTransaction(userToken, dtValuationDate, dtValuationDate, transaction.TransactionType,
-                        transaction.Parameter, transaction.Subscription);
+                        transaction.Parameter, transaction.Subscription, null);
                 }
                 else
                 {
@@ -142,14 +145,16 @@ namespace InvestmentBuilder
         /// Add a cash transaction.
         /// </summary>
         public int AddTransaction(UserAccountToken userToken, DateTime dtValuationDate, DateTime dtTransactionDate,
-                                        string type, string parameter, double amount)
+                                        string type, string parameter, double amount, string currency)
         {
             Contract.Requires(userToken != null);
             Contract.Requires(string.IsNullOrEmpty(type) == false);
 
+            var convertedAmount = ConvertAmount(amount, currency, userToken);
+
             logger.Log(userToken, LogLevel.Info, "adding cash transaction. type: {0}, parameter: {1}, amount {2}", type, parameter, amount);
             return _cashAccountData.AddCashAccountTransaction(userToken, dtValuationDate, dtTransactionDate, type,
-                                                parameter, amount);
+                                                parameter, convertedAmount);
         }
 
         /// <summary>
@@ -193,6 +198,30 @@ namespace InvestmentBuilder
         #endregion
 
         #region Private Methods
+
+        private double ConvertAmount(double amount, string currency, UserAccountToken userToken)
+        {
+            if(string.IsNullOrWhiteSpace( currency))
+            {
+                return amount;
+            }
+
+            var accountData = _userAccountData.GetUserAccountData(userToken);
+            if(accountData.ReportingCurrency != currency)
+            {
+                // will need to convert the amount into reporting currency
+                double dFx;
+                if (_marketSource.TryGetFxRate(currency, accountData.ReportingCurrency, null,null, out dFx))
+                {
+                    return  amount * dFx;
+                }
+                else
+                {
+                    throw new ArgumentException($"Failed to convert amount {amount} from {currency} to {accountData.ReportingCurrency}");
+                }
+            }
+            return amount;
+        }
 
         /// <summary>
         /// Retruns the transaction for the speciifed type (receipt or payment)
@@ -281,6 +310,10 @@ namespace InvestmentBuilder
         #region Private Data
 
         private readonly ICashAccountInterface _cashAccountData;
+        
+        private readonly IMarketDataSource _marketSource;
+
+        private readonly IUserAccountInterface _userAccountData;
 
         private static InvestmentBuilderLogger logger = new InvestmentBuilderLogger(LogManager.GetCurrentClassLogger());
 

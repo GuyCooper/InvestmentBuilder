@@ -442,7 +442,7 @@ namespace SQLServerDataLayer
         /// </summary>
         public AccountModel GetAccount(UserAccountToken userToken)
         {
-            userToken.AuthorizeUser(AuthorizationLevel.ADMINISTRATOR);
+            userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
             using (var connection = OpenConnection())
             {
                 using (var sqlCommand = new SqlCommand("sp_GetAccountData", connection))

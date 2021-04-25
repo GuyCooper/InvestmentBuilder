@@ -15,6 +15,7 @@ namespace InvestmentBuilderService.Channels
         public string[] Parameter { get; set; }
         public double Amount { get; set; }
         public string DateRequestedFrom { get; set; }
+        public string Currency { get; set; }
     }
 
     /// <summary>
@@ -56,7 +57,8 @@ namespace InvestmentBuilderService.Channels
                                             transactionDate,
                                             payload.ParamType,
                                             param,
-                                            payload.Amount);
+                                            payload.Amount,
+                                            payload.Currency);
                 }
             }
             return CashFlowModelAndParams.GenerateCashFlowModelAndParams(userSession, _cashFlowManager, payload.DateRequestedFrom);
