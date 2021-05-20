@@ -51,13 +51,11 @@
       <HintPath>..\packages\Unity.3.5.1404.0\lib\net45\Microsoft.Practices.Unity.RegistrationByConvention.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="MiddlewareInterfaces, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="MiddlewareInterfaces">
       <HintPath>..\..\Middleware\Middleware\bin\Debug\MiddlewareInterfaces.dll</HintPath>
     </Reference>
-    <Reference Include="MiddlewareNetClient, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Middleware\Middleware\bin\Debug\MiddlewareNetClient.dll</HintPath>
+    <Reference Include="MiddlewareNetClient">
+      <HintPath>..\..\Middleware\Middleware\MiddlewareNetClient\bin\Debug\MiddlewareNetClient.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -178,8 +176,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>C:\Projects\DataEncryption\bin\Release\Encrypter.exe E $(ProjectDir)InvestmentBuilderConfig.xml $(TargetDir)InvestmentBuilderConfig.enc CERT_SIGN_CONFIGURATION
-C:\Projects\DataEncryption\bin\Release\Encrypter.exe E $(ProjectDir)Connections.xml $(TargetDir)Connections.enc CERT_SIGN_CONFIGURATION</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

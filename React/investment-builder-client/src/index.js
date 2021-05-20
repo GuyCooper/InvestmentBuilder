@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
+import TestGrid from './TestGrid.js'
 
 class ProductCategoryRow extends React.Component {
   render() {
@@ -36,14 +37,14 @@ class ProductRow extends React.Component {
 
 class ProductTable extends React.Component {
   render() {
-    const filterText = this.props.filterText;
+    const filterText = this.props.filterText.toUpperCase();
     const inStockOnly = this.props.inStockOnly;
 
     const rows = [];
     let lastCategory = null;
 
     this.props.products.forEach((product) => {
-      if (product.name.indexOf(filterText) === -1) {
+      if (product.name.toUpperCase().indexOf(filterText) === -1) {
         return;
       }
       if (inStockOnly && !product.stocked) {
@@ -170,7 +171,8 @@ const PRODUCTS = [
 ];
 
 ReactDOM.render(
-  <FilterableProductTable products={PRODUCTS} />,
+  // <FilterableProductTable products={PRODUCTS} />,
+  <TestGrid />,
   document.getElementById('root')
 );
 

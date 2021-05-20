@@ -35,7 +35,7 @@ namespace InvestmentBuilderService
                 logger.Info($"InvestmentBuilderService starting...");
                 logger.Info($"command line {string.Join(",",args)}");
 
-                string certificate = null;
+                string certificate = "";
                 var overrides = new List<KeyValuePair<string, string>>();
                 foreach(var arg in args)
                 {

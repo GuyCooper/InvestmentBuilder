@@ -102,7 +102,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>C:\Projects\DataEncryption\bin\Release\Encrypter.exe E $(ProjectDir)UserManagementConfiguration.xml $(TargetDir)UserManagementConfiguration.enc CERT_SIGN_CONFIGURATION</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
