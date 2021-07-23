@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <configuration>
-  <appdatabase>Data Source=DESKTOP-JJ9QOJA\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest2;Integrated Security=True</appdatabase>
-  <authdatabase>Data Source=DESKTOP-JJ9QOJA\SQLEXPRESS;Initial Catalog=UserAuthentication;Integrated Security=True</authdatabase>
+  <appdatabase>Data Source=LAPTOP-D6H2KOAE\SQLEXPRESS01;Initial Catalog=InvestmentBuilderTest2;Integrated Security=True</appdatabase>
+  <authdatabase>Data Source=LAPTOP-D6H2KOAE\SQLEXPRESS01;Initial Catalog=UserAuthentication;Integrated Security=True</authdatabase>
   <listenurl>http://localhost:8080/MANAGE/</listenurl>
   <hosturl>http://localhost:8091</hosturl>
   <changepasswordpage>ChangePassword.html</changepasswordpage>

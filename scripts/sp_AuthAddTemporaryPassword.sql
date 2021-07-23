@@ -1,19 +1,15 @@
+USE [UserAuthentication]
+GO
 
-/****** Object:  StoredProcedure [dbo].[sp_AuthAddTemporaryPassword]    Script Date: 04/02/2018 17:50:42 ******/
+/****** Object:  StoredProcedure [dbo].[sp_AuthAddTemporaryPassword]    Script Date: 23/07/2021 21:54:50 ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
 
-IF EXISTS (SELECT 1 FROM sys.procedures WHERE Name = 'sp_AuthAddTemporaryPassword')
-BEGIN
-	DROP PROCEDURE sp_AuthAddTemporaryPassword
-END
 
-GO
-
-CREATE PROCEDURE [dbo].sp_AuthAddTemporaryPassword(@EMail NVARCHAR(256), @TemporaryPasswordHash NVARCHAR(max), @TemporarySalt NVARCHAR(max)) AS
+CREATE PROCEDURE [dbo].[sp_AuthAddTemporaryPassword](@EMail NVARCHAR(256), @TemporaryPasswordHash NVARCHAR(max), @TemporarySalt NVARCHAR(max)) AS
 										   
 BEGIN
 
@@ -59,5 +55,6 @@ END
 SELECT @Result
 
 END
+
 GO
 

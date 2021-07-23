@@ -1,14 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using NLog;
 using MarketDataServices;
 using InvestmentBuilderCore;
 using SQLServerDataLayer;
-using PerformanceBuilderLib;
-using Microsoft.Practices.Unity;
 using InvestmentBuilder;
 using System.IO;
 using InvestmentBuilderClient.View;

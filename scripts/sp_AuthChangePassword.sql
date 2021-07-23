@@ -1,17 +1,13 @@
+USE [UserAuthentication]
+GO
 
-/****** Object:  StoredProcedure [dbo].[sp_AuthChangePassword]    Script Date: 04/02/2018 17:50:42 ******/
+/****** Object:  StoredProcedure [dbo].[sp_AuthChangePassword]    Script Date: 23/07/2021 21:55:32 ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
 
-IF EXISTS (SELECT 1 FROM sys.procedures WHERE Name = 'sp_AuthChangePassword')
-BEGIN
-	DROP PROCEDURE sp_AuthChangePassword
-END
-
-GO
 
 CREATE PROCEDURE [dbo].[sp_AuthChangePassword](@EMail NVARCHAR(256), @Token NVARCHAR(256), @NewPasswordHash NVARCHAR(max), @NewSalt NVARCHAR(max)) AS
 										   
@@ -67,5 +63,6 @@ WHERE [User_Id] =
 SELECT @Result
 
 END
+
 GO
 

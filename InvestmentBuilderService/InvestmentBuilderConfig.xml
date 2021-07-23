@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <configuration>
-	<dataSource>Data Source=DESKTOP-JJ9QOJA\SQLEXPRESS;Initial Catalog=InvestmentBuilderTest2;Integrated Security=True</dataSource>
-  <authdataSource>Data Source=DESKTOP-JJ9QOJA\SQLEXPRESS;Initial Catalog=UserAuthentication;Integrated Security=True</authdataSource>
+	<dataSource>Data Source=LAPTOP-D6H2KOAE\SQLEXPRESS01;Initial Catalog=InvestmentBuilderTest2;Integrated Security=True</dataSource>
+  <authdataSource>Data Source=LAPTOP-D6H2KOAE\SQLEXPRESS01;Initial Catalog=UserAuthentication;Integrated Security=True</authdataSource>
   <outputFolder>C:\Users\guy\Documents\Guy\InvestmentBuilder</outputFolder>
   <templatePath>C:\Projects\InvestmentBuilder\Templates</templatePath>
   <marketDataSource>C:\Users\guy\AppData\Roaming\InvestmentRecordBuilder\yahooMarketData.txt</marketDataSource>

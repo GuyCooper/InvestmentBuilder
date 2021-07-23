@@ -13,8 +13,8 @@ namespace MarketDataServices
         public static void RegisterServices()
         {
             //ContainerManager.RegisterType(typeof(IMarketDataSerialiser), typeof(MarketDataFileSerialiser), true);
-            ContainerManager.RegisterType(typeof(IMarketSourceLocator), typeof(MefMarketSourceLocator), true);
-            ContainerManager.RegisterType(typeof(IMarketDataSource), typeof(AggregatedMarketDataSource), true);
+            ContainerManager.RegisterType(typeof(IMarketSourceLocator), typeof(MefMarketSourceLocator));
+            ContainerManager.RegisterType(typeof(IMarketDataSource), typeof(AggregatedMarketDataSource));
         }
     }
 }

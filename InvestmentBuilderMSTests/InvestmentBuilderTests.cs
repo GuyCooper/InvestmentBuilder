@@ -72,10 +72,11 @@ namespace InvestmentBuilderMSTests
 
 
 
-            var marketDataServices = new MarketDataServices.MarketDataService(new TestMarketDataSource());
+            var marketDataSource = new TestMarketDataSource();
+            var marketDataServices = new MarketDataServices.MarketDataService( marketDataSource );
             var builder = new InvestmentBuilder.InvestmentBuilder(new ConfigurationSettingsTest(),
                                                                   dataLayer,
-                                                                  new InvestmentBuilder.CashAccountTransactionManager(dataLayer),
+                                                                  new CashAccountTransactionManager(dataLayer, marketDataSource ),
                                                                   new InvestmentReportEmptyWriter(),
                                                                   new EmptyTestInvestmentRecordBuilder());
             return builder;
@@ -123,7 +124,7 @@ namespace InvestmentBuilderMSTests
             var marketDataServices = new MarketDataServices.MarketDataService(new TestMarketDataSource());
             var builder = new InvestmentBuilder.InvestmentBuilder(new ConfigurationSettingsTest(),
                                                                   dataLayer,
-                                                                  new InvestmentBuilder.CashAccountTransactionManager(dataLayer),
+                                                                  new CashAccountTransactionManager(dataLayer, new TestMarketDataSource()),
                                                                   new InvestmentReportEmptyWriter(),
                                                                   new SimpleTestInvestmentRecordBuilder());
 

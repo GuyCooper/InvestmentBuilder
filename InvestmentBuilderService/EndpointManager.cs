@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Middleware;
 using InvestmentBuilderService.Session;
-using Microsoft.Practices.Unity;
 using System;
+using Unity;
 
 namespace InvestmentBuilderService
 {

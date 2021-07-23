@@ -3,15 +3,13 @@ using InvestmentBuilderCore;
 using NLog;
 using MarketDataServices;
 using SQLServerDataLayer;
-using Microsoft.Practices.Unity;
 using InvestmentBuilder;
 using InvestmentBuilderService.Utils;
 using InvestmentBuilderService.Session;
-using System.Threading;
 using InvestmentBuilderCore.Schedule;
-using System.Threading.Tasks;
 using InvestmentBuilderAuditLogger;
 using System.Collections.Generic;
+using Unity;
 
 namespace InvestmentBuilderService
 {
@@ -60,22 +58,22 @@ namespace InvestmentBuilderService
                 var ext = string.IsNullOrEmpty(certificate) ? ".xml" : ".enc";
 
                 logger.Info("InvestmentBuilderService starting...");
-                ContainerManager.RegisterType(typeof(ScheduledTaskFactory), true);
-                ContainerManager.RegisterType(typeof(IAuthorizationManager), typeof(SQLAuthorizationManager), true);
-                ContainerManager.RegisterType(typeof(IConfigurationSettings), typeof(ConfigurationSettings), true,  configfile+ext, overrides, certificate);
-                ContainerManager.RegisterType(typeof(IConnectionSettings), typeof(ConnectionSettings), true, connectionsFile+ext, certificate);
-                ContainerManager.RegisterType(typeof(IMarketDataService), typeof(MarketDataService), true);
+                ContainerManager.RegisterType(typeof(ScheduledTaskFactory));
+                ContainerManager.RegisterType(typeof(IAuthorizationManager), typeof(SQLAuthorizationManager));
+                ContainerManager.RegisterType(typeof(IConfigurationSettings), typeof(ConfigurationSettings),  configfile+ext, overrides, certificate);
+                ContainerManager.RegisterType(typeof(IConnectionSettings), typeof(ConnectionSettings), connectionsFile+ext, certificate);
+                ContainerManager.RegisterType(typeof(IMarketDataService), typeof(MarketDataService));
                 MarketDataRegisterService.RegisterServices();
-                ContainerManager.RegisterType(typeof(IDataLayer), typeof(SQLServerDataLayer.SQLServerDataLayer), true);
-                ContainerManager.RegisterType(typeof(IInvestmentRecordDataManager), typeof(InvestmentRecordBuilder), true);
-                ContainerManager.RegisterType(typeof(AccountService), true);
-                ContainerManager.RegisterType(typeof(InvestmentBuilder.InvestmentBuilder), true);
-                ContainerManager.RegisterType(typeof(PerformanceBuilderLib.PerformanceBuilder), true);
-                ContainerManager.RegisterType(typeof(CashAccountTransactionManager), true);
-                ContainerManager.RegisterType(typeof(CashFlowManager), true);
-                ContainerManager.RegisterType(typeof(IInvestmentReportWriter), typeof(InvestmentReportGenerator.InvestmentReportWriter), true);
-                ContainerManager.RegisterType(typeof(IMessageLogger), typeof(SQLiteAuditLogger), true);
-                ContainerManager.RegisterType(typeof(ServiceAggregator), true);
+                ContainerManager.RegisterType(typeof(IDataLayer), typeof(SQLServerDataLayer.SQLServerDataLayer));
+                ContainerManager.RegisterType(typeof(IInvestmentRecordDataManager), typeof(InvestmentRecordBuilder));
+                ContainerManager.RegisterType(typeof(AccountService));
+                ContainerManager.RegisterType(typeof(InvestmentBuilder.InvestmentBuilder));
+                ContainerManager.RegisterType(typeof(PerformanceBuilderLib.PerformanceBuilder));
+                ContainerManager.RegisterType(typeof(CashAccountTransactionManager));
+                ContainerManager.RegisterType(typeof(CashFlowManager));
+                ContainerManager.RegisterType(typeof(IInvestmentReportWriter), typeof(InvestmentReportGenerator.InvestmentReportWriter));
+                ContainerManager.RegisterType(typeof(IMessageLogger), typeof(SQLiteAuditLogger));
+                ContainerManager.RegisterType(typeof(ServiceAggregator));
 
                 using (var child = ContainerManager.CreateChildContainer())
                 {

@@ -1,5 +1,5 @@
 
-set ServerName=DESKTOP-JJ9QOJA\SQLEXPRESS
+set ServerName=LAPTOP-D6H2KOAE\SQLEXPRESS01
 set DBName=%1
 
 echo rebuild unit test database, server name: %ServerName%, db name: %DBName%

@@ -7,6 +7,7 @@ using SQLServerDataLayer;
 using System.IO;
 using InvestmentBuilder;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Unity;
 
 namespace InvestmentBuilderMSTests
 {
@@ -64,7 +65,7 @@ namespace InvestmentBuilderMSTests
         private static DateTime _ValuationDateNextMonth = DateTime.Parse("15/10/2015");
         private static DateTime _TradeValuationDateNextMonth = DateTime.Parse("05/10/2015 18:43:45");
 
-        private Microsoft.Practices.Unity.IUnityContainer _childContainer;
+        private IUnityContainer _childContainer;
 
         [TestInitialize]
         public void Setup()
@@ -369,22 +370,22 @@ namespace InvestmentBuilderMSTests
             //    userToken, dtValuationDate, dtTransactionDate, "BalanceInHand", "BalanceInHand", 913.05);
 
             ContainerManager.ResolveValueOnContainer<CashAccountTransactionManager>(_childContainer).AddTransaction(
-                userToken, dtValuationDate, dtTransactionDate, "Subscription", userToken.User, 200.0);
+                userToken, dtValuationDate, dtTransactionDate, "Subscription", userToken.User, 200.0, null);
 
             ContainerManager.ResolveValueOnContainer<CashAccountTransactionManager>(_childContainer).AddTransaction(
-                userToken, dtValuationDate, dtTransactionDate, "Interest", userToken.User, 0.08);
+                userToken, dtValuationDate, dtTransactionDate, "Interest", userToken.User, 0.08, null);
 
             ContainerManager.ResolveValueOnContainer<CashAccountTransactionManager>(_childContainer).AddTransaction(
-                userToken, dtValuationDate, dtTransactionDate, "Admin Fee", "Admin Fee", 2.50);
+                userToken, dtValuationDate, dtTransactionDate, "Admin Fee", "Admin Fee", 2.50, null);
 
             ContainerManager.ResolveValueOnContainer<CashAccountTransactionManager>(_childContainer).AddTransaction(
-               userToken, dtValuationDate, dtTransactionDate, "Purchase", _NewTestTradeName, dUpdateTradeCost);
+               userToken, dtValuationDate, dtTransactionDate, "Purchase", _NewTestTradeName, dUpdateTradeCost, null);
 
             ContainerManager.ResolveValueOnContainer<CashAccountTransactionManager>(_childContainer).AddTransaction(
-                userToken, dtValuationDate, dtTransactionDate, "Dividend", "Acme Plc", 100.0);
+                userToken, dtValuationDate, dtTransactionDate, "Dividend", "Acme Plc", 100.0, null);
 
             ContainerManager.ResolveValueOnContainer<CashAccountTransactionManager>(_childContainer).AddTransaction(
-                userToken, dtValuationDate, dtTransactionDate, "BalanceInHandCF", "BalanceInHandCF", 949.31);
+                userToken, dtValuationDate, dtTransactionDate, "BalanceInHandCF", "BalanceInHandCF", 949.31, null);
 
             var manualPrices = new ManualPrices
             {

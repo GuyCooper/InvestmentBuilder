@@ -2,8 +2,11 @@ download and install php (64 bit)
 
 install the sql server drivers:
 
-download:
-MICROSOFT DRIVERS 4.0 FOR PHP FOR MICROSOFT SQL SERVER
+download microsoft drivers for php
+https://docs.microsoft.com/en-us/sql/connect/php/download-drivers-php-sql-server?view=sql-server-ver15
+save in ext folder under php folder
+
+install microsoft ODBC Driver 13 for SQL Server!!!!(google it)
 
 copy the binaries to the ext folder under php root
 

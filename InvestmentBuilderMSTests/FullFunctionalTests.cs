@@ -10,6 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PerformanceBuilderLib;
 using InvestmentBuilderAuditLogger;
 using InvestmentBuilderCore.Schedule;
+using Unity;
 
 namespace InvestmentBuilderMSTests
 {
@@ -71,7 +72,7 @@ namespace InvestmentBuilderMSTests
         private readonly double _testSubscription1 = 50.0d;
 
         private FunctionalTestContainer _interfaces;
-        private Microsoft.Practices.Unity.IUnityContainer _childContainer;
+        private IUnityContainer _childContainer;
 
         [TestInitialize]
         public void Setup()
@@ -94,13 +95,13 @@ namespace InvestmentBuilderMSTests
             ContainerManager.RegisterType(typeof(IMarketDataService), typeof(MarketDataService), true);
             MarketDataRegisterService.RegisterServices();
             //todo,use servicelocator
-            ContainerManager.RegisterType(typeof(IDataLayer), typeof(SQLServerDataLayer.SQLServerDataLayer), true);
-            ContainerManager.RegisterType(typeof(IInvestmentRecordDataManager), typeof(InvestmentRecordBuilder), true);
-            ContainerManager.RegisterType(typeof(FunctionalTestContainer), typeof(FunctionalTestContainer), true);
-            ContainerManager.RegisterType(typeof(IInvestmentReportWriter), typeof(InvestmentReportGenerator.InvestmentReportWriter), true);
-            ContainerManager.RegisterType(typeof(IMessageLogger), typeof(FileMessageLogger), true);
-            ContainerManager.RegisterType(typeof(CashAccountTransactionManager), true);
-            ContainerManager.RegisterType(typeof(ScheduledTaskFactory), true);
+            ContainerManager.RegisterType(typeof(IDataLayer), typeof(SQLServerDataLayer.SQLServerDataLayer));
+            ContainerManager.RegisterType(typeof(IInvestmentRecordDataManager), typeof(InvestmentRecordBuilder));
+            ContainerManager.RegisterType(typeof(FunctionalTestContainer), typeof(FunctionalTestContainer));
+            ContainerManager.RegisterType(typeof(IInvestmentReportWriter), typeof(InvestmentReportGenerator.InvestmentReportWriter));
+            ContainerManager.RegisterType(typeof(IMessageLogger), typeof(FileMessageLogger));
+            ContainerManager.RegisterType(typeof(CashAccountTransactionManager));
+            ContainerManager.RegisterType(typeof(ScheduledTaskFactory));
 
             _interfaces = ContainerManager.ResolveValueOnContainer<FunctionalTestContainer>(_childContainer);
         }
@@ -216,10 +217,10 @@ namespace InvestmentBuilderMSTests
         private void When_adding_subscription_amounts(UserAccountToken userToken)
         {
             Console.WriteLine("When_adding_subscription_amounts");
-            _interfaces.CashAccountManager.AddTransaction(userToken, _dtValuationDate1, _dtTransactionDate1, CashAccountTransactionManager.SUBSCRIPTION, _TestUser, _testSubscription1);
-            _interfaces.CashAccountManager.AddTransaction(userToken, _dtValuationDate1, _dtTransactionDate1, CashAccountTransactionManager.SUBSCRIPTION, _TestUser1, _testSubscription1);
-            _interfaces.CashAccountManager.AddTransaction(userToken, _dtValuationDate1, _dtTransactionDate1, CashAccountTransactionManager.SUBSCRIPTION, _TestUser2, _testSubscription1);
-            _interfaces.CashAccountManager.AddTransaction(userToken, _dtValuationDate1, _dtTransactionDate1, CashAccountTransactionManager.BALANCEINHANDCF, _TestAccount, _testSubscription1 * 3);
+            _interfaces.CashAccountManager.AddTransaction(userToken, _dtValuationDate1, _dtTransactionDate1, CashAccountTransactionManager.SUBSCRIPTION, _TestUser, _testSubscription1, null);
+            _interfaces.CashAccountManager.AddTransaction(userToken, _dtValuationDate1, _dtTransactionDate1, CashAccountTransactionManager.SUBSCRIPTION, _TestUser1, _testSubscription1 , null);
+            _interfaces.CashAccountManager.AddTransaction(userToken, _dtValuationDate1, _dtTransactionDate1, CashAccountTransactionManager.SUBSCRIPTION, _TestUser2, _testSubscription1, null);
+            _interfaces.CashAccountManager.AddTransaction(userToken, _dtValuationDate1, _dtTransactionDate1, CashAccountTransactionManager.BALANCEINHANDCF, _TestAccount, _testSubscription1 * 3, null);
 
             double receiptTotal;
             double paymentsTotal;

@@ -2,13 +2,12 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Middleware;
-using Newtonsoft.Json;
 using InvestmentBuilderCore;
 using NLog;
 using InvestmentBuilderService.Session;
-using Microsoft.Practices.Unity;
 using InvestmentBuilder;
 using MiddlewareInterfaces;
+using Unity;
 
 namespace InvestmentBuilderService
 {

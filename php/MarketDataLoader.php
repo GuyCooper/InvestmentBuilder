@@ -8,7 +8,7 @@ if($argc < 2) {
 
 $allparams = parseCommandLine($argv, $argc);
 
-$servername = getArrayValue($allparams, "s", "DESKTOP-JJ9QOJA\SQLEXPRESS");
+$servername = getArrayValue($allparams, "s", "LAPTOP-D6H2KOAE\SQLEXPRESS01");
 $database = getArrayValue($allparams, "d", "InvestmentBuilderTest2");
 $findSymbol = getArrayValue($allparams, "n", null);
 $outfile= getArrayValue($allparams, "o", "results.txt");

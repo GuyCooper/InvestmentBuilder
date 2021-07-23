@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Practices.Unity;
+using Unity;
+using Unity.Injection;
+using Unity.Lifetime;
 
 namespace InvestmentBuilderCore
 {
@@ -16,22 +18,20 @@ namespace InvestmentBuilderCore
             return _container;
         }
 
-        public static void RegisterType(Type typeFrom, bool bHierachialLifetime)
+        public static void RegisterType(Type typeFrom)
         {
-            var lifetimeManager = bHierachialLifetime ? new HierarchicalLifetimeManager() : new ContainerControlledLifetimeManager();
-            _container.RegisterType(typeFrom, lifetimeManager);
+            _container.RegisterType(typeFrom, new HierarchicalLifetimeManager());
         }
 
-        public static void RegisterType(Type typeFrom, Type typeTo, bool bHierachialLifetime, params object[] prm)
+        public static void RegisterType(Type typeFrom, Type typeTo, params object[] prm)
         {
-            var lifetimeManager = bHierachialLifetime ? new HierarchicalLifetimeManager() : new ContainerControlledLifetimeManager();
             if (prm == null || prm.Length == 0)
             {
-                _container.RegisterType(typeFrom, typeTo, lifetimeManager);
+                _container.RegisterType(typeFrom, typeTo, new HierarchicalLifetimeManager());
             }
             else
             {
-                _container.RegisterType(typeFrom, typeTo, lifetimeManager, new InjectionConstructor(prm));
+                _container.RegisterType(typeFrom, typeTo, new HierarchicalLifetimeManager() , new InjectionConstructor(prm));
             }
         }
 
@@ -64,6 +64,11 @@ namespace InvestmentBuilderCore
         public static IUnityContainer CreateChildContainer()
         {
             return _container.CreateChildContainer();
+        }
+
+        public static void RegisterInstance<T>(T instance)
+        {
+            _container.RegisterInstance<T>(instance);
         }
     }
 }

@@ -1,17 +1,13 @@
+USE [UserAuthentication]
+GO
 
-/****** Object:  StoredProcedure [dbo].[sp_AuthGetSalt]    Script Date: 04/02/2018 17:50:42 ******/
+/****** Object:  StoredProcedure [dbo].[sp_AuthGetSalt]    Script Date: 23/07/2021 21:56:15 ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
 
-IF EXISTS (SELECT 1 FROM sys.procedures WHERE Name = 'sp_AuthGetSalt')
-BEGIN
-	DROP PROCEDURE sp_AuthGetSalt
-END
-
-GO
 
 CREATE PROCEDURE [dbo].[sp_AuthGetSalt](@EMail NVARCHAR(256)) AS
 										   
@@ -25,5 +21,6 @@ BEGIN
 	ud.EMail = @EMail
 
 END
+
 GO
 

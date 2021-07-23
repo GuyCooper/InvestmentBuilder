@@ -1,6 +1,6 @@
 pushd
 
-BuildInvestmentBuilderDatabase.bat InvestmentBuilderTest3
+BuildInvestmentBuilderDatabase.bat InvestmentBuilderTest2
 
 popd
 

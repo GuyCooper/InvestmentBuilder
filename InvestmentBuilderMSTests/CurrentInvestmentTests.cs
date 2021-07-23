@@ -325,7 +325,7 @@ namespace InvestmentBuilderMSTests
             _investmentBuilder = new InvestmentBuilder.InvestmentBuilder(
                 new ConfigurationSettingsTest(),
                 datalayer,
-                new CashAccountTransactionManager(datalayer),
+                new CashAccountTransactionManager(datalayer, new TestMarketDataSource()),
                 new InvestmentReportEmptyWriter(),
                 new InvestmentRecordBuilder(marketDataServices, datalayer, brokerManager)
                 );
@@ -390,7 +390,7 @@ namespace InvestmentBuilderMSTests
             _investmentBuilder = new InvestmentBuilder.InvestmentBuilder(
                 new ConfigurationSettingsTest(),
                 datalayer,
-                new CashAccountTransactionManager(datalayer),
+                new CashAccountTransactionManager(datalayer, new TestMarketDataSource() ),
                 new InvestmentReportEmptyWriter(),
                 new InvestmentRecordBuilder(marketDataServices, datalayer, brokerManager)
                 );

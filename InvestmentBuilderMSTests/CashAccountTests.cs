@@ -78,7 +78,7 @@ namespace InvestmentBuilderMSTests
                                               , null
                                               , null);
 
-            _manager = new CashAccountTransactionManager(datalayer);
+            _manager = new CashAccountTransactionManager(datalayer, null);
         }
 
         [TestMethod]
@@ -131,7 +131,7 @@ namespace InvestmentBuilderMSTests
                                                      , null
                                                      , null);
 
-            _manager = new CashAccountTransactionManager(datalayer);
+            _manager = new CashAccountTransactionManager(datalayer, null);
         }
 
         [TestMethod]

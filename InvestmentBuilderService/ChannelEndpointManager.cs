@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Middleware;
 using InvestmentBuilderCore;
 using InvestmentBuilderService.Session;
 using NLog;
-using Microsoft.Practices.Unity;
+using Unity;
 
 namespace InvestmentBuilderService
 {
@@ -46,7 +45,7 @@ namespace InvestmentBuilderService
             //now register each endpoint channel
             foreach(var channel in channelTypes)
             {
-                ContainerManager.RegisterType(channel, true);
+                ContainerManager.RegisterType(channel);
             }
 
             //now resolve (instantiate) each endpointchannel and register the 

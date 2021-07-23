@@ -26,6 +26,7 @@ create table dbo.UserDetails
 	[AccessFailedCount] int not null,
 	[PasswordCreationDate] datetime not null,
 	[UserLastLogin] datetime not null,
+	[TemporaryPassword] bit not null  default(0) 
 	constraint UN_EmailName unique([Email])
 )
 
@@ -40,3 +41,15 @@ create table dbo.UserSalt
 )
 go
 
+create table dbo.PasswordChange
+(
+	[User_Id] int primary key not null,
+	[Token] nvarchar(256) not null,
+	[AddTime] datetime  not null,
+
+	constraint FK_UserDetails_Email foreign key
+	([User_Id]) references UserDetails([Id])
+
+)
+
+go
