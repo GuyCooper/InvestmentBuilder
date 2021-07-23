@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
 import TestGrid from './TestGrid.js'
+import Testbootstrap from './Testbootstrap.js'
 
 class ProductCategoryRow extends React.Component {
   render() {
@@ -172,7 +173,8 @@ const PRODUCTS = [
 
 ReactDOM.render(
   // <FilterableProductTable products={PRODUCTS} />,
-  <TestGrid />,
+  //<TestGrid />,
+  <Testbootstrap />,
   document.getElementById('root')
 );
 
