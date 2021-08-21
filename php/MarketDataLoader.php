@@ -40,8 +40,14 @@ if($historical) {
 function loadAllInstruments($servername, $connectionInfo, $fout) {
 	$symbols = loadListOfSymbols($servername, $connectionInfo);
 	//first process company instruments
+	$count  = 0;
 	 foreach($symbols as $symbol) {
 		 processInstrument(trim($symbol), $fout);
+		 $count++;
+		 if( $count % 25 == 0 ) {
+			 sleep( 120 );
+		 }
+		 sleep( 10 );
 	 }
 
 	 //now process FX instruments
