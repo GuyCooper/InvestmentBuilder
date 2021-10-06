@@ -1,28 +1,27 @@
-﻿'use strict'
 
-function NotifyService() {
+const NotifyService = function () {
     
     //notify service acts as a broker service between the controllers. it contains
     //several lists of listeners that need to be called when a particular view is
     //selected.
-    var PortfolioListeners = []; //list of listeners that are invoked when the user clicks on the Portfolio view
-    var AddTradeListeners = []; //list of listeners that are invoked when the user clicks on the AddTrade view
-    var CashFlowListeners = []; //list of listeners that are invoked when the user clicks on the CashFlow view
-    var ReportsListeners = []; //list of listeners that are invoked when the user clicks on the Reports view
-    var RedemptionListeners = []; //list of listeners that are invoked when the user clicks on the Redemptions view
-    var BuildStatusListeners = []; //this of listeners that should be invoked when the build status changes
-    var AccountListeners = []; //this is a list of listeners that should be invoked when the account is changed
-    var ConnectionListeners = []; //this list contains a list of handlers that should be called once connection to the middleware is complete
-    var DisconnectionListeners = []; //this list contains a list of handlers that should be called when the session is ended
+    let PortfolioListeners = []; //list of listeners that are invoked when the user clicks on the Portfolio view
+    let AddTradeListeners = []; //list of listeners that are invoked when the user clicks on the AddTrade view
+    let CashFlowListeners = []; //list of listeners that are invoked when the user clicks on the CashFlow view
+    let ReportsListeners = []; //list of listeners that are invoked when the user clicks on the Reports view
+    let RedemptionListeners = []; //list of listeners that are invoked when the user clicks on the Redemptions view
+    let BuildStatusListeners = []; //this of listeners that should be invoked when the build status changes
+    let AccountListeners = []; //this is a list of listeners that should be invoked when the account is changed
+    let ConnectionListeners = []; //this list contains a list of handlers that should be called once connection to the middleware is complete
+    let DisconnectionListeners = []; //this list contains a list of handlers that should be called when the session is ended
 
     //listeners for the current view
-    var listeners = null;
+    let listeners = null;
 
-    var busyStateChangedListener = null;
+    let busyStateChangedListener = null;
     //flag to determine if system is busy with request / connecting etc..
-    var isBusy = false;
+    let isBusy = false;
     //store the sessionid of the connection to allow secure file requests to the server
-    var sessionid = null;
+    let sessionid = null;
 
     this.RegisterBusyStateChangedListener = function (listener) {
         busyStateChangedListener = listener;
@@ -71,16 +70,16 @@ function NotifyService() {
     };
 
     //helper method for invoking an array of callbacks
-    var invokeCallbacks = function (callbacks, parameter) {
+    let invokeCallbacks = function (callbacks, parameter) {
         if (callbacks != null) {
-            for (var i = 0; i < callbacks.length; i++) {
+            for (let i = 0; i < callbacks.length; i++) {
                 callbacks[i](parameter);
             }
         }
     };
 
     //helper method for invoking the current listeners
-    var invokeListeners = function () {
+    let invokeListeners = function () {
         invokeCallbacks(listeners);
     }
 
@@ -132,14 +131,19 @@ function NotifyService() {
     };
 
     this.SetBusyState = function (busy) {
-        IsBusy = busy;
+        isBusy = busy;
     };
 
     this.GetBusyState = function () {
-        return IsBusy;
+        return isBusy;
     };
 
     this.GetSessionID = function () {
         return sessionid;
     };
-}
+};
+
+
+let notifyService = new NotifyService();
+
+export default notifyService;

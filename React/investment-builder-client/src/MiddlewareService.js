@@ -1,28 +1,28 @@
 ﻿'use strict'
 
-function MiddlewareService()
-{
-    var mw = null;
-    var subscriptionList = [];
-    var pendingRequestList = [];
+import middleware from "./Middleware.js";
 
-    var server_ = '';
-    var username_ = '';
-    var password_ = '';
+const  MiddlewareService = function() {
+    let subscriptionList = [];
+    let pendingRequestList = [];
 
-    var onConnected = function(message) {
+    let server_ = '';
+    let username_ = '';
+    let password_ = '';
+
+    let onConnected = function(message) {
         console.log('connected to middleware. ' + message);
     };
 
-    var onError = function (message) {
+    let onError = function (message) {
         console.log('Error from middleware. ' + message);
     };
 
-    var isNullOrUndefined = function(object) {
+    let isNullOrUndefined = function(object) {
         return object === null || object === undefined;
     }
 
-    var onMessage = function (requestId, payload, binaryPayload) {
+    let onMessage = function (requestId, payload, binaryPayload) {
         for (var i = 0; i < pendingRequestList.length; i++) {
             var request = pendingRequestList[i];
             if (request.pendingId === requestId) {
@@ -36,23 +36,22 @@ function MiddlewareService()
     };
 
     this.Connect = function (server, username, password) {
-        mw = new Middleware();
         subscriptionList = [];
         pendingRequestList = [];
         server_ = server;
         username_ = username;
         password_ = password;
         return new Promise(function (resolve, reject) {
-            mw.Connect(server_, username_, password_, resolve, reject, onMessage);
+            middleware.Connect(server_, username_, password_, resolve, reject, onMessage);
         });
     };
 
     this.Disconnect = function () {
-        mw.Disconnect();
+        middleware.Disconnect();
     };
 
     var sendRequestToChannel = function (channel, message, handler) {
-        mw.SendRequest(channel, message).then((id) => {
+        middleware.SendRequest(channel, message).then((id) => {
             pendingRequestList.push({"pendingId": id,"callback": handler });
         }, (error) => { console.log("unable to send request to channel " + channel + ". error: " +  error); });
     };
@@ -63,7 +62,7 @@ function MiddlewareService()
         if (subscriptionList.findIndex(function (val) {
             return val === response;
         }) === -1) {
-            mw.SubscribeChannel(response).then(() => {
+            middleware.SubscribeChannel(response).then(() => {
                 subscriptionList.push(response);
                 sendRequestToChannel(request, message, handler);
             });
@@ -180,4 +179,9 @@ function MiddlewareService()
     this.GetPrice = function (request, handler) {
         doCommand("GET_PRICE_REQUEST", "GET_PRICE_RESPONSE", request, handler);
     }
-}
+};
+
+
+let middlewareService = new MiddlewareService();
+
+export default middlewareService;

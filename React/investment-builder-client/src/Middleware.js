@@ -5,7 +5,7 @@
 
 var uid = 1;
 
-var Middleware = function () {
+const Middleware = function () {
     var ws;
     var callQueue = [];
 
@@ -22,7 +22,7 @@ var Middleware = function () {
             onerror(error);
         }.bind(this);
 
-        var processResponse = function(message, success) {
+        let processResponse = function(message, success) {
             for(var i = 0; i < callQueue.length; i++) {
                 var msg = callQueue[i];
                 if(msg.id === message.RequestId) {
@@ -39,19 +39,19 @@ var Middleware = function () {
             }
         };
 
-        var loginSuccess = function (message, payload) {
+        let loginSuccess = function (message, payload) {
             if (onopen != null) {
                 onopen(payload);
             }
         };
 
-        var loginFail = function(message) {
+        let loginFail = function(message) {
             if (onerror != null) {
                 onerror(message);
             }
         };
 
-        var sendLoginRequest = function (username, password) {
+        let sendLoginRequest = function (username, password) {
             var loginRequest = {
                 UserName: username,
                 Password: password,
@@ -97,8 +97,8 @@ var Middleware = function () {
     };
 
     var processRequestInternal = function(channel, command, type, data, destination, resolve, reject) {
-        var id = "test_" + uid++;
-        var payload = {
+        let id = "test_" + uid++;
+        let payload = {
             RequestId: id,
             Command: command,
             Channel: channel,
@@ -120,7 +120,7 @@ var Middleware = function () {
         //var arrData = new Blob([JSON.stringify(payload)], { type: 'application/json' })
         //var serialisedData = JSON.stringify(payload);
         ws.send(JSON.stringify(payload));
-    }
+    };
 
     var processRequest = function(channel, command, type, data, destination) {
         return new Promise(function (resolve, reject) {
@@ -135,17 +135,21 @@ var Middleware = function () {
 
     this.SendMessage  = function(channel, message, destination) {
         return processRequest(channel, "SENDMESSAGE", 1, message, destination);
-    }
+    };
 
     this.AddListener = function (channel) {
         return processRequest(channel, "ADDLISTENER", 0, null, null);
-    }
+    };
 
     this.SendRequest = function(channel, message) {
         return processRequest(channel, "SENDREQUEST", 0, message);
-    }
+    };
 
     this.PublishMessage = function(channel, message) {
         return processRequest(channel, "PUBLISHMESSAGE", 1, message);
-    }
-}
+    };
+};
+
+let middleware = new Middleware();
+
+export default middleware;
