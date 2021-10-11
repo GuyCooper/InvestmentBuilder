@@ -1,3 +1,4 @@
+import React,  { useState  } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {Card} from 'react-bootstrap';
 import notifyService from "./NotifyService.js";
@@ -14,7 +15,10 @@ const Testcard = () =>
     const [valuationDate, setValuationDate] = useState('');
 
     const onLoadAccountSummary = function (response) {
-        setAccountName( response.AccountName );
+
+        console.log(  "account summary: " + JSON.stringify(response));
+
+        setAccountName( response.AccountName.Name );
         setReportingCurrency( response.ReportingCurrency );
         setValuePerUnit( response.ValuePerUnit );
         setNetAssets( response.NetAssets );
@@ -34,10 +38,37 @@ const Testcard = () =>
     notifyService.RegisterAccountListener(loadAccountSummary);
 
     return(
-        <Card bg="light" className="mt-sm-3">
+        <Card bg="light" className="mt-sm-3 text-center">
             <Card.Header as="h3">{accountName}</Card.Header>
             <Card.Body>
-                <Card.Title></Card.Title>
+            <div className="summaryContainer">
+                    <div className="summaryChild">
+                        <div className="summaryDisplay">
+                            <div><strong>Reporting Currency</strong></div>
+                            <div>{reportingCurrency}</div>
+                        </div>
+                        <div className="summaryDisplay">
+                            <div><strong>Valuation Date</strong></div>
+                            <div>{valuationDate}</div>
+                        </div>
+                        <div className="summaryDisplay">
+                            <div><strong>Value Per Unit</strong></div>
+                            <div>{valuePerUnit}</div>
+                        </div>
+                        <div className="summaryDisplay">
+                            <div><strong>Net Assets</strong></div>
+                            <div>{netAssets}</div>
+                        </div>
+                        <div className="summaryDisplay">
+                            <div><strong>Bank Balance</strong></div>
+                            <div>{bankBalance}</div>
+                        </div>
+                        <div className="summaryDisplay">
+                            <div><strong>Month PnL</strong></div>
+                            <div>{monthlyPnL}</div>
+                        </div>
+                    </div>
+                </div>
             </Card.Body>
         </Card>
     );
