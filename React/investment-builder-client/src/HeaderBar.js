@@ -1,7 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {Navbar, Nav, Form, FormControl, Button} from 'react-bootstrap';
 
-const TestNav = () =>
+const HeaderBar = () =>
 {
     return(
         <Navbar bg="primary" variant="dark">
@@ -18,4 +18,4 @@ const TestNav = () =>
     );
 }
 
-export default TestNav;
+export default HeaderBar;

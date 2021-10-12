@@ -1,7 +1,7 @@
 import React,  { useState, useRef } from 'react';
 import { Modal } from 'react-bootstrap';
 
-const EditTradeModal = (props) => {
+const EditTrade = function(props)  {
 
     let onOk = function() {
         console.log('user clicked ok!');
@@ -11,12 +11,13 @@ const EditTradeModal = (props) => {
     return (
         <Modal 
             size="lg"
+            show={props.show}
             aria-labelledby="contained-modal-title-vcenter"
             centered>
             <Modal.Header closeButton>
                 <Modal.Title
                     id="contained-modal-title-vcenter">
-                        {props.Name}
+                        {props.name}
                 </Modal.Title>                
             </Modal.Header>
             <Modal.Body>
@@ -31,20 +32,5 @@ const EditTradeModal = (props) => {
 
 };
 
-const EditTrade = function(props) {
-
-    const [modalShow, setModalShow] = useState(false);
-
-    return (
-        <div>
-            <button onClick={() => setModalShow(true) }>Edit Trade</button>            
-            <EditTradeModal
-                name={props.value} 
-                show={modalShow}
-                onHide={() => setModalShow(false)} />
-        </div>        
-    );
-
-};
 
 export default EditTrade;

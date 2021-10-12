@@ -8,9 +8,12 @@ import middlewareService from "./MiddlewareService.js";
 import ButtonCellRenderer from "./ButtonCellRenderer.js";
 import EditTrade from './EditTrade'
 
-const TestGrid = () => 
+const Portfolio = () => 
 {
     const [rowData, setRowData] = useState([]);
+    const [showEditTrade, setShowEditTrade] = useState(false);
+    const [selectedTrade, setSelectedTrade] = useState('');
+
     const gridRef = useRef(null);
 
     let reloadPortfolio = false;
@@ -40,6 +43,8 @@ const TestGrid = () =>
 
     const editTrade = function( field )  {
        console.log( field + ' was clicked');
+       setSelectedTrade( field );
+       setShowEditTrade( true )
 
     };
           
@@ -63,19 +68,14 @@ const TestGrid = () =>
         { headerName: "Net Value", field: "NetSellingValue", sortable: true, filter: true, valueFormatter: numberFormatter, type:'numericColumn' },
         { headerName: "Profit/Loss", field: "ProfitLoss", sortable: true, filter: true, valueFormatter: numberFormatter, type:'numericColumn' },
         { headerName: "Month Change%", field: "MonthChangeRatio", sortable: true, filter: true, valueFormatter: numberFormatter, type:'numericColumn', width:100 },
-        // { headerName: "Options", field: "Name", cellRenderer: "btnCellRenderer", 
-        //                          cellRendererParams: {
-        //                             clicked : function( field ) {
-        //                                 editTrade( field );            
-        //                             } ,
-        //                             label : 'Edit Trade'
-        //                          } 
-       { headerName: "Options", field: "Name", cellRenderer: "btnCellRenderer", 
+        { headerName: "Edit Trade", field: "Name", cellRenderer: "btnCellRenderer", 
                                  cellRendererParams: {
-                                    }
-                                 } 
-          
-        }
+                                     clicked : function( field ) {
+                                         editTrade( field );            
+                                     } ,
+                                    label : 'Edit Trade'
+                                 }
+        } 
     ];
 
     const defaultColDefs = {
@@ -83,26 +83,33 @@ const TestGrid = () =>
     };
     
     const frameworkComponents = {
-        btnCellRenderer : EditTrade
+        btnCellRenderer : ButtonCellRenderer
     };
 
     return (
-        <div className="ag-theme-alpine mt-sm-3" >
+        <>
+            <div className="ag-theme-alpine mt-sm-3" >
 
-            <AgGridReact
-                domLayout='autoHeight'
-                ref={gridRef}
-                rowData={rowData}
-                rowSelection="single"
-                columnDefs={columndefs}
-                frameworkComponents={frameworkComponents}    
-                defaultColDef={defaultColDefs}     
-                >                        
-            </AgGridReact>
+                <AgGridReact
+                    domLayout='autoHeight'
+                    ref={gridRef}
+                    rowData={rowData}
+                    rowSelection="single"
+                    columnDefs={columndefs}
+                    frameworkComponents={frameworkComponents}    
+                    defaultColDef={defaultColDefs}     
+                    >                        
+                </AgGridReact>
+            </div>
 
-        </div>
+            <EditTrade
+                    name={selectedTrade}
+                    show={showEditTrade}
+                    onHide={() => setShowEditTrade(false)} />
+
+        </>
     );        
 
 };
 
-export default TestGrid;
+export default Portfolio;

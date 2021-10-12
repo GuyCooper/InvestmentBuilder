@@ -2,8 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
-import TestGrid from './TestGrid.js'
-import Testbootstrap from './Testbootstrap.js'
+import TopLevel from './TopLevel.js'
 
 class ProductCategoryRow extends React.Component {
   render() {
@@ -172,9 +171,7 @@ const PRODUCTS = [
 ];
 
 ReactDOM.render(
-  // <FilterableProductTable products={PRODUCTS} />,
-  //<TestGrid />,
-  <Testbootstrap />,
+   <TopLevel />,
   document.getElementById('root')
 );
 

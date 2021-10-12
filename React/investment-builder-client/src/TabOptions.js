@@ -1,10 +1,10 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {Tab, Tabs} from 'react-bootstrap';
 import React,  { useState } from 'react';
-import TestGrid from './TestGrid.js'
+import Portfolio from './Portfolio.js'
 import notifyService from "./NotifyService.js";
 
-const TestTabs = () =>
+const TabOptions = () =>
 {
     const portfolio = 'portfolio';
     const addinvestment = 'addinvestment';
@@ -32,7 +32,7 @@ const TestTabs = () =>
         onSelect={(k) => onTabChanged(k)}        
         >
             <Tab eventKey={portfolio} title="Portfolio">
-                <TestGrid/>
+                <Portfolio/>
             </Tab>
             <Tab eventKey={addinvestment} title="Add Investment">
                 Add a new investment
@@ -44,4 +44,4 @@ const TestTabs = () =>
     );
 }
 
-export default TestTabs;
+export default TabOptions;

@@ -4,7 +4,7 @@ import {Card} from 'react-bootstrap';
 import notifyService from "./NotifyService.js";
 import middlewareService from "./MiddlewareService.js";
 
-const Testcard = () =>
+const Summary = () =>
 {
     const [accountName, setAccountName] = useState('');
     const [reportingCurrency, setReportingCurrency] = useState('');
@@ -74,4 +74,4 @@ const Testcard = () =>
     );
 }
 
-export default Testcard;
+export default Summary;

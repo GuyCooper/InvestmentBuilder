@@ -1,13 +1,13 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React,  { useEffect  } from 'react';
 import {Container, Row, Col } from 'react-bootstrap';
-import Testcard from './TestCard.js';
-import TestNav from './TestNav.js'
-import TestTabs from './TestTabs.js'
+import Summary from './Summary.js';
+import HeaderBar from './HeaderBar.js'
+import TabOptions from './TabOptions.js'
 import notifyService from "./NotifyService.js";
 import middlewareService from "./MiddlewareService.js"
 
-const Testbootstrap = () =>
+const TopLevel = () =>
 {
     let onConnnectionSuccess = function( payload, username ) {
 
@@ -42,21 +42,21 @@ const Testbootstrap = () =>
         <Container fluid>
             <Row>
                 <Col>
-                    <TestNav/>
+                    <HeaderBar/>
                 </Col>
             </Row>
             <Row>
                 <Col>
-                    <Testcard/>
+                    <Summary/>
                 </Col>
             </Row> 
             <Row>
                 <Col>
-                    <TestTabs/>
+                    <TabOptions/>
                 </Col>
             </Row>
         </Container> 
     );
 }
 
-export default Testbootstrap;
+export default TopLevel;
