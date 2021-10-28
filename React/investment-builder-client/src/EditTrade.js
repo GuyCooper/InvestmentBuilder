@@ -13,11 +13,24 @@ const EditTrade = function(props)  {
     const [selectedDate, setSelectedDate] = useState( new Date());
     const [selectedAction, setSelectedAction] = useState(BUY);
     const [quantity, setQuantity] = useState('');
+    const [amount, setAmount] = useState('');
+    const [sellAll, setSellAll] = useState(false);
 
     let handleSubmit = function() {    
         console.log( 'selected data ' + selectedDate);
         console.log( 'selected action ' + selectedAction);
         console.log( 'selected quantity ' + quantity);
+        console.log( 'selected amount ' + amount);
+        console.log( 'sell all ' + sellAll);
+        props.onHide();
+    };
+
+    let closeModal = function() {
+        setSelectedDate( new Date());
+        setSelectedAction(BUY);
+        setQuantity('');
+        setAmount('');
+        setSellAll(false);
         props.onHide();
     };
 
@@ -27,7 +40,7 @@ const EditTrade = function(props)  {
             show={props.show}
             aria-labelledby="contained-modal-title-vcenter"
             centered
-            onHide={props.onHide}>
+            onHide={closeModal}>
             <Modal.Header closeButton>
                 <Modal.Title
                     id="contained-modal-title-vcenter">
@@ -38,7 +51,7 @@ const EditTrade = function(props)  {
                 <h2>{props.name}</h2>
                 <br/>
                 <Form onSubmit={handleSubmit}>
-                    <Form.Group>
+                    <Form.Group >
                         <Form.Label>Transaction Date</Form.Label>
                         <DatePicker
                             selected={selectedDate}
@@ -76,23 +89,38 @@ const EditTrade = function(props)  {
                         </div>
                     </Form.Group>
                     <Form.Group>
+                        <Form.Check 
+                            label="Sell All"
+                            type="checkbox"
+                            disabled={selectedAction !== SELL}
+                            onChange={() => setSellAll(!sellAll)}
+                        />
+                    </Form.Group>
+                    <Form.Group>
                         <Form.Label>Quantity</Form.Label>
                         <Form.Control 
-                                type="number" 
+                                type="number"
+                                disabled={selectedAction === SELL && sellAll === true} 
                                 value={quantity} 
                                 onChange={(e) => setQuantity(e.currentTarget.value) } 
+                                placeholder="Quantity" />
+                    </Form.Group>
+                    <Form.Group>
+                        <Form.Label>Amount</Form.Label>
+                        <Form.Control 
+                                type="number" 
+                                value={amount} 
+                                onChange={(e) => setAmount(e.currentTarget.value) } 
                                 placeholder="Amount" />
                     </Form.Group>    
+
                     <br/>
                     <Button variant="primary" type="submit">
                         Submit
                     </Button>
                 </Form>
             </Modal.Body>
-            {/* <Modal.Footer>
-                <button variant="primary" onClick={onOk} >OK</button>
-                <button onClick={props.onHide}   >Cancel</button>
-            </Modal.Footer> */}
+
         </Modal>
     );
 
