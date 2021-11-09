@@ -28,3 +28,32 @@ code {
   display:inline-block;
   margin:1em;
 }
+
+.cashFlowSummary {
+  display: flex;
+  flex-direction:row;
+  justify-content:space-between;
+  border: solid 1px black;
+  margin: 10px;
+}
+
+.cashFlowActionSummary {
+  display:flex;
+  flex-direction:row;
+  justify-content:space-between;
+  align-items:center;
+  flex-grow: 1;
+}
+.cashSummaryDisplay {
+  flex-direction:row;
+  display:flex;
+  justify-content:center;
+  column-gap:10px;
+}
+
+.cashSummaryItemDisplay {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+
+}

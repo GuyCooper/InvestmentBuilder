@@ -3,6 +3,7 @@ import {Tab, Tabs} from 'react-bootstrap';
 import React,  { useState } from 'react';
 import Portfolio from './Portfolio.js'
 import notifyService from "./NotifyService.js";
+import CashFlow from './CashFlow.js'
 
 const TabOptions = () =>
 {
@@ -27,7 +28,7 @@ const TabOptions = () =>
     return(
         <Tabs
         id="controlled-tab-example"
-        className="mt-sm-3"
+        className="mt-sm-2"
         activeKey={key}
         onSelect={(k) => onTabChanged(k)}        
         >
@@ -38,7 +39,7 @@ const TabOptions = () =>
                 Add a new investment
             </Tab>
             <Tab eventKey={cashflow} title="Cash Flow">
-                cashflows
+                <CashFlow/>
             </Tab>
         </Tabs>
     );

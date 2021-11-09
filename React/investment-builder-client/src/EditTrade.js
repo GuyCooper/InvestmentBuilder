@@ -1,14 +1,15 @@
 import React,  { useState } from 'react';
-import { Button, ButtonGroup, Modal, ToggleButton } from 'react-bootstrap';
+import { Button, Modal } from 'react-bootstrap';
 import {Form} from 'react-bootstrap';
 import DatePicker from "react-datepicker";
 import 'react-datepicker/dist/react-datepicker.css'
+import middlewareService from "./MiddlewareService.js";
 
 const EditTrade = function(props)  {
 
-    const BUY = '1';
-    const SELL = '2';
-    const OTHER = '3';
+    const BUY = 'Buy';
+    const SELL = 'Sell';
+    const OTHER = 'Change';
 
     const [selectedDate, setSelectedDate] = useState( new Date());
     const [selectedAction, setSelectedAction] = useState(BUY);
@@ -22,7 +23,24 @@ const EditTrade = function(props)  {
         console.log( 'selected quantity ' + quantity);
         console.log( 'selected amount ' + amount);
         console.log( 'sell all ' + sellAll);
-        props.onHide();
+
+        if( selectedAction === SELL && sellAll === true) {
+            middlewareService.SellTrade(props.name,
+                                        () => props.onHide()); 
+        }
+        else {
+            middlewareService.UpdateTrade( 
+                {
+                    ItemName: props.name,
+                    TransactionDate: selectedDate,
+                    Action: selectedAction,
+                    Quantity: quantity,
+                    TotalCost: amount        
+                },
+                () => props.onHide()
+            );   
+        }
+
     };
 
     let closeModal = function() {
@@ -109,6 +127,7 @@ const EditTrade = function(props)  {
                         <Form.Label>Amount</Form.Label>
                         <Form.Control 
                                 type="number" 
+                                disabled={selectedAction === SELL && sellAll === true} 
                                 value={amount} 
                                 onChange={(e) => setAmount(e.currentTarget.value) } 
                                 placeholder="Amount" />
