@@ -3,7 +3,7 @@ import {Tab, Tabs} from 'react-bootstrap';
 import React,  { useState } from 'react';
 import Portfolio from './Portfolio.js'
 import notifyService from "./NotifyService.js";
-import CashFlow from './CashFlow.js'
+import CashFlows from './CashFlows.js';
 
 const TabOptions = () =>
 {
@@ -39,7 +39,7 @@ const TabOptions = () =>
                 Add a new investment
             </Tab>
             <Tab eventKey={cashflow} title="Cash Flow">
-                <CashFlow/>
+                <CashFlows/>
             </Tab>
         </Tabs>
     );
