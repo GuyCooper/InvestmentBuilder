@@ -4,9 +4,6 @@ import CashFlowEntity  from './CashFlowEntity.js';
 
 const CashFlow = function(props)  {
 
-    let addReceipt = () => {
-    };
-
     const getReceiptHeaders = () => {
         return [
         'TransactionDate',
@@ -39,16 +36,19 @@ const CashFlow = function(props)  {
     return(
               <Row className="cashFlowDisplay">                
                 <Col>
-                    <CashFlowEntity
+                     <CashFlowEntity
                         title="Receipts"
                         valuationDate={props.valuationDate}
                         total={props.receiptsTotal}
                         headers={getReceiptHeaders()}
                         values={getNonTotalValues(props.receipts)}
                         totals={getTotalValues(props.receipts)}
+                        addTransaction={() => props.addReceipt()}
+                        deleteTransaction={(r) => props.deleteTransaction(r)}
                     />
                 </Col>
                 <Col>
+                    <p>Payment</p>
                     <CashFlowEntity
                         title="Payments"
                         valuationDate={props.valuationDate}
@@ -56,6 +56,8 @@ const CashFlow = function(props)  {
                         headers={getPaymentHeaders()}
                         values={getNonTotalValues(props.payments)}
                         totals={getTotalValues(props.payments)}
+                        addTransaction={() => props.addPayment()}
+                        deleteTransaction={(r) => props.deleteTransaction(r)}
                     />
                 </Col>
             </Row>  
