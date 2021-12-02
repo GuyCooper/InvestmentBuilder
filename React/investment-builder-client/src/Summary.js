@@ -1,4 +1,4 @@
-import React,  { useState  } from 'react';
+import React,  { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {Card} from 'react-bootstrap';
 import notifyService from "./NotifyService.js";
@@ -33,9 +33,16 @@ const Summary = () =>
         middlewareService.GetInvestmentSummary(onLoadAccountSummary);
     }
 
-    notifyService.RegisterConnectionListener(loadAccountSummary);
+    useEffect( () => {
+        notifyService.RegisterConnectionListener(loadAccountSummary);
+        notifyService.RegisterAccountListener(loadAccountSummary);
+        
+        return function() {
+            notifyService.UnRegisterConnectionListener(loadAccountSummary);
+            notifyService.UnRegisterAccountListener(loadAccountSummary);    
+        };
+    });
 
-    notifyService.RegisterAccountListener(loadAccountSummary);
 
     return(
         <Card bg="light" className="mt-sm-3 text-center">

@@ -69,8 +69,44 @@ const NotifyService = function () {
         BuildStatusListeners.push(listener);
     };
 
+    this.UnRegisterAccountListener = function (listener) {
+        unRegisterCallback(AccountListeners,listener);
+    };
+
+    this.UnRegisterPortfolioListener = function (listener) {
+        unRegisterCallback(PortfolioListeners,listener);
+    };
+
+    this.UnRegisterAddTradeListener = function (listener) {
+        unRegisterCallback(AddTradeListeners,listener);
+    };
+
+    this.UnRegisterCashFlowListener = function (listener) {
+        unRegisterCallback(CashFlowListeners,listener);
+    };
+
+    this.UnRegisterReportsListener = function (listener) {
+        unRegisterCallback(ReportsListeners,listener);
+    };
+
+    this.UnRegisterRedemptionListener = function (listener) {
+        unRegisterCallback(RedemptionListeners,listener);
+    };
+
+    this.UnRegisterConnectionListener = function (listener) {
+        unRegisterCallback(ConnectionListeners,listener);
+    };
+
+    this.UnRegisterDisconnectionListener = function (listener) {
+        unRegisterCallback(DisconnectionListeners,listener);
+    };
+
+    this.UnRegisterBuildStatusListener = function (listener) {
+        unRegisterCallback(BuildStatusListeners,listener);
+    };
+
     //helper method for invoking an array of callbacks
-    let invokeCallbacks = function (callbacks, parameter) {
+    const invokeCallbacks = function (callbacks, parameter) {
         if (callbacks != null) {
             for (let i = 0; i < callbacks.length; i++) {
                 callbacks[i](parameter);
@@ -78,8 +114,15 @@ const NotifyService = function () {
         }
     };
 
+    const unRegisterCallback = function(callbacks, callback ) {
+        let idx = callbacks.indexOf( callback );
+        if(idx > -1) {
+            callbacks.splice( idx, 1);
+        }
+    };
+
     //helper method for invoking the current listeners
-    let invokeListeners = function () {
+    const invokeListeners = function () {
         invokeCallbacks(listeners);
     }
 

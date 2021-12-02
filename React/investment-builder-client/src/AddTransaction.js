@@ -27,7 +27,6 @@ const AddTransaction = function(props) {
     const showModal = function() {
         if( props.transactionTypes.length > 0) {
             loadTransactionParameters(props.transactionTypes[0]);
-    
         }
     };
     
@@ -82,7 +81,7 @@ const AddTransaction = function(props) {
                     <Form.Group>
                         <Form.Label>Transaction Type</Form.Label>
                         <Form.Control as="select"  
-                                      onChange={(e) => changeSelectedTransaction(e)}
+                                      onChange={(e) => changeSelectedTransaction()}
                                       custom
                                       ref={transactionTypeSelect}>
                             {

@@ -1,10 +1,9 @@
-import React,  { useState  } from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
+import React,  { useState, useEffect } from 'react';
+import { Container } from 'react-bootstrap';
 import notifyService from "./NotifyService.js";
 import CashFlow  from './CashFlow.js';
 import middlewareService from "./MiddlewareService.js";
 import AddTransaction from "./AddTransaction.js"
-import YesNoChooser from "./YesNoChooser.js"
 
 const CashFlows = () => 
 {    
@@ -14,9 +13,6 @@ const CashFlows = () =>
     const [reportingCurrency, setreportingCurrency] = useState(null);
     const [showAddReceipt, setShowAddReceipt] = useState(false);
     const [showAddPayment, setShowAddPayment] = useState(false);
-    const [showYesNo, setShowYesNo] = useState(false);
-
-    let deleteTransactionID = null;
 
     const onLoadContents = function(response) {
 
@@ -24,19 +20,24 @@ const CashFlows = () =>
             setCashFlows( response.CashFlows );
             setreceiptParamTypes( response.ReceiptParamTypes );
             setpaymentParamTypes( response.PaymentParamTypes );
-            setreportingCurrency( response.ReportingCUrrency );
+            setreportingCurrency( response.ReportingCurrency );
         }
 
     };
 
     const loadCashflows = function() {
-        deleteTransactionID = null;
         console.log("loading cash flows...");
         middlewareService.GetCashFlowContents(null, onLoadContents);
   
     }
 
-    notifyService.RegisterCashFlowListener( loadCashflows );
+    useEffect( () => {
+        notifyService.RegisterCashFlowListener( loadCashflows );
+
+        return function() {
+            notifyService.UnRegisterCashFlowListener( loadCashflows );
+        };
+    });    
 
     const addReceiptModal = function() {
         console.log("adding receipt: ");
@@ -46,11 +47,6 @@ const CashFlows = () =>
     const addPaymentModal= function() {
         console.log("adding payment: ");
         setShowAddPayment(true);
-    };
-
-    const deleteTransactionModal = function(transaction ) {
-        deleteTransactionID = transaction.TransactionID; 
-        setShowYesNo(true);
     };
 
     const addReceiptTransaction = function( transaction ) {
@@ -63,14 +59,11 @@ const CashFlows = () =>
         setShowAddPayment(false);
     };
 
-    const deleteTransaction = function() {
-        if( deleteTransactionID !== null){
-            middlewareService.RemoveTransaction({
-                TransactionID: deleteTransactionID
+    const deleteTransaction = function( transaction) {
+        middlewareService.RemoveTransaction({
+                TransactionID: transaction.TransactionID
             }, loadCashflows);    
-        }
-
-    }
+    };
 
     return(
         <Container fluid>               
@@ -85,7 +78,7 @@ const CashFlows = () =>
                     payments={c.Payments}
                     addReceipt={() => addReceiptModal()}
                     addPayment={() => addPaymentModal()}
-                    deleteTransaction={(r) => deleteTransactionModal(r)}
+                    deleteTransaction={(r) => deleteTransaction(r)}
                 />                
            )) 
         }
@@ -102,15 +95,7 @@ const CashFlows = () =>
             transactionTypes={paymentParamTypes}
             onHide={() => setShowAddPayment(false)}             
             onSubmit={(transaction) => addPaymentTransaction(transaction) }
-        />
-
-        <YesNoChooser
-            show={showYesNo}
-            title="Delete transaction"
-            onYes={() => deleteTransaction()}
-            onHide={() => setShowYesNo(false)}
-        />
-            
+        />           
 
         </Container> 
     );

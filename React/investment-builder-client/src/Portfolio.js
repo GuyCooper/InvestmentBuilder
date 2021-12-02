@@ -1,4 +1,4 @@
-import React,  { useState, useRef } from 'react';
+import React,  { useState, useRef, useEffect } from 'react';
 import { AgGridReact} from 'ag-grid-react';
 import 'ag-grid-enterprise';
 import 'ag-grid-community/dist/styles/ag-grid.css';
@@ -37,10 +37,19 @@ const Portfolio = () =>
         loadPortfolio();
     };
 
-    notifyService.RegisterPortfolioListener( loadPortfolio );
+    useEffect( () => {
 
-    notifyService.RegisterConnectionListener(refreshPortfolio);
-
+        notifyService.RegisterPortfolioListener( loadPortfolio );
+        notifyService.RegisterConnectionListener(refreshPortfolio);
+        notifyService.RegisterAccountListener(refreshPortfolio);
+    
+        return function() {
+            notifyService.UnRegisterPortfolioListener( loadPortfolio );
+            notifyService.UnRegisterConnectionListener(refreshPortfolio);
+            notifyService.UnRegisterAccountListener(refreshPortfolio);        
+        };
+    });
+    
     const editTrade = function( field )  {
        console.log( field + ' was clicked');
        setSelectedTrade( field );

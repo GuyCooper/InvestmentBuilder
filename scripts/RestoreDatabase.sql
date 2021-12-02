@@ -1,13 +1,13 @@
 --RESTORE FILELISTONLY
 --FROM DISK ='C:\Data\backups\InvestmentBuilderTest'
 
-RESTORE DATABASE InvestmentBuilderTest2
-   FROM DISK = 'C:\Data\SQLServer\backups\InvestmentBuilderTest.bak'
+RESTORE DATABASE InvestmentBuilderTest99
+   FROM DISK = 'C:\Projects\Data\backups\InvestmentBuilderTest2.bak'
    WITH NORECOVERY, 
       MOVE 'InvestmentBuilderTest' TO 
-'C:\Data\SQLServer\MSSQL12.SQLEXPRESS\MSSQL\InvestmentBuilder\InvestmentBuilderTest2.mdf', 
+'C:\Program Files\Microsoft SQL Server\MSSQL15.SQLEXPRESS01\MSSQL\DATA\InvestmentBuilderTest99.mdf', 
       MOVE 'InvestmentBuilderTest_log' 
-TO 'C:\Data\SQLServer\MSSQL12.SQLEXPRESS\MSSQL\InvestmentBuilder\InvestmentBuilderTest2_log.ldf';
-RESTORE LOG InvestmentBuilderTest2
-   FROM DISK = 'C:\Data\SQLServer\backups\InvestmentBuilderTest.bak'
+TO 'C:\Program Files\Microsoft SQL Server\MSSQL15.SQLEXPRESS01\MSSQL\DATA\InvestmentBuilderTest99_log.ldf';
+RESTORE LOG InvestmentBuilderTest99
+   FROM DISK = 'C:\Projects\Data\backups\InvestmentBuilderTest2.bak'
    WITH RECOVERY;
