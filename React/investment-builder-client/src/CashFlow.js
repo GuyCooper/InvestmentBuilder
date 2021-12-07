@@ -45,10 +45,10 @@ const CashFlow = function(props)  {
                         totals={getTotalValues(props.receipts)}
                         addTransaction={() => props.addReceipt()}
                         deleteTransaction={(r) => props.deleteTransaction(r)}
+                        editable={props.editable}
                     />
                 </Col>
                 <Col>
-                    <p>Payment</p>
                     <CashFlowEntity
                         title="Payments"
                         valuationDate={props.valuationDate}
@@ -58,6 +58,7 @@ const CashFlow = function(props)  {
                         totals={getTotalValues(props.payments)}
                         addTransaction={() => props.addPayment()}
                         deleteTransaction={(r) => props.deleteTransaction(r)}
+                        editable={props.editable}
                     />
                 </Col>
             </Row>  

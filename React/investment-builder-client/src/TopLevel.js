@@ -11,8 +11,9 @@ const TopLevel = () =>
 {
     let onConnnectionSuccess = function( payload, username ) {
 
-        console.log( 'Connection success! ' +  JSON.stringify(payload));
-        notifyService.OnConnected( payload.ConnectionId, username );        
+        console.log( 'Connection success! ' +  payload);
+        let connectionObj = JSON.parse( payload );
+        notifyService.OnConnected( connectionObj.ConnectionId, username );        
     };
 
     let onConnectionFailed = function( error) {

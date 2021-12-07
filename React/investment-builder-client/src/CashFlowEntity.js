@@ -32,7 +32,7 @@ const CashFlowEntity = function(props) {
                     <div><strong>Total</strong></div>
                     <div>{props.total}</div>
                 </div>
-                <Button onClick={ () => props.addTransaction()} size="sm">Add {removePlural(props.title)}</Button>
+                {props.editable && <Button onClick={ () => props.addTransaction()} size="sm">Add {removePlural(props.title)}</Button>}
             </div>
             </Card.Header>
             <Card.Body>
@@ -58,7 +58,7 @@ const CashFlowEntity = function(props) {
                                     ))
                                 }
                                 <td>
-                                    <Button onClick={() => props.deleteTransaction(r)} size="sm">Delete</Button>
+                                    {props.editable && <Button onClick={() => props.deleteTransaction(r)} size="sm">Delete</Button>}
                                 </td>    
                             </tr>                           
                         ))

@@ -1,5 +1,7 @@
 import React,  { useState, useEffect } from 'react';
-import { Container } from 'react-bootstrap';
+import { Container, Form } from 'react-bootstrap';
+import DatePicker from "react-datepicker";
+import 'react-datepicker/dist/react-datepicker.css'
 import notifyService from "./NotifyService.js";
 import CashFlow  from './CashFlow.js';
 import middlewareService from "./MiddlewareService.js";
@@ -13,6 +15,7 @@ const CashFlows = () =>
     const [reportingCurrency, setreportingCurrency] = useState(null);
     const [showAddReceipt, setShowAddReceipt] = useState(false);
     const [showAddPayment, setShowAddPayment] = useState(false);
+    const [fromDate, setFromDate] = useState( new Date());
 
     const onLoadContents = function(response) {
 
@@ -25,10 +28,14 @@ const CashFlows = () =>
 
     };
 
+    const loadCashFlowsFromDate = function( date ) {
+        console.log("loading cash flows from date " + date);
+        setFromDate( date );
+        middlewareService.GetCashFlowContents(date, onLoadContents);
+    };
+
     const loadCashflows = function() {
-        console.log("loading cash flows...");
-        middlewareService.GetCashFlowContents(null, onLoadContents);
-  
+        loadCashFlowsFromDate( fromDate );
     }
 
     useEffect( () => {
@@ -79,9 +86,21 @@ const CashFlows = () =>
                     addReceipt={() => addReceiptModal()}
                     addPayment={() => addPaymentModal()}
                     deleteTransaction={(r) => deleteTransaction(r)}
+                    editable={i === 0}
                 />                
            )) 
         }
+
+        <Form.Group>
+            <Form.Label>Cash flow from</Form.Label>   
+            <DatePicker
+                selected={fromDate}
+                onChange={ (date) => loadCashFlowsFromDate( date )}                            
+                className="form-control"
+            />
+
+        </Form.Group>
+
         <AddTransaction
             show={showAddReceipt}
             title="Add Receipt"
