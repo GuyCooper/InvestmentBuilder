@@ -39,11 +39,13 @@ const Portfolio = () =>
 
     useEffect( () => {
 
+        console.log('Register Portfolio handlers');
         notifyService.RegisterPortfolioListener( loadPortfolio );
         notifyService.RegisterConnectionListener(refreshPortfolio);
         notifyService.RegisterAccountListener(refreshPortfolio);
     
         return function() {
+            console.log('UnRegister CashFlows handlers');
             notifyService.UnRegisterPortfolioListener( loadPortfolio );
             notifyService.UnRegisterConnectionListener(refreshPortfolio);
             notifyService.UnRegisterAccountListener(refreshPortfolio);        

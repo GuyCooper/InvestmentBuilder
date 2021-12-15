@@ -33,7 +33,8 @@ const TopLevel = () =>
     useEffect(() =>
      {
         console.log('loading config...');
-        fetch('http://localhost:3000/Config.json')
+        let config = window.location.href + 'Config.json';
+        fetch(config) // 'http://localhost:3000/Config.json')
         .then(result => result.json())
         .then( data => onConfigLoaded(data));
         

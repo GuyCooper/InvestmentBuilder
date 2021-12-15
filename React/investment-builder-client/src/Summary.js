@@ -1,6 +1,6 @@
 import React,  { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {Card} from 'react-bootstrap';
+import {Card, Button} from 'react-bootstrap';
 import notifyService from "./NotifyService.js";
 import middlewareService from "./MiddlewareService.js";
 
@@ -13,6 +13,7 @@ const Summary = () =>
     const [bankBalance, setBankBalance] = useState('');
     const [monthlyPnL, setmonthlyPnL] = useState('');
     const [valuationDate, setValuationDate] = useState('');
+    const [canBuild, setCanBuild] = useState(false);
 
     const onLoadAccountSummary = function (response) {
 
@@ -30,16 +31,30 @@ const Summary = () =>
     };
 
     const loadAccountSummary = function () {
+        console.log("loadAccountSummary called");
         middlewareService.GetInvestmentSummary(onLoadAccountSummary);
     }
 
+    const onBuildProgress = function(response) {
+        setCanBuild(false);
+
+    }
+
+    const onBuildStatusChanged = function(status) {
+        setCanBuild(status);
+    };
+
     useEffect( () => {
+        console.log('Register Summary handlers');
         notifyService.RegisterConnectionListener(loadAccountSummary);
         notifyService.RegisterAccountListener(loadAccountSummary);
-        
+        notifyService.RegisterBuildStatusListener(onBuildStatusChanged);
+
         return function() {
+            console.log('Un Register Summary handlers');
             notifyService.UnRegisterConnectionListener(loadAccountSummary);
             notifyService.UnRegisterAccountListener(loadAccountSummary);    
+            notifyService.UnRegisterBuildStatusListener(onBuildStatusChanged);
         };
     });
 
@@ -48,7 +63,7 @@ const Summary = () =>
         <Card bg="light" className="mt-sm-3 text-center">
             <Card.Header as="h3">{accountName}</Card.Header>
             <Card.Body>
-            <div className="summaryContainer">
+                <div className="summaryContainer">
                     <div className="summaryChild">
                         <div className="summaryDisplay">
                             <div><strong>Reporting Currency</strong></div>
@@ -76,6 +91,7 @@ const Summary = () =>
                         </div>
                     </div>
                 </div>
+                <Button onClick={onBuildProgress}  variant="primary">Build Report</Button>
             </Card.Body>
         </Card>
     );

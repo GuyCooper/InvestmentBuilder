@@ -38,11 +38,20 @@ const CashFlows = () =>
         loadCashFlowsFromDate( fromDate );
     }
 
+    const refreshAccount = function() {
+       console.log('CashFlows refreshAccount called');
+       //setFromDate( new Date());
+    };
+
     useEffect( () => {
+        console.log('Register CashFlows handlers');
         notifyService.RegisterCashFlowListener( loadCashflows );
+        notifyService.RegisterAccountListener(refreshAccount);
 
         return function() {
+            console.log('UnRegister CashFlows handlers');
             notifyService.UnRegisterCashFlowListener( loadCashflows );
+            notifyService.UnRegisterAccountListener(refreshAccount);
         };
     });    
 

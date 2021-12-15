@@ -1,0 +1,4 @@
+react commands:
+
+debug project:   npm start.
+compile project: npm run build

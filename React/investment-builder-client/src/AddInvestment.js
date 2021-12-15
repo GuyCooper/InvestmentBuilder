@@ -90,7 +90,7 @@ const AddInvestment = function() {
             </Form.Group>                 
             <Form.Group>                
                 {validationStatus === ValidationPassed && <FontAwesomeIcon color="LightGreen" icon={faCheck}/>}
-                {validationStatus ===  ValidationFailed && <FontAwesomeIcon color="Cyan" icon={faTimes}/>}
+                {validationStatus ===  ValidationFailed && <FontAwesomeIcon color="Red" icon={faTimes}/>}
                 {validationStatus === Validating && <Spinner animation="border" variant="primary" />}
             </Form.Group>
             <Form.Group>

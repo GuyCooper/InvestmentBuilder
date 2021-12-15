@@ -90,7 +90,7 @@ function processData($url) {
 	# Create a DOM parser object
 	$dom = new DOMDocument();
 
-	# Parse the HTML from Google.
+	# Parse the HTML.
 	# The @ before the method call suppresses any warnings that
 	# loadHTML might throw because of invalid HTML in the page.
 	
@@ -105,28 +105,24 @@ function processData($url) {
 		return null;
 	}
 
-	//$name=NULL;
-	$currency=NULL;
-	$price=NULL;
-
-	foreach($dom->getElementById('quote-header-info')->childNodes as $child) {
-		//printf("child node %s\n", $child->nodeName);
-		//printf("child node type %d\n", $child->nodeType);,
-		//printf("child node value %s\n", trim($child->nodeValue));
-		//printf("%s\n", get_class($child));
-		if($child->nodeType == 1) {
-			// if($name == NULL) {
-				// $name=findCompanyName($child);
-			//}
-			if($currency == NULL) {
-				$currency=findCompanyCurrency($child);
-			}
-			if($price == NULL) {
-				$price=findCompanyPrice($child);
-			}
-		}
+	printf("looking up currency\n");
+	foreach($dom->getElementById('quote-header-info')->childNodes as $headerInfo) {
+		$currency=findCompanyCurrency($headerInfo);
+		if($currency != NULL){
+			break;
+		}			
+	}	
+	printf("Currency is %s.\n", $currency);
+	
+	printf("Looking up price\n");	
+	foreach($dom->getElementById('quote-summary')->childNodes as $quoteSummary) {
+		$price=findCompanyPrice($quoteSummary);
+		if($price != NULL){
+			break;
+		}			
 	}
-
+	printf("Price is %s.\n", $price);
+	
 	$result = [
 		"price" => $price,
 		"currency" => $currency
@@ -168,39 +164,55 @@ function findCompanyName($element) {
 	return NULL;
 }
 
-function findCompanyCurrency($element) {
-	//$result = findElementByClassName($element, 'C($c-fuji-grey-j) Fz(12px)');
-	$result = findElementByClassName($element, 'C($tertiaryColor) Fz(12px)');	
-	if($result !=  NULL) {
-		//return trim($result->nodeValue);
-		if(preg_match('/\w+$/', trim($result->nodeValue), $matches)) {
-			return $matches[0];
-		 }
+function findCompanyCurrency($headerInfo) {	
+	if($headerInfo->nodeType == 1) {
+		$result = findElementByClassName($headerInfo, 'C($tertiaryColor) Fz(12px)');	
+		if($result != NULL) {
+			//return trim($result->nodeValue);
+			if(preg_match('/\w+$/', trim($result->nodeValue), $matches)) {
+				return $matches[0];
+			 }
+		}		
 	}
 	return NULL;
 }
 
-function findCompanyPrice($element) {
-	$result = findElementByClassName($element, 'Trsdu(0.3s) Fw(b) Fz(36px) Mb(-4px) D(ib)');
-	if($result !=  NULL) {
-		return trim($result->nodeValue); 
-	}
+function findCompanyPrice($quoteSummary) {
+	
+	if($quoteSummary->nodeType == 1) {
+		$result = findElementByAttribute($quoteSummary, 'data-test', 'PREV_CLOSE-value');
+		if($result != NULL) {
+			return trim($result->nodeValue); 
+		}		
+	}		
 	return NULL;
 }
 
 
 function findElementByClassName($element, $className) {
 
+	printf("element  node %s\n", $element->nodeName);
+	printf("element node type %d\n", $element->nodeType);
+	printf("element node value %s\n", trim($element->nodeValue));
+	printf("%s\n", get_class($element));
+
+	return findElementByAttribute($element, 'class', $className );
+}
+
+function findElementByAttribute($element, $attribute, $attributeValue) {
+
+	//printf("findElementByAttribute element: %s. \n", $element);
 	if($element->nodeType != 1) {
 		return NULL;
 	}
-	$elementName = $element->getAttribute('class');
-	if($elementName == $className) {
+	
+	$elementName = $element->getAttribute($attribute);
+	if($elementName == $attributeValue) {
 		return $element;
 	}
 	if($element->hasChildNodes()) {	
 		foreach($element->childNodes as $subchild) {
-			$foundElement = findElementByClassName($subchild, $className);
+			$foundElement = findElementByAttribute($subchild, $attribute, $attributeValue);
 			if($foundElement != NULL) {
 				return $foundElement;
 			}

@@ -155,6 +155,7 @@ const NotifyService = function () {
     //call this method if the account is changed. Calls the exisitng view listener and all the 
     //account listeners
     this.InvokeAccountChange = function () {
+        console.log('InvokeAccountChange called');
         invokeCallbacks(AccountListeners);
         invokeListeners();
     }
