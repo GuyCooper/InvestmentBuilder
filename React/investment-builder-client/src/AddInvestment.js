@@ -5,6 +5,8 @@ import 'react-datepicker/dist/react-datepicker.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCheck, faTimes } from '@fortawesome/free-solid-svg-icons'
 import middlewareService from "./MiddlewareService.js";
+import Confirmation from './Confirmation.js';
+import notifyService from "./NotifyService.js";
 
 const AddInvestment = function() {
 
@@ -20,8 +22,34 @@ const AddInvestment = function() {
     const [validationStatus, setValidationStatus] = useState(NotValidated);
     const [currency, setCurrency] = useState(null);
     const [totalCost, setTotalCost] = useState(null);
+    const [showConfirmation, setShowConfirmation] = useState(false);
+    const [message, setMessage] = useState(null);
 
-    const handleSubmit = function() {   
+    const onTradeSubmitted = function (response) {
+        if (response.status == 'fail') {
+            setMessage("Add investment failed: " + response.error);
+        }
+        else {
+            setMessage("Add investment succeded");
+            notifyService.InvokeAccountChange();
+        }
+    }
+
+    const handleSubmit = function() {  
+        console.log("total: " + totalCost); 
+
+        var trade = {
+            TransactionDate: selectedDate,
+            ItemName: name,
+            Symbol: symbol,
+            Quantity: quantity,
+            Currency: currency,
+            TotalCost: parseFloat(totalCost),
+            Action: "Buy"
+        };
+
+        middlewareService.UpdateTrade(trade,onTradeSubmitted);        
+        setShowConfirmation(true);
     };
 
     const onSymbolValidated = function(response) {
@@ -46,8 +74,8 @@ const AddInvestment = function() {
     };
 
     return (
-        <Form> 
-            <Form.Group>
+        <>
+             <Form.Group>
                 <Form.Label>Name</Form.Label>
                 <Form.Control
                     type="text"
@@ -104,7 +132,6 @@ const AddInvestment = function() {
             <Form.Group>
                 <Form.Label>Total Cost</Form.Label>
                 <Form.Control
-                    type="number" 
                     value={totalCost}
                     onChange={(e) => setTotalCost(e.currentTarget.value) } 
                     placeholder="Total Cost"/>
@@ -118,7 +145,15 @@ const AddInvestment = function() {
                     Submit
                 </Button>                    
             </Form.Group>    
-        </Form> 
+
+        <Confirmation 
+                show={showConfirmation}
+                onHide={() => setShowConfirmation(false)}
+                title="Add Investment"
+                message={message}
+        />
+
+        </>
     );
 };
 
