@@ -102,10 +102,13 @@ namespace InvestmentBuilderCore
     {
         [XmlElement("name")]
         public string Name{get;set;}
+
         [XmlElement("symbol")]
         public string Symbol {get;set;}
+        
         [XmlElement("exchange")]
         public string Exchange { get; set; }
+        
         [XmlElement("source")]
         public string Source { get; set; }
     }
@@ -115,27 +118,44 @@ namespace InvestmentBuilderCore
     {
         [XmlElement("dataSource")]
         public string DatasourceString {get;set;}
+
+        [XmlElement("debugdataSource")]
+        public string DebugDatasourceString { get; set; }
+
         [XmlElement("authdataSource")]
         public string AuthDatasourceString { get; set; }
+        
         [XmlElement("outputFolder")]
         public string OutputFolder {get;set;}
+
+        [XmlElement("debugoutputFolder")]
+        public string DebugOutputFolder { get; set; }
+
         [XmlArray("indexes")]
         public Index[] IndexArray{get;set;}
+        
         [XmlArray("formats")]
         [XmlArrayItem("format")]
         public string[] ReportFormats { get; set; }
+        
         [XmlElement("marketDataSource")]
         public string MarketDatasourceString { get; set; }
+        
         [XmlElement("outputCachedMarketDataFile")]
         public string OutputCachedMarketData { get; set; }
+        
         [XmlElement("maxAccountsPerUser")]
         public int MaxAccountsPerUser { get; set; }
+        
         [XmlElement("templatePath")]
         public string TemplatePath { get; set; }
+        
         [XmlElement("scriptFolder")]
         public string ScriptFolder { get; set; }
+        
         [XmlElement("auditFile")]
         public string AuditFileName { get; set; }
+        
         [XmlArray("schedule")]
         public ScheduledTaskDetails[] ScheduledTasks { get; set; }
     }
@@ -147,7 +167,7 @@ namespace InvestmentBuilderCore
     {
         #region Public Properties
 
-        public string DatasourceString { get { return m_configuration.DatasourceString; } }
+        public string DatasourceString { get { return m_debug ? m_configuration.DebugDatasourceString : m_configuration.DatasourceString; } }
          
         public string AuthDatasourceString { get { return m_configuration.AuthDatasourceString; } }
 
@@ -157,7 +177,7 @@ namespace InvestmentBuilderCore
 
         public int MaxAccountsPerUser { get { return m_configuration.MaxAccountsPerUser; } }
 
-        public string OutputFolder { get { return m_configuration.OutputFolder; } }
+        public string OutputFolder { get { return m_debug ? m_configuration.DebugOutputFolder :  m_configuration.OutputFolder; } }
 
         public IEnumerable<Index> ComparisonIndexes { get { return m_configuration.IndexArray; } }
 
@@ -182,16 +202,18 @@ namespace InvestmentBuilderCore
         /// <summary>
         /// Constructor - just takes filename
         /// </summary>
-        public ConfigurationSettings(string filename) : this(filename, new List<KeyValuePair<string, string>>(), null)
+        public ConfigurationSettings(string filename) : this(filename, new List<Tuple<string, string>>(), null, false)
         {
         }
 
         /// <summary>
         /// Constructor.
         /// </summary>
-        public ConfigurationSettings(string filename, List<KeyValuePair<string,string>> overrides, string certificate)
+        public ConfigurationSettings(string filename, List<Tuple<string,string>> overrides, string certificate, bool debug)
         {
             m_configuration = XmlConfigFileLoader.LoadConfiguration<Configuration>(filename, certificate);
+
+            m_debug = debug;
 
             //now apply the overrides
             var props = m_configuration.GetType().
@@ -199,22 +221,22 @@ namespace InvestmentBuilderCore
 
             foreach(var ovride in overrides)
             {
-                var propinfo = props.FirstOrDefault(p => MatchPropertyInfoXmlName(p, ovride.Key));
+                var propinfo = props.FirstOrDefault(p => MatchPropertyInfoXmlName(p, ovride.Item1));
                 if(propinfo != null)
                 {
-                    logger.Info($"Override configuration. setting {propinfo.Name} to {ovride.Value}");
+                    logger.Info($"Override configuration. setting {propinfo.Name} to {ovride.Item2}");
 
                     if(propinfo.PropertyType == typeof(int))
                     {
-                        propinfo.SetValue(m_configuration, Convert.ToInt32(ovride.Value));
+                        propinfo.SetValue(m_configuration, Convert.ToInt32(ovride.Item2));
                     }
                     else if (propinfo.PropertyType == typeof(double))
                     {
-                        propinfo.SetValue(m_configuration, Convert.ToDouble(ovride.Value));
+                        propinfo.SetValue(m_configuration, Convert.ToDouble(ovride.Item2));
                     }
                     else if (propinfo.PropertyType == typeof(string))
                     {
-                        propinfo.SetValue(m_configuration, ovride.Value);
+                        propinfo.SetValue(m_configuration, ovride.Item2);
                     }
                 }
             }
@@ -295,6 +317,8 @@ namespace InvestmentBuilderCore
         private Configuration m_configuration;
 
         private static Logger logger = LogManager.GetCurrentClassLogger();
+
+        private bool m_debug;
 
         #endregion
 

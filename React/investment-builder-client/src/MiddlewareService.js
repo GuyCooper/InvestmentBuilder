@@ -1,6 +1,4 @@
-﻿'use strict'
-
-import middleware from "./Middleware.js";
+﻿import middleware from "./Middleware.js";
 
 const  MiddlewareService = function() {
     let subscriptionList = [];

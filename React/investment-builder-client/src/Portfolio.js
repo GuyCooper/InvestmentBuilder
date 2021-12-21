@@ -58,7 +58,12 @@ const Portfolio = () =>
        setShowEditTrade( true )
 
     };
-          
+       
+    const onTradeUpdated = function() {
+        setShowEditTrade(false);
+        refreshPortfolio();
+    } ;
+
     const dateFormatter = function(val) {
         var dateobj = new Date(val.value);
         return dateobj.toLocaleDateString();
@@ -116,7 +121,8 @@ const Portfolio = () =>
             <EditTrade
                     name={selectedTrade}
                     show={showEditTrade}
-                    onHide={() => setShowEditTrade(false)} />
+                    onHide={() => setShowEditTrade(false)}
+                    tradeUpdated={() => onTradeUpdated()} />
 
         </>
     );        

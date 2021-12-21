@@ -24,8 +24,11 @@ const CashFlows = () =>
             setreceiptParamTypes( response.ReceiptParamTypes );
             setpaymentParamTypes( response.PaymentParamTypes );
             setreportingCurrency( response.ReportingCurrency );
-        }
 
+            if (response.CashFlows.length > 0) {
+                notifyService.InvokeBuildStatusChange(response.CashFlows[0].CanBuild);
+            }            
+        }
     };
 
     const loadCashFlowsFromDate = function( date ) {

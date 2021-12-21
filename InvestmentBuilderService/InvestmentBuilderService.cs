@@ -10,6 +10,8 @@ using InvestmentBuilderCore.Schedule;
 using InvestmentBuilderAuditLogger;
 using System.Collections.Generic;
 using Unity;
+using Microsoft.Extensions.CommandLineUtils;
+using System.Linq;
 
 namespace InvestmentBuilderService
 {
@@ -28,84 +30,96 @@ namespace InvestmentBuilderService
         /// </summary>
         static void Main(string[] args)
         {
+            string helpTemplate = "-h | --help";
+            string certificateTemplate = "-c | --certificate";
+            string debugTemplate = "-d | --debugmode";
+            string configTemplate = "-c | --config";
+
+            var application = new CommandLineApplication();
+
+            var certificateOption =  application.Option(certificateTemplate, "Certificate file for config encryption", CommandOptionType.SingleValue);
+            var debugOption = application.Option(debugTemplate, "Use debug parameters", CommandOptionType.NoValue);
+            var configOption = application.Option(configTemplate, "Configuration overrides", CommandOptionType.MultipleValue);
+
+            application.HelpOption(helpTemplate);
+
+
+            logger.Info($"InvestmentBuilderService starting...");
+            logger.Info($"command line {string.Join(",",args)}");
+
+            application.OnExecute(() =>
+            {
+                   string certificate = certificateOption.HasValue() ? certificateOption.Value() : "";
+                   var overrides = configOption.HasValue() ? configOption.Values
+                   .Where(c => c.IndexOf('=') > 0)
+                   .Select(c =>
+                   {
+                       var index = c.IndexOf('=');
+                       var key = c.Substring(0, index);
+                       var val = c.Substring(index + 1);
+                       return Tuple.Create(key, val);
+                   })
+                   .ToList() : new List<Tuple<string, string>>();
+
+                   var configfile = "InvestmentBuilderConfig";
+                   var connectionsFile = "Connections";
+                   var ext = string.IsNullOrEmpty(certificate) ? ".xml" : ".enc";
+
+                   logger.Info("InvestmentBuilderService starting...");
+                   ContainerManager.RegisterType(typeof(ScheduledTaskFactory));
+                   ContainerManager.RegisterType(typeof(IAuthorizationManager), typeof(SQLAuthorizationManager));
+                   ContainerManager.RegisterType(typeof(IConfigurationSettings), typeof(ConfigurationSettings), configfile + ext, overrides, certificate, debugOption.HasValue());
+                   ContainerManager.RegisterType(typeof(IConnectionSettings), typeof(ConnectionSettings), connectionsFile + ext, certificate);
+                   ContainerManager.RegisterType(typeof(IMarketDataService), typeof(MarketDataService));
+                   MarketDataRegisterService.RegisterServices();
+                   ContainerManager.RegisterType(typeof(IDataLayer), typeof(SQLServerDataLayer.SQLServerDataLayer));
+                   ContainerManager.RegisterType(typeof(IInvestmentRecordDataManager), typeof(InvestmentRecordBuilder));
+                   ContainerManager.RegisterType(typeof(AccountService));
+                   ContainerManager.RegisterType(typeof(InvestmentBuilder.InvestmentBuilder));
+                   ContainerManager.RegisterType(typeof(PerformanceBuilderLib.PerformanceBuilder));
+                   ContainerManager.RegisterType(typeof(CashAccountTransactionManager));
+                   ContainerManager.RegisterType(typeof(CashFlowManager));
+                   ContainerManager.RegisterType(typeof(IInvestmentReportWriter), typeof(InvestmentReportGenerator.InvestmentReportWriter));
+                   ContainerManager.RegisterType(typeof(IMessageLogger), typeof(SQLiteAuditLogger));
+                   ContainerManager.RegisterType(typeof(ServiceAggregator));
+
+                   using (var child = ContainerManager.CreateChildContainer())
+                   {
+                       var dataLayer = ContainerManager.ResolveValue<IDataLayer>();
+                       var configSettings = ContainerManager.ResolveValue<IConfigurationSettings>();
+                       var connectionSettings = ContainerManager.ResolveValue<IConnectionSettings>();
+                       var authData = new SQLAuthData(configSettings.AuthDatasourceString);
+                       var authSession = new MiddlewareSession(connectionSettings.AuthServerConnection, "InvestmentBuilder-AuthService");
+                       var accountManager = ContainerManager.ResolveValue<AccountManager>();
+                       var userManager = new UserSessionManager(authSession, authData, accountManager, dataLayer.UserAccountData);
+                       var serverSession = new MiddlewareSession(connectionSettings.ServerConnection, "InvestmentBuilder-Channels");
+                       var endpointManager = new ChannelEndpointManager(serverSession, userManager);
+
+                       //now connect to servers and wait
+
+                       logger.Info("Connecting to servers");
+
+                       var schedulerFactory = ContainerManager.ResolveValueOnContainer<ScheduledTaskFactory>(child);
+
+                       ConnectToServers(userManager, endpointManager, child);
+
+                       logger.Info("InvestmentBuilderService Started.");
+
+                       var scheduler = new Scheduler(schedulerFactory, configSettings.ScheduledTasks);
+                       scheduler.Run();
+
+                       logger.Info("Shutting down InvestmentBuilderService");
+
+
+                       authSession.Dispose();
+                       serverSession.Dispose();
+                   }
+                   return 0;
+            });
+
             try
             {
-                logger.Info($"InvestmentBuilderService starting...");
-                logger.Info($"command line {string.Join(",",args)}");
-
-                string certificate = "";
-                var overrides = new List<KeyValuePair<string, string>>();
-                foreach(var arg in args)
-                {
-                    var index = arg.IndexOf('=');
-                    if(index > 0)
-                    {
-                        var key = arg.Substring(0, index);
-                        var val = arg.Substring(index + 1);
-                        if (string.Equals(key, "certificate", StringComparison.CurrentCultureIgnoreCase))
-                        {
-                            certificate = val;
-                        }
-                        else
-                        {
-                            overrides.Add(new KeyValuePair<string, string>(key, val));
-                        }
-                    }
-                }
-
-                var configfile = "InvestmentBuilderConfig";
-                var connectionsFile = "Connections";
-                var ext = string.IsNullOrEmpty(certificate) ? ".xml" : ".enc";
-
-                logger.Info("InvestmentBuilderService starting...");
-                ContainerManager.RegisterType(typeof(ScheduledTaskFactory));
-                ContainerManager.RegisterType(typeof(IAuthorizationManager), typeof(SQLAuthorizationManager));
-                ContainerManager.RegisterType(typeof(IConfigurationSettings), typeof(ConfigurationSettings),  configfile+ext, overrides, certificate);
-                ContainerManager.RegisterType(typeof(IConnectionSettings), typeof(ConnectionSettings), connectionsFile+ext, certificate);
-                ContainerManager.RegisterType(typeof(IMarketDataService), typeof(MarketDataService));
-                MarketDataRegisterService.RegisterServices();
-                ContainerManager.RegisterType(typeof(IDataLayer), typeof(SQLServerDataLayer.SQLServerDataLayer));
-                ContainerManager.RegisterType(typeof(IInvestmentRecordDataManager), typeof(InvestmentRecordBuilder));
-                ContainerManager.RegisterType(typeof(AccountService));
-                ContainerManager.RegisterType(typeof(InvestmentBuilder.InvestmentBuilder));
-                ContainerManager.RegisterType(typeof(PerformanceBuilderLib.PerformanceBuilder));
-                ContainerManager.RegisterType(typeof(CashAccountTransactionManager));
-                ContainerManager.RegisterType(typeof(CashFlowManager));
-                ContainerManager.RegisterType(typeof(IInvestmentReportWriter), typeof(InvestmentReportGenerator.InvestmentReportWriter));
-                ContainerManager.RegisterType(typeof(IMessageLogger), typeof(SQLiteAuditLogger));
-                ContainerManager.RegisterType(typeof(ServiceAggregator));
-
-                using (var child = ContainerManager.CreateChildContainer())
-                {
-                    var dataLayer = ContainerManager.ResolveValue<IDataLayer>(); 
-                    var configSettings = ContainerManager.ResolveValue<IConfigurationSettings>();
-                    var connectionSettings = ContainerManager.ResolveValue<IConnectionSettings>();
-                    var authData = new SQLAuthData(configSettings.AuthDatasourceString);
-                    var authSession = new MiddlewareSession(connectionSettings.AuthServerConnection, "InvestmentBuilder-AuthService");
-                    var accountManager = ContainerManager.ResolveValue<AccountManager>();
-                    var userManager = new UserSessionManager(authSession, authData, accountManager, dataLayer.UserAccountData);
-                    var serverSession = new MiddlewareSession(connectionSettings.ServerConnection, "InvestmentBuilder-Channels");
-                    var endpointManager = new ChannelEndpointManager(serverSession, userManager);
-
-                    //now connect to servers and wait
-
-                    logger.Info("Connecting to servers");
-
-                    var schedulerFactory = ContainerManager.ResolveValueOnContainer<ScheduledTaskFactory>(child);
-
-                    ConnectToServers(userManager, endpointManager, child);
-
-                    logger.Info("InvestmentBuilderService Started.");
-
-                    var scheduler = new Scheduler(schedulerFactory, configSettings.ScheduledTasks);
-                    scheduler.Run();
-
-                    logger.Info("Shutting down InvestmentBuilderService");
-
-
-                    authSession.Dispose();
-                    serverSession.Dispose();
-                }
+                application.Execute(args);
             }
             catch(Exception ex)
             {

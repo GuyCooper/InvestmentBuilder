@@ -1,5 +1,5 @@
 import React,  { useState, useEffect } from 'react';
-import { Container, ListGroup, Row, Button } from 'react-bootstrap';
+import { Container, ListGroup, Button } from 'react-bootstrap';
 import middlewareService from "./MiddlewareService.js";
 import notifyService from "./NotifyService.js";
 
@@ -56,7 +56,7 @@ const Reports =  function() {
                             <a 
                                 href={r.Link + ";session=" + sessionId} 
                                 target="_blank" 
-                                rel="noopener">
+                                rel="noreferrer">
                                     {r.ValuationDate}
                             </a>
                         </ListGroup.Item>    

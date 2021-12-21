@@ -332,6 +332,7 @@ function updateHistoricalData($servername, $connectionInfo) {
 
 	$today = date("m/d/Y");
 	foreach ($indexes as $key => $val) {
+		printf("retrieving index data for %s.\n", $key);
 		$url= "https://uk.finance.yahoo.com/quote/%5E" . $key . "?p=^" .$key;	
 		$result = processData($url);
 		if($result != null) {

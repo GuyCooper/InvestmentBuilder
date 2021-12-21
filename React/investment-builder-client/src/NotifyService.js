@@ -26,10 +26,15 @@ const NotifyService = function () {
     this.RegisterBusyStateChangedListener = function (listener) {
         busyStateChangedListener = listener;
     }
-    this.UpdateBusyState = function (busy, applyScope) {
+
+    this.UnRegisterBusyStateChangedListener = function() {
+        busyStateChangedListener = null;
+    }
+
+    this.UpdateBusyState = function (busy) {
         isBusy = busy;
         if (busyStateChangedListener != null) {
-            busyStateChangedListener(busy, applyScope);
+            busyStateChangedListener(busy);
         }
     }
     //register callback methods 

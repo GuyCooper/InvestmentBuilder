@@ -26,7 +26,7 @@ const EditTrade = function(props)  {
 
         if( selectedAction === SELL && sellAll === true) {
             middlewareService.SellTrade(props.name,
-                                        () => props.onHide()); 
+                                        () => props.tradeUpdated()); 
         }
         else {
             middlewareService.UpdateTrade( 
@@ -37,7 +37,7 @@ const EditTrade = function(props)  {
                     Quantity: quantity,
                     TotalCost: amount        
                 },
-                () => props.onHide()
+                () => props.tradeUpdated()
             );   
         }
 
@@ -68,7 +68,7 @@ const EditTrade = function(props)  {
             <Modal.Body>
                 <h2>{props.name}</h2>
                 <br/>
-                <Form onSubmit={handleSubmit}>
+                <Form>
                     <Form.Group >
                         <Form.Label>Transaction Date</Form.Label>
                         <DatePicker
@@ -134,7 +134,7 @@ const EditTrade = function(props)  {
                     </Form.Group>    
 
                     <br/>
-                    <Button variant="primary" type="submit">
+                    <Button variant="primary" onClick={handleSubmit} >
                         Submit
                     </Button>
                 </Form>

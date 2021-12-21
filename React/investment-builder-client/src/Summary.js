@@ -3,17 +3,24 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import {Card, Button} from 'react-bootstrap';
 import notifyService from "./NotifyService.js";
 import middlewareService from "./MiddlewareService.js";
+import ReportCompletion from "./ReportCompletion.js"
 
 const Summary = () =>
 {
-    const [accountName, setAccountName] = useState('');
-    const [reportingCurrency, setReportingCurrency] = useState('');
-    const [valuePerUnit, setValuePerUnit] = useState('');
-    const [netAssets, setNetAssets] = useState('');
-    const [bankBalance, setBankBalance] = useState('');
-    const [monthlyPnL, setmonthlyPnL] = useState('');
-    const [valuationDate, setValuationDate] = useState('');
+    const [accountName, setAccountName] = useState(null);
+    const [reportingCurrency, setReportingCurrency] = useState(null);
+    const [valuePerUnit, setValuePerUnit] = useState(null);
+    const [netAssets, setNetAssets] = useState(null);
+    const [bankBalance, setBankBalance] = useState(null);
+    const [monthlyPnL, setmonthlyPnL] = useState(null);
+    const [valuationDate, setValuationDate] = useState(null);
     const [canBuild, setCanBuild] = useState(false);
+    const [showReportComplete, setShowReportComplete] = useState(false);
+    const [buildSuccess, setBuildSuccess] = useState(false);
+    const [buildErrors, setBuildErrors] = useState([]);
+    const [completedReport, setCompletedReport] = useState(null);
+
+    let isBuilding = false;
 
     const onLoadAccountSummary = function (response) {
 
@@ -35,10 +42,39 @@ const Summary = () =>
         middlewareService.GetInvestmentSummary(onLoadAccountSummary);
     }
 
-    const onBuildProgress = function(response) {
-        setCanBuild(false);
+    const onReportFinished = function (errors, completedReport) {
+        setBuildSuccess(errors == null || errors.length == 0);
+        setBuildErrors(errors);    
+        setCompletedReport( completedReport + ";session=" + notifyService.GetSessionID());             
+        setShowReportComplete(true);
+    };
 
+    const updateBuildState = function( buildState) {
+        isBuilding = buildState;
+        notifyService.UpdateBusyState( buildState );
+    };
+
+    const onBuildProgress = function(response) {
+
+        let buildStatus = response.Status;
+        if(buildStatus !== undefined && buildStatus != null) {
+
+            if (isBuilding === true && buildStatus.IsBuilding === false) {
+                updateBuildState( buildStatus.IsBuilding);
+                //now display a dialog to show any errors during the build
+                loadAccountSummary();
+                onReportFinished(buildStatus.Errors, buildStatus.CompletedReport);
+            }
+            else {
+                updateBuildState(buildStatus.IsBuilding);
+            }
+        }
     }
+
+    const buildReport = function() {
+        setCanBuild(false);
+        middlewareService.BuildReport(onBuildProgress);
+    };
 
     const onBuildStatusChanged = function(status) {
         setCanBuild(status);
@@ -60,6 +96,7 @@ const Summary = () =>
 
 
     return(
+        <>
         <Card bg="light" className="mt-sm-3 text-center">
             <Card.Header as="h3">{accountName}</Card.Header>
             <Card.Body>
@@ -91,9 +128,16 @@ const Summary = () =>
                         </div>
                     </div>
                 </div>
-                <Button onClick={onBuildProgress}  variant="primary">Build Report</Button>
+                <Button onClick={buildReport}  variant="primary" disabled={canBuild === false}>Build Report</Button>
             </Card.Body>
-        </Card>
+        </Card>        
+        <ReportCompletion
+                show={showReportComplete}
+                onHide={() => setShowReportComplete(false)} 
+                success={buildSuccess}
+                errors={buildErrors}
+                completedReport={completedReport}/>        
+        </>        
     );
 }
 

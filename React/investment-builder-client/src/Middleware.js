@@ -1,6 +1,3 @@
-// JavaScript source code
-'use strict'
-
 //const uuidv1 = require('uuid/v1');
 
 var uid = 1;
@@ -15,12 +12,12 @@ const Middleware = function () {
        ws.onopen = function () {
             console.log("onopen");
             sendLoginRequest(username, password);
-        }.bind(this);
+        };
 
         ws.onerror = function (error) {
             console.log("error received: " + error);
             onerror(error);
-        }.bind(this);
+        };
 
         let processResponse = function(message, success) {
             for(var i = 0; i < callQueue.length; i++) {
@@ -66,7 +63,7 @@ const Middleware = function () {
         ws.onmessage = function (data) {
             console.log("data received...");
             var message = JSON.parse(data.data);
-            if (message != null && message != undefined) {
+            if (message !== null && message !== undefined) {
                 switch (message.Type) {
                     case 0:
                     case 1:
