@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <configuration>
 	<dataSource>Data Source=LAPTOP-D6H2KOAE\SQLEXPRESS01;Initial Catalog=InvestmentBuilderTest2;Integrated Security=True</dataSource>
-  <debugdataSource>Data Source=LAPTOP-D6H2KOAE\SQLEXPRESS01;Initial Catalog=InvestmentBuilderTest99;Integrated Security=True</debugdataSource>
+  <testdataSource>Data Source=LAPTOP-D6H2KOAE\SQLEXPRESS01;Initial Catalog=InvestmentBuilderTest99;Integrated Security=True</testdataSource>
   <authdataSource>Data Source=LAPTOP-D6H2KOAE\SQLEXPRESS01;Initial Catalog=UserAuthentication;Integrated Security=True</authdataSource>
   <outputFolder>C:\Users\guy\Documents\Guy\InvestmentBuilder</outputFolder>
-  <debugoutputFolder>C:\Users\guy\Documents\Guy\InvestmentBuilderTest</debugoutputFolder>
+  <testoutputFolder>C:\Users\guy\Documents\Guy\InvestmentBuilderTest</testoutputFolder>
   <templatePath>C:\Projects\InvestmentBuilder\Templates</templatePath>
   <marketDataSource>C:\Users\guy\AppData\Roaming\InvestmentRecordBuilder\yahooMarketData.txt</marketDataSource>
   <outputCachedMarketDataFile>C:\Users\guy\AppData\Roaming\InvestmentRecordBuilder\CachedData.txt</outputCachedMarketDataFile>

@@ -32,13 +32,13 @@ namespace InvestmentBuilderService
         {
             string helpTemplate = "-h | --help";
             string certificateTemplate = "-c | --certificate";
-            string debugTemplate = "-d | --debugmode";
+            string testTemplate = "-t | --testmode";
             string configTemplate = "-c | --config";
 
             var application = new CommandLineApplication();
 
             var certificateOption =  application.Option(certificateTemplate, "Certificate file for config encryption", CommandOptionType.SingleValue);
-            var debugOption = application.Option(debugTemplate, "Use debug parameters", CommandOptionType.NoValue);
+            var testOption = application.Option(testTemplate, "Use test parameters", CommandOptionType.NoValue);
             var configOption = application.Option(configTemplate, "Configuration overrides", CommandOptionType.MultipleValue);
 
             application.HelpOption(helpTemplate);
@@ -68,7 +68,7 @@ namespace InvestmentBuilderService
                    logger.Info("InvestmentBuilderService starting...");
                    ContainerManager.RegisterType(typeof(ScheduledTaskFactory));
                    ContainerManager.RegisterType(typeof(IAuthorizationManager), typeof(SQLAuthorizationManager));
-                   ContainerManager.RegisterType(typeof(IConfigurationSettings), typeof(ConfigurationSettings), configfile + ext, overrides, certificate, debugOption.HasValue());
+                   ContainerManager.RegisterType(typeof(IConfigurationSettings), typeof(ConfigurationSettings), configfile + ext, overrides, certificate, testOption.HasValue());
                    ContainerManager.RegisterType(typeof(IConnectionSettings), typeof(ConnectionSettings), connectionsFile + ext, certificate);
                    ContainerManager.RegisterType(typeof(IMarketDataService), typeof(MarketDataService));
                    MarketDataRegisterService.RegisterServices();

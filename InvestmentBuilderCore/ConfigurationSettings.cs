@@ -119,8 +119,8 @@ namespace InvestmentBuilderCore
         [XmlElement("dataSource")]
         public string DatasourceString {get;set;}
 
-        [XmlElement("debugdataSource")]
-        public string DebugDatasourceString { get; set; }
+        [XmlElement("testdataSource")]
+        public string TestDatasourceString { get; set; }
 
         [XmlElement("authdataSource")]
         public string AuthDatasourceString { get; set; }
@@ -128,8 +128,8 @@ namespace InvestmentBuilderCore
         [XmlElement("outputFolder")]
         public string OutputFolder {get;set;}
 
-        [XmlElement("debugoutputFolder")]
-        public string DebugOutputFolder { get; set; }
+        [XmlElement("testoutputFolder")]
+        public string TestOutputFolder { get; set; }
 
         [XmlArray("indexes")]
         public Index[] IndexArray{get;set;}
@@ -167,7 +167,7 @@ namespace InvestmentBuilderCore
     {
         #region Public Properties
 
-        public string DatasourceString { get { return m_debug ? m_configuration.DebugDatasourceString : m_configuration.DatasourceString; } }
+        public string DatasourceString { get { return m_test ? m_configuration.TestDatasourceString : m_configuration.DatasourceString; } }
          
         public string AuthDatasourceString { get { return m_configuration.AuthDatasourceString; } }
 
@@ -177,7 +177,7 @@ namespace InvestmentBuilderCore
 
         public int MaxAccountsPerUser { get { return m_configuration.MaxAccountsPerUser; } }
 
-        public string OutputFolder { get { return m_debug ? m_configuration.DebugOutputFolder :  m_configuration.OutputFolder; } }
+        public string OutputFolder { get { return m_test ? m_configuration.TestOutputFolder :  m_configuration.OutputFolder; } }
 
         public IEnumerable<Index> ComparisonIndexes { get { return m_configuration.IndexArray; } }
 
@@ -209,11 +209,11 @@ namespace InvestmentBuilderCore
         /// <summary>
         /// Constructor.
         /// </summary>
-        public ConfigurationSettings(string filename, List<Tuple<string,string>> overrides, string certificate, bool debug)
+        public ConfigurationSettings(string filename, List<Tuple<string,string>> overrides, string certificate, bool test)
         {
             m_configuration = XmlConfigFileLoader.LoadConfiguration<Configuration>(filename, certificate);
 
-            m_debug = debug;
+            m_test = test;
 
             //now apply the overrides
             var props = m_configuration.GetType().
@@ -318,7 +318,7 @@ namespace InvestmentBuilderCore
 
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
-        private bool m_debug;
+        private bool m_test;
 
         #endregion
 
