@@ -26,7 +26,7 @@ const AddInvestment = function() {
     const [message, setMessage] = useState(null);
 
     const onTradeSubmitted = function (response) {
-        if (response.status == 'fail') {
+        if (response.status === 'fail') {
             setMessage("Add investment failed: " + response.error);
         }
         else {

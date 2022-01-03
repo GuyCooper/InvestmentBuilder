@@ -7,7 +7,6 @@ const Reports =  function() {
 
     const[fromDate, setFromDate] = useState(new Date());
     const[recentReports, setRecentReports] = useState([]);
-    const[sessionId, setSessionId] = useState(null);
 
     const onLoadContents = function (response) {
         setRecentReports( response.RecentReports);        
@@ -38,9 +37,11 @@ const Reports =  function() {
         loadReportsFromDate( dt );
     };
 
-    useEffect( () => {
-        
-        setSessionId( notifyService.GetSessionID());
+    const getSessionId = function() {
+        return notifyService.GetSessionID();
+    };
+
+    useEffect( () => {        
         notifyService.RegisterReportsListener( loadReports );
         return function() {
             notifyService.UnRegisterReportsListener( loadReports );
@@ -54,7 +55,7 @@ const Reports =  function() {
                     recentReports.map( (r,x) => (
                         <ListGroup.Item key={x}>
                             <a 
-                                href={r.Link + ";session=" + sessionId} 
+                                href={r.Link + ";session=" + getSessionId()} 
                                 target="_blank" 
                                 rel="noreferrer">
                                     {r.ValuationDate}
