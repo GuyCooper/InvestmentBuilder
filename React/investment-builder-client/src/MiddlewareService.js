@@ -48,6 +48,10 @@ const  MiddlewareService = function() {
         middleware.Disconnect();
     };
 
+    this.ConnectionClosed = function() {    
+        return middleware.IsConnectionClosed();
+    };
+
     var sendRequestToChannel = function (channel, message, handler) {
         middleware.SendRequest(channel, message).then((id) => {
             pendingRequestList.push({"pendingId": id,"callback": handler });

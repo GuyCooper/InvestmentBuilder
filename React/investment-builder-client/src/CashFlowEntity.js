@@ -15,7 +15,10 @@ const CashFlowEntity = function(props) {
     const getEntityValues = function(entity) {
         return props.headers.map( h => {
             let val = entity[h];
-            return val;
+            if(isNaN(val)) {
+                return val;
+            }
+            return val.toFixed( 2 );
         });
     };
 

@@ -76,14 +76,15 @@ const Portfolio = () =>
 
     const columndefs = [
         { headerName: "Name", field: "Name", sortable: true, filter: true },
-        { headerName: "Quantity", field: "Quantity", sortable: true, filter: true, valueFormatter: numberFormatter, type:'numericColumn', width:100 },
+        { headerName: "Quantity", field: "Quantity", sortable: true, filter: true, valueFormatter: numberFormatter, type:'numericColumn', width:120 },
         { headerName: "Last Brought", field: "LastBrought", valueFormatter: dateFormatter, sortable: true, filter: true },
         { headerName: "Avg.Price Paid", field: "AveragePricePaid", sortable: true, filter: true, valueFormatter: numberFormatter, type:'numericColumn' },
-        { headerName: "Total Cost", field: "TotalCost", sortable: true, filter: true, valueFormatter: numberFormatter, type:'numericColumn', width:100 },
+        { headerName: "Total Cost", field: "TotalCost", sortable: true, filter: true, valueFormatter: numberFormatter, type:'numericColumn', width:120 },
         { headerName: "Current Price", field: "SharePrice", sortable: true, filter: true, valueFormatter: numberFormatter, type:'numericColumn' },
         { headerName: "Net Value", field: "NetSellingValue", sortable: true, filter: true, valueFormatter: numberFormatter, type:'numericColumn' },
         { headerName: "Profit/Loss", field: "ProfitLoss", sortable: true, filter: true, valueFormatter: numberFormatter, type:'numericColumn' },
-        { headerName: "Month Change%", field: "MonthChangeRatio", sortable: true, filter: true, valueFormatter: numberFormatter, type:'numericColumn', width:100 },
+        { headerName: "Total Return %", field: "TotalReturn", sortable: true, filter: true, valueFormatter: numberFormatter, type:'numericColumn', width:150 },
+        { headerName: "Month Change %", field: "MonthChangeRatio", sortable: true, filter: true, valueFormatter: numberFormatter, type:'numericColumn' },
         { headerName: "Edit Trade", field: "Name", cellRenderer: "btnCellRenderer", 
                                  cellRendererParams: {
                                      clicked : function( field ) {
@@ -95,7 +96,7 @@ const Portfolio = () =>
     ];
 
     const defaultColDefs = {
-       maxWidth : 200
+       maxWidth : 180
     };
     
     const frameworkComponents = {

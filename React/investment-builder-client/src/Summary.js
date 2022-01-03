@@ -3,7 +3,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import {Card, Button} from 'react-bootstrap';
 import notifyService from "./NotifyService.js";
 import middlewareService from "./MiddlewareService.js";
-import ReportCompletion from "./ReportCompletion.js"
 
 const Summary = () =>
 {
@@ -15,12 +14,6 @@ const Summary = () =>
     const [monthlyPnL, setmonthlyPnL] = useState(null);
     const [valuationDate, setValuationDate] = useState(null);
     const [canBuild, setCanBuild] = useState(false);
-    const [showReportComplete, setShowReportComplete] = useState(false);
-    const [buildSuccess, setBuildSuccess] = useState(false);
-    const [buildErrors, setBuildErrors] = useState([]);
-    const [completedReport, setCompletedReport] = useState(null);
-
-    let isBuilding = false;
 
     const onLoadAccountSummary = function (response) {
 
@@ -42,33 +35,18 @@ const Summary = () =>
         middlewareService.GetInvestmentSummary(onLoadAccountSummary);
     }
 
-    const onReportFinished = function (errors, completedReport) {
-        setBuildSuccess(errors == null || errors.length == 0);
-        setBuildErrors(errors);    
-        setCompletedReport( completedReport + ";session=" + notifyService.GetSessionID());             
-        setShowReportComplete(true);
-    };
-
-    const updateBuildState = function( buildState) {
-        isBuilding = buildState;
-        notifyService.UpdateBusyState( buildState );
-    };
-
     const onBuildProgress = function(response) {
 
         let buildStatus = response.Status;
-        if(buildStatus !== undefined && buildStatus != null) {
-
-            if (isBuilding === true && buildStatus.IsBuilding === false) {
-                updateBuildState( buildStatus.IsBuilding);
-                //now display a dialog to show any errors during the build
-                loadAccountSummary();
-                onReportFinished(buildStatus.Errors, buildStatus.CompletedReport);
+        if(buildStatus !== undefined && buildStatus !== null) {
+            console.log("IsBuilding: " + buildStatus.IsBuilding);
+            notifyService.UpdateBusyState(buildStatus.IsBuilding);
+            if (buildStatus.IsBuilding === false) {
+                console.log("Build Complete. Report: " + buildStatus.CompletedReport );
+                notifyService.InvokeAccountChange();
+                notifyService.OnReportComplete(buildStatus.Errors, buildStatus.CompletedReport);
             }
-            else {
-                updateBuildState(buildStatus.IsBuilding);
-            }
-        }
+        } 
     }
 
     const buildReport = function() {
@@ -96,7 +74,6 @@ const Summary = () =>
 
 
     return(
-        <>
         <Card bg="light" className="mt-sm-3 text-center">
             <Card.Header as="h3">{accountName}</Card.Header>
             <Card.Body>
@@ -131,13 +108,6 @@ const Summary = () =>
                 <Button onClick={buildReport}  variant="primary" disabled={canBuild === false}>Build Report</Button>
             </Card.Body>
         </Card>        
-        <ReportCompletion
-                show={showReportComplete}
-                onHide={() => setShowReportComplete(false)} 
-                success={buildSuccess}
-                errors={buildErrors}
-                completedReport={completedReport}/>        
-        </>        
     );
 }
 

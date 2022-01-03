@@ -51,8 +51,6 @@ const HeaderBar = function() {
                                         )
                                   }
                 </Form.Control>    
-                <FormControl type="text" placeholder="Search" className="mr-sm-2" />
-                <Button variant="outline-light">Search</Button>
             </Form>            
         </Navbar>
 

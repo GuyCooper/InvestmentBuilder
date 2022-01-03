@@ -177,7 +177,7 @@ namespace InvestmentBuilderCore
 
         public int MaxAccountsPerUser { get { return m_configuration.MaxAccountsPerUser; } }
 
-        public string OutputFolder { get { return m_test ? m_configuration.TestOutputFolder :  m_configuration.OutputFolder; } }
+        public string OutputFolder { get { return GetOutputfolder(); } }
 
         public IEnumerable<Index> ComparisonIndexes { get { return m_configuration.IndexArray; } }
 
@@ -212,6 +212,9 @@ namespace InvestmentBuilderCore
         public ConfigurationSettings(string filename, List<Tuple<string,string>> overrides, string certificate, bool test)
         {
             m_configuration = XmlConfigFileLoader.LoadConfiguration<Configuration>(filename, certificate);
+
+            logger.Info("Configuration:");
+            logger.Info(File.ReadAllText(filename));
 
             m_test = test;
 
@@ -277,12 +280,12 @@ namespace InvestmentBuilderCore
 
         public string GetTradeFile(string account)
         {
-            return Path.Combine(m_configuration.OutputFolder, account, "Trades.xml");
+            return Path.Combine(GetOutputfolder(), account, "Trades.xml");
         }
 
         public string GetOutputPath(string account)
         {
-            var path = Path.Combine(m_configuration.OutputFolder, account);
+            var path = Path.Combine(GetOutputfolder(), account);
             Directory.CreateDirectory(path);
             return path;
         }
@@ -295,6 +298,11 @@ namespace InvestmentBuilderCore
         #endregion
 
         #region Private Methods
+
+        private string GetOutputfolder()
+        {
+            return m_test ? m_configuration.TestOutputFolder : m_configuration.OutputFolder;
+        }
 
         /// <summary>
         /// Method matches the xmlattribute of the propertyinfo to the supplied name.

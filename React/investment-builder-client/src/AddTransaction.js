@@ -6,7 +6,7 @@ import middlewareService from "./MiddlewareService.js";
 
 const AddTransaction = function(props) {
 
-    const [selectedDate, setSelectedDate] = useState( new Date());
+    const [selectedDate, setSelectedDate] = useState( null);
     const [transactionParameters, setTransactionParameters] = useState([]);
     const [amount, setAmount] = useState(null);
     const [currency, setCurrency] = useState(null);
@@ -25,6 +25,9 @@ const AddTransaction = function(props) {
     };
 
     const showModal = function() {
+        setSelectedDate( new Date());
+        setAmount(0);
+        setCurrency(null);
         if( props.transactionTypes.length > 0) {
             loadTransactionParameters(props.transactionTypes[0]);
         }
@@ -50,7 +53,7 @@ const AddTransaction = function(props) {
     };
 
     const closeModal = function() {
-        setSelectedDate( new Date());        
+        //setSelectedDate( new Date());        
         props.onHide();
     };
 

@@ -79,7 +79,7 @@ namespace InvestmentBuilderService.Channels
 
             //build the asset report in another thread so it can be built 
             //asynchronously
-            Task.Factory.StartNew(() =>
+            Task.Run(() =>
             {
                 //DummyBuildRun(monitor);
 

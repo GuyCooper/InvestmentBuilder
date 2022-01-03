@@ -18,6 +18,8 @@ const NotifyService = function () {
     let listeners = null;
 
     let busyStateChangedListener = null;
+    let reportCompleteListener = null;
+
     //flag to determine if system is busy with request / connecting etc..
     let isBusy = false;
     //store the sessionid of the connection to allow secure file requests to the server
@@ -25,18 +27,32 @@ const NotifyService = function () {
 
     this.RegisterBusyStateChangedListener = function (listener) {
         busyStateChangedListener = listener;
-    }
+    };
 
     this.UnRegisterBusyStateChangedListener = function() {
         busyStateChangedListener = null;
-    }
+    };
+
+    this.RegisterReportCompleteListener = function (listener) {
+        reportCompleteListener = listener;
+    };
+
+    this.UnRegisterReportCompleteListener = function() {
+        reportCompleteListener = null;
+    };
+
+    this.OnReportComplete = function(errors, completedReport) {
+        if(reportCompleteListener !== null) {
+            reportCompleteListener(errors, completedReport);
+        }
+    };
 
     this.UpdateBusyState = function (busy) {
         isBusy = busy;
-        if (busyStateChangedListener != null) {
+        if (busyStateChangedListener !== null) {
             busyStateChangedListener(busy);
         }
-    }
+    };
     //register callback methods 
     this.RegisterAccountListener = function (listener) {
         AccountListeners.push(listener);

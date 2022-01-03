@@ -87,12 +87,16 @@ const Middleware = function () {
     };
 
     this.Disconnect = function () {
-        if (ws != null && ws != undefined) {
+        if (ws !== null && ws !== undefined) {
             ws.close();
             ws = null;
         }
     };
 
+    this.IsConnectionClosed = function() {
+            return ws === null || ws === undefined || ws.readyState === 2 || ws.readyState === 3; 
+    };
+    
     var processRequestInternal = function(channel, command, type, data, destination, resolve, reject) {
         let id = "test_" + uid++;
         let payload = {

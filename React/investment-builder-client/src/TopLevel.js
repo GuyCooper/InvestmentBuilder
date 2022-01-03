@@ -6,10 +6,15 @@ import HeaderBar from './HeaderBar.js'
 import TabOptions from './TabOptions.js'
 import notifyService from "./NotifyService.js";
 import middlewareService from "./MiddlewareService.js"
+import ReportCompletion from "./ReportCompletion.js"
 
 const TopLevel = () =>
 {
     const [isBusy, setIsBusy] = useState( false );
+    const [showReportComplete, setShowReportComplete] = useState(false);
+    const [buildSuccess, setBuildSuccess] = useState(false);
+    const [buildErrors, setBuildErrors] = useState([]);
+    const [completedReport, setCompletedReport] = useState(null);
 
     const onConnnectionSuccess = function( payload, username ) {
 
@@ -36,18 +41,31 @@ const TopLevel = () =>
         setIsBusy( busy );
     };
 
+    const onReportFinished = function (errors, completedReport) {
+        setBuildSuccess(errors === null || errors.length === 0);
+        setBuildErrors(errors);    
+        setCompletedReport( completedReport + ";session=" + notifyService.GetSessionID());             
+        setShowReportComplete(true);
+    };
+
     useEffect(() =>
      {
-        console.log('loading config...');
-        let config = window.location.href + 'Config.json';
-        fetch(config) // 'http://localhost:3000/Config.json')
-        .then(result => result.json())
-        .then( data => onConfigLoaded(data));
-        
+        console.log("Registering TopLevel");
+        if(middlewareService.ConnectionClosed()) {         
+            let config = window.location.href + 'Config.json';
+            console.log('loading config...' + config);
+            fetch(config) // 'http://localhost:3000/Config.json')
+            .then(result => result.json())
+            .then( data => onConfigLoaded(data));
+        }
+
         notifyService.RegisterBusyStateChangedListener(onBusyStateChanged);
+        notifyService.RegisterReportCompleteListener(onReportFinished);
         
         return function() {
-            notifyService.UnRegisterBusyStateChangedListener();            
+            console.log("Un Registering TopLevel");
+            notifyService.UnRegisterBusyStateChangedListener();        
+            notifyService.UnRegisterReportCompleteListener();    
         };
 
     });
@@ -59,7 +77,9 @@ const TopLevel = () =>
                     <HeaderBar/>
                 </Col>
             </Row>
-            {isBusy && <Spinner animation="border" variant="primary" />}
+            {isBusy &&  <div className="center">
+                            <Spinner animation="border" variant='primary' />
+                        </div>}                       
             {!isBusy && <div><Row>
                 <Col>
                     <Summary/>
@@ -70,6 +90,12 @@ const TopLevel = () =>
                     <TabOptions/>
                 </Col>
             </Row></div>}
+            <ReportCompletion
+                show={showReportComplete}
+                onHide={() => setShowReportComplete(false)} 
+                success={buildSuccess}
+                errors={buildErrors}
+                completedReport={completedReport}/>                
         </Container> 
     );
 }
