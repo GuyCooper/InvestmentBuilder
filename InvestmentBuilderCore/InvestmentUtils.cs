@@ -52,9 +52,9 @@ namespace InvestmentBuilderCore
         /// Compares the value of 2 doubles and returns true if they match within max double
         /// tolerances.
         /// </summary>
-        public static bool AreSame(this double lhs, double rhs)
+        public static bool AreSame(this double lhs, double rhs, int dps = 3)
         {
-            return Math.Abs(lhs - rhs) < double.Epsilon;
+            return Math.Abs(Math.Round(lhs, dps) - Math.Round(rhs,dps)) < double.Epsilon;
         }
 
         /// <summary>

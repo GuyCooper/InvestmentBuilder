@@ -217,10 +217,10 @@ namespace InvestmentBuilderMSTests
         private void When_adding_subscription_amounts(UserAccountToken userToken)
         {
             Console.WriteLine("When_adding_subscription_amounts");
-            _interfaces.CashAccountManager.AddTransaction(userToken, _dtValuationDate1, _dtTransactionDate1, CashAccountTransactionManager.SUBSCRIPTION, _TestUser, _testSubscription1, null);
-            _interfaces.CashAccountManager.AddTransaction(userToken, _dtValuationDate1, _dtTransactionDate1, CashAccountTransactionManager.SUBSCRIPTION, _TestUser1, _testSubscription1 , null);
-            _interfaces.CashAccountManager.AddTransaction(userToken, _dtValuationDate1, _dtTransactionDate1, CashAccountTransactionManager.SUBSCRIPTION, _TestUser2, _testSubscription1, null);
-            _interfaces.CashAccountManager.AddTransaction(userToken, _dtValuationDate1, _dtTransactionDate1, CashAccountTransactionManager.BALANCEINHANDCF, _TestAccount, _testSubscription1 * 3, null);
+            _interfaces.CashAccountManager.AddTransaction(userToken, _dtValuationDate1, _dtTransactionDate1, TransactionTypes.SUBSCRIPTION, _TestUser, _testSubscription1, null);
+            _interfaces.CashAccountManager.AddTransaction(userToken, _dtValuationDate1, _dtTransactionDate1, TransactionTypes.SUBSCRIPTION, _TestUser1, _testSubscription1 , null);
+            _interfaces.CashAccountManager.AddTransaction(userToken, _dtValuationDate1, _dtTransactionDate1, TransactionTypes.SUBSCRIPTION, _TestUser2, _testSubscription1, null);
+            _interfaces.CashAccountManager.AddTransaction(userToken, _dtValuationDate1, _dtTransactionDate1, TransactionTypes.BALANCEINHANDCF, _TestAccount, _testSubscription1 * 3, null);
 
             double receiptTotal;
             double paymentsTotal;

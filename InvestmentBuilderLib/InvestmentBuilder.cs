@@ -14,8 +14,9 @@ namespace InvestmentBuilder
         public InvestmentBuilder(IConfigurationSettings settings,
                                  IDataLayer dataLayer,
                                  CashAccountTransactionManager cashAccountManager,
-                                 IInvestmentReportWriter reportWriter,
-                                 IInvestmentRecordDataManager recordBuilder)
+                                 IInvestmentReportWriter investmentReportWriter,
+                                 IInvestmentRecordDataManager recordBuilder,
+                                 IClock clock)
         {
             _settings = settings;
             _dataLayer = dataLayer;
@@ -24,8 +25,9 @@ namespace InvestmentBuilder
             _clientData = _dataLayer.ClientData;
             _investmentRecordData = _dataLayer.InvestmentRecordData;
             _cashAccountManager = cashAccountManager;
-            _reportWriter = reportWriter;
             _recordBuilder = recordBuilder;
+            _investmentReportWriter = investmentReportWriter;
+            _clock = clock;
         }
 
         /// <summary>
@@ -96,7 +98,7 @@ namespace InvestmentBuilder
                 _RollbackRedemptions(userToken, valuationDate, dtPreviousValuation.Value);
             }
 
-            var cashAccountData = _cashAccountData.GetCashAccountData(userToken, valuationDate);
+            var cashAccountData = _cashAccountData.GetCashBalances(userToken, valuationDate);
             //parse the trade file for any trades for this month and update the investment record
             //var trades = TradeLoader.GetTrades(tradeFile);
             var dtTradeValuationDate = valuationDate;
@@ -157,11 +159,6 @@ namespace InvestmentBuilder
 
             //now process any redemptions that have occured since the previous valuation
             var updatedReport = dtPreviousValuation.HasValue ? _ProcessRedemptions(userToken, assetReport, accountData, dtPreviousValuation.Value, bUpdate) : assetReport;
-            //finally, build the asset statement
-            if (bUpdate == true)
-            {
-                _reportWriter.WriteAssetReport(updatedReport, _userAccountData.GetStartOfYearValuation(userToken, valuationDate), _settings.GetOutputPath(accountData.Identifier.GetPathName()), progress);
-            }
 
             logger.Log(userToken, LogLevel.Info, "Report Generated, Account Builder Complete");
             return updatedReport;
@@ -318,7 +315,7 @@ namespace InvestmentBuilder
         /// </summary>
         public string GetInvestmentReport(UserAccountToken userToken, DateTime valuationDate)
         {
-            return _reportWriter.GetReportFileName(valuationDate);
+            return _investmentReportWriter.GetReportFileName(valuationDate);
         }
 
         public IEnumerable<string> GetAllCurrencies()
@@ -391,6 +388,13 @@ namespace InvestmentBuilder
             {
                 _userAccountData.SaveNewUnitValue(userToken, dtValuationDate, report.ValuePerUnit);
             }
+
+            var startOfTaxYear = GetStartOfTaxYear();
+            report.DividendsTaxYear = _cashAccountData.GetCashTransactions(
+                                                    userToken,
+                                                    TransactionTypes.DIVIDEND)
+                                                    .Where(t => t.Item1 >= startOfTaxYear)
+                                                    .Sum(t => t.Item2);
 
             //now calculate the YTD value
             //YTD is compared against unit price from last month of previous year
@@ -531,7 +535,7 @@ namespace InvestmentBuilder
             {
                 //if there have been redemptions then update the asset report with the new balance
                 //and units
-                var cashAccountData = _cashAccountData.GetCashAccountData(userToken, report.ValuationDate);
+                var cashAccountData = _cashAccountData.GetCashBalances(userToken, report.ValuationDate);
                 var newReport = _BuildAssetReport(userToken, report.ValuationDate, null, accountData, report.Assets,
                                          cashAccountData.BankBalance, false);
                 newReport.Redemptions = redemptions;
@@ -559,6 +563,17 @@ namespace InvestmentBuilder
             }
         }
 
+        private DateTime GetStartOfTaxYear()
+        {
+            var now = _clock.GetCurrentTime();
+            var year = now.Year;
+            if (now.Month < 4)
+            {
+                year--;
+            }
+            return new DateTime(year, 4, 1);
+        }
+
         /// <summary>
         /// Contract invariance method
         /// </summary>
@@ -571,7 +586,7 @@ namespace InvestmentBuilder
             Contract.Invariant(_clientData != null);
             Contract.Invariant(_investmentRecordData != null);
             Contract.Invariant(_cashAccountManager != null);
-            Contract.Invariant(_reportWriter != null);
+            Contract.Invariant(_investmentReportWriter != null);
             Contract.Invariant(_recordBuilder != null);
         }
         #endregion
@@ -587,8 +602,10 @@ namespace InvestmentBuilder
         private readonly IClientDataInterface _clientData;
         private readonly IInvestmentRecordInterface _investmentRecordData;
         private readonly CashAccountTransactionManager _cashAccountManager;
-        private readonly IInvestmentReportWriter _reportWriter;
         private readonly IInvestmentRecordDataManager _recordBuilder;
+        private readonly IInvestmentReportWriter _investmentReportWriter;
+        private readonly IClock _clock;
+
 
         private readonly Dictionary<string, string> _typeProcedureLookup = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase)
         {

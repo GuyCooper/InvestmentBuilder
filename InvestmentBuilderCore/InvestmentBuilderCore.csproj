@@ -65,8 +65,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccountModel.cs" />
+    <Compile Include="AnalyticData.cs" />
+    <Compile Include="AnalyticsCalculator.cs" />
     <Compile Include="AssetReport.cs" />
     <Compile Include="AuthorizationManager.cs" />
+    <Compile Include="Clock.cs" />
+    <Compile Include="TransactionTypes.cs" />
+    <Compile Include="ValuationData.cs" />
     <Compile Include="XmlConfigFileLoader.cs" />
     <Compile Include="ConfigurationSettings.cs" />
     <Compile Include="ContainerManager.cs" />

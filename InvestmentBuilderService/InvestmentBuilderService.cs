@@ -79,11 +79,13 @@ namespace InvestmentBuilderService
                    ContainerManager.RegisterType(typeof(PerformanceBuilderLib.PerformanceBuilder));
                    ContainerManager.RegisterType(typeof(CashAccountTransactionManager));
                    ContainerManager.RegisterType(typeof(CashFlowManager));
-                   ContainerManager.RegisterType(typeof(IInvestmentReportWriter), typeof(InvestmentReportGenerator.InvestmentReportWriter));
+                   //ContainerManager.RegisterType(typeof(IInvestmentReportWriter), typeof(InvestmentReportGenerator.InvestmentReportWriter));
                    ContainerManager.RegisterType(typeof(IMessageLogger), typeof(SQLiteAuditLogger));
                    ContainerManager.RegisterType(typeof(ServiceAggregator));
+                   ContainerManager.RegisterType(typeof(IInvestmentReportWriter), typeof(InvestmentReportGenerator.InvestmentReportWriter));
+                   ContainerManager.RegisterType(typeof(IClock), typeof(UtcClock)); 
 
-                   using (var child = ContainerManager.CreateChildContainer())
+                    using (var child = ContainerManager.CreateChildContainer())
                    {
                        var dataLayer = ContainerManager.ResolveValue<IDataLayer>();
                        var configSettings = ContainerManager.ResolveValue<IConfigurationSettings>();

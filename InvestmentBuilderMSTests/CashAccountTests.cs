@@ -24,7 +24,7 @@ namespace InvestmentBuilderMSTests
 
     internal class CashAccountTransactionDataTest : CashAccountInterfaceTest
     {
-        public override void GetCashAccountTransactions(UserAccountToken userToken, string side, DateTime valuationDate, Action<System.Data.IDataReader> fnAddTransaction)
+        public override void GetCashAccountData(UserAccountToken userToken, string side, DateTime valuationDate, Action<System.Data.IDataReader> fnAddTransaction)
         {
             var reader = new TestDataReader();
 

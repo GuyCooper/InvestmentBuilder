@@ -56,6 +56,9 @@ namespace InvestmentBuilderCore
         //Returns the latest valuation date for this account (if there is one)
         DateTime? GetLatestValuationDate(UserAccountToken userToken);
 
+        // Returns the latest valuation data for this account.
+        IEnumerable<ValuationData> GetAllValuations(UserAccountToken userToken);
+
         DateTime? GetPreviousAccountValuationDate(UserAccountToken userToken, DateTime dtValuation);
         bool IsExistingValuationDate(UserAccountToken userToken, DateTime valuationDate);
         IEnumerable<string> GetAccountTypes();
@@ -99,13 +102,18 @@ namespace InvestmentBuilderCore
     [ContractClass(typeof(ICashAccountContract))]
     public interface ICashAccountInterface
     {
-        CashAccountData GetCashAccountData(UserAccountToken userToken, DateTime valuationDate);
+        CashAccountData GetCashBalances(UserAccountToken userToken, DateTime valuationDate);
+
         int AddCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate,
                                 string type, string parameter, double amount);
 
         void RemoveCashAccountTransaction(UserAccountToken userToken, int transactionID);
-        void GetCashAccountTransactions(UserAccountToken userToken, string side, DateTime valuationDate, Action<System.Data.IDataReader> fnAddTransaction);
+
+        void GetCashAccountData(UserAccountToken userToken, string side, DateTime valuationDate, Action<System.Data.IDataReader> fnAddTransaction);
+
         double GetBalanceInHand(UserAccountToken userToken, DateTime valuationDate);
+        
+        IEnumerable<Tuple<DateTime, double>> GetCashTransactions(UserAccountToken userToken, string transactionType);
     }
 
     [ContractClass(typeof(IUserAccountContract))]

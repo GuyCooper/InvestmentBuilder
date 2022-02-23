@@ -73,6 +73,12 @@ namespace InvestmentBuilderCore
             Contract.Requires(userToken != null);
             return null;
         }
+
+        public IEnumerable<ValuationData> GetAllValuations(UserAccountToken userToken)
+        {
+            Contract.Requires(userToken != null);
+            return null;
+        }
     }
 
     [ContractClassFor(typeof(IInvestmentRecordInterface))]
@@ -215,14 +221,14 @@ namespace InvestmentBuilderCore
             return 0;
         }
 
-        public CashAccountData GetCashAccountData(UserAccountToken userToken, DateTime valuationDate)
+        public CashAccountData GetCashBalances(UserAccountToken userToken, DateTime valuationDate)
         {
             Contract.Requires(userToken != null);
             Contract.Ensures(Contract.Result<CashAccountData>() != null);
             return null;
         }
 
-        public void GetCashAccountTransactions(UserAccountToken userToken, string side, DateTime valuationDate, Action<IDataReader> fnAddTransaction)
+        public void GetCashAccountData(UserAccountToken userToken, string side, DateTime valuationDate, Action<IDataReader> fnAddTransaction)
         {
             Contract.Requires(userToken != null);
             Contract.Requires(string.IsNullOrEmpty(side) == false);
@@ -231,6 +237,13 @@ namespace InvestmentBuilderCore
         public void RemoveCashAccountTransaction(UserAccountToken userToken, int transactionID)
         {
             Contract.Requires(userToken != null);
+        }
+
+        public IEnumerable<Tuple<DateTime, double>> GetCashTransactions(UserAccountToken userToken, string transactionType)
+        {
+            Contract.Requires(userToken != null);
+            Contract.Requires(string.IsNullOrEmpty(transactionType) == false);
+            return null;
         }
     }
 

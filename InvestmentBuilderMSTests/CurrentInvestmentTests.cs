@@ -327,7 +327,8 @@ namespace InvestmentBuilderMSTests
                 datalayer,
                 new CashAccountTransactionManager(datalayer, new TestMarketDataSource()),
                 new InvestmentReportEmptyWriter(),
-                new InvestmentRecordBuilder(marketDataServices, datalayer, brokerManager)
+                new InvestmentRecordBuilder(marketDataServices, datalayer, brokerManager),
+                new UtcClock()
                 );
         }
 
@@ -392,7 +393,8 @@ namespace InvestmentBuilderMSTests
                 datalayer,
                 new CashAccountTransactionManager(datalayer, new TestMarketDataSource() ),
                 new InvestmentReportEmptyWriter(),
-                new InvestmentRecordBuilder(marketDataServices, datalayer, brokerManager)
+                new InvestmentRecordBuilder(marketDataServices, datalayer, brokerManager),
+                new UtcClock()
                 );
         }
 
