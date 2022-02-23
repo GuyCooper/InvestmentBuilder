@@ -19,10 +19,10 @@ namespace InvestmentBuilderCore
         public double TotalLiabilities { get; set; }
         public double NetAssets { get; set; }
         public double IssuedUnits { get; set; }
-        public double TotalDividends { get; set; }
         public double ValuePerUnit { get; set; }
         public double MonthlyPnL { get; set; }
         public double YearToDatePerformance { get; set; }
+        public double DividendsTaxYear { get; set; }
         public List<Redemption> Redemptions { get; set; }
     }
 }

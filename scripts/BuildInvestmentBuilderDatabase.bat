@@ -68,5 +68,8 @@ sqlcmd -S %ServerName% -E -d %DBName% -i sp_GetHistoricalData.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_AddNewUser.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_GetUserId.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_GetLastTransaction.sql
+sqlcmd -S %ServerName% -E -d %DBName% -i sp_GetCashTransactions.sql
+sqlcmd -S %ServerName% -E -d %DBName% -i sp_GetLatestValuation.sql
+sqlcmd -S %ServerName% -E -d %DBName% -i sp_GetAllValuations.sql
 
 

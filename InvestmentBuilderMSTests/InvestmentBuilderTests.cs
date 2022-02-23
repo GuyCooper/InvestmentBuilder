@@ -73,12 +73,12 @@ namespace InvestmentBuilderMSTests
 
 
             var marketDataSource = new TestMarketDataSource();
-            var marketDataServices = new MarketDataServices.MarketDataService( marketDataSource );
             var builder = new InvestmentBuilder.InvestmentBuilder(new ConfigurationSettingsTest(),
                                                                   dataLayer,
                                                                   new CashAccountTransactionManager(dataLayer, marketDataSource ),
                                                                   new InvestmentReportEmptyWriter(),
-                                                                  new EmptyTestInvestmentRecordBuilder());
+                                                                  new EmptyTestInvestmentRecordBuilder(),
+                                                                  new UtcClock());
             return builder;
         }
 
@@ -126,7 +126,8 @@ namespace InvestmentBuilderMSTests
                                                                   dataLayer,
                                                                   new CashAccountTransactionManager(dataLayer, new TestMarketDataSource()),
                                                                   new InvestmentReportEmptyWriter(),
-                                                                  new SimpleTestInvestmentRecordBuilder());
+                                                                  new SimpleTestInvestmentRecordBuilder(),
+                                                                  new UtcClock());
 
             var report = builder.BuildAssetReport(TestDataCache._userToken, TestDataCache._currentValuationDate, true, null, null);
 

@@ -5,6 +5,7 @@ using InvestmentBuilderService.Session;
 using InvestmentBuilderCore;
 using System;
 using System.IO;
+using InvestmentReportGenerator;
 
 namespace InvestmentBuilderService.Channels
 {
@@ -57,9 +58,10 @@ namespace InvestmentBuilderService.Channels
             : base("BUILD_REPORT_REQUEST", "BUILD_REPORT_RESPONSE", aggregator)
         {
             _builder = aggregator.Builder;
-            _chartBuilder = aggregator.ChartBuilder;
-            m_settings = aggregator.Settings;
-            m_connectionSettings = aggregator.ConnectionSettings;
+            _performanceDataBuilder = aggregator.PerformanceDataBuilder;
+            _analyticDataBuilder = aggregator.AnalyticDataBuilder;
+             m_connectionSettings = aggregator.ConnectionSettings;
+            m_configurationSettings = aggregator.Settings;
         }
 
         #endregion
@@ -81,19 +83,34 @@ namespace InvestmentBuilderService.Channels
             //asynchronously
             Task.Run(() =>
             {
-                //DummyBuildRun(monitor);
-
-                var report = _builder.BuildAssetReport(token
-                                    , userSession.ValuationDate
-                                    , true
-                                    , userSession.UserPrices
-                                    , monitor.GetProgressCounter());
-
-                if (report != null)
+                using (var reportWriter = new PdfInvestmentReportWriter("Investment Report"))
                 {
-                    //now generate the performance charts. by doing this the whole report will be persisted
-                    //to a pdf filen
-                    _chartBuilder.Run(token, userSession.ValuationDate, monitor.GetProgressCounter());
+
+                    var report = _builder.BuildAssetReport(token
+                                        , userSession.ValuationDate
+                                        , true
+                                        , userSession.UserPrices
+                                        , monitor.GetProgressCounter());
+
+                    if (report != null)
+                    {
+                        reportWriter.WriteAssetReport(report, monitor.GetProgressCounter());
+                        //now generate the performance charts. by doing this the whole report will be persisted
+                        //to a pdf filen
+                        var performanceData = _performanceDataBuilder.BuildPerformanceData(token,
+                                                                            userSession.ValuationDate, 
+                                                                            monitor.GetProgressCounter());
+
+                        reportWriter.WritePerformanceData(performanceData, monitor.GetProgressCounter());
+
+                        var analyticData = _analyticDataBuilder.BuildAnalyticData(token, report);
+
+                        reportWriter.WriteAnalyticData(analyticData, monitor.GetProgressCounter());
+
+                        reportWriter.SaveReport(m_configurationSettings.GetOutputPath(
+                                                                        token.Account.GetPathName()),
+                                                userSession.ValuationDate);
+                    }
                 }
 
                 //this command creates a new valuation snapshot. reset the valuation date to allow
@@ -150,9 +167,10 @@ namespace InvestmentBuilderService.Channels
         #region Private Data Members
 
         private readonly InvestmentBuilder.InvestmentBuilder _builder;
-        private readonly PerformanceBuilderLib.PerformanceBuilder _chartBuilder;
-        private readonly IConfigurationSettings m_settings;
+        private readonly PerformanceBuilderLib.PerformanceBuilder _performanceDataBuilder;
+        private readonly PerformanceBuilderLib.AnalyticDataBuilder _analyticDataBuilder;
         private readonly IConnectionSettings m_connectionSettings;
+        private readonly IConfigurationSettings m_configurationSettings;
 
         #endregion
     }

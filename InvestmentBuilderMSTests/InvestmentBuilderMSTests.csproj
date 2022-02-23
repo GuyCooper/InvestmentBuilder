@@ -68,6 +68,7 @@
   <ItemGroup>
     <Compile Include="AccountManagerTests.cs" />
     <Compile Include="AggregatedMarketDataServiceTests.cs" />
+    <Compile Include="AnalyticTests.cs" />
     <Compile Include="AuthorisationTests.cs" />
     <Compile Include="BrokerManagerTests.cs" />
     <Compile Include="CachedMarketDataServiceTests.cs" />

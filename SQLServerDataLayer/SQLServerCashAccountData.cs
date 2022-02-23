@@ -2,6 +2,7 @@
 using InvestmentBuilderCore;
 using System.Data.SqlClient;
 using System.Data;
+using System.Collections.Generic;
 
 namespace SQLServerDataLayer
 {
@@ -22,7 +23,7 @@ namespace SQLServerDataLayer
         /// Return the CashAccount data for the account specified in UserToken on the specified
         /// valuation date.
         /// </summary>
-        public CashAccountData GetCashAccountData(UserAccountToken userToken, DateTime valuationDate)
+        public CashAccountData GetCashBalances(UserAccountToken userToken, DateTime valuationDate)
         {
             userToken.AuthorizeUser(AuthorizationLevel.READ);
 
@@ -92,7 +93,7 @@ namespace SQLServerDataLayer
         /// <summary>
         /// Return all the cash account transactions for the specifed account with the specied vauation date for the specified side.
         /// </summary>
-        public void GetCashAccountTransactions(UserAccountToken userToken, string side, DateTime valuationDate, Action<System.Data.IDataReader> fnAddTransaction)
+        public void GetCashAccountData(UserAccountToken userToken, string side, DateTime valuationDate, Action<System.Data.IDataReader> fnAddTransaction)
         {
             if (userToken.Account == null || userToken.Account.AccountId == 0 || fnAddTransaction == null)
             {
@@ -174,6 +175,31 @@ namespace SQLServerDataLayer
                 }
             }
             return result;
+        }
+
+        public IEnumerable<Tuple<DateTime, double>> GetCashTransactions(UserAccountToken userToken, string transactionType)
+        {
+            userToken.AuthorizeUser(AuthorizationLevel.READ);
+
+            using (var connection = OpenConnection())
+            {
+                using (var sqlCommand = new SqlCommand("sp_GetCashTransactions", connection))
+                {
+                    sqlCommand.CommandType = CommandType.StoredProcedure;
+                    sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
+                    sqlCommand.Parameters.Add(new SqlParameter("@TransactionType", transactionType));
+                    using (var reader = sqlCommand.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            yield return Tuple.Create(
+                                    reader.GetDateTime(0),
+                                    reader.GetDouble(2)
+                                );
+                        }
+                    }
+                }
+            }
         }
     }
 }

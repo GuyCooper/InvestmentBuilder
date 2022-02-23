@@ -282,6 +282,10 @@ namespace InvestmentReportGenerator
             //}
         }
 
+        public void WriteAnalyticData(AnalyticData data, string outputPath, DateTime dtValuation, string reportingCurrency, ProgressCounter progress)
+        {
+        }
+
         /// <summary>
         /// helper method for building pivot table andchart
         /// </summary>

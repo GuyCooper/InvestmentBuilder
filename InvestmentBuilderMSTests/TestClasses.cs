@@ -57,6 +57,7 @@ namespace InvestmentBuilderMSTests
         public virtual Stock GetTradeItem(UserAccountToken userToken, string name) { throw new NotImplementedException(); }
         public virtual int UndoLastTransaction(UserAccountToken userToken, DateTime fromValuationDate) { throw new NotImplementedException(); }
         public Transaction GetLastTransaction(UserAccountToken userToken, DateTime fromValuationDate) { throw new NotImplementedException(); }
+        public IEnumerable<ValuationData> GetAllValuations(UserAccountToken userToken) { throw new NotImplementedException(); }
     }
 
     internal class InvestmentRecordInterfaceTest : IInvestmentRecordInterface
@@ -87,15 +88,18 @@ namespace InvestmentBuilderMSTests
 
     internal class CashAccountInterfaceTest : ICashAccountInterface
     {
-        public virtual CashAccountData GetCashAccountData(UserAccountToken userToken, DateTime valuationDate) { throw new NotImplementedException(); }
+        public virtual CashAccountData GetCashBalances(UserAccountToken userToken, DateTime valuationDate) { throw new NotImplementedException(); }
         public virtual int AddCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate,
                                 string type, string parameter, double amount)
         { throw new NotImplementedException(); }
 
         public virtual void RemoveCashAccountTransaction(UserAccountToken userToken, int transactionID)
         { throw new NotImplementedException(); }
-        public virtual void GetCashAccountTransactions(UserAccountToken userToken, string side, DateTime valuationDate, Action<System.Data.IDataReader> fnAddTransaction) { throw new NotImplementedException(); }
+        public virtual void GetCashAccountData(UserAccountToken userToken, string side, DateTime valuationDate, Action<System.Data.IDataReader> fnAddTransaction) { throw new NotImplementedException(); }
         public virtual double GetBalanceInHand(UserAccountToken userToken, DateTime valuationDate) { throw new NotImplementedException(); }
+
+        public IEnumerable<Tuple<DateTime, double>> GetCashTransactions(UserAccountToken userToken, string transactionType)
+        { throw new NotImplementedException(); }
     }
 
     internal class UserAccountInterfaceTest : IUserAccountInterface
@@ -304,14 +308,6 @@ namespace InvestmentBuilderMSTests
         {
             return FileName;
         }
-
-        public void WriteAssetReport(AssetReport report, double startOfYear, string outputPath, ProgressCounter progress)
-        {
-        }
-
-        public void WritePerformanceData(IList<IndexedRangeData> data, string path, DateTime dtValuation, ProgressCounter progress)
-        {
-        }
     }
 
     internal class UserAccountEmptyInterfaceTest : IUserAccountInterface
@@ -383,18 +379,21 @@ namespace InvestmentBuilderMSTests
         public virtual Stock GetTradeItem(UserAccountToken userToken, string name) { return null; }
         public virtual int UndoLastTransaction(UserAccountToken userToken, DateTime fromValuationDate) { return 0; }
         public Transaction GetLastTransaction(UserAccountToken userToken, DateTime fromValuationDate) { return null; }
+        public virtual IEnumerable<ValuationData> GetAllValuations(UserAccountToken userToken) { return null; }
     }
 
     internal class CashAccountEmptyInterfaceTest : ICashAccountInterface
     {
-        public virtual CashAccountData GetCashAccountData(UserAccountToken userToken, DateTime valuationDate) { return new CashAccountData(); }
+        public virtual CashAccountData GetCashBalances(UserAccountToken userToken, DateTime valuationDate) { return new CashAccountData(); }
         public virtual int AddCashAccountTransaction(UserAccountToken userToken, DateTime valuationDate, DateTime transactionDate,
                                 string type, string parameter, double amount)
         { return 0; }
         public virtual void RemoveCashAccountTransaction(UserAccountToken userToken, int transactionID)
         { }
-        public virtual void GetCashAccountTransactions(UserAccountToken userToken, string side, DateTime valuationDate, Action<System.Data.IDataReader> fnAddTransaction) { }
+        public virtual void GetCashAccountData(UserAccountToken userToken, string side, DateTime valuationDate, Action<System.Data.IDataReader> fnAddTransaction) { }
         public virtual double GetBalanceInHand(UserAccountToken userToken, DateTime valuationDate) { return 0d; }
+
+        public IEnumerable<Tuple<DateTime, double>> GetCashTransactions(UserAccountToken userToken, string transactionType) { return null; }
     }
 
     internal class EmptyHistoricalDataReaderTest : IHistoricalDataReader

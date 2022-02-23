@@ -67,6 +67,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AnalyticDataBuilder.cs" />
     <Compile Include="PerformanceBuilder.cs" />
     <Compile Include="PerformanceLaddersBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

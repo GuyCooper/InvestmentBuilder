@@ -74,7 +74,7 @@ namespace SQLServerDataLayer
         /// </summary>
         public DateTime? GetLatestValuationDate(UserAccountToken userToken)
         {
-            if(userToken.HasInvalidAccount())
+            if (userToken.HasInvalidAccount())
             {
                 return null;
             }
@@ -82,7 +82,7 @@ namespace SQLServerDataLayer
             userToken.AuthorizeUser(AuthorizationLevel.READ);
             using (var connection = OpenConnection())
             {
-                using (var sqlCommand = new SqlCommand("sp_GetLatestValuationDate", connection))
+                using (var sqlCommand = new SqlCommand("sp_GetLatestValuation", connection))
                 {
                     sqlCommand.CommandType = CommandType.StoredProcedure;
                     sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
@@ -96,7 +96,41 @@ namespace SQLServerDataLayer
                 }
             }
             return null;
+
         }
+
+        // Returns the latest valuation data for this account.
+        public IEnumerable<ValuationData> GetAllValuations(UserAccountToken userToken)
+        {
+            if (userToken.HasInvalidAccount())
+            {
+                yield break;
+            }
+
+            userToken.AuthorizeUser(AuthorizationLevel.READ);
+            using (var connection = OpenConnection())
+            {
+                using (var sqlCommand = new SqlCommand("sp_GetAllValuations", connection))
+                {
+                    sqlCommand.CommandType = CommandType.StoredProcedure;
+                    sqlCommand.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
+                    using (var reader = sqlCommand.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            yield return new ValuationData
+                            {
+                                ValuationDate = reader.GetDateTime(0),
+                                UnitValue = reader.GetDouble(1)
+                            };
+                        }
+                    }
+                }
+            }
+
+            yield break;
+        }
+
 
         /// <summary>
         /// Returns true if the specified valuation date is a valid valuation date for the account

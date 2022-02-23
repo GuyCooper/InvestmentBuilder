@@ -23,7 +23,9 @@ namespace InvestmentBuilderService
 
         public InvestmentBuilder.InvestmentBuilder Builder { get; private set; }
 
-        public PerformanceBuilderLib.PerformanceBuilder ChartBuilder { get; private set; }
+        public PerformanceBuilderLib.PerformanceBuilder PerformanceDataBuilder { get; private set; }
+
+        public PerformanceBuilderLib.AnalyticDataBuilder AnalyticDataBuilder { get; private set; }
 
         public IConfigurationSettings Settings { get; private set; }
 
@@ -41,23 +43,31 @@ namespace InvestmentBuilderService
         /// <summary>
         /// Constructor. Inject all dependant services
         /// </summary>
-        public ServiceAggregator(AccountService accountService, IMessageLogger auditLogger,
-            CashAccountTransactionManager cashTransactionManager, CashFlowManager cashFlowManager,
-            InvestmentBuilder.InvestmentBuilder builder, PerformanceBuilderLib.PerformanceBuilder chartBuilder,
-            IConfigurationSettings settings, IConnectionSettings connectionSettings, BrokerManager brokerManager,
-            IDataLayer dataLayer, IMarketDataSource marketDataSource)
+        public ServiceAggregator(AccountService accountService, 
+                                 IMessageLogger auditLogger,
+                                 CashAccountTransactionManager cashTransactionManager, 
+                                 CashFlowManager cashFlowManager,
+                                 InvestmentBuilder.InvestmentBuilder builder, 
+                                 PerformanceBuilderLib.PerformanceBuilder chartBuilder,
+                                 IConfigurationSettings settings, 
+                                 IConnectionSettings connectionSettings, 
+                                 BrokerManager brokerManager,
+                                 IDataLayer dataLayer, 
+                                 IMarketDataSource marketDataSource,
+                                 PerformanceBuilderLib.AnalyticDataBuilder analyticDataBuilder)
         {
             AccountService = accountService;
             AuditLogger = auditLogger;
             CashTransactionManager = cashTransactionManager;
             CashFlowManager = cashFlowManager;
             Builder = builder;
-            ChartBuilder = chartBuilder;
+            PerformanceDataBuilder = chartBuilder;
             Settings = settings;
             ConnectionSettings = connectionSettings;
             BrokerManager = brokerManager;
             DataLayer = dataLayer;
             MarketDataSource = marketDataSource;
+            AnalyticDataBuilder = analyticDataBuilder;
         }
 
         #endregion

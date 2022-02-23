@@ -15,17 +15,15 @@ namespace PerformanceBuilderLib
         private static Logger logger = LogManager.GetCurrentClassLogger();
         private IConfigurationSettings _settings;
         private IDataLayer _dataLayer;
-        private IInvestmentReportWriter _reportWriter;
 
-        public PerformanceBuilder(IConfigurationSettings settings, IDataLayer dataLayer,
-                                IInvestmentReportWriter reportWriter)
+        public PerformanceBuilder(IConfigurationSettings settings, IDataLayer dataLayer)
+                                
         {
             _dataLayer = dataLayer;
             _settings = settings;
-            _reportWriter = reportWriter;
         }
 
-        public IList<IndexedRangeData> Run(UserAccountToken userToken, DateTime dtValuation, ProgressCounter progress)
+        public IList<IndexedRangeData> BuildPerformanceData(UserAccountToken userToken, DateTime dtValuation, ProgressCounter progress)
         {
             Contract.Requires(userToken != null);
             Contract.Ensures(Contract.Result<IList<IndexedRangeData>>() != null);
@@ -47,10 +45,7 @@ namespace PerformanceBuilderLib
             allLadders.Insert(0, ladderBuilder.BuildAccountDividendYieldPerformanceLadder(userToken, progress));
 
             logger.Log(LogLevel.Info, "data ladders building complete...");
-            //now persist it to the spreadsheet, TODO, make configurable, allow persist to pdf
-            _reportWriter.WritePerformanceData(allLadders, _settings.GetOutputPath(userToken.Account.GetPathName()), dtValuation, progress);
 
-            logger.Log(LogLevel.Info, "performance chartbuilder complete");
             return allLadders;
         }
     }
