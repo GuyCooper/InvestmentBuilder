@@ -79,7 +79,7 @@
 
                 var rates = new List<Tuple<string, double>>
                 {
-                    Tuple.Create("Average Yield", result.AverageYield / 100),
+                    Tuple.Create($"{result.AverageYield:N2}%", result.AverageYield / 100),
                     Tuple.Create("3%", 0.03),
                     Tuple.Create("5%", 0.05),
                     Tuple.Create("8%", 0.08),
