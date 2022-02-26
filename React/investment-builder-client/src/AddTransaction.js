@@ -42,10 +42,16 @@ const AddTransaction = function(props) {
     const handleSubmit = function() {   
         console.log("selected transaction type: " + transactionTypeSelect.current.value);
         console.log("selected parameter: " + parametersSelect.current.value);
+
+        let paramList = [parametersSelect.current.value];        
+        if( parametersSelect.current.value === "ALL") {
+            paramList = transactionParameters.filter( p => p !== "ALL");        
+        }
+
         props.onSubmit({
             TransactionDate: selectedDate,
             ParamType: transactionTypeSelect.current.value,
-            Parameter: [parametersSelect.current.value],
+            Parameter: paramList,
             Amount: amount,
             Currency : currency
         });        

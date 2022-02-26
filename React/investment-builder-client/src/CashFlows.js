@@ -12,7 +12,6 @@ const CashFlows = () =>
     const [cashFlows, setCashFlows] = useState([]);
     const [receiptParamTypes, setreceiptParamTypes] = useState([]);
     const [paymentParamTypes, setpaymentParamTypes] = useState([]);
-    const [reportingCurrency, setreportingCurrency] = useState(null);
     const [showAddReceipt, setShowAddReceipt] = useState(false);
     const [showAddPayment, setShowAddPayment] = useState(false);
     const [fromDate, setFromDate] = useState( new Date());
@@ -23,7 +22,6 @@ const CashFlows = () =>
             setCashFlows( response.CashFlows );
             setreceiptParamTypes( response.ReceiptParamTypes );
             setpaymentParamTypes( response.PaymentParamTypes );
-            setreportingCurrency( response.ReportingCurrency );
 
             if (response.CashFlows.length > 0) {
                 notifyService.InvokeBuildStatusChange(response.CashFlows[0].CanBuild);
