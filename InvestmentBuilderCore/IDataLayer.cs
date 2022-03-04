@@ -154,5 +154,7 @@ namespace InvestmentBuilderCore
     {
         IEnumerable<HistoricalData> GetHistoricalAccountData(UserAccountToken userToken);
         string GetIndexHistoricalData(UserAccountToken userToken, string symbol);
+
+        Dictionary<string, List<Tuple<int,double>>> GetHistoricalYieldData(UserAccountToken userToken);
     }
 }
