@@ -78,6 +78,10 @@ namespace InvestmentBuilderCore
     //key property will be populated and the date property will be null
     public class HistoricalData
     {
+        private HistoricalData()
+        {
+        }
+
         public HistoricalData(string key, double price)
         {
             Key = key;
@@ -93,9 +97,30 @@ namespace InvestmentBuilderCore
         /// <summary>
         /// Rebase the price from the base price.
         /// </summary>
-        public void RebasePrice(double basePrice)
+        public HistoricalData RebasePrice(double basePrice)
         {
-            Price = 1 + ((Price - basePrice) / basePrice);
+            return new HistoricalData
+            {
+                Date = Date,
+                Key = Key,
+                Price = 1 + ((Price - basePrice) / basePrice)
+            };
+        }
+
+        public HistoricalData YieldAdjustment(Dictionary<int, double> montlyAdjustmentLookup)
+        {
+            double yieldAdjustment = 0;  
+            if(Date != null && montlyAdjustmentLookup != null)
+            {
+                montlyAdjustmentLookup.TryGetValue(Date.Value.Year, out yieldAdjustment);
+            }
+
+            return new HistoricalData
+            {
+                Date = Date,
+                Key = Key,
+                Price = Price + (Price * yieldAdjustment)
+            };
         }
 
         public DateTime? Date { get; private set; }

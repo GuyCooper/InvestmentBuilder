@@ -133,8 +133,19 @@ namespace InvestmentBuilderMSTests
 
     internal class HistoricalDataReaderTest : IHistoricalDataReader
     {
-        public virtual IEnumerable<HistoricalData> GetHistoricalAccountData(UserAccountToken userToken) { throw new NotImplementedException(); }
-        public virtual string GetIndexHistoricalData(UserAccountToken userToken, string symbol) { throw new NotImplementedException(); }
+        public virtual IEnumerable<HistoricalData> GetHistoricalAccountData(UserAccountToken userToken) 
+        {
+            throw new NotImplementedException(); 
+        }
+        public virtual string GetIndexHistoricalData(UserAccountToken userToken, string symbol) 
+        { 
+            throw new NotImplementedException(); 
+        }
+
+        public Dictionary<string, List<Tuple<int, double>>> GetHistoricalYieldData(UserAccountToken userToken)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     internal class ConfigurationSettingsTest : IConfigurationSettings
@@ -398,8 +409,21 @@ namespace InvestmentBuilderMSTests
 
     internal class EmptyHistoricalDataReaderTest : IHistoricalDataReader
     {
-        public virtual IEnumerable<HistoricalData> GetHistoricalAccountData(UserAccountToken userToken) { return null; }
-        public virtual string GetIndexHistoricalData(UserAccountToken userToken, string symbol) { return null; }
+        public virtual IEnumerable<HistoricalData> GetHistoricalAccountData(UserAccountToken userToken)
+        {
+            return null; 
+        }
+
+        public virtual string GetIndexHistoricalData(UserAccountToken userToken, string symbol) 
+        {
+            return null; 
+        }
+
+        public Dictionary<string, List<Tuple<int, double>>> GetHistoricalYieldData(UserAccountToken userToken)
+        {
+            return null;
+        }
+
     }
 
     internal class EmptyConfigurationSettingsTest : IConfigurationSettings

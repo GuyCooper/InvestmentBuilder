@@ -48,6 +48,16 @@ namespace PerformanceBuilderLib
             var firstRecord = historicalData != null ? historicalData.FirstOrDefault() : null;
             if (firstRecord != null)
             {
+                //load all historical yields
+                var monthlyYieldLookup = _historicalDataReader.GetHistoricalYieldData(userToken)
+                                                               .ToDictionary(
+                                                                  kv => kv.Key,
+                                                                  kv => kv.Value.ToDictionary(
+                                                                      sv => sv.Item1,
+                                                                      sv => sv.Item2 / 1200
+                                                               ));
+
+
                 var performanceRangeList = _DetermineIndexRanges(firstRecord.Date);
                 progress.Initialise("building performance ladders", performanceRangeList.Count);
                 //now retrieve all historical data ladders from the market data source 
@@ -57,7 +67,11 @@ namespace PerformanceBuilderLib
                     logger.Log(LogLevel.Info, "building data ladder for {0}", point.Item2);
 
                     //Console.WriteLine("building data ladder for {0}", perfPoint.Item2);
-                    var indexladder = _BuildIndexLadders(userToken, point.Item1, historicalData, userToken.Account);
+                    var indexladder = _BuildIndexLadders(userToken, 
+                                                         point.Item1, 
+                                                         historicalData, 
+                                                         userToken.Account,
+                                                         monthlyYieldLookup);
                     var result = new IndexedRangeData
                     {
                         MinValue = 0.8,
@@ -242,7 +256,9 @@ namespace PerformanceBuilderLib
         /// <summary>
         /// method filters out any older prices than start date,and rebases on first date
         /// </summary>
-        private IEnumerable<HistoricalData> RebaseDataList(IEnumerable<HistoricalData> dataList, DateTime? dtStartDate)
+        private IEnumerable<HistoricalData> RebaseDataList(IEnumerable<HistoricalData> dataList, 
+                                                           DateTime? dtStartDate,
+                                                           Dictionary<int, double> yieldLookup)
         {
             DateTime? dtPrevious = null;
             var resultList = new List<HistoricalData>();
@@ -276,14 +292,17 @@ namespace PerformanceBuilderLib
                 ));
             }
 
-            //now we have filtered out the prices we can rebase them...
-            var firstPrice = resultList.First().Price;
-            foreach(var entry in resultList)
-            {
-                entry.RebasePrice(firstPrice);
-            }
+            //Apply historic yield to price as price does not included dividend yield
+            //if yieldlookup available
+            var yieldAdjustedPrices = yieldLookup != null ?
+                                                    resultList.Select(p =>
+                                                        p.YieldAdjustment(yieldLookup)
+                                                    ).ToList() :
+                                                    resultList;
 
-            return resultList;
+            //now we have filtered out the prices we can rebase them...
+            var firstPrice = yieldAdjustedPrices.First().Price;
+            return yieldAdjustedPrices.Select( p => p.RebasePrice( firstPrice ) ).ToList();
         }
 
         /// <summary>
@@ -328,7 +347,11 @@ namespace PerformanceBuilderLib
         /// method retrieves the historical price information for all the configured indexes for all required
         /// date ranges. Data is then rebased for each date range to allow easy determination of relative performance
         /// </summary>
-        private IList<IndexData> _BuildIndexLadders(UserAccountToken userToken, DateTime? startDate, IEnumerable<HistoricalData> historicalData, AccountIdentifier account)
+        private IList<IndexData> _BuildIndexLadders(UserAccountToken userToken,
+                                                    DateTime? startDate, 
+                                                    IEnumerable<HistoricalData> historicalData, 
+                                                    AccountIdentifier account,
+                                                    Dictionary<string, Dictionary<int,double>> monthlyYieldLookup)
         {
             //first get club history
             //var clubData = _GetClubData().OrderBy(x => x.Date).ToList();
@@ -336,7 +359,7 @@ namespace PerformanceBuilderLib
 
             var clubData = historicalData.OrderBy(x => x.Date).ToList();
             DumpData("club data", clubData);
-            var rebasedClubData = RebaseDataList(clubData, startDate).ToList();
+            var rebasedClubData = RebaseDataList(clubData, startDate, null).ToList();
 
             if(rebasedClubData.Count == 0)
             {
@@ -357,18 +380,26 @@ namespace PerformanceBuilderLib
             {
                 return result;
             }
+
             //all comparison indexes must have the same item count as the club index
             _settings.ComparisonIndexes.ToList().ForEach(index =>
             {
-                var indexedData = ParseHistoricalData(_historicalDataReader.GetIndexHistoricalData(userToken, index.Symbol), dtFirstDate).ToList();
+                var indexedData = ParseHistoricalData(_historicalDataReader.
+                                                            GetIndexHistoricalData(userToken, index.Symbol),
+                                                      dtFirstDate).ToList();
                 if (indexedData != null)
                 {
-                    var rebasedIndexedData = RebaseDataList(indexedData, null).ToList();
+                    Dictionary<int, double> indexMonthlyYieldLookup;
+                    monthlyYieldLookup.TryGetValue(index.Symbol, out indexMonthlyYieldLookup);
+
+                    var rebasedIndexedData = RebaseDataList(indexedData, 
+                                                            null,
+                                                            indexMonthlyYieldLookup).ToList();
                     
                     //it could be the case that the index data has not been updated for a while and not
                     //all available to the current date. In this case just pad it out...
                     while(rebasedClubData.Count > rebasedIndexedData.Count)
-                    {
+                    { 
                         rebasedIndexedData.Add(rebasedIndexedData.Last());
                     }
 
@@ -485,7 +516,7 @@ namespace PerformanceBuilderLib
 
             foreach (var index in indexes)
             {
-                index.Data = RebaseDataList(index.Data, index.StartDate).ToList();
+                index.Data = RebaseDataList(index.Data, index.StartDate, null).ToList();
             }
 
             return indexes;
@@ -575,10 +606,10 @@ namespace PerformanceBuilderLib
         #region Private Methods
 
         private static Logger logger = LogManager.GetCurrentClassLogger();
-        private IConfigurationSettings _settings;
-        private IHistoricalDataReader _historicalDataReader;
-        private IInvestmentRecordInterface _investmentRecordData;
-        private IUserAccountInterface _userAccountData;
+        private readonly IConfigurationSettings _settings;
+        private readonly IHistoricalDataReader _historicalDataReader;
+        private readonly IInvestmentRecordInterface _investmentRecordData;
+        private readonly IUserAccountInterface _userAccountData;
 
         #endregion
     }

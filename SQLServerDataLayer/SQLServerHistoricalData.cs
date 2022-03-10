@@ -67,5 +67,37 @@ namespace SQLServerDataLayer
             }
             return result;
         }
+
+        public Dictionary<string, List<Tuple<int, double>>> GetHistoricalYieldData(UserAccountToken userToken)
+        {
+            userToken.AuthorizeUser(AuthorizationLevel.READ);
+            var result = new Dictionary<string, List<Tuple<int, double>>>();
+            using (var connection = OpenConnection())
+            {
+                using (var command = new SqlCommand("sp_GetHistoricalYieldData", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while(reader.Read())
+                        {
+                            var name = GetDBValue<string>("Name", reader);
+                            var year = GetDBValue<int>("Year", reader);
+                            var yield = GetDBValue<double>("Yield", reader);
+
+                            if(!result.ContainsKey(name))
+                            {
+                                result.Add(name, new List<Tuple<int, double>>());
+                            }
+
+                            result[name].Add(Tuple.Create(year, yield));
+                        }
+                    }
+                }
+            }
+
+            return result;
+
+        }
     }
 }

@@ -232,7 +232,7 @@ namespace InvestmentReportGenerator
 
             summaryTable.AddColumn(Unit.FromCentimeter(dataCellWidth));
             _AddAmountRow(summaryTable, "Performance YTD", data.PerformanceYTD);
-            _AddAmountRow(summaryTable, "Average Yield", data.AverageYield);
+            _AddAmountRow(summaryTable, "Average Performance", data.AverageYield);
 
             documentObjects.Add(new DocumentObjectPlacement(summaryTable, xPos, yPos, width));
 
@@ -313,7 +313,7 @@ namespace InvestmentReportGenerator
         {
             Row row = table.AddRow();
             row.Cells[0].AddParagraph().AddFormattedText(name, TextFormat.Bold);
-            row.Cells[1].AddParagraph(amount.ToString("#.##"));
+            row.Cells[1].AddParagraph(amount.ToString("N2"));
         }
 
         /// <summary>
@@ -529,9 +529,9 @@ namespace InvestmentReportGenerator
                     int cell = 0;
                     var row = table.AddRow();
                     _AddCellEntry(row, cell++, redemption.User);
-                    _AddCellEntry(row, cell++, redemption.Amount.ToString("#.##"));
+                    _AddCellEntry(row, cell++, redemption.Amount.ToString("N2"));
                     _AddCellEntry(row, cell++, redemption.TransactionDate.ToShortDateString());
-                    _AddCellEntry(row, cell++, redemption.RedeemedUnits.ToString("#.##"));
+                    _AddCellEntry(row, cell++, redemption.RedeemedUnits.ToString("N2"));
                     _AddCellEntry(row, cell++, redemption.Status.ToString());
                 }
 

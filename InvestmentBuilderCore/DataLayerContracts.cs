@@ -426,5 +426,10 @@ namespace InvestmentBuilderCore
             Contract.Ensures(Contract.Result<string>() != null);
             return null;
         }
+
+        public Dictionary<string, List<Tuple<int, double>>> GetHistoricalYieldData(UserAccountToken userToken)
+        {
+            return null;
+        }
     }
 }
