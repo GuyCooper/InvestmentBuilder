@@ -105,6 +105,7 @@ go
 
 create table dbo.InvestmentRecord
 (
+	[id] int identity primary key,
 	[Company_id] int not null,
 	[Valuation_Date] datetime not null,
 	[Shares_Bought] float,	
@@ -228,6 +229,15 @@ create table dbo.HistoricalData
 )
 go
 
+create table dbo.HistoricalYieldData
+(
+	[Id] int identity primary key clustered,
+	[Name]			  varchar(50) not null,
+	[Year]			  int,
+	[Yield]			  float,
+	constraint UN_YieldAmount unique([Name],[Year])
+)
+go
 /* side: P = Payments (right hand side), R = Receipts (left hand side) */
 insert into dbo.TransactionType ([type], side) values ('Admin Fee', 'P')
 insert into dbo.TransactionType ([type], side) values ('Purchase', 'P')

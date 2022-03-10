@@ -54,7 +54,7 @@ namespace PerformanceBuilderLib
                                                                   kv => kv.Key,
                                                                   kv => kv.Value.ToDictionary(
                                                                       sv => sv.Item1,
-                                                                      sv => sv.Item2 / 12
+                                                                      sv => sv.Item2 / 1200
                                                                ));
 
 
@@ -390,7 +390,7 @@ namespace PerformanceBuilderLib
                 if (indexedData != null)
                 {
                     Dictionary<int, double> indexMonthlyYieldLookup;
-                    monthlyYieldLookup.TryGetValue(index.Name, out indexMonthlyYieldLookup);
+                    monthlyYieldLookup.TryGetValue(index.Symbol, out indexMonthlyYieldLookup);
 
                     var rebasedIndexedData = RebaseDataList(indexedData, 
                                                             null,

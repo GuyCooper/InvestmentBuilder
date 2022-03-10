@@ -72,7 +72,9 @@
                     5,
                     10,
                     15,
-                    20
+                    20,
+                    25,
+                    30
                 };
 
                 var strRanges = ranges.Select(r => $"{r} years").ToList();
