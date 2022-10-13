@@ -172,6 +172,11 @@ function findCompanyCurrency($headerInfo) {
 			if(preg_match('/\w+$/', trim($result->nodeValue), $matches)) {
 				return $matches[0];
 			 }
+
+			 if(preg_match('/(Currency in) (\w+)/', trim($result->nodeValue), $matches)) {
+				 var_dump($matches);
+				return end($matches);
+			 }			 
 		}		
 	}
 	return NULL;

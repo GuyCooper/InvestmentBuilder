@@ -133,6 +133,8 @@ insert into dbo.TransactionType ([type], side) values ('Interest', 'R')
 insert into dbo.TransactionType ([type], side) values ('Sale', 'R')
 insert into dbo.TransactionType ([type], side) values ('BalanceInHand', 'R')
 insert into dbo.TransactionType ([type], side) values ('BalanceInHandCF', 'P')
+insert into dbo.TransactionType ([type], side) values ('Fx Gain', 'R')
+insert into dbo.TransactionType ([type], side) values ('Fx Loss', 'P')
 
 insert into dbo.Members([Name]) values('Guy Cooper')
 insert into dbo.Members([Name]) values('Nigel Cooper')

@@ -8,6 +8,8 @@ namespace InvestmentBuilderCore
         public static readonly string SALE = "Sale";
         public static readonly string DIVIDEND = "Dividend";
         public static readonly string INTEREST = "Interest";
+        public static readonly string FXGAIN = "Fx Gain";
+        public static readonly string FXLOSS = "Fx Loss";
         public static readonly string OTHER = "Other";
         public static readonly string ADMINFEE = "Admin Fee";
         public static readonly string PURCHASE = "Purchase";

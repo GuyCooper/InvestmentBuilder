@@ -306,7 +306,8 @@ namespace InvestmentBuilder
                     {TransactionTypes.SUBSCRIPTION, TransactionTypes.SUBSCRIPTION},
                     {TransactionTypes.BALANCEINHAND, TransactionTypes.SUBSCRIPTION},
                     {TransactionTypes.SALE, TransactionTypes.SALE},
-                    {TransactionTypes.INTEREST, TransactionTypes.OTHER}
+                    {TransactionTypes.INTEREST, TransactionTypes.OTHER},
+                    {TransactionTypes.FXGAIN, TransactionTypes.OTHER}
                 };
 
         private readonly Dictionary<string, string> _paymentTransactionLookup =
@@ -314,7 +315,8 @@ namespace InvestmentBuilder
                 {TransactionTypes.ADMINFEE, TransactionTypes.OTHER},
                 {TransactionTypes.PURCHASE, TransactionTypes.PURCHASES},
                 {TransactionTypes.REDEMPTION, TransactionTypes.WITHDRAWLS},
-                {TransactionTypes.BALANCEINHANDCF, TransactionTypes.OTHER}
+                {TransactionTypes.BALANCEINHANDCF, TransactionTypes.OTHER},
+                {TransactionTypes.FXLOSS, TransactionTypes.OTHER }
             };
 
         private Dictionary<string, Dictionary<string, string>> _transactionLookup;
