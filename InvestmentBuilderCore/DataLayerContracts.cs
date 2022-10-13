@@ -239,7 +239,7 @@ namespace InvestmentBuilderCore
             Contract.Requires(userToken != null);
         }
 
-        public IEnumerable<Tuple<DateTime, double>> GetCashTransactions(UserAccountToken userToken, string transactionType)
+        public IEnumerable<(DateTime date, double amount)> GetCashTransactions(UserAccountToken userToken, string transactionType)
         {
             Contract.Requires(userToken != null);
             Contract.Requires(string.IsNullOrEmpty(transactionType) == false);

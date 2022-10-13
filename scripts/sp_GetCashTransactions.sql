@@ -25,7 +25,7 @@ INNER JOIN
 ON 
 	tt.[type_id] = ca.[type_id]
 WHERE
-	ca.account_id = 1
+	ca.account_id = @Account
 	and tt.[type]  = @TransactionType
 GROUP BY
 	ca.valuation_date, tt.[type] 

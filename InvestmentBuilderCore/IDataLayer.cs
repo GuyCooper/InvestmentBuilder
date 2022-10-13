@@ -113,7 +113,7 @@ namespace InvestmentBuilderCore
 
         double GetBalanceInHand(UserAccountToken userToken, DateTime valuationDate);
         
-        IEnumerable<Tuple<DateTime, double>> GetCashTransactions(UserAccountToken userToken, string transactionType);
+        IEnumerable<(DateTime date, double amount)> GetCashTransactions(UserAccountToken userToken, string transactionType);
     }
 
     [ContractClass(typeof(IUserAccountContract))]

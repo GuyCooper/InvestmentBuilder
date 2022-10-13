@@ -98,7 +98,7 @@ namespace InvestmentBuilderMSTests
         public virtual void GetCashAccountData(UserAccountToken userToken, string side, DateTime valuationDate, Action<System.Data.IDataReader> fnAddTransaction) { throw new NotImplementedException(); }
         public virtual double GetBalanceInHand(UserAccountToken userToken, DateTime valuationDate) { throw new NotImplementedException(); }
 
-        public IEnumerable<Tuple<DateTime, double>> GetCashTransactions(UserAccountToken userToken, string transactionType)
+        public IEnumerable<(DateTime date, double amount)> GetCashTransactions(UserAccountToken userToken, string transactionType)
         { throw new NotImplementedException(); }
     }
 
@@ -404,7 +404,7 @@ namespace InvestmentBuilderMSTests
         public virtual void GetCashAccountData(UserAccountToken userToken, string side, DateTime valuationDate, Action<System.Data.IDataReader> fnAddTransaction) { }
         public virtual double GetBalanceInHand(UserAccountToken userToken, DateTime valuationDate) { return 0d; }
 
-        public IEnumerable<Tuple<DateTime, double>> GetCashTransactions(UserAccountToken userToken, string transactionType) { return null; }
+        public IEnumerable<(DateTime date, double amount)> GetCashTransactions(UserAccountToken userToken, string transactionType) { return null; }
     }
 
     internal class EmptyHistoricalDataReaderTest : IHistoricalDataReader

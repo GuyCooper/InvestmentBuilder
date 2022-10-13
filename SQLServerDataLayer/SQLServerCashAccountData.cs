@@ -177,7 +177,7 @@ namespace SQLServerDataLayer
             return result;
         }
 
-        public IEnumerable<Tuple<DateTime, double>> GetCashTransactions(UserAccountToken userToken, string transactionType)
+        public IEnumerable<(DateTime date, double amount)> GetCashTransactions(UserAccountToken userToken, string transactionType)
         {
             userToken.AuthorizeUser(AuthorizationLevel.READ);
 
@@ -192,10 +192,7 @@ namespace SQLServerDataLayer
                     {
                         while (reader.Read())
                         {
-                            yield return Tuple.Create(
-                                    reader.GetDateTime(0),
-                                    reader.GetDouble(2)
-                                );
+                            yield return (reader.GetDateTime(0), reader.GetDouble(2));
                         }
                     }
                 }

@@ -393,8 +393,8 @@ namespace InvestmentBuilder
             report.DividendsTaxYear = _cashAccountData.GetCashTransactions(
                                                     userToken,
                                                     TransactionTypes.DIVIDEND)
-                                                    .Where(t => t.Item1 >= startOfTaxYear)
-                                                    .Sum(t => t.Item2);
+                                                    .Where(t => t.date >= startOfTaxYear)
+                                                    .Sum(t => t.amount);
 
             //now calculate the YTD value
             //YTD is compared against unit price from last month of previous year

@@ -49,11 +49,11 @@
             var subscriptions = _cashAccountData.GetCashTransactions(
                                                     userToken,
                                                     TransactionTypes.SUBSCRIPTION)
-                                                    .OrderByDescending(t => t.Item1)
+                                                    .OrderByDescending(t => t.date)
                                                     .ToList();
 
 
-            var monthlyAmount = subscriptions.FirstOrDefault()?.Item2;
+            var monthlyAmount = subscriptions.Any() ? subscriptions.First().amount : 0;
 
             if (valuationData.Any())
             {
@@ -97,7 +97,7 @@
                         var projections = ranges.Select(t =>
                         AnalyticsCalculator.CalculateProjection(
                                                               assetReport.NetAssets,
-                                                              monthlyAmount ?? 0,
+                                                              monthlyAmount,
                                                               t,
                                                               r.Item2,
                                                               _inflation))
