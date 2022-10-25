@@ -1,19 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using InvestmentBuilder;
 using InvestmentBuilderCore;
 
 namespace InvestmentBuilderService.Channels
 {
+    internal class RedemptionDto
+    {
+        public string User { get; set; }
+        public double Amount { get; set; }
+        public DateTime TransactionDate { get; set; }
+        public double RedeemedUnits { get; set; }
+        public string Status { get; set; }
+
+    }
+
     /// <summary>
     /// Dto for returning the list of redemptions to a client.
     /// </summary>
     internal class RedemptionsDto : Dto
     {
-        public List<Redemption> Redemptions { get; set; }
+        public List<RedemptionDto> Redemptions { get; set; }
     }
 
     /// <summary>
@@ -45,7 +52,16 @@ namespace InvestmentBuilderService.Channels
             return new RedemptionsDto
             {
                 Redemptions = _builder.GetRedemptions(userToken, userSession.ValuationDate).
-                                       Where(redemption => redemption.Status != RedemptionStatus.Complete).ToList()
+                                       Where(redemption => redemption.Status != RedemptionStatus.Complete)
+                                       .Select(r => new RedemptionDto
+                                       {
+                                           User = r.User,
+                                           Amount = r.Amount,
+                                           TransactionDate = r.TransactionDate,
+                                           RedeemedUnits = r.RedeemedUnits,
+                                           Status = r.Status.ToString()
+                                       })
+                                       .ToList()
             };
         }
 

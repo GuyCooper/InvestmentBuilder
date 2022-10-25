@@ -6,6 +6,7 @@ import notifyService from "./NotifyService.js";
 import CashFlows from './CashFlows.js';
 import AddInvestment from './AddInvestment.js';
 import Reports from './Reports.js'
+import Redemptions from './Redemptions.js';
 
 const TabOptions = () =>
 {
@@ -13,6 +14,7 @@ const TabOptions = () =>
     const addinvestment = 'addinvestment';
     const cashflow = 'cashflow';
     const reports='reports';
+    const redemptions='redemptions';
 
     const [key, setKey] = useState(portfolio);
 
@@ -21,6 +23,7 @@ const TabOptions = () =>
     tabActions[addinvestment] = () => notifyService.InvokeAddTrade();
     tabActions[cashflow] = () => notifyService.InvokeCashFlow();
     tabActions[reports] = () => notifyService.InvokeReports();
+    tabActions[redemptions] = () =>notifyService.InvokeRedemptions();
     
   
     let onTabChanged = function(tab) {
@@ -48,7 +51,9 @@ const TabOptions = () =>
             <Tab eventKey={reports} title="Reports">
                 <Reports/>
             </Tab>
-
+            <Tab eventKey={redemptions} title="Redemptions" >
+                <Redemptions/>
+            </Tab>
         </Tabs>
     );
 }
