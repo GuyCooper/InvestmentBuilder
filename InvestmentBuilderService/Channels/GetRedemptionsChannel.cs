@@ -7,6 +7,7 @@ namespace InvestmentBuilderService.Channels
 {
     internal class RedemptionDto
     {
+        public int Id { get; set; }
         public string User { get; set; }
         public double Amount { get; set; }
         public DateTime TransactionDate { get; set; }
@@ -55,6 +56,7 @@ namespace InvestmentBuilderService.Channels
                                        Where(redemption => redemption.Status != RedemptionStatus.Complete)
                                        .Select(r => new RedemptionDto
                                        {
+                                           Id = r.Id,
                                            User = r.User,
                                            Amount = r.Amount,
                                            TransactionDate = r.TransactionDate,

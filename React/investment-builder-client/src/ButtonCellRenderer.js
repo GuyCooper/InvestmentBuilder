@@ -12,7 +12,7 @@ class ButtonCellRenderer extends Component {
 
     render() {
         return (
-                <button onClick={this.btnClickHandler}>{this.props.label}</button>
+                <button onClick={this.btnClickHandler} size="sm">{this.props.label}</button>
         )
     };
 };

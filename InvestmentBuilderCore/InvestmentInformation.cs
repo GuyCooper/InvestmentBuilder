@@ -175,14 +175,16 @@ namespace InvestmentBuilderCore
     /// </summary>
     public class Redemption
     {
-        public Redemption(string user, double amount, DateTime date, RedemptionStatus status)
+        public Redemption(int id, string user, double amount, DateTime date, RedemptionStatus status)
         {
+            Id = id;
             User = user;
             Amount = amount;
             TransactionDate = date;
             Status = status;
         }
 
+        public int Id { get; private set; }
         public string User { get; private set; }
         public double Amount { get; private set; }
         public DateTime TransactionDate { get; private set; }

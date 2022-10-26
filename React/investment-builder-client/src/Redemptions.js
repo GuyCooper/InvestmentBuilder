@@ -7,6 +7,7 @@ import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import notifyService from "./NotifyService.js";
 import middlewareService from "./MiddlewareService.js";
 import AddRedemption from './AddRedemption.js';
+import ButtonCellRenderer from "./ButtonCellRenderer.js";
 
 const Redemptions = () => 
 {
@@ -76,17 +77,48 @@ const Redemptions = () =>
         return val.value.toFixed( 2 );
     };
 
+    const removeRedemptionResponse = function( response ) {
+        console.log('removeRedemptionResponse: ' + response);
+        if( response.IsError === true) {
+            alert( "remove redemption failed" + response.Error );
+        }
+        else {
+            refreshRedemptions();
+        }
+    };
+
+    const removeRedemption = function( redemption ) {
+        let dto = {
+            RedemptionId : redemption
+        };
+
+        middlewareService.RemoveRedemption( dto , removeRedemptionResponse);
+    };
+
     const columndefs = [
         { headerName: "User", field: "User", sortable: true, filter: true },
         { headerName: "Amount", field: "Amount", sortable: true, filter: true, valueFormatter: numberFormatter, type:'numericColumn', width:120 },
         { headerName: "Transaction Date", field: "TransactionDate", valueFormatter: dateFormatter, sortable: true, filter: true },
         { headerName: "Redeemed Units", field: "RedeemedUnits", sortable: true, filter: true, valueFormatter: numberFormatter, type:'numericColumn' },
-        { headerName: "Status", field: "Status", sortable: true, filter: true }
+        { headerName: "Status", field: "Status", sortable: true, filter: true },
+        { headerName: "Remove", field: "Id", cellRenderer: "btnCellRenderer", 
+                                 cellRendererParams: { 
+                                     clicked : function( field ) {
+                                        removeRedemption( field );            
+                                     } ,
+                                    label : 'Remove Redemption'
+                                 }
+        } 
+
     ];    
 
     const defaultColDefs = {
         maxWidth : 180
      };
+
+     const frameworkComponents = {
+        btnCellRenderer : ButtonCellRenderer
+    };
 
      return (
         <>
@@ -99,6 +131,7 @@ const Redemptions = () =>
                     rowData={rowData}
                     rowSelection="single"
                     columnDefs={columndefs}
+                    frameworkComponents={frameworkComponents}    
                     defaultColDef={defaultColDefs}     
                     >                        
                 </AgGridReact>

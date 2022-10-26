@@ -277,6 +277,7 @@ namespace InvestmentBuilder
             return true;
         }
 
+
         /// <summary>
         /// Return the list of redempdtions for the specified valuation date.
         /// </summary>
@@ -526,7 +527,7 @@ namespace InvestmentBuilder
                 redemption.RedeemedUnits = requestedUnitRedemption;
                 //update redemtpion table with the amount that was actually redeemed, the number of
                 //units redeemed and the status to complete
-                redemption.Status = _userAccountData.UpdateRedemption(userToken, redemption.User, redemption.TransactionDate, redemption.Amount, requestedUnitRedemption);
+                redemption.Status = _userAccountData.UpdateRedemption(userToken, redemption.Id, redemption.Amount, requestedUnitRedemption);
 
                 updated = true;
             }

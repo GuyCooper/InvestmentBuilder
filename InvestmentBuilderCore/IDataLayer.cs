@@ -131,7 +131,7 @@ namespace InvestmentBuilderCore
         double GetStartOfYearValuation(UserAccountToken userToken, DateTime valuationDate);
         IEnumerable<Redemption> GetRedemptions(UserAccountToken userToken, DateTime valuationDate);
         void AddRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount);
-        RedemptionStatus UpdateRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount, double units);
+        RedemptionStatus UpdateRedemption(UserAccountToken userToken, int redemptionId, double amount, double units);
         void UpdateMemberForAccount(UserAccountToken userToken, string member, AuthorizationLevel level, bool add);
         int CreateAccount(UserAccountToken userToken, AccountModel account);
         void UpdateAccount(UserAccountToken userToken, AccountModel account);
@@ -148,6 +148,7 @@ namespace InvestmentBuilderCore
         IEnumerable<double> GetUnitValuationRange(UserAccountToken userToken, DateTime dateFrom, DateTime dateTo);
         int GetUserId(string userName);
         void AddUser(string userName, string description);
+        bool RemoveRedemption(UserAccountToken userToken, int redemptionID);
     }
 
     public interface IHistoricalDataReader

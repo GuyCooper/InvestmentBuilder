@@ -270,10 +270,11 @@ namespace SQLServerDataLayer
                         {
                             yield return new Redemption
                             (
+                                GetDBValue<int>("Redemption_Id", reader),
                                 GetDBValue<string>("UserName", reader),
                                 GetDBValue<double>("amount", reader),
                                 GetDBValue<DateTime>("transaction_date", reader),
-                                (RedemptionStatus)Enum.Parse(typeof(RedemptionStatus), (string)reader["status"])
+                                (RedemptionStatus)reader["status"]
                             );
                         }
                     }
@@ -297,7 +298,7 @@ namespace SQLServerDataLayer
                     command.Parameters.Add(new SqlParameter("@User", user));
                     command.Parameters.Add(new SqlParameter("@TransactionDate", transactionDate.Date));
                     command.Parameters.Add(new SqlParameter("@Amount", amount));
-                    command.Parameters.Add(new SqlParameter("@Status", RedemptionStatus.Pending.ToString()));
+                    command.Parameters.Add(new SqlParameter("@Status", RedemptionStatus.Pending));
 
                     command.ExecuteScalar();
                 }
@@ -308,7 +309,7 @@ namespace SQLServerDataLayer
         /// Update a requested redemtion on an account. This is used for changing the status of the redemtion to complete
         /// and specifiying the actual amount redeemed.
         /// </summary>
-        public RedemptionStatus UpdateRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount, double units)
+        public RedemptionStatus UpdateRedemption(UserAccountToken userToken, int redemptionId, double amount, double units)
         {
             var result = RedemptionStatus.Complete;
             userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
@@ -318,18 +319,44 @@ namespace SQLServerDataLayer
                 using (var command = new SqlCommand("sp_UpdateRedemption", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@Account", userToken.Account.AccountId));
-                    command.Parameters.Add(new SqlParameter("@User", user));
-                    command.Parameters.Add(new SqlParameter("@TransactionDate", transactionDate.Date));
+                    command.Parameters.Add(new SqlParameter("@RedemptionId", redemptionId));
                     command.Parameters.Add(new SqlParameter("@Amount", amount));
                     command.Parameters.Add(new SqlParameter("@UnitsRedeemed", units));
-                    command.Parameters.Add(new SqlParameter("@Status", result.ToString()));
+                    command.Parameters.Add(new SqlParameter("@Status", result));
 
                     command.ExecuteScalar();
                 }
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Remove a redemption request if it is in the pending state only. returns true if redemption request was successfully remove otherwise
+        /// returns false
+        /// </summary>
+        public bool RemoveRedemption(UserAccountToken userToken, int redemptionID)
+        {
+            userToken.AuthorizeUser(AuthorizationLevel.UPDATE);
+
+            using (var connection = OpenConnection())
+            {
+                using (var command = new SqlCommand("sp_RemoveRedemption", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@RedemptionId", redemptionID));
+
+                    var ret = command.ExecuteScalar();
+
+                    if( ret is int)
+                    {
+                        return (int)ret == 1;
+                    }
+                }
+            }
+
+            return false;
+
         }
 
         /// <summary>

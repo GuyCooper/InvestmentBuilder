@@ -116,7 +116,7 @@ namespace InvestmentBuilderMSTests
         public virtual double GetStartOfYearValuation(UserAccountToken userToken, DateTime valuationDate) { throw new NotImplementedException(); }
         public virtual IEnumerable<Redemption> GetRedemptions(UserAccountToken userToken, DateTime valuationDate) { throw new NotImplementedException(); }
         public virtual void AddRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount) { throw new NotImplementedException(); }
-        public virtual RedemptionStatus UpdateRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount, double units) { throw new NotImplementedException(); }
+        public virtual RedemptionStatus UpdateRedemption(UserAccountToken userToken, int redemptionId, double amount, double units) { throw new NotImplementedException(); }
         public virtual IEnumerable<string> GetAccountMembers(UserAccountToken userToken, DateTime valuationDate) { throw new NotImplementedException(); }
         public virtual IEnumerable<AccountMember> GetAccountMemberDetails(UserAccountToken userToken, DateTime valuationDate) { throw new NotImplementedException(); }
         public virtual void UpdateMemberForAccount(UserAccountToken userToken, string member, AuthorizationLevel level, bool add) { throw new NotImplementedException(); }
@@ -129,6 +129,7 @@ namespace InvestmentBuilderMSTests
         public virtual IEnumerable<double> GetUnitValuationRange(UserAccountToken userToken, DateTime dateFrom, DateTime dateTo) { throw new NotImplementedException(); }
         public virtual int GetUserId(string userName) { throw new NotImplementedException(); }
         public virtual void AddUser(string userName, string description) { }
+        public bool RemoveRedemption(UserAccountToken userToken, int redemptionID) { return false; }
     }
 
     internal class HistoricalDataReaderTest : IHistoricalDataReader
@@ -335,7 +336,7 @@ namespace InvestmentBuilderMSTests
         public virtual double GetStartOfYearValuation(UserAccountToken userToken, DateTime valuationDate) { return 0d; }
         public virtual IEnumerable<Redemption> GetRedemptions(UserAccountToken userToken, DateTime valuationDate) { return null; }
         public virtual void AddRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount) { }
-        public virtual RedemptionStatus UpdateRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount, double units) { return RedemptionStatus.Complete; }
+        public virtual RedemptionStatus UpdateRedemption(UserAccountToken userToken, int redemptionId, double amount, double units) { return RedemptionStatus.Complete; }
         public void UpdateMemberForAccount(UserAccountToken userToken, string member, AuthorizationLevel level, bool add) { }
         public virtual void UpdateAccount(UserAccountToken userToken, AccountModel account) { }
         public virtual int CreateAccount(UserAccountToken userToken, AccountModel account) { return 0; }
@@ -348,6 +349,7 @@ namespace InvestmentBuilderMSTests
         public IEnumerable<double> GetUnitValuationRange(UserAccountToken userToken, DateTime dateFrom, DateTime dateTo) { return null; }
         public virtual int GetUserId(string userName) { return 0; }
         public virtual void AddUser(string userName, string description) { }
+        public virtual bool RemoveRedemption(UserAccountToken userToken, int redemptionID) { return false; }
 
     }
 

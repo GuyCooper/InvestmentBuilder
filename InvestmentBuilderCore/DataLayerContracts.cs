@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics.Contracts;
 using System.Data;
+using System.Security.Principal;
 
 namespace InvestmentBuilderCore
 {
@@ -323,10 +324,9 @@ namespace InvestmentBuilderCore
             Contract.Requires(dAmount > 0);
         }
 
-        public RedemptionStatus UpdateRedemption(UserAccountToken userToken, string user, DateTime transactionDate, double amount, double units)
+        public RedemptionStatus UpdateRedemption(UserAccountToken userToken, int redemptionId, double amount, double units)
         {
             Contract.Requires(userToken != null);
-            Contract.Requires(string.IsNullOrEmpty(user) == false);
             Contract.Requires(amount > 0);
             Contract.Requires(units> 0);
             return RedemptionStatus.Complete;
@@ -406,6 +406,12 @@ namespace InvestmentBuilderCore
         public void AddUser(string userName, string description)
         {
             Contract.Requires(string.IsNullOrEmpty(userName) == false);
+        }
+
+        public bool RemoveRedemption(UserAccountToken userToken, int redemptionID)
+        {
+            Contract.Requires(userToken != null);
+            return false;
         }
 
     }

@@ -174,6 +174,10 @@ const  MiddlewareService = function() {
         doCommand("REQUEST_REDEMPTION_REQUEST", "REQUEST_REDEMPTION_RESPONSE", request, handler);
     };
 
+    this.RemoveRedemption = function (request, handler) {
+        doCommand("REMOVE_REDEMPTION_REQUEST", "REMOVE_REDEMPTION_RESPONSE", request, handler);
+    };
+
     this.LoadReport = function (request, handler) {
         doCommand("LOAD_REPORT_REQUEST", "LOAD_REPORT_RESPONSE", request, handler);
     };

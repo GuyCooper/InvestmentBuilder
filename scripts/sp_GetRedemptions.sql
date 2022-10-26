@@ -14,7 +14,7 @@ GO
 CREATE PROCEDURE sp_GetRedemptions(@Account as int, @TransactionDate as DateTime) AS
 BEGIN
 
-SELECT U.[UserName], R.[amount], R.[transaction_date], R.[status]
+SELECT R.Redemption_Id, U.[UserName], R.[amount], R.[transaction_date], R.[status]
 FROM
 	Redemptions R
 INNER JOIN	Members M

@@ -207,18 +207,19 @@ go
 
 create table dbo.Redemptions
 (
+	Redemption_Id int identity primary key clustered,
 	[member_id] int not null,
 	[transaction_date] datetime not null,
 	[amount] float not null,
 	[units] float null,
-	[status] varchar(10) not null,
+	[status] int not null,
 	
 	constraint FK_memberid_Redemptions foreign key
 	([member_id]) references Members([member_id]), 
+
+	constraint UN_MemberDate unique([member_id],[transaction_date])
 )
 
-create index IDX_Redemptions on
-dbo.Redemptions([member_id], [transaction_date])
 go
 
 create table dbo.HistoricalData
