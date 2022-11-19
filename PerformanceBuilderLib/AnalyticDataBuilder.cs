@@ -49,7 +49,7 @@
             var subscriptions = _cashAccountData.GetCashTransactions(
                                                     userToken,
                                                     TransactionTypes.SUBSCRIPTION)
-                                                    .OrderByDescending(t => t.date)
+                                                    .Where( t => t.date == assetReport.ValuationDate)
                                                     .ToList();
 
 
