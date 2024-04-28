@@ -9,10 +9,10 @@ const AddTransaction = function(props) {
     const [selectedDate, setSelectedDate] = useState( null);
     const [transactionParameters, setTransactionParameters] = useState([]);
     const [amount, setAmount] = useState(null);
-    const [currency, setCurrency] = useState(null);
 
     const transactionTypeSelect = useRef(null);
     const parametersSelect = useRef(null);
+    const selectedCurrency = useRef(null);
 
     const onloadTransactionParameters = function( response ) {
         setTransactionParameters( response.Parameters );
@@ -27,7 +27,6 @@ const AddTransaction = function(props) {
     const showModal = function() {
         setSelectedDate( new Date());
         setAmount(0);
-        setCurrency(null);
         if( props.transactionTypes.length > 0) {
             loadTransactionParameters(props.transactionTypes[0]);
         }
@@ -42,6 +41,7 @@ const AddTransaction = function(props) {
     const handleSubmit = function() {   
         console.log("selected transaction type: " + transactionTypeSelect.current.value);
         console.log("selected parameter: " + parametersSelect.current.value);
+        console.log("selected currency: " + selectedCurrency.current.value);
 
         let paramList = [parametersSelect.current.value];        
         if( parametersSelect.current.value === "ALL") {
@@ -53,7 +53,7 @@ const AddTransaction = function(props) {
             ParamType: transactionTypeSelect.current.value,
             Parameter: paramList,
             Amount: amount,
-            Currency : currency
+            Currency : selectedCurrency.current.value
         });        
         
     };
@@ -123,10 +123,16 @@ const AddTransaction = function(props) {
                     <Form.Group>
                         <Form.Label>Currency</Form.Label>
                         <Form.Control 
-                                type="text"                                
-                                value={currency} 
-                                onChange={(e) => setCurrency(e.currentTarget.value) } 
-                                placeholder="Currency" />
+                                as="select"                                
+                                custom
+                                ref={selectedCurrency}>
+                            {
+                                props.currencies.map((t,i) =>
+                                    (<option key={i}>{t}</option>)
+                                )
+                            }
+
+                        </Form.Control>            
                     </Form.Group>    
 
                     <br/>

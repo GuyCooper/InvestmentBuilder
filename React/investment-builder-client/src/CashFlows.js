@@ -15,6 +15,7 @@ const CashFlows = () =>
     const [showAddReceipt, setShowAddReceipt] = useState(false);
     const [showAddPayment, setShowAddPayment] = useState(false);
     const [fromDate, setFromDate] = useState( new Date());
+    const [allCurrencies, setCurrencies] = useState([]);
 
     const onLoadContents = function(response) {
 
@@ -48,6 +49,7 @@ const CashFlows = () =>
         console.log('Register CashFlows handlers');
         notifyService.RegisterCashFlowListener( loadCashflows );
         notifyService.RegisterAccountListener(refreshAccount);
+        notifyService.RegisterConnectionListener(loadCurrencies);
 
         return function() {
             console.log('UnRegister CashFlows handlers');
@@ -82,6 +84,14 @@ const CashFlows = () =>
             }, loadCashflows);    
     };
 
+    const loadCurrencies = function() {
+        middlewareService.GetCurrencies(onCurrenciesLoaded);
+    }
+
+    const onCurrenciesLoaded = function(payload) {
+        setCurrencies(payload.Currencies);
+    }
+
     return(
         <Container fluid>               
         {
@@ -115,6 +125,7 @@ const CashFlows = () =>
             show={showAddReceipt}
             title="Add Receipt"
             transactionTypes={receiptParamTypes}
+            currencies={allCurrencies}
             onHide={() => setShowAddReceipt(false)} 
             onSubmit={(transaction) => addReceiptTransaction(transaction) }
         />
@@ -122,6 +133,7 @@ const CashFlows = () =>
             show={showAddPayment}
             title="Add Payment"
             transactionTypes={paymentParamTypes}
+            currencies={allCurrencies}
             onHide={() => setShowAddPayment(false)}             
             onSubmit={(transaction) => addPaymentTransaction(transaction) }
         />           
