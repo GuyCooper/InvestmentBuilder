@@ -8,14 +8,6 @@ const  MiddlewareService = function() {
     let username_ = '';
     let password_ = '';
 
-    let onConnected = function(message) {
-        console.log('connected to middleware. ' + message);
-    };
-
-    let onError = function (message) {
-        console.log('Error from middleware. ' + message);
-    };
-
     let isNullOrUndefined = function(object) {
         return object === null || object === undefined;
     }
