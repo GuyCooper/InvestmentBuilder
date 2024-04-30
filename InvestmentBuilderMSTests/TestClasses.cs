@@ -196,6 +196,8 @@ namespace InvestmentBuilderMSTests
         /// </summary>
         public string AuditFileName { get { return null; } }
 
+        public bool IsTest { get { return false; } }
+
         #endregion
 
         #region Public Methods
@@ -486,6 +488,8 @@ namespace InvestmentBuilderMSTests
         /// Audit file name.
         /// </summary>
         public string AuditFileName { get { return null; } }
+
+        public bool IsTest {  get {  return false; } }
 
         #endregion
 

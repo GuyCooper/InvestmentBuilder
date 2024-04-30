@@ -7,6 +7,7 @@ import middlewareService from "./MiddlewareService.js"
 const HeaderBar = function() {
 
     const [accountNames, setAccountNames] = useState([{Name:null,Id:null}]);
+    const [isTest, setIsTest] = useState( false );
    
     const accountSelect = useRef(null);
 
@@ -20,6 +21,7 @@ const HeaderBar = function() {
 
     const accountNamesLoaded = function(data)  {
         setAccountNames( data.AccountNames);
+        setIsTest(data.IsTest);
     };
 
     const loadAccountNames = function() {
@@ -39,6 +41,7 @@ const HeaderBar = function() {
             <Navbar.Brand href="#home">Investment Builder</Navbar.Brand>
             <Nav className="mr-auto">
                 <Nav.Link href="#home">Home</Nav.Link>
+                {isTest && <h2>Test</h2>}
             </Nav >
             <Form inline>                
                 <Form.Control as="select"

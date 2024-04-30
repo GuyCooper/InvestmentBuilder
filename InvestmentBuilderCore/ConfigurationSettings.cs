@@ -65,6 +65,11 @@ namespace InvestmentBuilderCore
         /// </summary>
         string AuditFileName { get; }
 
+        /// <summary>
+        /// Is Using Test Configuration
+        /// </summary>
+        bool IsTest { get; }
+
         #endregion
 
         #region Public Methods
@@ -194,6 +199,8 @@ namespace InvestmentBuilderCore
         /// Audit file name.
         /// </summary>
         public string AuditFileName { get { return m_configuration.AuditFileName; } }
+
+        public bool IsTest {  get { return m_test; } }
 
         #endregion
 

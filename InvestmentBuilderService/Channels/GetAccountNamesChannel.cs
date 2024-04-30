@@ -7,6 +7,7 @@ namespace InvestmentBuilderService.Channels
     internal class AccountNamesDto : Dto
     {
         public IEnumerable<AccountIdentifier> AccountNames { get; set; }
+        public bool IsTest { get; set; }
     }
 
     /// <summary>
@@ -14,9 +15,13 @@ namespace InvestmentBuilderService.Channels
     /// </summary>
     class GetAccountNamesChannel : EndpointChannel<Dto, ChannelUpdater>
     {
-        public GetAccountNamesChannel(ServiceAggregator aggregator) :
+        private readonly IConfigurationSettings _configuration;
+
+        public GetAccountNamesChannel(ServiceAggregator aggregator, IConfigurationSettings configuration) :
             base("GET_ACCOUNT_NAMES_REQUEST", "GET_ACCOUNT_NAMES_RESPONSE", aggregator)
-        { }
+        {
+            _configuration = configuration;
+        }
 
         /// <summary>
         /// Method handles the request to get list of account names.
@@ -25,7 +30,8 @@ namespace InvestmentBuilderService.Channels
         {
             return new AccountNamesDto
             {
-                AccountNames = GetAccountService().GetAccountsForUser(userSession).ToList()
+                AccountNames = GetAccountService().GetAccountsForUser(userSession).ToList(),
+                IsTest = _configuration.IsTest
             };
         }
     }
