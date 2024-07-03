@@ -4,8 +4,8 @@ create table dbo.Redemptions
 (
 	[member_id] int not null,
 	[transaction_date] datetime not null,
-	[amount] float not null,
-	[units] float null,
+	[amount] decimal not null,
+	[units] decimal null,
 	[status] varchar(10) not null,
 	
 	constraint FK_memberid_Redemptions foreign key

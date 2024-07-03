@@ -11,8 +11,8 @@ END
 
 GO
 
-CREATE PROCEDURE sp_UpdateRedemption(@RedemptionId as int, @Amount as float,
-						@UnitsRedeemed as float,  @Status as varchar(10)) AS
+CREATE PROCEDURE sp_UpdateRedemption(@RedemptionId as int, @Amount as decimal,
+						@UnitsRedeemed as decimal,  @Status as varchar(10)) AS
 BEGIN
 
 UPDATE

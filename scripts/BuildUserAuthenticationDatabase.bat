@@ -15,3 +15,4 @@ sqlcmd -S %ServerName% -E -d %DBName% -i sp_AuthGetPasswordDetails.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_AuthGetSalt.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_AuthRemoveUser.sql
 sqlcmd -S %ServerName% -E -d %DBName% -i sp_AuthValidateNewUser.sql
+sqlcmd -S %ServerName% -E -d %DBName% -i sp_AuthUpdatePassword.sql

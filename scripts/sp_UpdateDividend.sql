@@ -11,7 +11,7 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_UpdateDividend](@valuationDate as DATETIME, @company as VARCHAR(50), @dividend as float, @account as INT) AS
+CREATE PROCEDURE [dbo].[sp_UpdateDividend](@valuationDate as DATETIME, @company as VARCHAR(50), @dividend as decimal, @account as INT) AS
 BEGIN
 
 UPDATE

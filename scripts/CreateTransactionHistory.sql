@@ -8,7 +8,7 @@ create table dbo.TransactionHistory
 	[company_id] int not null,
 	[trade_action] varchar(10) not null,
 	[quantity] int not null,
-	[total_cost] float not null,
+	[total_cost] decimal not null,
 	[user] varchar(50)
 
 	constraint FK_accountid_TransactionHistory foreign key

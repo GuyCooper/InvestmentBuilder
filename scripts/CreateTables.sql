@@ -53,7 +53,7 @@ create table dbo.CashAccount
 	[transaction_date] datetime not null,
 	[type_id]		   int not null,
 	[parameter]        varchar(50),
-	[amount]		   float,
+	[amount]		   decimal,
 
 	constraint FK_transactionType_CashAccount foreign key
 	([type_id]) references TransactionType([type_id])
@@ -70,7 +70,7 @@ create table dbo.Companies
 	[Currency] char(3) not null,
 	[DividendDate] datetime,
 	[IsActive] tinyint not null default(1),
-	[ScalingFactor] float default(1) not null
+	[ScalingFactor] decimal default(1) not null
 
 	constraint UN_CompanyName unique([Name])
 )
@@ -82,9 +82,9 @@ create table dbo.InvestmentRecord
 	[Shares_Bought] int,	
 	[Bonus_Shares issued] int default(0),
 	[Shares_Sold] int default(0),
-	[Total_Cost] float not null,
-	[Selling_Price] float not null,
-	[Dividends_Received] float default(0),
+	[Total_Cost] decimal not null,
+	[Selling_Price] decimal not null,
+	[Dividends_Received] decimal default(0),
 
 	constraint FK_Company_Id_InvestmentRecord foreign key
 	([Company_Id]) references Companies([Company_Id])
@@ -103,7 +103,7 @@ create table dbo.MembersCapitalAccount
 (
 	[Valuation_Date] datetime not null,
 	[Member_Id] int not null,
-	[Units] float not null,
+	[Units] decimal not null,
 
 	constraint FK_Member_Id_MembersAccount foreign key
 	([Member_Id]) references Members([Member_Id])
@@ -116,7 +116,7 @@ dbo.MembersCapitalAccount([Valuation_Date])
 create table dbo.Valuations
 (
 	[Valuation_Date] datetime not null,
-	[Unit_Price] float not null
+	[Unit_Price] decimal not null
 )
 
 create clustered index IDX_Valuations_ValuationDate on

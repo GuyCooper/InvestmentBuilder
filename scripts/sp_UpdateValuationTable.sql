@@ -11,7 +11,7 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_UpdateValuationTable](@ValuationDate as DATETIME, @UnitPrice as float) AS
+CREATE PROCEDURE [dbo].[sp_UpdateValuationTable](@ValuationDate as DATETIME, @UnitPrice as decimal) AS
 BEGIN
 	INSERT INTO dbo.Valuations (Valuation_Date,  Unit_Price)
 	VALUES (@ValuationDate,@UnitPrice)

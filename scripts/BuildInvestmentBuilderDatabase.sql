@@ -73,7 +73,7 @@ create table dbo.CashAccount
 	[transaction_date] datetime not null,
 	[type_id]		   int not null,
 	[parameter]        nvarchar(256),
-	[amount]		   float,
+	[amount]		   decimal,
 	[account_id]	   int not null default(0) ,
 	constraint FK_transactionType_CashAccount foreign key
 	([type_id]) references TransactionType([type_id])
@@ -96,7 +96,7 @@ create table dbo.Companies
 	[Currency] char(3) not null,
 	[DividendDate] datetime,
 	[IsActive] tinyint not null default(1),
-	[ScalingFactor] float default(1) not null,
+	[ScalingFactor] decimal default(1) not null,
 	[LastBoughtDate] datetime null,
 	[Exchange] varchar(10) default(null), 
 	constraint UN_CompanyName unique([Name])
@@ -108,12 +108,12 @@ create table dbo.InvestmentRecord
 	[id] int identity primary key,
 	[Company_id] int not null,
 	[Valuation_Date] datetime not null,
-	[Shares_Bought] float,	
-	[Bonus_Shares issued] float default(0),
-	[Shares_Sold] float default(0),
-	[Total_Cost] float not null,
-	[Selling_Price] float not null,
-	[Dividends_Received] float default(0),
+	[Shares_Bought] decimal,	
+	[Bonus_Shares issued] decimal default(0),
+	[Shares_Sold] decimal default(0),
+	[Total_Cost] decimal not null,
+	[Selling_Price] decimal not null,
+	[Dividends_Received] decimal default(0),
 	[account_id] int not null default(0),
 	[is_active] tinyint not null default(1),
 	[last_bought] DATETIME,  
@@ -155,7 +155,7 @@ create table dbo.MembersCapitalAccount
 (
 	[Valuation_Date] datetime not null,
 	[Member_Id] int not null,
-	[Units] float not null,
+	[Units] decimal not null,
 
 	constraint FK_Member_Id_MembersAccount foreign key
 	([Member_Id]) references Members([Member_Id])
@@ -169,7 +169,7 @@ go
 create table dbo.Valuations
 (
 	[Valuation_Date] datetime not null,
-	[Unit_Price] float not null,
+	[Unit_Price] decimal not null,
 	[account_id] int not null default(0) 
 )
 go
@@ -189,8 +189,8 @@ create table dbo.TransactionHistory
 	[transaction_date] datetime not null,
 	[company_id] int not null,
 	[trade_action] varchar(10) not null,
-	[quantity] float not null,
-	[total_cost] float not null,
+	[quantity] decimal not null,
+	[total_cost] decimal not null,
 	[user] varchar(50)
 
 	constraint FK_accountid_TransactionHistory foreign key
@@ -210,8 +210,8 @@ create table dbo.Redemptions
 	Redemption_Id int identity primary key clustered,
 	[member_id] int not null,
 	[transaction_date] datetime not null,
-	[amount] float not null,
-	[units] float null,
+	[amount] decimal not null,
+	[units] decimal null,
 	[status] int not null,
 	
 	constraint FK_memberid_Redemptions foreign key
@@ -235,7 +235,7 @@ create table dbo.HistoricalYieldData
 	[Id] int identity primary key clustered,
 	[Name]			  varchar(50) not null,
 	[Year]			  int,
-	[Yield]			  float,
+	[Yield]			  decimal,
 	constraint UN_YieldAmount unique([Name],[Year])
 )
 go

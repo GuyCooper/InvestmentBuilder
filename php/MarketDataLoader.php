@@ -133,12 +133,13 @@ function processData($url) {
 
 function loadUrl($url) {
 	
- $arrContextOptions=array(
+  $arrContextOptions=array(
   "ssl"=>array(
            "verify_peer"=>false,
            "verify_peer_name"=>false,
-        ),
-     );  
+         ),
+      );  
+	 
  $response = file_get_contents($url, false, stream_context_create($arrContextOptions));	
 	// $handle = fopen($url, 'r');
 	// $contents = fread($handle, filesize($filename));
@@ -338,8 +339,9 @@ function updateHistoricalData($servername, $connectionInfo) {
 	$today = date("m/d/Y");
 	foreach ($indexes as $key => $val) {
 		printf("retrieving index data for %s.\n", $key);
-		$url= "https://uk.finance.yahoo.com/quote/%5E" . $key . "?p=^" .$key;	
-		$result = processData($url);
+		//$url= "https://uk.finance.yahoo.com/quote/%5E" . $key . "?p=^" .$key;	
+		//$result = processData($url);
+		$result = getIndexPrice($key);
 		if($result != null) {
 			$newPrice = sprintf("{date: \"%s\", price: \"%s\"}", $today, $result["price"]);
 			$updatedData = rtrim($val, "]") . "," . $newPrice . "]";
@@ -357,6 +359,24 @@ function updateHistoricalData($servername, $connectionInfo) {
 		
 	sqlsrv_close($conn);	 
 		//download
+}
+
+function getIndexPrice($index) {
+	
+	$prices = array("FTSE" => "8,205.11",
+					"NDX" => "19,908.86",
+					"SPX" => "5,487.03",
+					"GDAXI" => "18,067.91",
+					"N225" => "38,633.02",
+					"HSI" => "18,306.34",
+					"ESTOXX50E" => "");
+
+		
+	$result = [
+		"price" => $prices[$index]
+	];
+	
+	return $result;
 }
 
 ?>
