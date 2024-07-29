@@ -11,7 +11,7 @@ END
 
 GO
 
-CREATE PROCEDURE sp_AddRedemption(@Account as int, @User as nvarchar(256), @TransactionDate as DateTime, @Amount as decimal, @Status as varchar(10)) AS
+CREATE PROCEDURE sp_AddRedemption(@Account as int, @User as nvarchar(256), @TransactionDate as DateTime, @Amount as decimal(18,2), @Status as varchar(10)) AS
 BEGIN
 
 INSERT INTO Redemptions ([member_id], [transaction_date], [amount], [status])

@@ -14,8 +14,8 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[sp_CreateNewInvestment](@valuationDate as DATETIME, @investment as VARCHAR(50), @symbol as CHAR(20),
-				 @currency as CHAR(3), @scalingFactor as decimal, @shares as decimal,
-				 @totalCost as decimal, @closingPrice as decimal,
+				 @currency as CHAR(3), @scalingFactor as decimal(18,2), @shares as decimal(18,2),
+				 @totalCost as decimal(18,2), @closingPrice as decimal(18,2),
 				 @account as INT, @exchange as VARCHAR(10)) AS
 BEGIN
 

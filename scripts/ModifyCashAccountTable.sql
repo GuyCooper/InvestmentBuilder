@@ -6,7 +6,7 @@ create table dbo.CashAccountTemp
 	[transaction_date] datetime not null,
 	[type_id]		   int not null,
 	[parameter]        nvarchar(256),
-	[amount]		   decimal null,
+	[amount]		   decimal(18,2) null,
 	[account_id]	   int not null default(0) ,
 	constraint FK_transactionType_CashAccount1 foreign key
 	([type_id]) references TransactionType([type_id])
@@ -47,7 +47,7 @@ create table dbo.CashAccount
 	[transaction_date] datetime not null,
 	[type_id]		   int not null,
 	[parameter]        nvarchar(256),
-	[amount]		   decimal null,
+	[amount]		   decimal(18,2) null,
 	[account_id]	   int not null default(0) ,
 	constraint FK_transactionType_CashAccount foreign key
 	([type_id]) references TransactionType([type_id])

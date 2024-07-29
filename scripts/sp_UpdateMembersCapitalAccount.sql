@@ -11,7 +11,7 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_UpdateMembersCapitalAccount](@ValuationDate as DATETIME, @Member as nvarchar(256), @Units as decimal, @Account as INT) AS
+CREATE PROCEDURE [dbo].[sp_UpdateMembersCapitalAccount](@ValuationDate as DATETIME, @Member as nvarchar(256), @Units as decimal(18,4), @Account as INT) AS
 BEGIN
 	DECLARE @MemberID INT
 

@@ -11,7 +11,7 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_UpdateHolding](@quantity as decimal, @valuationDate as DATETIME, @company as VARCHAR(50), @account as INT) AS
+CREATE PROCEDURE [dbo].[sp_UpdateHolding](@quantity as decimal(18,2), @valuationDate as DATETIME, @company as VARCHAR(50), @account as INT) AS
 BEGIN
 
 UPDATE	

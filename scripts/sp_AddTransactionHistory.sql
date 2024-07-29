@@ -12,8 +12,8 @@ END
 GO
 
 CREATE PROCEDURE sp_AddTransactionHistory(@valuationDate AS datetime, @transactionDate AS datetime, @company as varchar(50), 
-										  @action as varchar(10), @quantity as decimal,
-										  @total_cost as decimal, @account as int, @user as varchar(50)) AS
+										  @action as varchar(10), @quantity as decimal(18,2),
+										  @total_cost as decimal(18,2), @account as int, @user as varchar(50)) AS
 BEGIN
 
 DECLARE @Company_Id INT

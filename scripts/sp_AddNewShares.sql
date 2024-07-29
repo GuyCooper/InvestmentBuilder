@@ -11,7 +11,7 @@ END
 
 GO
 
-CREATE PROCEDURE sp_AddNewShares(@ValuationDate as DATETIME, @company as VARCHAR(50), @shares as decimal, @totalCost as decimal, @account as int) AS
+CREATE PROCEDURE sp_AddNewShares(@ValuationDate as DATETIME, @company as VARCHAR(50), @shares as decimal(18,2), @totalCost as decimal(18,2), @account as int) AS
 BEGIN
 
 UPDATE 

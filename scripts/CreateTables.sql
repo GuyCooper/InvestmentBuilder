@@ -53,7 +53,7 @@ create table dbo.CashAccount
 	[transaction_date] datetime not null,
 	[type_id]		   int not null,
 	[parameter]        varchar(50),
-	[amount]		   decimal,
+	[amount]		   decimal(18,2),
 
 	constraint FK_transactionType_CashAccount foreign key
 	([type_id]) references TransactionType([type_id])
@@ -70,7 +70,8 @@ create table dbo.Companies
 	[Currency] char(3) not null,
 	[DividendDate] datetime,
 	[IsActive] tinyint not null default(1),
-	[ScalingFactor] decimal default(1) not null
+	[ScalingFactor] decimal(18,2) default(1) not null,
+	[SourceUrl] varchar(2048) default(null)
 
 	constraint UN_CompanyName unique([Name])
 )

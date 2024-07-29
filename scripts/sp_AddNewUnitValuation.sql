@@ -12,7 +12,7 @@ END
 
 GO
 
-CREATE PROCEDURE [dbo].[sp_AddNewUnitValuation](@valuationDate as DATETIME, @unitValue AS decimal, @Account as INT) AS
+CREATE PROCEDURE [dbo].[sp_AddNewUnitValuation](@valuationDate as DATETIME, @unitValue AS decimal(18,4), @Account as INT) AS
 BEGIN
 
 IF EXISTS(SELECT [Unit_Price] FROM [Valuations] 
